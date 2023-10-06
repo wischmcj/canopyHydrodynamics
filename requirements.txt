@@ -1,0 +1,10 @@
+descartes==1.1.0
+geopandas==0.12.2
+matplotlib==3.5.1
+networkx==2.6.3
+numpy==1.22.1
+pandas==1.4.0
+Shapely==2.0.1
+argparse==1.4.0
+ipykernel
+scipy=1.11.3
