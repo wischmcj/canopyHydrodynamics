@@ -8,3 +8,4 @@ Shapely==2.0.1
 argparse==1.4.0
 ipykernel
 scipy=1.11.3
+openpyxl = 3.1.2
