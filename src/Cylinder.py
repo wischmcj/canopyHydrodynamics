@@ -36,7 +36,7 @@ NAME = "Cylinder"
 logging.basicConfig(filename=''.join(['log_',str(time_stamp)])  , filemode='w', level=logging.DEBUG, encoding='utf-8',level=os.environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger("my-logger")
  
-class CylinderCollection:
+class Cylinder:
     # A cylinder collection is just an array of cylinder objects 
     #  with some of its own variables 
     # Its purpose is to act as a storage for entire trees as well as 
@@ -47,36 +47,21 @@ class CylinderCollection:
     #initialize our object level variables for cylider objects 
     def __init__(self, CylinderCollection) -> None:
         #Base Attributes from file read in
-        # self.cylinderCollection = CylinderCollection
-        self.dimensions = {
-                            "x"                : np.nan,
-                            "y"                : np.nan,
-                            "z"                : np.nan,
-                            "radius"           : np.nan,
-                            "length"           : np.nan,
-                            }
-        self.model_loc = {
-                            "branch_order"     : np.nan,
-                            "branch_id"        : np.nan,
-                            "volume"           : np.nan,
-                            "parent_id"        : np.nan,
-                            "rev_branch_order" : np.nan,
-                            "section_id"       : np.nan
-                        }
-        self.x                  = np.nan #len 2 array
-        self.y                  = np.nan #len 2 array
-        self.z                  = np.nan #len 2 array
-        self.radius             = np.nan
-        self.length             = np.nan
-        self.branch_order       = np.nan
-        self.branch_id          = np.nan
-        self.volume             = np.nan
-        self.parent_id          = np.nan
-        self.rev_branch_order   = np.nan
-        self.section_id         = np.nan
+        # self._cylinderCollection = CylinderCollection
+        self._x                  = np.nan #len 2 array
+        self._y                  = np.nan #len 2 array
+        self._z                  = np.nan #len 2 array
+        self._radius             = np.nan
+        self._length             = np.nan
+        self._branch_order       = np.nan
+        self._branch_id          = np.nan
+        self._volume             = np.nan
+        self._parent_id          = np.nan
+        self._rev_branch_order   = np.nan
+        self._section_id         = np.nan
         
         #Calculated based off of projection
-        self.projected_data= {
+        self._projected_data= {
                 'XY':{'unit_vect':[],
                         'rev_unit_vect':[],
                         'rise_angle_rad':-7,
@@ -88,14 +73,14 @@ class CylinderCollection:
         }
 
         #graph attributes, all in 3-D
-        self.graph                  = nx.Graph()
-        self.flow_id                = np.nan
-        self.flow_type              = np.nan
-        self.begins_at_drip_point   = np.nan #bool
-        self.begins_at_divide_point = np.nan #bool
+        self._graph                  = nx.Graph()
+        self._flow_id                = np.nan
+        self._flow_type              = np.nan
+        self._begins_at_drip_point   = np.nan #bool
+        self._begins_at_divide_point = np.nan #bool
 
         #others
-        self.stem_path_id = np.nan
+        self._stem_path_id = np.nan
         
     def get_flow_data():
         #Replace trunk with single node 
@@ -106,4 +91,3 @@ class CylinderCollection:
         #Remove all stem flow from orig graph, these are drip paths
             #Find node of minimal height in each component, this is the drip point 
     
-    def 

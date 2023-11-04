@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-from python_package.hello_world import hello_world
+import pytest
 
-
-def hello_test():
-    """
-    This defines the expected usage, which can then be used in various test cases.
-    Pytest will not execute this code directly, since the function does not contain the suffex "test"
-    """
-    hello_world()
-
+from src import Cylinder
+from src import CylinderCollection
+from src import Forester
 
 def test_hello(unit_test_mocks: None):
     """
@@ -20,10 +15,25 @@ def test_hello(unit_test_mocks: None):
     """
     hello_test()
 
+def test_split(self):
+    s = 'hello world'
+    """This is an example of a type error test"""
+    pytest.assertEqual(s.split(), ['hello', 'world'])
+    # check that s.split fails when the separator is not a string
+    with self.assertRaises(TypeError):
+        s.split(2)
 
-def test_int_hello():
-    """
-    This test is marked implicitly as an integration test because the name contains "_init_"
-    https://docs.pytest.org/en/6.2.x/example/markers.html#automatically-adding-markers-based-on-test-names
-    """
-    hello_test()
+def test_file_names(self, dir:str):
+    forest = Forester( directory=dir )
+    print(forest.getFileNames())
+    print(forest._file_names)
+    self.assertEqual(forest._file_names, ['4_Unhappy_DripPathAdjTrunkWTrunk.csv', '2A_DripPathBegStartMultHappy.csv', '1_HappyPathWTrunk.csv'])
+    print('File Names Successfull')
+
+def test_create_cyliders(self):
+    forest = Forester( directory=testDir )
+    forest.getFileNames()
+    
+    forest.QSM_FromFileNames()
+    return forest
+    # self.assertTrue('FOO'.isupper())

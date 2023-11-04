@@ -8,9 +8,13 @@ This is a configuration file for pytest containing customizations and fixtures.
 In VSCode, Code Coverage is recorded in config.xml. Delete this file to reset reporting.
 """
 
+# https://docs.pytest.org/en/7.1.x/example/markers.html
+# This page outlines the marks available to us
+
 from __future__ import annotations
 
 from typing import List
+from src.Cylinder import Cylinder
 
 import pytest
 from _pytest.nodes import Item
@@ -25,6 +29,6 @@ def pytest_collection_modifyitems(items: list[Item]):
 
 
 @pytest.fixture
-def unit_test_mocks(monkeypatch: None):
-    """Include Mocks here to execute all commands offline and fast."""
+def basic_cylinder():
+    return Cylinder()
     pass
