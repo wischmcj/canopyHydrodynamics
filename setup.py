@@ -1,6 +1,9 @@
 """Python setup.py for canopyHydrodynamics package"""
+from __future__ import annotations
+
 import io
 import os
+
 from setuptools import find_packages, setup
 
 
@@ -13,7 +16,7 @@ def read(*paths, **kwargs):
     """
 
     content = ""
-    with io.open(
+    with open(
         os.path.join(os.path.dirname(__file__), *paths),
         encoding=kwargs.get("encoding", "utf8"),
     ) as open_file:
@@ -32,7 +35,7 @@ def read_requirements(path):
 setup(
     name="dripDropFlow",
     version=read("dripDropFlow", "VERSION"),
-    author='Collin Wischmeyer, Travis Swanton, John Van Stan', 
+    author='Collin Wischmeyer, Travis Swanton, John Van Stan',
     description="Utils for modeling canopy hydrodynamics with QSM's",
     url="https://github.com/wischmcj/canopyHydrodynamics/",
     long_description=read("README.md"),

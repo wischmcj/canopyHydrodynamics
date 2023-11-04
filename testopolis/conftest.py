@@ -10,14 +10,14 @@ In VSCode, Code Coverage is recorded in config.xml. Delete this file to reset re
 
 # https://docs.pytest.org/en/7.1.x/example/markers.html
 # This page outlines the marks available to us
-
 from __future__ import annotations
 
 from typing import List
-from src.Cylinder import Cylinder
 
 import pytest
 from _pytest.nodes import Item
+
+from src.Cylinder import Cylinder
 
 
 def pytest_collection_modifyitems(items: list[Item]):

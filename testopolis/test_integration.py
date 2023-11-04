@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from src import Cylinder
-from src import CylinderCollection
-from src import Forester
+from src import Cylinder, CylinderCollection, Forester
 
 
 def hello_test():
-    print('Hello')
+    print("Hello")
+
 
 def test_int_hello():
     """
@@ -18,4 +17,4 @@ def test_int_hello():
     https://docs.pytest.org/en/6.2.x/example/markers.html#automatically-adding-markers-based-on-test-names
     """
     ret = hello_test()
-    assert ret == 'Hello'
+    assert ret == "Hello"

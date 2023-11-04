@@ -1,16 +1,16 @@
+argparse==1.4.0
 descartes==1.1.0
 geopandas==0.12.2
+ipykernel
 matplotlib==3.5.1
 networkx==2.6.3
 numpy==1.22.1
+openpyxl== 3.1.2
 pandas==1.4.0
-Shapely==2.0.1
-argparse==1.4.0
-scipy=1.11.3
-openpyxl = 3.1.2
+pre-commit
 pylint
 pytest
-ipykernel
-dependabot
-pre-commit
 ruff
+scipy==1.11.3
+Shapely==2.0.1
+toml

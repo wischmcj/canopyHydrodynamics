@@ -34,7 +34,7 @@ test = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/wischmcj/canopyHydrodynamics/blob/main/README.md" 
+Documentation = "https://github.com/wischmcj/canopyHydrodynamics/blob/main/README.md"
 Source = "https://github.com/wischmcj/canopyHydrodynamics/"
 
 [tool.flit.module]
