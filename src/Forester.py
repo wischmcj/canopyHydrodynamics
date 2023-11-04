@@ -1,3 +1,5 @@
+"""The workhorse class, leverages the others to get results"""
+
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 from pathlib import Path

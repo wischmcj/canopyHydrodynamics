@@ -4,6 +4,11 @@ Reflects the authors' naiive view of the project at its outset
 
 <h1>CanopyHydrodymaics</h1>
 
+<h2>Setup:</h2>
+- pre-commit
+  1. set-up - https://pre-commit.com/
+  2. run on all files - pre-commit run --all-files
+
 
 <h2>Contents:</h2>
 

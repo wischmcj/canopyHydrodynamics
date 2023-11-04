@@ -1,3 +1,6 @@
+"""These constitute our way of 'copying' the QSMs"""
+
+
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 from pathlib import Path

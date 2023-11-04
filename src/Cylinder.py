@@ -1,29 +1,29 @@
+"""Defines the component parts of the ingested QSM"""
+
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 from pathlib import Path
 from random import random
 from multiprocessing import Pool
 
-from shapely.geometry import Polygon, Point
-from shapely.ops import unary_union, transform
-from descartes import PolygonPatch
-from mpl_toolkits import mplot3d
-from pickle import dump, load
-
+# from shapely.geometry import Polygon, Point
+# from shapely.ops import unary_union, transform
+# from descartes import PolygonPatch
+# from mpl_toolkits import mplot3d
 
 from time import sleep
 
 import networkx as nx
-import openpyxl
-import geopandas as geo
 import numpy as np
 import calendar
-import time
-import copy
-import math
 import logging
 import settings
 import os
+# import time
+# import copy
+# import math
+# import openpyxl
+# import geopandas as geo
 
 import global_vars
 
