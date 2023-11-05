@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import matplotlib
 
-from src.CylinderCollection import CylinderCollection as CylCol
+from canhydro.CylinderCollection import CylinderCollection as CylCol
 
 
 class Plotter:

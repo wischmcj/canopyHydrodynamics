@@ -17,7 +17,6 @@ from typing import List
 import pytest
 from _pytest.nodes import Item
 
-from src.Cylinder import Cylinder
 
 
 def pytest_collection_modifyitems(items: list[Item]):

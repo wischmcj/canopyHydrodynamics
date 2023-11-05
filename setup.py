@@ -9,7 +9,7 @@ from setuptools import find_packages, setup
 
 def read(*paths, **kwargs):
     """Read the contents of a text file safely.
-    >>> read("dripDropFlow", "VERSION")
+    >>> read("canhydro", "VERSION")
     '0.1.0'
     >>> read("README.md")
     ...
@@ -33,8 +33,8 @@ def read_requirements(path):
 
 
 setup(
-    name="dripDropFlow",
-    version=read("dripDropFlow", "VERSION"),
+    name="canhydro",
+    version=read("canhydro", "VERSION"),
     author='Collin Wischmeyer, Travis Swanton, John Van Stan',
     description="Utils for modeling canopy hydrodynamics with QSM's",
     url="https://github.com/wischmcj/canopyHydrodynamics/",

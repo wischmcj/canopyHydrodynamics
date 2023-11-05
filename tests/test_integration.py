@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src import Cylinder, CylinderCollection, Forester
+from canhydro import Cylinder, CylinderCollection, Forester
 
 
 def hello_test():
