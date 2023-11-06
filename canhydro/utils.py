@@ -1,23 +1,25 @@
 from __future__ import annotations
 
-import canhydro.global_vars as gv
-
-import os 
-from pathlib import Path
 import math
+import os
+from pathlib import Path
+
 import numpy as np
 import shapely.geometry as geometry
 from scipy.spatial import Delaunay
 from shapely.ops import Point, Polygon, cascaded_union, polygonize
 
-root_dir = gv.DIR
-input_dir = Path(''.join([root_dir,'input']))
-output_dir = Path(''.join([root_dir,'output']))
+import canhydro.global_vars as gv
 
-def read_file_names(file_path = input_dir):
+root_dir = gv.DIR
+input_dir = Path("".join([root_dir, "input"]))
+output_dir = Path("".join([root_dir, "output"]))
+
+
+def read_file_names(file_path=input_dir):
     """Reads in filenames to list"""
-    paths = sorted(file_path.iterdir(),key=os.path.getmtime)
-    fileNames = [f.name for f in paths if  f.suffix == '.csv' ]
+    paths = sorted(file_path.iterdir(), key=os.path.getmtime)
+    fileNames = [f.name for f in paths if f.suffix == ".csv"]
     print(paths)
     print(fileNames)
     return fileNames
@@ -47,55 +49,56 @@ def save_file(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method="
         with pd.ExcelWriter(dir + ofname, engine="openpyxl", mode="w") as writer:
             toWrite.to_excel(writer, index=False, sheet_name=method)
         if not aggExists:
-            with pd.ExcelWriter(
-                dir + aggname, engine="openpyxl", mode="w"
-            ) as writer:
+            with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
                 toWrite.to_excel(writer, index=False, sheet_name=method)
         else:
             exist = pd.read_excel(
                 open(dir + aggname, "rb"), sheet_name=method, engine="openpyxl"
             )
             toWrite = toWrite.append(exist)
-            with pd.ExcelWriter(
-                dir + aggname, engine="openpyxl", mode="w"
-            ) as writer:
+            with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
                 toWrite.to_excel(writer, index=False, sheet_name=method)
 
-def saveFile(self, toWrite = [], subdir:str = 'agg', fileFormat ='.png',method=''):
+
+def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""):
     proj = self._projection
     file_arr = os.path.splitext(os.path.basename(self._fileName))
-    dir = '/'.join([self._output_dir, method, '']).replace('/','\\')
-    ofname = '_'.join([file_arr[0], method, proj , fileFormat ]).replace('/','\\')
-    aggname = '_'.join(['agg', method, proj , fileFormat ]).replace('/','\\')
+    dir = "/".join([self._output_dir, method, ""]).replace("/", "\\")
+    ofname = "_".join([file_arr[0], method, proj, fileFormat]).replace("/", "\\")
+    aggname = "_".join(["agg", method, proj, fileFormat]).replace("/", "\\")
     folderExists = os.path.exists(dir)
-    fileExists = os.path.exists(dir+ofname)
-    aggExists = os.path.exists(dir+aggname)
+    fileExists = os.path.exists(dir + ofname)
+    aggExists = os.path.exists(dir + aggname)
     if not folderExists:
         os.makedirs(dir)
-    if fileFormat =='.png': 
-        plt.savefig(dir+ofname, format='png', dpi=1200)
+    if fileFormat == ".png":
+        plt.savefig(dir + ofname, format="png", dpi=1200)
     else:
         if not fileExists:
-            with pd.ExcelWriter(dir + ofname, engine = 'openpyxl',mode='w') as writer:
-                toWrite.to_excel(writer, index = False, sheet_name =method)
+            with pd.ExcelWriter(dir + ofname, engine="openpyxl", mode="w") as writer:
+                toWrite.to_excel(writer, index=False, sheet_name=method)
         else:
-            exist = pd.read_excel(open(dir+ofname, 'rb'), sheet_name=method, engine = 'openpyxl')  
+            exist = pd.read_excel(
+                open(dir + ofname, "rb"), sheet_name=method, engine="openpyxl"
+            )
             toWrite = toWrite.append(exist)
-            with pd.ExcelWriter(dir + ofname, engine = 'openpyxl',mode='w') as writer:
-                toWrite.to_excel(writer, index = False, sheet_name =method)
+            with pd.ExcelWriter(dir + ofname, engine="openpyxl", mode="w") as writer:
+                toWrite.to_excel(writer, index=False, sheet_name=method)
         if not aggExists:
-            with pd.ExcelWriter(dir + aggname, engine = 'openpyxl',mode='w') as writer:
-                toWrite.to_excel(writer, index = False, sheet_name =method)    
+            with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
+                toWrite.to_excel(writer, index=False, sheet_name=method)
         else:
-            exist = pd.read_excel(open(dir+aggname, 'rb'), sheet_name=method, engine = 'openpyxl')  
+            exist = pd.read_excel(
+                open(dir + aggname, "rb"), sheet_name=method, engine="openpyxl"
+            )
             toWrite = toWrite.append(exist)
-            with pd.ExcelWriter(dir + aggname, engine = 'openpyxl',mode='w') as writer:
-                toWrite.to_excel(writer, index = False, sheet_name =method)
+            with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
+                toWrite.to_excel(writer, index=False, sheet_name=method)
 
 
 def concave_hull(boundary_points, alpha):
-    """alpha shape / concave hull 
-        Draws a minimal concave polygon with a concavity factor alpha"""
+    """alpha shape / concave hull
+    Draws a minimal concave polygon with a concavity factor alpha"""
     if len(boundary_points) < 4:
         # When you have a triangle, there is no sense in computing an alpha
         # shape.

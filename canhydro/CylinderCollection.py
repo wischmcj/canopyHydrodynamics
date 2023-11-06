@@ -16,6 +16,7 @@ from random import random
 from time import sleep
 
 import geopandas as geo
+import global_vars as vars
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -28,25 +29,20 @@ from pandas import to_excel as pd
 from shapely.geometry import Point, Polygon
 from shapely.ops import transform, unary_union
 
-
-import global_vars as vars
-
-import networkx as nx
-
 NAME = "Cylinder"
+
 
 class CylinderCollection:
     # initialize our object level variables for cylider objects
-    def __init__(self, file_name, directory=DIR) -> None:
-        self.filename = file_name
-        self.contained_cylinders = np.nan  # np array of cyls
-        self.df = pd.DataFrame()  # Full read in data frame?
+    def __init__(self) -> None:
+        self.file = ''
+        self.cylinders = np.array([])
 
         # self.noCylinders = np.nan #Just the len of contained_cylinders
 
         # Aggregate values from file
-        self.component_surface_area = np.nan
-        self.component_volume = np.nan
+        self.surface_area = np.nan
+        self.volume = np.nan
         self.max_branch_order = np.nan
         self.max_rev_branch_order = np.nan
         self.canopy_scope = np.nan  # desc of canopy
@@ -105,10 +101,101 @@ class CylinderCollection:
         self.divide_points = []
         self.stemPolys = []
         self.compGraphs = []
+        
+    def aggregate_characteristics(self):
+        """Calculates the summations, averages etc. of cylinder characterictics 
+            that might be of interest """
+        return True
 
-    def from_csv(self, df=pd.DataFrame(), polys=[], projections=["XY"]):
-        self.projections = projection
-        self.df_full = pd.read_csv(self.filename, header=0)
+    def create_cyl(self, arr:list):
+        cols = global_vars.qsm_cols
+        c. 
+            
+
+    def from_csv(self, file, aggregate_cyls=True):
+        """Initializes a new Cyl Collection based on the data in a QSM 
+            with the configured column locations"""
+        self.file = file            
+        self.df_full = pd.read_csv(file, header=0)
+        self.arr = np.loadtxt(file, delimiter=",")
+
+        cylinders = [create_cyl(row) for row in self.arr ]
+        self.cylinders = cylinders
+
+        if aggregate_cyls:
+
+        #  #Just the len of contained_cylinders
+
+        if aggregate_cyls:
+            min_x = np.min([cyl.x[0] for cyl in cylinders])
+            min_y = np.min([cyl.x[0] for cyl in cylinders])
+            min_z = np.min([cyl.x[0] for cyl in cylinders])
+            max_x = np.max([cyl.x[0] for cyl in cylinders])
+            max_y = np.max([cyl.x[0] for cyl in cylinders])
+            max_z = np.max([cyl.x[0] for cyl in cylinders])
+            # Aggregate values from file
+            self.noCylinders = len(cylinders)
+            self.surface_area = np.sum([cyl.surface_area for cyl in cylinders])
+            self.volume = np.sum([cyl.volume for cyl in cylinders])
+            self.max_branch_order = np.max([cyl.branch_order for cyl in cylinders])
+            self.max_rev_branch_order = np.max([cyl.reverse_branch_order for cyl in cylinders])
+            self.extent = {
+                "min": [min_x, min_y, min_z],
+                "max": [max_x, max_y, max_z],
+            }
+            # to populate with x,y,z mins and maxs
+            self.aggregate_angle = np.nan
+        
+        self.descriptive_vectors = np.nan  # Average, median, mode vectors
+
+        self.treeQualities = pd.DataFrame(
+            {
+                "total_psa": -1,
+                "tot_hull_area": -1,
+                "stem_flow_hull_area": -1,
+                "stem_psa": -1,
+                "flowStats": -1,
+                "DBH": -1,
+                "tot_surface_area": -1,
+                "stem_surface_area": -1,
+            },
+            index=[0],
+        )
+
+        # Projection Attrs
+        self.union_poly = None
+        self.stem_path_lengths = []
+        self.hull = np.nan
+        self.stem_hull = np.nan
+
+        # Special case tree attributes
+        self.stem_paths = [[]]  # Cyl collection?
+        self.trunk = []  # Collection of cylinders? id list?
+
+        # Graph and Attributes
+        self.graph = nx.Graph()
+        self.flows = [
+            {
+                "cyls": [],
+                "drip_point": id,
+                "attributes": {"cyls": 0, "len": 0, "sa": 0, "pa": 0, "as": 0},
+            }
+        ]
+        self.drip_points = {"x": np.nan, "y": np.nan, "z": np.nan, "flow_id": np.nan}
+        self.flow_to_drip = {
+            0: 1
+        }  # A dictionary of flow ids with values equal to their drip node ids
+        self.trunk_nodes = []
+        self.drip_loc = np.nan
+
+        # Calculations using graph results
+        self.stemTotal = {
+            "attributes": {"cyls": 0, "len": 0, "sa": 0, "pa": 0, "as": 0},
+            "loc": {"x": np.nan, "y": np.nan, "z": np.nan},
+        }
+        self.divide_points = []
+        self.stemPolys = []
+        self.compGraphs = []
         # columns 3 and 6 represent our x values
         self.x = np.transpose(self.df.iloc[:, [3, 6]].to_numpy())
         self.y = np.transpose(self.df.iloc[:, [4, 7]].to_numpy())

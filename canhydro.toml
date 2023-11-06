@@ -8,6 +8,8 @@ description="Utils for modeling canopy hydrodynamics with QSMs"
 readme = "README.md"
 requires-python = ">=3.8.1"
 dynamic = ["version"]
+qsm_cols = 
+
 
 [project.optional-dependencies]
 test = [
