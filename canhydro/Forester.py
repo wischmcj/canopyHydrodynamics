@@ -7,7 +7,7 @@ from __future__ import annotations
 # import networkx as nx
 # import openpyxl
 # import geopandas as geo
-# import numpy as np
+import numpy as np
 import calendar
 # import time
 # import copy
@@ -17,10 +17,11 @@ import logging
 import os
 from pathlib import Path
 from time import sleep
+# from pandas import to_excel as pd
+
 
 import global_vars 
-from pandas import to_excel as pd
-
+from CylinderCollection import CylinderCollection
 # from random import random
 # from multiprocessing import Pool
 
@@ -32,6 +33,7 @@ from pandas import to_excel as pd
 
 
 input_dir = global_vars.input_dir
+log = global_vars.log
 
 NAME = "Forester"
 
@@ -45,8 +47,9 @@ class Forester:
     #   Create graph
     #
 
+
     # initialize our object level variables for cylider objects
-    def __init__(self, file_names=np.nan, directory=DIR) -> None:
+    def __init__(self, file_names='', directory=input_dir) -> None:
         self.file_names = file_names
         self.directory = directory
         self.cylinder_collections = []
@@ -54,20 +57,20 @@ class Forester:
     def get_file_names(self,dir = input_dir):
         #     os.chdir(''.join([vars.DIR,'input']))
         #     fullPath = Path(''.join([vars.DIR,'input']))
-        os.chdir("".join([self.directory, "input"]))
-        full_path = Path("".join([self.directory, "input"]))
-        paths = sorted(full_path.iterdir(), key=os.path.getmtime)
+        log.info(f"Searching {dir} for files")
+        paths = sorted(dir.iterdir(), key=os.path.getmtime)
+        self.file_names = paths
         file_names = [f.name for f in paths if f.suffix == ".csv"]
-        self.file_names = file_names
-        return file_names
+        log.info(f"The following files found in {dir}: {file_names}")
+        return paths
 
     def qsm_from_file_names(self, dir = input_dir):
-        if self.file_names == np.nan:
+        if self.file_names == '':
             self.get_file_names(dir)
         collections = []
         for filename in self.file_names:
-            c = CylinderCollection(filename, directory=dir)
-            c.from_csv()
+            c = CylinderCollection()
+            c.from_csv(filename,dir)
             collections.append(c)
         self.cylinder_collections = collections
 

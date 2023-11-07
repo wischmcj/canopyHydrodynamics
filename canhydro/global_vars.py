@@ -3,6 +3,7 @@ from __future__ import annotations
 import calendar
 import logging
 import time
+import os
 from pathlib import Path
 
 import toml
@@ -14,10 +15,13 @@ with open("user_def_config.toml") as f:
 DIR = config["directories"]["root"]
 
 input_dir=DIR
-input_dir = Path("".join([input_dir,"data", "input"]))
+input_dir = Path("".join([input_dir,"data", "\\input"]))
 
 output_dir = DIR
-output_dir = Path("".join([output_dir,"data", "output"]))
+output_dir = Path("".join([output_dir,"data", "\\output"]))
+
+test_input_dir = DIR
+test_input_dir = Path("".join([test_input_dir,"data", "\\test"]))
 
 #Current datetime
 current_GMT = time.gmtime()
@@ -30,10 +34,10 @@ for column in config["qsm"]:
 print(qsm_cols)
 
 log_dir = DIR
-log_dir = Path("".join([log_dir, "log", str(time_stamp)]))
-
+log_dir = Path("".join([log_dir, "log\log_", str(time_stamp)]))
 
 logging.basicConfig(
-    filename=log_dir, filemode="w", level=logging.DEBUG, encoding="utf-8"
+    filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
 )
 LOGGER = logging.getLogger("my-logger")
+log = logging.getLogger("my-logger")

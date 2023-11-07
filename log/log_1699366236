@@ -1,0 +1,4 @@
+INFO:my-logger:Searching C:\Users\wisch\Documents\GitProjects\CanopyHydrodynamics\data\test for files
+INFO:my-logger:The following files found in C:\Users\wisch\Documents\GitProjects\CanopyHydrodynamics\data\test: ['1_TenCyls.csv']
+INFO:my-logger:Processing C:\Users\wisch\Documents\GitProjects\CanopyHydrodynamics\data\test\1_TenCyls.csv
+INFO:my-logger:{'x': [0.076822, 0.076822], 'y': [-3.386935, -3.386935], 'z': [-0.595933, -0.595933], 'dx': 0.0, 'dy': 0.0, 'dz': -0.595933, 'radius': 0.222504, 'length': 0.064433, 'surface_area': 0.09007951593260982, 'volume': 0.010021, 'sa_to_vol': 8.98907453673384, 'branch_order': 0.0, 'branch_id': 0.0, 'parent_id': -1.0, 'rev_branch_order': 32.0, 'segment_id': 0.0, 'angle': -1.5707963267948966}

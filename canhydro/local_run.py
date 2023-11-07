@@ -6,10 +6,11 @@ import stat
 from pathlib import Path
 
 import global_vars
+from Forester import Forester
 import utils
 
 DIR = global_vars.DIR
-DIR = global_vars.DIR
+test_input_dir = global_vars.test_input_dir
 
 
 def on_rm_error(func, path, exc_info):
@@ -32,6 +33,5 @@ def del_dir(filename) -> None:
 
 
 if __name__ == "__main__":
-    print(input_dir)
-    print(qsm_cols)
-    # qsm_from_file_names
+    forest = Forester()
+    forest.qsm_from_file_names(test_input_dir)

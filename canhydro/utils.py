@@ -9,11 +9,11 @@ import shapely.geometry as geometry
 from scipy.spatial import Delaunay
 from shapely.ops import Point, Polygon, cascaded_union, polygonize
 
-import canhydro.global_vars as gv
+import global_vars as gv
 
 root_dir = gv.DIR
-input_dir = Path("".join([root_dir, "input"]))
-output_dir = Path("".join([root_dir, "output"]))
+input_dir = gv.input_dir
+output_dir = gv.output_dir
 
 
 def read_file_names(file_path=input_dir):

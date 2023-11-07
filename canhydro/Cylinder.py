@@ -10,7 +10,7 @@ from random import random
 from time import sleep
 from math import pi, sqrt
 
-import global_vars as vars
+import global_vars 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -31,7 +31,8 @@ from matplotlib.pyplot import cm
 
 
 
-DIR = vars.DIR
+DIR = global_vars.DIR
+log = global_vars.log
 
 NAME = "Cylinder"
 
@@ -45,12 +46,15 @@ class Cylinder:
     #
 
     # initialize our object level variables for cylider objects
-    def __init__(self, CylinderCollection) -> None:
+    def __init__(self) -> None:
         # Base Attributes from file read in
         # self._cylinderCollection = CylinderCollection
         self.x = np.nan  # len 2 array
         self.y = np.nan  # len 2 array
         self.z = np.nan  # len 2 array
+        self.dx = np.nan  # len 2 array
+        self.dy = np.nan  # len 2 array
+        self.dz = np.nan  # len 2 array
         self.radius = np.nan
         self.length = np.nan
         self.branch_order = np.nan
@@ -61,6 +65,8 @@ class Cylinder:
         self.segment_id = np.nan
 
         self.surface_area = np.nan
+        self.sa_to_vol = np.nan
+        self.slope = np.nan
 
         # Calculated based off of projection
         self.projected_data = {
@@ -87,25 +93,35 @@ class Cylinder:
         # others
         self.stem_path_id = np.nan
 
-            
-            run = math.sqrt( a_leg[curr_cyl_id]**2 + b_leg[curr_cyl_id]**2)
-            rise = hypo[curr_cyl_id]
-            if run==0:
-                slope_idx = 1 # straightDown e.g. is in flow 
-            else:
-                slope_idx = rise/run
-            
-            sa_idx = 2*np.pi*radius_idx*(radius_idx +len_idx) - 2*np.pi*radius_idx*radius_idx
-            pa_idx = poly_idx.area
-            vol_idx = 2*np.pi*len_idx*radius_idx*radius_idx
-            sa_to_vol_idx = sa_idx/vol_idx
-            ang_idx = np.arctan(slope_idx)
-
     def calc_surface_area(self):
         radius = self.radius
         length = self.length
         sa = 2*np.pi*radius*(radius + length) - 2*np.pi*radius*radius
         return sa
+
+    def to_dict(self, cols:str = ''):
+        if cols == '':
+            """creates a cylinder corrosponding to that defined by a given row of the qsm (attrs)"""
+            attr_dict = {
+                    "x":self.x  
+                    ,"y":self.y  
+                    ,"z":self.z  
+                    ,"dx":self.dx 
+                    ,"dy":self.dy 
+                    ,"dz":self.dz 
+                    ,"radius"         :self.radius             
+                    ,"length"          :self.length             
+                    ,"surface_area"     :self.surface_area       
+                    ,"volume"           :self.volume             
+                    ,"sa_to_vol"        :self.sa_to_vol          
+                    ,"branch_order"     :self.branch_order       
+                    ,"branch_id"        :self.branch_id          
+                    ,"parent_id"       :self.parent_id          
+                    ,"rev_branch_order" :self.rev_branch_order   
+                    ,"segment_id"       :self.segment_id         
+                    ,"angle"            :self.angle  
+                }            
+        return attr_dict
 
     def create_from_list(self, attrs:list, columns = global_vars.qsm_cols):
         """creates a cylinder corrosponding to that defined by a given row of the qsm (attrs)"""
@@ -115,17 +131,24 @@ class Cylinder:
         self.x = [extract('x')[0], extract('x')[1]]
         self.y = [extract('y')[0], extract('y')[1]]
         self.z = [extract('z')[0], extract('z')[1]]
+        self.dx = self.x[1]-self.x[0]
+        self.dy = self.y[1]-self.y[0]
+        self.dz = self.z[1]=self.z[0]
         self.radius = extract('radius')
         self.length =  extract('length')
         self.surface_area = self.calc_surface_area()
+        self.volume = extract('volume')
+        self.sa_to_vol = self.surface_area/self.volume 
         self.branch_order =  extract('branch_order')
         self.branch_id =  extract('branch_id')
-        self.volume = extract('volume')
         self.parent_id = extract('parent_id')
         self.rev_branch_order = extract('reverse_branch_order')
         self.segment_id = extract('segment_id')
+        self.angle = np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
+        log.info(str(self.to_dict()))
+        breakpoint()
 
-    def project(self, axis= 'XY')
+    def project(self, axis= 'XY'):
         # Calculated based off of projection
         self.projected_data = {
             "XY": {

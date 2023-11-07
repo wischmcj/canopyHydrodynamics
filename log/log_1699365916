@@ -1,0 +1,27 @@
+INFO:my-logger:Searching C:\Users\wisch\Documents\GitProjects\CanopyHydrodynamics\data\input for files
+INFO:my-logger:The following files found in C:\Users\wisch\Documents\GitProjects\CanopyHydrodynamics\data\input: ['Secrest27-05_000000_1.csv']
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E89E2080>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229DA75DF90>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229DA75E020>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B256F0>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229DA2124A0>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25DE0>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25DB0>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25E10>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25870>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25D50>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25A50>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25E40>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25C00>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25EA0>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25ED0>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25F00>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25F30>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25F60>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25F90>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25FC0>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B25FF0>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B26020>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B26050>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B26080>>
+INFO:my-logger:<bound method Cylinder.to_dict of <Cylinder.Cylinder object at 0x00000229E8B260B0>>

@@ -10,10 +10,11 @@ from pathlib import Path
 import pytest
 
 import canhydro
-from canhydro import global_vars as gv
-from canhydro import utils
+from canhydro import global_vars, utils
+from canhydro.Forester import Forester
 
-DIR = gv.DIR
+DIR = DIR
+test_input_dir = global_vars.test_input_dir
 
 
 def on_rm_error(func, path, exc_info):
@@ -53,9 +54,9 @@ def test_file_names():
 #     with self.assertRaises(TypeError):
 #         s.split(2)
 
-
+expected_result = {}
 def test_create_cyliders(self):
-    forest = Forester(directory=testDir)
+    forest = Forester(directory=test_input_dir)
     forest.get_file_names()
 
     forest.qsm_from_file_names()
