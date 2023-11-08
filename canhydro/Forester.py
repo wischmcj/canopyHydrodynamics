@@ -4,10 +4,6 @@
 # from matplotlib.pyplot import cm
 from __future__ import annotations
 
-# import networkx as nx
-# import openpyxl
-# import geopandas as geo
-import numpy as np
 import calendar
 # import time
 # import copy
@@ -17,15 +13,18 @@ import logging
 import os
 from pathlib import Path
 from time import sleep
+
+# import networkx as nx
+# import openpyxl
+# import geopandas as geo
+import numpy as np
+
+from canhydro.CylinderCollection import CylinderCollection
+from canhydro.global_vars import input_dir, log, output_dir
+
 # from pandas import to_excel as pd
 
 
-from canhydro.global_vars import (
-    input_dir,
-    output_dir,
-    log
-)
-from canhydro.CylinderCollection import CylinderCollection
 # from random import random
 # from multiprocessing import Pool
 
@@ -47,14 +46,13 @@ class Forester:
     #   Create graph
     #
 
-
     # initialize our object level variables for cylider objects
-    def __init__(self, file_names='', directory=input_dir) -> None:
+    def __init__(self, file_names="", directory=input_dir) -> None:
         self.file_names = file_names
         self.directory = directory
         self.cylinder_collections = []
 
-    def get_file_names(self,dir = input_dir):
+    def get_file_names(self, dir=input_dir):
         #     os.chdir(''.join([vars.DIR,'input']))
         #     fullPath = Path(''.join([vars.DIR,'input']))
         log.info(f"Searching {dir} for files")
@@ -64,13 +62,13 @@ class Forester:
         log.info(f"The following files found in {dir}: {file_names}")
         return paths
 
-    def qsm_from_file_names(self, dir = input_dir):
-        if self.file_names == '':
+    def qsm_from_file_names(self, dir=input_dir):
+        if self.file_names == "":
             self.get_file_names(dir)
         collections = []
         for filename in self.file_names:
             c = CylinderCollection()
-            c.from_csv(filename,dir)
+            c.from_csv(filename, dir)
             collections.append(c)
         self.cylinder_collections = collections
 
@@ -79,12 +77,13 @@ class Forester:
         # we could set a demand of generates X volume of flow
         print("nxs")
 
-    def get_collection_data(self,filename:str):
+    def get_collection_data(self, filename: str):
         for collection in self.cylinder_collections:
-            cyls = [cyl for cyl in collection.cylinders if collection.filename == filename]
+            cyls = [
+                cyl for cyl in collection.cylinders if collection.filename == filename
+            ]
             cyl_dics = [str(cyl.to_dict()) for cyl in cyls]
         return cyl_dics
-
 
     # #its pro-ject not prah-ject
     # def projectCylinders(self,forceXY = False):

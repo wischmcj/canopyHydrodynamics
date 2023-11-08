@@ -9,18 +9,11 @@ from pathlib import Path
 
 import pytest
 
-import canhydro.global_vars as gv 
-
-from canhydro.utils import (
-    read_file_names
-    ,save_file
-    ,concave_hull
-)
-from tests.expected_results import (
-    ten_cyls_rows
-)
-from canhydro.Forester import Forester
+import canhydro.global_vars as gv
 import tests.expected_results
+from canhydro.Forester import Forester
+from canhydro.utils import concave_hull, read_file_names, save_file
+from tests.expected_results import ten_cyls_rows
 
 DIR = gv.DIR
 test_input_dir = gv.test_input_dir
@@ -39,6 +32,7 @@ def create_dir_and_file(filename) -> None:
     f = open("test\\demofile2.csv", "w")
     f.write("Now the file has more content!")
     f.close()
+
 
 def test_file_names():
     file_path = "".join([DIR, "test\\"])
@@ -59,8 +53,15 @@ def test_file_names():
 #         s.split(2)
 
 expected_result = {}
+
+
 def test_create_cyliders(basic_forest):
-    actual = basic_forest.get_collection_data('1_TenCyls.csv')
+    actual = basic_forest.get_collection_data("1_TenCyls.csv")
     expected = ten_cyls_rows
-    breakpoint()
     assert expected == actual
+
+def test_project_cyliders(basic_forest):
+    collection = basic_forest.cylinder_collections[0]
+    collection.project_cylinders('XY')
+    breakpoint()
+    assert 1==0

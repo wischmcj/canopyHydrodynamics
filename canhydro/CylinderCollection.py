@@ -20,31 +20,30 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import openpyxl
+import pandas as pd
 # import settings
 from descartes import PolygonPatch
 from matplotlib.pyplot import cm
 from mpl_toolkits import mplot3d
-import pandas as pd
 from shapely.geometry import Point, Polygon
 from shapely.ops import transform, unary_union
 
-from canhydro.global_vars import (
-    log,
-    qsm_cols
-)
 from canhydro.Cylinder import Cylinder
+from canhydro.global_vars import log, qsm_cols
+from canhydro.utils import intermitent_log
 
 NAME = "Cylinder"
+
 
 class CylinderCollection:
     # initialize our object level variables for cylider objects
     def __init__(self) -> None:
-        self.file = ''
+        self.file = ""
         self.cylinders = np.array([])
 
         # Aggregate values from file
         self.surface_area = np.nan
-        self.filename = ''
+        self.filename = ""
         self.volume = np.nan
         self.avg_sa_to_vol = np.nan
         self.max_branch_order = np.nan
@@ -58,15 +57,15 @@ class CylinderCollection:
         self.aggregate_angle = np.nan
         self.descriptive_vectors = np.nan  # Average, median, mode vectors
         self.treeQualities = {
-                            "total_psa": -1,
-                            "tot_hull_area": -1,
-                            "stem_flow_hull_area": -1,
-                            "stem_psa": -1,
-                            "flowStats": -1,
-                            "DBH": -1,
-                            "tot_surface_area": -1,
-                            "stem_surface_area": -1,
-                        }
+            "total_psa": -1,
+            "tot_hull_area": -1,
+            "stem_flow_hull_area": -1,
+            "stem_psa": -1,
+            "flowStats": -1,
+            "DBH": -1,
+            "tot_surface_area": -1,
+            "stem_surface_area": -1,
+        }
 
         # Projection Attrs
         self.union_poly = None
@@ -102,28 +101,27 @@ class CylinderCollection:
         self.divide_points = []
         self.stemPolys = []
         self.compGraphs = []
-        
+
     def aggregate_characteristics(self):
-        """Calculates the summations, averages etc. of cylinder characterictics 
-            that might be of interest """
+        """Calculates the summations, averages etc. of cylinder characterictics
+        that might be of interest"""
         return True
 
-    def create_cyl(self, arr:list):
+    def create_cyl(self, arr: list):
         cols = qsm_cols
         cyl = Cylinder()
         cyl.create_from_list(arr, cols)
         return cyl
-            
 
     def from_csv(self, file, aggregate_cyls=True):
-        """Initializes a new Cyl Collection based on the data in a QSM 
-            with the configured column locations"""
-        self.file = file   
-        self.filename = file.name         
+        """Initializes a new Cyl Collection based on the data in a QSM
+        with the configured column locations"""
+        self.file = file
+        self.filename = file.name
         log.info(f"Processing {str(file)}")
         # self.arr = pd.read_csv(file, header=0)
-        self.arr = np.genfromtxt(file, delimiter=",")[1:,:-1]
-        cylinders = [self.create_cyl(row) for row in self.arr ]
+        self.arr = np.genfromtxt(file, delimiter=",")[1:, :-1]
+        cylinders = [self.create_cyl(row) for row in self.arr]
         self.cylinders = cylinders
 
         if aggregate_cyls:
@@ -138,22 +136,25 @@ class CylinderCollection:
             self.surface_area = np.sum([cyl.surface_area for cyl in cylinders])
             self.volume = np.sum([cyl.volume for cyl in cylinders])
             self.max_branch_order = np.max([cyl.branch_order for cyl in cylinders])
-            self.max_rev_branch_order = np.max([cyl.rev_branch_order for cyl in cylinders])
-            self.avg_sa_to_vol = np.sum([cyl.sa_to_vol for cyl in cylinders])/self.no_cylinders
+            self.max_rev_branch_order = np.max(
+                [cyl.rev_branch_order for cyl in cylinders]
+            )
+            self.avg_sa_to_vol = (
+                np.sum([cyl.sa_to_vol for cyl in cylinders]) / self.no_cylinders
+            )
             self.extent = {
                 "min": [min_x, min_y, min_z],
                 "max": [max_x, max_y, max_z],
             }
-        
+
         self.descriptive_vectors = np.nan  # Average, median, mode vectors
 
-       
         self.theta = np.nan
         log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
 
-    def project_cyls(self, plane:str):
+    def project_cylinders(self, plane: str):
         """Projects cylinders onto the specified plane"""
-        if plane not in ('XY','XZ','YZ'):
+        if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
         else:
             polys = []
@@ -161,11 +162,8 @@ class CylinderCollection:
             for idx, cyl in enumerate(self.cylinders):
                 poly = cyl.get_projection(plane)
                 polys.append(poly)
-                #print a progress update once every 10 thousand or so cylinders
-                if np.random.uniform(0,1,1) < 0.0001:
-                    log.info(self._fileName + ': completed projection of cyl {} \n'.format(np.round((idx/self._no_cylinders)*100,decimals=1)))
-                    print('completed cyl projection {} \n'.format(np.round((idx/self.no_cylinders)*100,decimals=1)))
-            
+                # print a progress update once every 10 thousand or so cylinders
+                intermitent_log(idx,self.no_cylinders,"Cylinder projection: ")
             # Projection Attrs
             self.union_poly = unary_union(polys)
             self.stem_path_lengths = []
@@ -176,10 +174,9 @@ class CylinderCollection:
         self.stem_hull = np.nan
 
     def initialize_graph(self):
-
         # Graph and Attributes
         self.graph = nx.Graph()
-        
+
         self.flows = [
             {
                 "cyls": [],
@@ -202,23 +199,19 @@ class CylinderCollection:
         self.divide_points = []
         self.stemPolys = []
 
-
     def find_flows(self):
-
         # Graph and Attributes
         self.graph = nx.Graph()
 
-    def identify_stem_paths(self, axis:str):
-         # Special case tree attributes
+    def identify_stem_paths(self, axis: str):
+        # Special case tree attributes
         self.stem_paths = [[]]  # Cyl collection?
         self.trunk = []  # Collection of cylinders? id list?
 
-
     def find_trunk_lean(self):
-            # to populate with x,y,z mins and maxs
-            self.aggregate_angle = np.nan
-            return True
-
+        # to populate with x,y,z mins and maxs
+        self.aggregate_angle = np.nan
+        return True
 
     # def read_csv(self, df=pd.DataFrame(), polys=[], projection="XY"):
     #     # Columns [ID?,ParentID?,x1,y1,z1,x2,y2,z2,radius,?,?,lenght,? ,? ,? ,? ,? ,? ,? ,BO]

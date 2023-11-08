@@ -6,8 +6,8 @@ import stat
 from pathlib import Path
 
 import global_vars
-from Forester import Forester
 import utils
+from Forester import Forester
 
 DIR = global_vars.DIR
 test_input_dir = global_vars.test_input_dir
@@ -35,4 +35,6 @@ def del_dir(filename) -> None:
 if __name__ == "__main__":
     forest = Forester()
     forest.qsm_from_file_names(test_input_dir)
+    collection = forest.cylinder_collections[0]
+    collection.project_cylinders('XY')
     breakpoint()

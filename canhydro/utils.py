@@ -9,11 +9,7 @@ import shapely.geometry as geometry
 from scipy.spatial import Delaunay
 from shapely.ops import Point, Polygon, cascaded_union, polygonize
 
-from  canhydro.global_vars import (
-    input_dir,
-    output_dir
-)
-
+from canhydro.global_vars import input_dir, output_dir, log
 
 
 def read_file_names(file_path=input_dir):
@@ -60,6 +56,12 @@ def save_file(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method="
                 toWrite.to_excel(writer, index=False, sheet_name=method)
 
 
+def intermitent_log(prog:int, whole:int, msg:str, freq:int = .0001):
+    if np.random.uniform(0, 1, 1) < freq:
+        log.info(msg + np.round((prog / whole) * 100, decimals=1))
+        print(msg + np.round((prog / whole) * 100, decimals=1))
+
+
 def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""):
     proj = self._projection
     file_arr = os.path.splitext(os.path.basename(self._fileName))
@@ -94,6 +96,7 @@ def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""
             toWrite = toWrite.append(exist)
             with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
                 toWrite.to_excel(writer, index=False, sheet_name=method)
+
 
 def concave_hull(boundary_points, alpha):
     """alpha shape / concave hull
