@@ -20,8 +20,12 @@ from time import sleep
 # from pandas import to_excel as pd
 
 
-import global_vars 
-from CylinderCollection import CylinderCollection
+from canhydro.global_vars import (
+    input_dir,
+    output_dir,
+    log
+)
+from canhydro.CylinderCollection import CylinderCollection
 # from random import random
 # from multiprocessing import Pool
 
@@ -30,10 +34,6 @@ from CylinderCollection import CylinderCollection
 # from descartes import PolygonPatch
 # from mpl_toolkits import mplot3d
 # from pickle import dump, load
-
-
-input_dir = global_vars.input_dir
-log = global_vars.log
 
 NAME = "Forester"
 
@@ -78,6 +78,12 @@ class Forester:
         # can be used to calculate flows on graphs with demands
         # we could set a demand of generates X volume of flow
         print("nxs")
+
+    def get_collection_data(self,filename:str):
+        for collection in self.cylinder_collections:
+            cyls = [cyl for cyl in collection.cylinders if collection.filename == filename]
+            cyl_dics = [str(cyl.to_dict()) for cyl in cyls]
+        return cyl_dics
 
 
     # #its pro-ject not prah-ject

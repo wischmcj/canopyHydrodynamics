@@ -77,6 +77,9 @@ docs/_build/
 .pybuilder/
 target/
 
+#logging 
+log*
+
 #ruff
 .ruff_cache
 

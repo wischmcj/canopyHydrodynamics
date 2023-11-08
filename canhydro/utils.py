@@ -9,11 +9,11 @@ import shapely.geometry as geometry
 from scipy.spatial import Delaunay
 from shapely.ops import Point, Polygon, cascaded_union, polygonize
 
-import global_vars as gv
+from  canhydro.global_vars import (
+    input_dir,
+    output_dir
+)
 
-root_dir = gv.DIR
-input_dir = gv.input_dir
-output_dir = gv.output_dir
 
 
 def read_file_names(file_path=input_dir):
@@ -94,7 +94,6 @@ def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""
             toWrite = toWrite.append(exist)
             with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
                 toWrite.to_excel(writer, index=False, sheet_name=method)
-
 
 def concave_hull(boundary_points, alpha):
     """alpha shape / concave hull

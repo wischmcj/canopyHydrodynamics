@@ -28,21 +28,19 @@ import pandas as pd
 from shapely.geometry import Point, Polygon
 from shapely.ops import transform, unary_union
 
-import global_vars
-from Cylinder import Cylinder
+from canhydro.global_vars import (
+    log,
+    qsm_cols
+)
+from canhydro.Cylinder import Cylinder
 
 NAME = "Cylinder"
-
-log = global_vars.log
-
 
 class CylinderCollection:
     # initialize our object level variables for cylider objects
     def __init__(self) -> None:
         self.file = ''
         self.cylinders = np.array([])
-
-        # self.noCylinders = np.nan #Just the len of contained_cylinders
 
         # Aggregate values from file
         self.surface_area = np.nan
@@ -111,7 +109,7 @@ class CylinderCollection:
         return True
 
     def create_cyl(self, arr:list):
-        cols = global_vars.qsm_cols
+        cols = qsm_cols
         cyl = Cylinder()
         cyl.create_from_list(arr, cols)
         return cyl
@@ -120,11 +118,11 @@ class CylinderCollection:
     def from_csv(self, file, aggregate_cyls=True):
         """Initializes a new Cyl Collection based on the data in a QSM 
             with the configured column locations"""
-        self.file = file            
+        self.file = file   
+        self.filename = file.name         
         log.info(f"Processing {str(file)}")
         # self.arr = pd.read_csv(file, header=0)
         self.arr = np.genfromtxt(file, delimiter=",")[1:,:-1]
-        breakpoint()
         cylinders = [self.create_cyl(row) for row in self.arr ]
         self.cylinders = cylinders
 
@@ -136,12 +134,12 @@ class CylinderCollection:
             max_y = np.max([cyl.y[1] for cyl in cylinders])
             max_z = np.max([cyl.z[1] for cyl in cylinders])
             # Aggregate values from file
-            self.noCylinders = len(cylinders)
+            self.no_cylinders = len(cylinders)
             self.surface_area = np.sum([cyl.surface_area for cyl in cylinders])
             self.volume = np.sum([cyl.volume for cyl in cylinders])
             self.max_branch_order = np.max([cyl.branch_order for cyl in cylinders])
             self.max_rev_branch_order = np.max([cyl.rev_branch_order for cyl in cylinders])
-            self.avg_sa_to_vol = np.sum([cyl.sa_to_vol for cyl in cylinders])/self.noCylinders
+            self.avg_sa_to_vol = np.sum([cyl.sa_to_vol for cyl in cylinders])/self.no_cylinders
             self.extent = {
                 "min": [min_x, min_y, min_z],
                 "max": [max_x, max_y, max_z],
@@ -151,16 +149,31 @@ class CylinderCollection:
 
        
         self.theta = np.nan
-        log.info(f"{file.name} initialized with {self.noCylinders} cylinders")
+        log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
 
-    def project_cyls(self, axis:str):
-        # Projection Attrs
-        self.union_poly = None
-        self.stem_path_lengths = []
+    def project_cyls(self, plane:str):
+        """Projects cylinders onto the specified plane"""
+        if plane not in ('XY','XZ','YZ'):
+            log.info(f"{plane}: invalid value for plane")
+        else:
+            polys = []
+            log.info(f"Projecction into {plane} axis begun for file {self.filename}")
+            for idx, cyl in enumerate(self.cylinders):
+                poly = cyl.get_projection(plane)
+                polys.append(poly)
+                #print a progress update once every 10 thousand or so cylinders
+                if np.random.uniform(0,1,1) < 0.0001:
+                    log.info(self._fileName + ': completed projection of cyl {} \n'.format(np.round((idx/self._no_cylinders)*100,decimals=1)))
+                    print('completed cyl projection {} \n'.format(np.round((idx/self.no_cylinders)*100,decimals=1)))
+            
+            # Projection Attrs
+            self.union_poly = unary_union(polys)
+            self.stem_path_lengths = []
+            self.pSV = None
+
+    def watershed_boundary(self):
         self.hull = np.nan
         self.stem_hull = np.nan
-        self.union_poly = None
-        self.pSV = None
 
     def initialize_graph(self):
 
@@ -238,7 +251,7 @@ class CylinderCollection:
     #     self.cylID = self.df.iloc[:, 1].to_numpy()
     #     self.pID = self.df.iloc[:, 2].to_numpy()
     #     self.radius = self.df.iloc[:, 9].to_numpy()
-    #     self.noCylinders = self.radius.size
+    #     self.no_cylinders = self.radius.size
     #     self.cLength = self.df.iloc[:, 12].to_numpy()
     #     self.BO = self.df.iloc[:, 20].to_numpy()
     #     self.branchID = self.df.iloc[:, 4].to_numpy()

@@ -9,12 +9,21 @@ from pathlib import Path
 
 import pytest
 
-import canhydro
-from canhydro import global_vars, utils
-from canhydro.Forester import Forester
+import canhydro.global_vars as gv 
 
-DIR = DIR
-test_input_dir = global_vars.test_input_dir
+from canhydro.utils import (
+    read_file_names
+    ,save_file
+    ,concave_hull
+)
+from tests.expected_results import (
+    ten_cyls_rows
+)
+from canhydro.Forester import Forester
+import tests.expected_results
+
+DIR = gv.DIR
+test_input_dir = gv.test_input_dir
 
 
 def on_rm_error(func, path, exc_info):
@@ -31,18 +40,13 @@ def create_dir_and_file(filename) -> None:
     f.write("Now the file has more content!")
     f.close()
 
-
-def del_dir(filename) -> None:
-    shutil.rmtree(filename, onerror=on_rm_error)
-
-
 def test_file_names():
     file_path = "".join([DIR, "test\\"])
     file = os.path.dirname(file_path)
     create_dir_and_file(file)
-    file_names = utils.read_file_names(Path("".join([DIR, "test"])))
+    file_names = read_file_names(Path("".join([DIR, "test"])))
     assert file_names == ["demofile2.csv"]
-    del_dir(file)
+    shutil.rmtree(file, onerror=on_rm_error)
     print("File Names Successfull")
 
 
@@ -55,10 +59,8 @@ def test_file_names():
 #         s.split(2)
 
 expected_result = {}
-def test_create_cyliders(self):
-    forest = Forester(directory=test_input_dir)
-    forest.get_file_names()
-
-    forest.qsm_from_file_names()
-    return forest
-    assert'FOO'.isupper())
+def test_create_cyliders(basic_forest):
+    actual = basic_forest.get_collection_data('1_TenCyls.csv')
+    expected = ten_cyls_rows
+    breakpoint()
+    assert expected == actual

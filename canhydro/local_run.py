@@ -35,3 +35,4 @@ def del_dir(filename) -> None:
 if __name__ == "__main__":
     forest = Forester()
     forest.qsm_from_file_names(test_input_dir)
+    breakpoint()

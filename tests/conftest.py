@@ -17,6 +17,14 @@ from typing import List
 import pytest
 from _pytest.nodes import Item
 
+from canhydro.global_vars import (
+    test_input_dir
+)
+
+from canhydro.Cylinder import Cylinder
+from canhydro.Forester import Forester
+from canhydro.CylinderCollection import CylinderCollection
+
 
 def pytest_collection_modifyitems(items: list[Item]):
     for item in items:
@@ -30,3 +38,10 @@ def pytest_collection_modifyitems(items: list[Item]):
 def basic_cylinder():
     return Cylinder()
     pass
+
+@pytest.fixture
+def basic_forest():
+    forest = Forester('1_TenCyls.csv')
+    forest.get_file_names(dir=test_input_dir)
+    forest.qsm_from_file_names()
+    return forest
