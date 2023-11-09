@@ -1,31 +1,32 @@
 
 [qsm]
+# type=0
 cyl_id=1
 parent_id=2
-x = [3,6]
+x=[3,6]
 y=[4,7]
 z=[5,8]
 radius=9
 volume=10
-growth_volume=11
+# growth_volume=11
 length=12
-growth_length=13
-fitting_type=14
+# growth_length=13
+# fitting_type=14
 segment_id=15
-parent_segment_id=16
-segment_median_radius=17
-segment_growth_volume=18
-segment_growth_length=19
+# parent_segment_id=16
+# segment_median_radius=17
+# segment_growth_volume=18
+# segment_growth_length=19
 branch_order=20
 reverse_branch_order=21
-reverse_pipe_radius_branch_order=22
-reverse_pipe_area_branch_order=23
+# reverse_pipe_radius_branch_order=22
+# reverse_pipe_area_branch_order=23
 branch_id=24
-tree_id=25
-tree_species=26
-translate_xyz=[27,28,29]
-gv= [30,31,32]
-gl= [33,34,35]
+# tree_id=25
+# tree_species=26
+# translate_xyz=[27,28,29]
+# gv= [30,31,32]
+# gl= [33,34]
 
 [project.optional-dependencies]
 test = [

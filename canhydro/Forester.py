@@ -37,7 +37,17 @@ from canhydro.global_vars import input_dir, log, output_dir
 NAME = "Forester"
 
 
-# Class intented to be the workhorse that manages our objects
+# Class(es) intented to be the workhorse(s) that manages our objects
+
+class CollectionManager:
+    def __get__(self, obj, objtype):
+        if obj is None:
+            return Forester(objtype)
+        else:
+            raise AttributeError(
+                "Forester isn't accessible via {} instances".format(objtype)
+            )
+
 class Forester:
     #   Read in file names and create cylinder collection via CC class
     #
@@ -45,7 +55,6 @@ class Forester:
     #
     #   Create graph
     #
-
     # initialize our object level variables for cylider objects
     def __init__(self, file_names="", directory=input_dir) -> None:
         self.file_names = file_names

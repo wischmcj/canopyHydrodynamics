@@ -33,6 +33,7 @@ def pytest_collection_modifyitems(items: list[Item]):
 
 @pytest.fixture
 def basic_cylinder():
+    cyl = Cylinder()
     return Cylinder()
     pass
 

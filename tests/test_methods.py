@@ -8,15 +8,17 @@ import stat
 from pathlib import Path
 
 import pytest
-
-import canhydro.global_vars as gv
 import tests.expected_results
 from canhydro.Forester import Forester
 from canhydro.utils import concave_hull, read_file_names, save_file
 from tests.expected_results import ten_cyls_rows
+from canhydro.global_vars import (
+    DIR, 
+    test_input_dir
+)
 
-DIR = gv.DIR
-test_input_dir = gv.test_input_dir
+DIR = DIR
+test_input_dir = test_input_dir
 
 
 def on_rm_error(func, path, exc_info):
@@ -58,6 +60,7 @@ expected_result = {}
 def test_create_cyliders(basic_forest):
     actual = basic_forest.get_collection_data("1_TenCyls.csv")
     expected = ten_cyls_rows
+    breakpoint()
     assert expected == actual
 
 def test_project_cyliders(basic_forest):

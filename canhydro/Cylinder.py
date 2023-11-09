@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import calendar
 import os
+from dataclasses import dataclass
+
 from math import isnan, pi, sqrt
 from multiprocessing import Pool
 from pathlib import Path
@@ -13,10 +15,10 @@ from time import sleep
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import geopandas as geo
 from matplotlib.pyplot import cm
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
-
 from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
 
 # from descartes import PolygonPatch
@@ -29,69 +31,48 @@ from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
 # import openpyxl
 # import geopandas as geo
 NAME = "Cylinder"
+@dataclass
+class Projection():
+    plane: str()
+    polygon: Polygon()
+    base_vector: list[int]
+    anti_vector: list[int]
+    angle: int()
 
-
+@dataclass
 class Cylinder:
-    # A cylinder could arguably be a data class, it also could extend Shapely.polygon
-    #
-    # Its purpose is to act as a 1-1 copy of the rows in the QSM data
-    # (rows that represent cylinders in 3-D space)
-    #
-    #
+    cyl_id:int()
+    x:np.ndarray # len 2 array
+    y:np.ndarray  # len 2 array
+    z:np.ndarray # len 2 array
+    radius:float
+    length:float
+    branch_order:int
+    branch_id:int
+    volume:float
+    parent_id:int
+    reverse_branch_order:int
+    segment_id:int
+    
+    projected_data: dict(Projection) = None
+    flow_id:int()= None
+    flow_type:str= None
+    begins_at_drip_point:bool= None
+    begins_at_divide_point:bool= None
 
-    # initialize our object level variables for cylider objects
-    def __init__(self) -> None:
-        # Base Attributes from file read in
-        # self._cylinderCollection = CylinderCollection
-        self.x = np.nan  # len 2 array
-        self.y = np.nan  # len 2 array
-        self.z = np.nan  # len 2 array
-        self.dx = np.nan  # len 2 array
-        self.dy = np.nan  # len 2 array
-        self.dz = np.nan  # len 2 array
-        self.radius = np.nan
-        self.length = np.nan
-        self.branch_order = np.nan
-        self.branch_id = np.nan
-        self.volume = np.nan
-        self.parent_id = np.nan
-        self.rev_branch_order = np.nan
-        self.segment_id = np.nan
+    stem_path_id = int
 
-        self.surface_area = np.nan
-        self.sa_to_vol = np.nan
-        self.slope = np.nan
+    dx:float = 0
+    dy:float = 0
+    dz:float = 0
+    
+    surface_area:float = 0.0
+    sa_to_vol:float = 0.0
+    slope:float = 0.0
 
-        # Calculated based off of projection
-        self.projected_data = {
-            "XY": {
-                "unit_vect": [],
-                "rev_unit_vect": [],
-                "rise_angle_rad": np.nan,
-                "polygon": None,
-            },
-            "YZ": {
-                "unit_vect": [],
-                "rev_unit_vect": [],
-                "rise_angle_rad": np.nan,
-                "polygon": None,
-            },
-            "XZ": {
-                "unit_vect": [],
-                "rev_unit_vect": [],
-                "rise_angle_rad": np.nan,
-                "polygon": None,
-            },
-        }
-
-        # graph attributes, all in 3-D
-        self.flow_id = np.nan
-        self.flow_type = np.nan
-        self.begins_at_drip_point = np.nan  # bool
-        self.begins_at_divide_point = np.nan  # bool
-
-        # others
-        self.stem_path_id = np.nan
+    # #blood for the blood god, software eng for the filter func
+    # class_attrs = self.__get_class_attributes(type(self))
+    # self.__init_instance(class_attrs, kwargs)
 
     def calc_surface_area(self):
         radius = self.radius
@@ -101,7 +82,6 @@ class Cylinder:
 
     def to_dict(self, cols: str = ""):
         if cols == "":
-            """creates a cylinder corrosponding to that defined by a given row of the qsm (attrs)"""
             attr_dict = {
                 "x": self.x,
                 "y": self.y,
@@ -117,7 +97,7 @@ class Cylinder:
                 "branch_order": self.branch_order,
                 "branch_id": self.branch_id,
                 "parent_id": self.parent_id,
-                "rev_branch_order": self.rev_branch_order,
+                "reverse_branch_order": self.reverse_branch_order,
                 "segment_id": self.segment_id,
                 "angle": self.angle,
             }
@@ -130,24 +110,38 @@ class Cylinder:
             lambda attr: attrs[columns[attr]]
         )  # pulls a column from the qsm row (attrs) corrosponding to the input attribute
 
-        self.x = [extract("x")[0], extract("x")[1]]
-        self.y = [extract("y")[0], extract("y")[1]]
-        self.z = [extract("z")[0], extract("z")[1]]
+        # self.x = [extract("x")[0], extract("x")[1]]
+        # self.y = [extract("y")[0], extract("y")[1]]
+        # self.z = [extract("z")[0], extract("z")[1]]
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] = self.z[0]
-        self.radius = extract("radius")
-        self.length = extract("length")
+        # self.radius = extract("radius")
+        # self.length = extract("length")
         self.surface_area = self.calc_surface_area()
-        self.volume = extract("volume")
+        # self.volume = extract("volume")
         self.sa_to_vol = self.surface_area / self.volume
-        self.branch_order = extract("branch_order")
-        self.branch_id = extract("branch_id")
-        self.parent_id = extract("parent_id")
-        self.rev_branch_order = extract("reverse_branch_order")
-        self.segment_id = extract("segment_id")
+        # self.branch_order = extract("branch_order")
+        # self.branch_id = extract("branch_id")
+        # self.parent_id = extract("parent_id")
+        # self.reverse_branch_order = extract("reverse_branch_order")
+        # self.segment_id = extract("segment_id")
         self.angle = np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
         log.info(str(self.to_dict()))
+
+    def meets_criteria(self,
+                        branch_order:int = -1,
+                        min_radius:int = -1,
+                        max_radius:int = -1,
+                        branch_id:int =-1,
+                        segment_id:int =-1)->bool:
+        order_match     = True if branch_order == -1 else (self.branch_order == branch_order)
+        radius_match    = self.radius>=min_radius if max_radius == -1 else (self.radius>=min_radius and self.radius<=max_radius)
+        branch_id_match = True if branch_id == -1 else (self.branch_id == branch_id)
+        seg_id_match    = True if segment_id == -1 else self.segment_id == segment_id
+        match =  order_match and radius_match and branch_id_match and seg_id_match    
+        return match
+        
 
     def get_projection(self, plane="XY"):
         noCirPoints = 360
@@ -299,14 +293,22 @@ class Cylinder:
                     print(xbC)
                     print(ybC)
         # Calculated based off of projection
-        self.projected_data[plane]["unit_vect"] = aV
-        self.projected_data[plane]["rev_unit_vect"] = bV
-        self.projected_data[plane][
-            "rise_angle_rad"
-        ] = np.nan  # havent thought through yet
-        self.projected_data[plane]["poly"] = cPS
+        projection = {"plane": plane, 
+                        "polygon": cPS, 
+                        "base_vector": aV, 
+                        "anti_vector": bV,
+                        "angle":np.nan} 
+        self.projected_data = projection
 
         return pSV
+    
+    def draw(self,plane:str = 'XY'):
+        fig, ax = plt.subplots()
+        poly = self.projected_data[plane]["poly"]
+        geoPolys =geo.GeoSeries(poly)
+        geoPolys.plot(ax=ax)
+        plt.show()
+        quit()
 
     def get_flow_data():
         """Returns the flow ID and flow characteristics of the flow the cyl is contained in"""

@@ -15,12 +15,14 @@ from pickle import dump, load
 from random import random
 from time import sleep
 
-import geopandas as geo
+import geopandas as geo #only import what we need 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import openpyxl
-import pandas as pd
+import pandas as pd #only import what we need 
+from collections import defaultdict
+
 # import settings
 from descartes import PolygonPatch
 from matplotlib.pyplot import cm
@@ -31,15 +33,18 @@ from shapely.ops import transform, unary_union
 from canhydro.Cylinder import Cylinder
 from canhydro.global_vars import log, qsm_cols
 from canhydro.utils import intermitent_log
+from canhydro.CylManager import Model
 
-NAME = "Cylinder"
 
+NAME = "CylinderCollection"
 
-class CylinderCollection:
+#By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
+class CylinderCollection(Model):
+    cylinders = defaultdict(list)
+
     # initialize our object level variables for cylider objects
     def __init__(self) -> None:
         self.file = ""
-        self.cylinders = np.array([])
 
         # Aggregate values from file
         self.surface_area = np.nan
@@ -47,7 +52,7 @@ class CylinderCollection:
         self.volume = np.nan
         self.avg_sa_to_vol = np.nan
         self.max_branch_order = np.nan
-        self.max_rev_branch_order = np.nan
+        self.max_reverse_branch_order = np.nan
         self.canopy_scope = np.nan  # desc of canopy
         self.extent = {
             "min": [np.nan, np.nan, np.nan],
@@ -102,6 +107,17 @@ class CylinderCollection:
         self.stemPolys = []
         self.compGraphs = []
 
+    def filter(self, a_lambda):
+        if a_lambda.__code__.co_name != "<lambda>":
+            raise ValueError("a lambda required")
+
+        return (
+            cyl
+            for cyl in self.cylinders
+
+            if eval(a_lambda.__code__, vars(cyl).copy())
+        )
+
     def aggregate_characteristics(self):
         """Calculates the summations, averages etc. of cylinder characterictics
         that might be of interest"""
@@ -109,7 +125,8 @@ class CylinderCollection:
 
     def create_cyl(self, arr: list):
         cols = qsm_cols
-        cyl = Cylinder()
+        attrs= { k: arr[v] for (k,v) in cols.items() }
+        cyl = Cylinder(**attrs)
         cyl.create_from_list(arr, cols)
         return cyl
 
@@ -120,7 +137,7 @@ class CylinderCollection:
         self.filename = file.name
         log.info(f"Processing {str(file)}")
         # self.arr = pd.read_csv(file, header=0)
-        self.arr = np.genfromtxt(file, delimiter=",")[1:, :-1]
+        self.arr = np.genfromtxt(file, delimiter=",",skip_header=True)[0:, :-1]
         cylinders = [self.create_cyl(row) for row in self.arr]
         self.cylinders = cylinders
 
@@ -136,8 +153,8 @@ class CylinderCollection:
             self.surface_area = np.sum([cyl.surface_area for cyl in cylinders])
             self.volume = np.sum([cyl.volume for cyl in cylinders])
             self.max_branch_order = np.max([cyl.branch_order for cyl in cylinders])
-            self.max_rev_branch_order = np.max(
-                [cyl.rev_branch_order for cyl in cylinders]
+            self.max_reverse_branch_order = np.max(
+                [cyl.reverse_branch_order for cyl in cylinders]
             )
             self.avg_sa_to_vol = (
                 np.sum([cyl.sa_to_vol for cyl in cylinders]) / self.no_cylinders
@@ -152,7 +169,7 @@ class CylinderCollection:
         self.theta = np.nan
         log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
 
-    def project_cylinders(self, plane: str):
+    def project_cylinders(self, plane: str = "XY"):
         """Projects cylinders onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
@@ -167,7 +184,35 @@ class CylinderCollection:
             # Projection Attrs
             self.union_poly = unary_union(polys)
             self.stem_path_lengths = []
-            self.pSV = None
+            self.pSV = None # unsure if I want to keep this attr
+
+    def filtered_collection(self,
+                                branch_order:int = -1,
+                                min_radius:int = -1,
+                                branch_id:int =-1,
+                                segment_id:int =-1):
+        to_return = []
+        return
+    
+    def draw_cyls(self, 
+                    plane: str = "XY", 
+                    branch_order:int = -1,
+                    min_radius:int = -1,
+                    max_radius:int = -1,
+                    branch_id:int =-1,
+                    segment_id:int =-1 ):
+        if plane not in ("XY", "XZ", "YZ"):
+            log.info(f"{plane}: invalid value for plane")
+        """Draws cylinders meeting given characteristics onto the specified plane"""
+        to_draw = [cyl.projected_data[plane]['poly'] for cyl in self.cylinders if cyl.meets_criteria(branch_order,min_radius,max_radius,branch_id,segment_id)]
+        fig, ax = plt.subplots()
+        geoPolys =geo.GeoSeries(to_draw)
+        geoPolys.plot(ax=ax)
+        plt.show()
+        # self.union_poly = unary_union(polys)
+        # self.stem_path_lengths = []
+        # self.pSV = None
+
 
     def watershed_boundary(self):
         self.hull = np.nan
