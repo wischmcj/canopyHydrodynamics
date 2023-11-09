@@ -4,23 +4,23 @@ from __future__ import annotations
 
 import calendar
 import os
-from dataclasses import dataclass
-
 from math import isnan, pi, sqrt
 from multiprocessing import Pool
 from pathlib import Path
 from random import random
 from time import sleep
+from dataclasses import dataclass, field
 
+import geopandas as geo
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import geopandas as geo
 from matplotlib.pyplot import cm
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
-from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
 
+from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
+from canhydro.DataClasses import Projection
 # from descartes import PolygonPatch
 # from mpl_toolkits import mplot3d
 
@@ -31,44 +31,46 @@ from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
 # import openpyxl
 # import geopandas as geo
 NAME = "Cylinder"
+
+
 @dataclass
-class Projection():
-    plane: str()
+class Projection:
     polygon: Polygon()
     base_vector: list[int]
     anti_vector: list[int]
     angle: int()
 
+
 @dataclass
 class Cylinder:
-    cyl_id:int()
-    x:np.ndarray # len 2 array
-    y:np.ndarray  # len 2 array
-    z:np.ndarray # len 2 array
-    radius:float
-    length:float
-    branch_order:int
-    branch_id:int
-    volume:float
-    parent_id:int
-    reverse_branch_order:int
-    segment_id:int
-    
-    projected_data: dict(Projection) = None
-    flow_id:int()= None
-    flow_type:str= None
-    begins_at_drip_point:bool= None
-    begins_at_divide_point:bool= None
+    cyl_id: int()
+    x: np.ndarray  # len 2 array
+    y: np.ndarray  # len 2 array
+    z: np.ndarray  # len 2 array
+    radius: float
+    length: float
+    branch_order: int
+    branch_id: int
+    volume: float
+    parent_id: int
+    reverse_branch_order: int
+    segment_id: int
+
+    projected_data: dict(Projection) = field(default_factory=dict)
+    flow_id: int() = None
+    flow_type: str = None
+    begins_at_drip_point: bool = None
+    begins_at_divide_point: bool = None
 
     stem_path_id = int
 
-    dx:float = 0
-    dy:float = 0
-    dz:float = 0
-    
-    surface_area:float = 0.0
-    sa_to_vol:float = 0.0
-    slope:float = 0.0
+    dx: float = 0
+    dy: float = 0
+    dz: float = 0
+
+    surface_area: float = 0.0
+    sa_to_vol: float = 0.0
+    slope: float = 0.0
 
     # #blood for the blood god, software eng for the filter func
     # class_attrs = self.__get_class_attributes(type(self))
@@ -115,7 +117,7 @@ class Cylinder:
         # self.z = [extract("z")[0], extract("z")[1]]
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
-        self.dz = self.z[1] = self.z[0]
+        self.dz = self.z[1] - self.z[0]
         # self.radius = extract("radius")
         # self.length = extract("length")
         self.surface_area = self.calc_surface_area()
@@ -129,19 +131,28 @@ class Cylinder:
         self.angle = np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
         log.info(str(self.to_dict()))
 
-    def meets_criteria(self,
-                        branch_order:int = -1,
-                        min_radius:int = -1,
-                        max_radius:int = -1,
-                        branch_id:int =-1,
-                        segment_id:int =-1)->bool:
-        order_match     = True if branch_order == -1 else (self.branch_order == branch_order)
-        radius_match    = self.radius>=min_radius if max_radius == -1 else (self.radius>=min_radius and self.radius<=max_radius)
+    def meets_criteria(
+        self,
+        branch_order: int = -1,
+        min_radius: int = -1,
+        max_radius: int = -1,
+        branch_id: int = -1,
+        segment_id: int = -1,
+        plane:str = '',
+    ) -> bool:
+        order_match = (
+            True if branch_order == -1 else (self.branch_order == branch_order)
+        )
+        radius_match = (
+            self.radius >= min_radius
+            if max_radius == -1
+            else (self.radius >= min_radius and self.radius <= max_radius)
+        )
         branch_id_match = True if branch_id == -1 else (self.branch_id == branch_id)
-        seg_id_match    = True if segment_id == -1 else self.segment_id == segment_id
-        match =  order_match and radius_match and branch_id_match and seg_id_match    
+        seg_id_match = True if segment_id == -1 else self.segment_id == segment_id
+        proj_match = self.projected_data.get(plane, '') != ''
+        match = order_match and radius_match and branch_id_match and seg_id_match and proj_match
         return match
-        
 
     def get_projection(self, plane="XY"):
         noCirPoints = 360
@@ -175,10 +186,7 @@ class Cylinder:
 
         # unit vector at base of cylinder, pointing up cylinder axis
         vNorm = np.sqrt(delt_a**2 + delt_b**2 + delt_c**2)
-        aV = (
-            np.hstack((delt_a, delt_b, delt_c))
-            / vNorm
-        )
+        aV = np.hstack((delt_a, delt_b, delt_c)) / vNorm
         bV = -aV  # unit vector looking down from top circle (but not translated)
 
         # function to find orthgonal vectors
@@ -226,10 +234,7 @@ class Cylinder:
 
                 # unit-ify the orthgonal vectors
                 uovd = np.sqrt(a_ortho**2 + b_ortho**2 + ZOrtho**2)
-                uov = (
-                    np.hstack((a_ortho, b_ortho, ZOrtho))
-                    / uovd[:, None]
-                )
+                uov = np.hstack((a_ortho, b_ortho, ZOrtho)) / uovd[:, None]
 
                 # donot re unit-fy, you only want the horizontal component, not the
                 # renormalized horizontal component
@@ -293,19 +298,20 @@ class Cylinder:
                     print(xbC)
                     print(ybC)
         # Calculated based off of projection
-        projection = {"plane": plane, 
-                        "polygon": cPS, 
-                        "base_vector": aV, 
-                        "anti_vector": bV,
-                        "angle":np.nan} 
-        self.projected_data = projection
+        projection = {
+            "polygon": cPS,
+            "base_vector": aV,
+            "anti_vector": bV,
+            "angle": np.nan,
+        }
+        self.projected_data[plane] = projection
 
         return pSV
-    
-    def draw(self,plane:str = 'XY'):
+
+    def draw(self, plane: str = "XY"):
         fig, ax = plt.subplots()
         poly = self.projected_data[plane]["poly"]
-        geoPolys =geo.GeoSeries(poly)
+        geoPolys = geo.GeoSeries(poly)
         geoPolys.plot(ax=ax)
         plt.show()
         quit()

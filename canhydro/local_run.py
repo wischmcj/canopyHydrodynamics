@@ -37,5 +37,5 @@ if __name__ == "__main__":
     forest.qsm_from_file_names(test_input_dir)
     collection = forest.cylinder_collections[0]
     breakpoint()
-    collection.project_cylinders('XY')
+    collection.project_cylinders("XY")
     breakpoint()

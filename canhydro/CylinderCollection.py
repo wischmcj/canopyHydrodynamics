@@ -9,20 +9,19 @@ import logging
 import math
 import os
 import time
+from collections import defaultdict
 from multiprocessing import Pool
 from pathlib import Path
 from pickle import dump, load
 from random import random
 from time import sleep
 
-import geopandas as geo #only import what we need 
+import geopandas as geo  # only import what we need
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import openpyxl
-import pandas as pd #only import what we need 
-from collections import defaultdict
-
+import pandas as pd  # only import what we need
 # import settings
 from descartes import PolygonPatch
 from matplotlib.pyplot import cm
@@ -31,14 +30,14 @@ from shapely.geometry import Point, Polygon
 from shapely.ops import transform, unary_union
 
 from canhydro.Cylinder import Cylinder
+from canhydro.DataClasses import Model
 from canhydro.global_vars import log, qsm_cols
 from canhydro.utils import intermitent_log
-from canhydro.CylManager import Model
-
 
 NAME = "CylinderCollection"
 
-#By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
+
+# By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
 class CylinderCollection(Model):
     cylinders = defaultdict(list)
 
@@ -112,10 +111,7 @@ class CylinderCollection(Model):
             raise ValueError("a lambda required")
 
         return (
-            cyl
-            for cyl in self.cylinders
-
-            if eval(a_lambda.__code__, vars(cyl).copy())
+            cyl for cyl in self.cylinders if eval(a_lambda.__code__, vars(cyl).copy())
         )
 
     def aggregate_characteristics(self):
@@ -125,7 +121,7 @@ class CylinderCollection(Model):
 
     def create_cyl(self, arr: list):
         cols = qsm_cols
-        attrs= { k: arr[v] for (k,v) in cols.items() }
+        attrs = {k: arr[v] for (k, v) in cols.items()}
         cyl = Cylinder(**attrs)
         cyl.create_from_list(arr, cols)
         return cyl
@@ -137,7 +133,7 @@ class CylinderCollection(Model):
         self.filename = file.name
         log.info(f"Processing {str(file)}")
         # self.arr = pd.read_csv(file, header=0)
-        self.arr = np.genfromtxt(file, delimiter=",",skip_header=True)[0:, :-1]
+        self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
         cylinders = [self.create_cyl(row) for row in self.arr]
         self.cylinders = cylinders
 
@@ -180,39 +176,50 @@ class CylinderCollection(Model):
                 poly = cyl.get_projection(plane)
                 polys.append(poly)
                 # print a progress update once every 10 thousand or so cylinders
-                intermitent_log(idx,self.no_cylinders,"Cylinder projection: ")
+                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
             # Projection Attrs
             self.union_poly = unary_union(polys)
             self.stem_path_lengths = []
-            self.pSV = None # unsure if I want to keep this attr
+            self.pSV = None  # unsure if I want to keep this attr
 
-    def filtered_collection(self,
-                                branch_order:int = -1,
-                                min_radius:int = -1,
-                                branch_id:int =-1,
-                                segment_id:int =-1):
+    def filtered_collection(
+        self,
+        branch_order: int = -1,
+        min_radius: int = -1,
+        branch_id: int = -1,
+        segment_id: int = -1,
+    ):
         to_return = []
         return
-    
-    def draw_cyls(self, 
-                    plane: str = "XY", 
-                    branch_order:int = -1,
-                    min_radius:int = -1,
-                    max_radius:int = -1,
-                    branch_id:int =-1,
-                    segment_id:int =-1 ):
+
+    def draw_cyls(
+        self,
+        plane: str = "XY",
+        branch_order: int = -1,
+        min_radius: int = -1,
+        max_radius: int = -1,
+        branch_id: int = -1,
+        segment_id: int = -1,
+    ):
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
         """Draws cylinders meeting given characteristics onto the specified plane"""
-        to_draw = [cyl.projected_data[plane]['poly'] for cyl in self.cylinders if cyl.meets_criteria(branch_order,min_radius,max_radius,branch_id,segment_id)]
+        to_draw = [
+            cyl.projected_data.get(plane).get('polygon')
+            for cyl in self.cylinders
+            if cyl.meets_criteria(
+                branch_order, min_radius, max_radius, branch_id, segment_id, plane
+            )
+        ]
+        log.info(f"{len(to_draw)} cylinders matched criteria")
         fig, ax = plt.subplots()
-        geoPolys =geo.GeoSeries(to_draw)
+        geoPolys = geo.GeoSeries(to_draw)
+        self.union_poly = unary_union(to_draw)
+        breakpoint()
         geoPolys.plot(ax=ax)
         plt.show()
-        # self.union_poly = unary_union(polys)
         # self.stem_path_lengths = []
         # self.pSV = None
-
 
     def watershed_boundary(self):
         self.hull = np.nan

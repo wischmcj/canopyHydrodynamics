@@ -39,14 +39,16 @@ NAME = "Forester"
 
 # Class(es) intented to be the workhorse(s) that manages our objects
 
+
 class CollectionManager:
     def __get__(self, obj, objtype):
         if obj is None:
             return Forester(objtype)
         else:
             raise AttributeError(
-                "Forester isn't accessible via {} instances".format(objtype)
+                f"Forester isn't accessible via {objtype} instances"
             )
+
 
 class Forester:
     #   Read in file names and create cylinder collection via CC class

@@ -1,26 +1,32 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from collections.abc import Callable
+from dataclasses import dataclass
 
 from shapely.geometry import Point, Polygon
 
+
 class MetaManager:
     "Returns a manager instance for an instance of the given object"
+
     def __get__(self, obj, objtype):
         if obj is None:
             return Manager(objtype)
         else:
             raise AttributeError(
-                "Manger isn't accessible via {} instances".format(objtype)
+                f"Manger isn't accessible via {objtype} instances"
             )
 
 
 class Manager:
     "Manages a client object"
+
     _store = defaultdict(list)
 
     def __init__(self, client):
         self._client = client
-        self._client_name = "{}.{}".format(client.__module__, client.__qualname__)
+        self._client_name = f"{client.__module__}.{client.__qualname__}"
 
     def create(self, **kwargs):
         self._store[self._client_name].append(self._client(**kwargs))
@@ -35,13 +41,13 @@ class Manager:
         return (
             obj
             for obj in self._store[self._client_name]
-
             if eval(a_lambda.__code__, vars(obj).copy())
         )
 
 
 class Model:
     "An example 'client'. Metamanager gives it an instance of a manager to manage it"
+
     cylinders = MetaManager()
 
     def __init__(self, **kwargs):
@@ -70,30 +76,32 @@ class Model:
     def __init_instance(self, attrs, kwargs_dict):
         for key, item in kwargs_dict.items():
             if key not in attrs:
-                raise TypeError('Got an unexpected key word argument "{}"'.format(key))
+                raise TypeError(f'Got an unexpected key word argument "{key}"')
             if isinstance(item, type(attrs[key])):
                 setattr(self, key, item)
             else:
                 raise TypeError(
-                    "Expected type {}, got {}".format(type(attrs[key]), type(item))
+                    f"Expected type {type(attrs[key])}, got {type(item)}"
                 )
-            
+
+
 class CylinderList(Model):
-    name = str()
+    name = ''
     id = int()
-    color = str()
+    color = ''
+
 
 if __name__ == "__main__":
     from pprint import pprint
 
     class Data(Model):
-        asdf = str()
+        asdf = ''
         adf = int()
-        asdfs = str()
+        asdfs = ''
 
         # def __init__(self,other):
         #     self.other = other
-        
+
         def myFunc(self):
             breakpoint()
             Data.cylinders.create(**{"id": 1, "name": "brad", "color": "red"})
@@ -101,8 +109,6 @@ if __name__ == "__main__":
             Data.cylinders.create(**{"id": 3, "name": "paul", "color": "red"})
             Data.cylinders.create(**{"id": 4, "name": "brandon", "color": "yello"})
             Data.cylinders.create(**{"id": 5, "name": "martin", "color": "green"})
-            
-            
 
     toby = Data()
     # toby.myFunc()
@@ -119,11 +125,12 @@ if __name__ == "__main__":
 # print([vars(obj) for obj in CylinderList.cylinders.filter(lambda: id == 1)])
 # print([vars(obj) for obj in CylinderList.cylinders.filter(lambda: 1 <= id <= 2)])
 # print([vars(obj) for obj in CylinderList.cylinders.filter(lambda: color == "blue")])
-    
 
-# class Projection():
-#     plane: str()
-#     polygon: Polygon()
-#     base_vector: list[int]
-#     anti_vector: list[int]
-#     angle: int()
+
+@dataclass
+class Projection:
+    plane: str
+    polygon: Polygon()
+    base_vector: list[int]
+    anti_vector: list[int]
+    angle: int()
