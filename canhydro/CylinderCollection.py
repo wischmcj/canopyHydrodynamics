@@ -16,8 +16,6 @@ from pickle import dump, load
 from random import random
 from time import sleep
 
-import geopandas as geo  # only import what we need
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import openpyxl
@@ -30,9 +28,10 @@ from shapely.geometry import Point, Polygon
 from shapely.ops import transform, unary_union
 
 from canhydro.Cylinder import Cylinder
-from canhydro.DataClasses import Model
+from canhydro.DataClasses import Model, QsmGraph
 from canhydro.global_vars import log, qsm_cols
 from canhydro.utils import intermitent_log
+from canhydro.Plotter import draw_cyls
 
 NAME = "CylinderCollection"
 
@@ -40,7 +39,6 @@ NAME = "CylinderCollection"
 # By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
 class CylinderCollection(Model):
     cylinders = defaultdict(list)
-
     # initialize our object level variables for cylider objects
     def __init__(self) -> None:
         self.file = ""
@@ -82,7 +80,7 @@ class CylinderCollection(Model):
         self.trunk = []  # Collection of cylinders? id list?
 
         # Graph and Attributes
-        self.graph = nx.Graph()
+        self.graph = None
         self.flows = [
             {
                 "cyls": [],
@@ -191,35 +189,28 @@ class CylinderCollection(Model):
     ):
         to_return = []
         return
+    
+    def get_collection_data(self):
+        cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
+        return cyl_desc
 
-    def draw_cyls(
+    def draw_collection(
         self,
         plane: str = "XY",
-        branch_order: int = -1,
-        min_radius: int = -1,
-        max_radius: int = -1,
-        branch_id: int = -1,
-        segment_id: int = -1,
+        **args
     ):
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
         """Draws cylinders meeting given characteristics onto the specified plane"""
         to_draw = [
-            cyl.projected_data.get(plane).get('polygon')
+            cyl.projected_data.get(plane).get("polygon")
             for cyl in self.cylinders
-            if cyl.meets_criteria(
-                branch_order, min_radius, max_radius, branch_id, segment_id, plane
-            )
+            if cyl.meets_criteria(plane = plane, **args )
         ]
-        log.info(f"{len(to_draw)} cylinders matched criteria")
-        fig, ax = plt.subplots()
-        geoPolys = geo.GeoSeries(to_draw)
-        self.union_poly = unary_union(to_draw)
         breakpoint()
-        geoPolys.plot(ax=ax)
-        plt.show()
-        # self.stem_path_lengths = []
-        # self.pSV = None
+        log.info(f"{len(to_draw)} cylinders matched criteria")
+        self.union_poly = unary_union(to_draw)
+        draw_cyls(to_draw)
 
     def watershed_boundary(self):
         self.hull = np.nan
@@ -227,7 +218,8 @@ class CylinderCollection(Model):
 
     def initialize_graph(self):
         # Graph and Attributes
-        self.graph = nx.Graph()
+        attr_dict = {}
+        self.graph = QsmGraph(attr_dict)
 
         self.flows = [
             {

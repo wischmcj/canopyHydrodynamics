@@ -30,17 +30,18 @@ def pytest_collection_modifyitems(items: list[Item]):
         elif "_int_" in item.nodeid:
             item.add_marker(pytest.mark.integration)
 
-
-@pytest.fixture
-def basic_cylinder():
-    cyl = Cylinder()
-    return Cylinder()
-    pass
-
-
 @pytest.fixture
 def basic_forest():
     forest = Forester("1_TenCyls.csv")
     forest.get_file_names(dir=test_input_dir)
     forest.qsm_from_file_names()
     return forest
+
+
+@pytest.fixture
+def ten_cyls_col(basic_forest):
+    collection = basic_forest.cylinder_collections[0]
+    return collection
+
+
+

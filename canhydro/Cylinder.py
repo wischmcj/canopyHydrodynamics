@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import calendar
 import os
+from dataclasses import dataclass, field
 from math import isnan, pi, sqrt
 from multiprocessing import Pool
 from pathlib import Path
 from random import random
 from time import sleep
-from dataclasses import dataclass, field
 
 import geopandas as geo
 import matplotlib.pyplot as plt
@@ -19,8 +19,9 @@ from matplotlib.pyplot import cm
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 
-from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
 from canhydro.DataClasses import Projection
+from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
+
 # from descartes import PolygonPatch
 # from mpl_toolkits import mplot3d
 
@@ -112,33 +113,22 @@ class Cylinder:
             lambda attr: attrs[columns[attr]]
         )  # pulls a column from the qsm row (attrs) corrosponding to the input attribute
 
-        # self.x = [extract("x")[0], extract("x")[1]]
-        # self.y = [extract("y")[0], extract("y")[1]]
-        # self.z = [extract("z")[0], extract("z")[1]]
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] - self.z[0]
-        # self.radius = extract("radius")
-        # self.length = extract("length")
         self.surface_area = self.calc_surface_area()
-        # self.volume = extract("volume")
         self.sa_to_vol = self.surface_area / self.volume
-        # self.branch_order = extract("branch_order")
-        # self.branch_id = extract("branch_id")
-        # self.parent_id = extract("parent_id")
-        # self.reverse_branch_order = extract("reverse_branch_order")
-        # self.segment_id = extract("segment_id")
         self.angle = np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
-        log.info(str(self.to_dict()))
+        log.info(str(self.__repr__()))
 
     def meets_criteria(
         self,
+        plane: str = "",
         branch_order: int = -1,
         min_radius: int = -1,
         max_radius: int = -1,
         branch_id: int = -1,
         segment_id: int = -1,
-        plane:str = '',
     ) -> bool:
         order_match = (
             True if branch_order == -1 else (self.branch_order == branch_order)
@@ -150,8 +140,14 @@ class Cylinder:
         )
         branch_id_match = True if branch_id == -1 else (self.branch_id == branch_id)
         seg_id_match = True if segment_id == -1 else self.segment_id == segment_id
-        proj_match = self.projected_data.get(plane, '') != ''
-        match = order_match and radius_match and branch_id_match and seg_id_match and proj_match
+        proj_match = self.projected_data.get(plane, "") != ""
+        match = (
+            order_match
+            and radius_match
+            and branch_id_match
+            and seg_id_match
+            and proj_match
+        )
         return match
 
     def get_projection(self, plane="XY"):

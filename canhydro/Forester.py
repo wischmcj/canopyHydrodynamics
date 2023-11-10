@@ -45,9 +45,7 @@ class CollectionManager:
         if obj is None:
             return Forester(objtype)
         else:
-            raise AttributeError(
-                f"Forester isn't accessible via {objtype} instances"
-            )
+            raise AttributeError(f"Forester isn't accessible via {objtype} instances")
 
 
 class Forester:
@@ -87,154 +85,6 @@ class Forester:
         # can be used to calculate flows on graphs with demands
         # we could set a demand of generates X volume of flow
         print("nxs")
-
-    def get_collection_data(self, filename: str):
-        for collection in self.cylinder_collections:
-            cyls = [
-                cyl for cyl in collection.cylinders if collection.filename == filename
-            ]
-            cyl_dics = [str(cyl.to_dict()) for cyl in cyls]
-        return cyl_dics
-
-    # #its pro-ject not prah-ject
-    # def projectCylinders(self,forceXY = False):
-    #     log.info(self.fileName + " cylinder projection begun")
-    #     noCirPoints = 360
-
-    #     tCir = np.linspace(0,2*np.pi,noCirPoints) #360 evenly spaced points between 0 - 2pi (radian degrees)
-
-    #     XOrtho = np.cos(tCir)
-    #     YOrtho = np.sin(tCir)
-
-    #     if forceXY:
-    #         dx = self.df.iloc[:,6].to_numpy() - self.df.iloc[:,3].to_numpy()
-    #         dy = self.df.iloc[:,7].to_numpy() - self.df.iloc[:,4].to_numpy()
-    #         dz = self.df.iloc[:,8].to_numpy() - self.df.iloc[:,5].to_numpy()
-    #         x = np.transpose(self.df.iloc[:,[3,6]].to_numpy())
-    #         y = np.transpose(self.df.iloc[:,[4,7]].to_numpy())
-    #         z = np.transpose(self.df.iloc[:,[5,8]].to_numpy())
-    #     else:
-    #         self.pSV=[]
-    #         dx = self.dx
-    #         dy = self.dy
-    #         dz = self.dz
-    #         x = self.x
-    #         y = self.y
-    #         z = self.z
-
-    #     #unit vector at base of cylinder, pointing up cylinder axis
-    #     vNorm = (np.sqrt(dx**2+dy**2+dz**2))
-    #     aV = np.hstack((dx[:,None],dy[:,None],dz[:,None]))/vNorm[:,None]
-    #     bV = -aV; #unit vector looking down from top circle (but not translated)
-    #     if not forceXY:
-    #         self.aV = aV
-    #         self.bV = bV
-    #     #function to find orthgonal vectors
-    #     oVz = lambda v,a,b : ((-v[0]*a - v[1]*b)/v[2])
-
-    #     #initializing min max arrays+
-    #     minZ = np.zeros_like(dz)
-    #     maxZ = np.zeros_like(dz)
-
-    #     pSV = []
-
-    #     #for each cylinder
-    #     for idx in range(len(self.df.index)):
-
-    #         #in the case there's no horizontal movement of the cylinder ends, it's
-    #         #area is a circle.
-    #         if not np.isnan(x[0,idx]):
-    #             if np.logical_and(dx[idx] == 0, dy[idx] == 0):
-
-    #                 pX = x[0,idx] + self.radius[idx]*XOrtho
-    #                 pY = y[0,idx] + self.radius[idx]*YOrtho
-    #                 cPS = Polygon(list(zip(pX,pY)))
-    #                 minZ[idx] = np.min(z[:,idx])
-    #                 maxZ[idx] = np.max(z[:,idx])
-    #             else:
-    #                 #find orthogonal vectors @ endpoints
-    #                 aVp1 = np.hstack((aV[idx,1],-aV[idx,0]))
-    #                 aVp2 = np.hstack((-aV[idx,1],aV[idx,0]))
-    #                 bVp1 = np.hstack((bV[idx,1],-bV[idx,0]))
-    #                 bVp2 = np.hstack((-bV[idx,1],bV[idx,0]))
-
-    #                 aVp1 = aVp1/np.linalg.norm(aVp1)
-    #                 aVp2 = aVp2/np.linalg.norm(aVp2)
-    #                 bVp1 = bVp1/np.linalg.norm(bVp1)
-    #                 bVp2 = bVp2/np.linalg.norm(bVp2)
-
-    #                 #from each endpoint, use radius to find vertices of the rectangle
-    #                 x1 = x[0,idx] + self.radius[idx]*aVp1[0]
-    #                 y1 = y[0,idx] + self.radius[idx]*aVp1[1]
-    #                 x2 = x[0,idx] + self.radius[idx]*aVp2[0]
-    #                 y2 = y[0,idx] + self.radius[idx]*aVp2[1]
-    #                 x3 = x[1,idx] + self.radius[idx]*bVp1[0]
-    #                 y3 = y[1,idx] + self.radius[idx]*bVp1[1]
-    #                 x4 = x[1,idx] + self.radius[idx]*bVp2[0]
-    #                 y4 = y[1,idx] + self.radius[idx]*bVp2[1]
-
-    #                 #calculate set of orthgonal vectors using lambda function
-    #                 ZOrtho = oVz(aV[idx,:],XOrtho,YOrtho)
-
-    #                 #unit-ify the orthgonal vectors
-    #                 uovd = np.sqrt(XOrtho**2 + YOrtho**2 + ZOrtho**2)
-    #                 uov = np.hstack((XOrtho[:,None],YOrtho[:,None],ZOrtho[:,None]))/uovd[:,None]
-
-    #                 #donot re unit-fy, you only want the horizontal component, not the
-    #                 #renormalized horizontal component
-
-    #                 #using only the X and Y components, find circle coods in plane of
-    #                 #interest
-    #                 xaC = x[0,idx] + uov[:,0]*self.radius[idx]
-    #                 yaC = y[0,idx] + uov[:,1]*self.radius[idx]
-    #                 zaC = z[0,idx] + uov[:,2]*self.radius[idx]
-
-    #                 xbC = x[1,idx] + uov[:,0]*self.radius[idx]
-    #                 ybC = y[1,idx] + uov[:,1]*self.radius[idx]
-    #                 zbC = z[1,idx] + uov[:,2]*self.radius[idx]
-
-    #                 minZ[idx] = np.min(np.vstack((zaC, zbC)))
-    #                 maxZ[idx] = np.max(np.vstack((zaC, zbC)))
-
-    #                 #assymble total package
-    #                 rX = np.vstack((x1, x2, x3, x4))
-    #                 rY = np.vstack((y1, y2, y3, y4))
-
-    #                 #test for circle parts in polygon
-    #                 try:
-    #                     c1 = Polygon(list(zip([0 if math.isnan(x) else x for x in xaC],[0 if math.isnan(y) else y for y in yaC])))
-    #                     bBox = Polygon(list(zip([0 if math.isnan(x) else x for x in rX],[0 if math.isnan(y) else y for y in rY])))
-    #                     c2 = Polygon(list(zip([0 if math.isnan(x) else x for x in xbC],[0 if math.isnan(y) else y for y in ybC])))
-
-    #                     partsPS = [c1,bBox,c2]
-    #                 except:
-    #                     print(idx)
-    #                     # print(list(zip(xaC,yaC)))
-    #                     # print(list(zip(xbC,ybC)))
-
-    #                 try:
-    #                     cPS = unary_union(partsPS)
-    #                 except:
-    #                     print(np.any(np.isnan(xaC)))
-    #                     # print(yaC)
-    #                     # print(rX)
-    #                     # print(rY)
-    #                     # print(xbC)
-    #                     # print(ybC)
-    #             #cPS = cPS.simplify(0.02,preserve_topology=False)
-    #             pSV.append(cPS) #save polygons
-
-    #             #print a progress update once every 10 thousand or so cylinders
-    #             if np.random.uniform(0,1,1) < 0.0001:
-    #                 log.info(self.fileName + ': completed projection of cyl {} \n'.format(np.round((idx/self.noCylinders)*100,decimals=1)))
-    #                 print('completed cyl projection {} \n'.format(np.round((idx/self.noCylinders)*100,decimals=1)))
-    #         if self.projection == 'XY':
-    #             self.pSVXY =pSV
-    #             self.pSV =pSV
-    #         if forceXY:
-    #             self.pSVXY =pSV
-    #         else:
-    #             self.pSV=pSV
 
     # def createGraph(self):
     #     self.projectCylinders(forceXY = True)
@@ -958,8 +808,8 @@ class Forester:
     #     self.treeQualities['stem_surface_area'] = 0
 
     #     flowStats['labels'] = flowStats.index
-    #     flowStats['file']= self.fileName
 
+    #     flowStats['file']= self.fileName
     #     self.saveFile(self.treeQualities, 'stats','.xlsx', 'nonDripStats' )
 
     #     self.saveFile(flowStats, 'stats','.xlsx', 'flowDesc' )
