@@ -71,7 +71,7 @@ class Forester:
         log.info(f"The following files found in {dir}: {file_names}")
         return paths
 
-    def qsm_from_file_names(self, dir=input_dir, file_name:str = None):
+    def qsm_from_file_names(self, dir=input_dir, file_name: str = None):
         if self.file_names == "":
             self.get_file_names(dir)
         collections = []

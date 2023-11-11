@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import calendar
 import os
+from collections import defaultdict
 from dataclasses import dataclass, field
 from math import isnan, pi, sqrt
 from multiprocessing import Pool
 from pathlib import Path
 from random import random
 from time import sleep
-from collections import defaultdict
 
 import geopandas as geo
 import matplotlib.pyplot as plt
@@ -35,8 +35,9 @@ from canhydro.Plotter import draw_cyls
 # import geopandas as geo
 NAME = "Cylinder"
 
+
 @dataclass
-class Cylinder: #(defaultdict):
+class Cylinder:  # (defaultdict):
     cyl_id: int()
     x: np.ndarray  # len 2 array
     y: np.ndarray  # len 2 array
@@ -83,7 +84,7 @@ class Cylinder: #(defaultdict):
                 "y": self.y,
                 "z": self.z,
                 "radius": self.radius,
-                "unit_vector": self.projected_data[''],
+                "unit_vector": self.projected_data[""],
                 "length": self.length,
                 "surface_area": self.surface_area,
                 "volume": self.volume,
@@ -115,12 +116,14 @@ class Cylinder: #(defaultdict):
     def meets_criteria(
         self,
         plane: str = "",
+        highlight:bool = False,
+        color:str = '',
         branch_order: int = -1,
         min_radius: int = -1,
         max_radius: int = -1,
         branch_id: int = -1,
         segment_id: int = -1,
-    ) -> bool:
+    ) -> str:
         order_match = (
             True if branch_order == -1 else (self.branch_order == branch_order)
         )
@@ -139,7 +142,9 @@ class Cylinder: #(defaultdict):
             and seg_id_match
             and proj_match
         )
-        return match
+        return_color = color if color else 'blue'
+        to_return = return_color if match else 'grey' if highlight else ''
+        return to_return
 
     def get_projection(self, plane="XY"):
         noCirPoints = 360
@@ -217,17 +222,20 @@ class Cylinder: #(defaultdict):
                     y4 = dim_b[1] + self.radius * bVp2[1]
 
                     # calculate set of orthgonal vectors using lambda function
-                    #That is 360 orthogonal vectors ending at eqidistant points along
-                    # a circle of radius self.radius with the starting point of our cylinder 
+                    # That is 360 orthogonal vectors ending at eqidistant points along
+                    # a circle of radius self.radius with the starting point of our cylinder
                     # at is center
                     ZOrtho = oVz(aV[:], a_ortho, b_ortho)
 
                     # unit-ify the orthgonal vectors
                     uovd = np.sqrt(a_ortho**2 + b_ortho**2 + ZOrtho**2)
                     # breakpoint()
-                    # Confounded - why does removing the first three [:,None]'s below lead to non-circular projections 
+                    # Confounded - why does removing the first three [:,None]'s below lead to non-circular projections
                     # for XZ?
-                    uov = np.hstack((a_ortho[:, None], b_ortho[:, None], ZOrtho[:, None])) / uovd[:, None]
+                    uov = (
+                        np.hstack((a_ortho[:, None], b_ortho[:, None], ZOrtho[:, None]))
+                        / uovd[:, None]
+                    )
 
                     # donot re unit-fy, you only want the horizontal component, not the
                     # renormalized horizontal component
@@ -291,7 +299,7 @@ class Cylinder: #(defaultdict):
                         print(xbC)
                         print(ybC)
                     # get angle away from plane projected on to
-                    run = sqrt(delt_b** 2 + delt_a ** 2)
+                    run = sqrt(delt_b**2 + delt_a**2)
                     rise = delt_c
                     if run == 0:
                         slope = 1  # straightDown e.g. is in flow
@@ -310,9 +318,8 @@ class Cylinder: #(defaultdict):
                 breakpoint()
                 log.info(f"dim_a[0] is null, unable to project cylinder {self.cyl_id}")
             return cPS
-        except(UnboundLocalError):
+        except UnboundLocalError:
             log.info(f"UnboundLocalError for {self.__dict__}")
-
 
     def draw(self, plane: str = "XY"):
         poly = self.projected_data[plane]["poly"]

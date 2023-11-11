@@ -194,18 +194,21 @@ class CylinderCollection:
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
         return cyl_desc
 
-    def draw_collection(self, plane: str = "XY", **args):
+    def draw(self, plane: str = "XY", **filter):
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
         """Draws cylinders meeting given characteristics onto the specified plane"""
-        to_draw = [
-            cyl.projected_data.get(plane).get("polygon")
+        filtered = [
+            (cyl.projected_data.get(plane).get("polygon"),
+             cyl.meets_criteria(plane=plane, **filter))
             for cyl in self.cylinders
-            if cyl.meets_criteria(plane=plane, **args)
         ]
+        breakpoint()
+        to_draw = [u for (u,v) in filtered if v]
+        color = [v for (u,v) in filtered if v]
         log.info(f"{len(to_draw)} cylinders matched criteria")
         self.union_poly = unary_union(to_draw)
-        draw_cyls(to_draw)
+        draw_cyls(collection =to_draw, colors = color)
 
     def watershed_boundary(self):
         self.hull = np.nan
@@ -216,12 +219,11 @@ class CylinderCollection:
         gr = nx.Graph()
         for cyl in self.cylinders:
             attr = cyl.__dict__
-            child_node = attr['cyl_id']
-            parent_node = attr['parent_id']
-            gr.add_edge(child_node,parent_node,**attr)
+            child_node = attr["cyl_id"]
+            parent_node = attr["parent_id"]
+            gr.add_edge(child_node, parent_node, **attr)
         self.graph = gr
 
-        
         # R = {}
         # sid = self.df[" ID"]
         # pid = self.df[" parentID"]
@@ -328,10 +330,6 @@ class CylinderCollection:
         #         )
         # self.graph = gr
         # self.diGraph = dg
-
-
-
-
 
         # self.graph = QsmGraph(attr_dict)
 

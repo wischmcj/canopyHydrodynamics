@@ -38,11 +38,11 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
 
 <h2>Known Issues</h2>
  - The projection algorithm is an approximation
- - e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad 
+ - e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad
 
 
  <h2>Useful scripts</h2>
- Draw all projections 
+ Draw all projections
   import geopandas as geo  # only import what we need
   import matplotlib.pyplot as plt
   happy_path_projection.project_cylinders('XY')

@@ -11,7 +11,7 @@ import tests.expected_results
 from canhydro.Forester import Forester
 from canhydro.global_vars import DIR, test_input_dir
 from canhydro.utils import concave_hull, read_file_names, save_file
-from tests.expected_results import ten_cyls_rows, ten_cyls_edges
+from tests.expected_results import ten_cyls_edges, ten_cyls_rows
 
 DIR = DIR
 test_input_dir = test_input_dir

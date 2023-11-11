@@ -44,18 +44,20 @@ def ten_cyls_col(basic_forest):
     collection = basic_forest.cylinder_collections[0]
     return collection
 
+
 @pytest.fixture
 def ez_projection():
     forest = Forester()
-    forest.get_file_names(dir=test_input_dir )
-    forest.qsm_from_file_names(file_name= "2_EZ_projection.csv")
+    forest.get_file_names(dir=test_input_dir)
+    forest.qsm_from_file_names(file_name="2_EZ_projection.csv")
     collection = forest.cylinder_collections[0]
     return collection
+
 
 @pytest.fixture
 def happy_path_projection():
     forest = Forester()
     forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name= "3_HappyPathWTrunk.csv")
+    forest.qsm_from_file_names(file_name="3_HappyPathWTrunk.csv")
     collection = forest.cylinder_collections[0]
     return collection

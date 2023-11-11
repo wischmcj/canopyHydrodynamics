@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import networkx as nx
 from shapely.geometry import Point, Polygon
 
+
 @dataclass
 class Projection:
     plane: str
@@ -14,6 +15,7 @@ class Projection:
     base_vector: list[int]
     anti_vector: list[int]
     angle: int()
+
 
 # @dataclass
 # one day... https://stackoverflow.com/questions/29446089/networkx-extensibility-for-custom-storage-of-nodes-edges
@@ -24,114 +26,114 @@ class Projection:
 #         super().__init__()  # call graph constructor
 #         self.val = val
 
-    # def load_qsm():
-    #     R = {}
-    #     sid = self.df[" ID"]
-    #     pid = self.df[" parentID"]
-    #     sid.min()
+# def load_qsm():
+#     R = {}
+#     sid = self.df[" ID"]
+#     pid = self.df[" parentID"]
+#     sid.min()
 
-    #     # QSM's are projected in different directions by swapping x,y and z values
-    #     # however, for out edge calcualtions we need the typical orientation
-    #     if self.projection == "XZ":
-    #         hypo = self.dy
-    #         a_leg = self.dx
-    #         b_leg = self.dz
-    #     elif self.projection == "YZ":
-    #         hypo = self.dx
-    #         a_leg = self.dy
-    #         b_leg = self.dz
-    #     else:  # 'XY'
-    #         hypo = self.dz
-    #         a_leg = self.dy
-    #         b_leg = self.dx
+#     # QSM's are projected in different directions by swapping x,y and z values
+#     # however, for out edge calcualtions we need the typical orientation
+#     if self.projection == "XZ":
+#         hypo = self.dy
+#         a_leg = self.dx
+#         b_leg = self.dz
+#     elif self.projection == "YZ":
+#         hypo = self.dx
+#         a_leg = self.dy
+#         b_leg = self.dz
+#     else:  # 'XY'
+#         hypo = self.dz
+#         a_leg = self.dy
+#         b_leg = self.dx
 
-    #     attr = []
-    #     gr = nx.Graph()
-    #     dg = nx.DiGraph()
-    #     for idx, curr_cyl_data in self.df.iterrows():
-    #         # print a progress update once every 10 thousand or so cylinders
-    #         # if np.random.uniform(0,1,1) < 0.0001:
-    #         #     log.info(self.fileName + ':  wdgraph - adding edge  {} \n'.format(np.round((idx/len(self.df[0]))*100,decimals=1)))
-    #         #     print('wdgraph - adding edges completed {} \n'.format(np.round((idx/len(self.df[0]))*100,decimals=1)))
+#     attr = []
+#     gr = nx.Graph()
+#     dg = nx.DiGraph()
+#     for idx, curr_cyl_data in self.df.iterrows():
+#         # print a progress update once every 10 thousand or so cylinders
+#         # if np.random.uniform(0,1,1) < 0.0001:
+#         #     log.info(self.fileName + ':  wdgraph - adding edge  {} \n'.format(np.round((idx/len(self.df[0]))*100,decimals=1)))
+#         #     print('wdgraph - adding edges completed {} \n'.format(np.round((idx/len(self.df[0]))*100,decimals=1)))
 
-    #         # Our first cylinder has ID 0 and parentID -1.
-    #         # As a result cyilinder 0 is represented by and edge from node 0 to 1, and so on
-    #         child_node = sid[idx] + 1
-    #         par_node = pid[idx] + 1
-    #         curr_cyl_id = idx
-    #         par_cyl_id = np.where(sid == pid[idx])
+#         # Our first cylinder has ID 0 and parentID -1.
+#         # As a result cyilinder 0 is represented by and edge from node 0 to 1, and so on
+#         child_node = sid[idx] + 1
+#         par_node = pid[idx] + 1
+#         curr_cyl_id = idx
+#         par_cyl_id = np.where(sid == pid[idx])
 
-    #         len_idx = curr_cyl_data[12]
-    #         radius_idx = curr_cyl_data[9]
-    #         poly_idx = self.pSVXY[curr_cyl_id]
-    #         vector_idx = self.aV[curr_cyl_id]
+#         len_idx = curr_cyl_data[12]
+#         radius_idx = curr_cyl_data[9]
+#         poly_idx = self.pSVXY[curr_cyl_id]
+#         vector_idx = self.aV[curr_cyl_id]
 
-    #         run = math.sqrt(a_leg[curr_cyl_id] ** 2 + b_leg[curr_cyl_id] ** 2)
-    #         rise = hypo[curr_cyl_id]
-    #         if run == 0:
-    #             slope_idx = 1  # straightDown e.g. is in flow
-    #         else:
-    #             slope_idx = rise / run
+#         run = math.sqrt(a_leg[curr_cyl_id] ** 2 + b_leg[curr_cyl_id] ** 2)
+#         rise = hypo[curr_cyl_id]
+#         if run == 0:
+#             slope_idx = 1  # straightDown e.g. is in flow
+#         else:
+#             slope_idx = rise / run
 
-    #         sa_idx = (
-    #             2 * np.pi * radius_idx * (radius_idx + len_idx)
-    #             - 2 * np.pi * radius_idx * radius_idx
-    #         )
-    #         pa_idx = poly_idx.area
-    #         vol_idx = 2 * np.pi * len_idx * radius_idx * radius_idx
-    #         sa_to_vol_idx = sa_idx / vol_idx
-    #         ang_idx = np.arctan(slope_idx)
-    #         bo_idx = curr_cyl_data[20]
+#         sa_idx = (
+#             2 * np.pi * radius_idx * (radius_idx + len_idx)
+#             - 2 * np.pi * radius_idx * radius_idx
+#         )
+#         pa_idx = poly_idx.area
+#         vol_idx = 2 * np.pi * len_idx * radius_idx * radius_idx
+#         sa_to_vol_idx = sa_idx / vol_idx
+#         ang_idx = np.arctan(slope_idx)
+#         bo_idx = curr_cyl_data[20]
 
-    #         gr.add_edge(
-    #             child_node,
-    #             par_node,
-    #             length=len_idx,
-    #             radius=radius_idx,
-    #             aV=vector_idx,
-    #             poly=poly_idx,
-    #             inFlowGrade=slope_idx,
-    #             pa=pa_idx,
-    #             sa=sa_idx,
-    #             ang=ang_idx,
-    #             vol=vol_idx,
-    #             sa_to_vol=sa_to_vol_idx,
-    #             bo=bo_idx,
-    #         )
-    #         if slope_idx < (0 - (1 / 6)):
-    #             dg.add_edge(
-    #                 child_node,
-    #                 par_node,
-    #                 length=len_idx,
-    #                 radius=radius_idx,
-    #                 aV=vector_idx,
-    #                 poly=poly_idx,
-    #                 inFlowGrade=slope_idx,
-    #                 pa=pa_idx,
-    #                 sa=sa_idx,
-    #                 ang=ang_idx,
-    #                 vol=vol_idx,
-    #                 sa_to_vol=sa_to_vol_idx,
-    #                 bo=bo_idx,
-    #             )
-    #         else:
-    #             dg.add_edge(
-    #                 par_node,
-    #                 child_node,
-    #                 length=len_idx,
-    #                 radius=radius_idx,
-    #                 aV=vector_idx,
-    #                 poly=poly_idx,
-    #                 inFlowGrade=slope_idx,
-    #                 pa=pa_idx,
-    #                 sa=sa_idx,
-    #                 ang=ang_idx,
-    #                 vol=ang_idx,
-    #                 sa_to_vol=sa_to_vol_idx,
-    #                 bo=bo_idx,
-    #             )
-    #     self.graph = gr
-    #     self.diGraph = dg
+#         gr.add_edge(
+#             child_node,
+#             par_node,
+#             length=len_idx,
+#             radius=radius_idx,
+#             aV=vector_idx,
+#             poly=poly_idx,
+#             inFlowGrade=slope_idx,
+#             pa=pa_idx,
+#             sa=sa_idx,
+#             ang=ang_idx,
+#             vol=vol_idx,
+#             sa_to_vol=sa_to_vol_idx,
+#             bo=bo_idx,
+#         )
+#         if slope_idx < (0 - (1 / 6)):
+#             dg.add_edge(
+#                 child_node,
+#                 par_node,
+#                 length=len_idx,
+#                 radius=radius_idx,
+#                 aV=vector_idx,
+#                 poly=poly_idx,
+#                 inFlowGrade=slope_idx,
+#                 pa=pa_idx,
+#                 sa=sa_idx,
+#                 ang=ang_idx,
+#                 vol=vol_idx,
+#                 sa_to_vol=sa_to_vol_idx,
+#                 bo=bo_idx,
+#             )
+#         else:
+#             dg.add_edge(
+#                 par_node,
+#                 child_node,
+#                 length=len_idx,
+#                 radius=radius_idx,
+#                 aV=vector_idx,
+#                 poly=poly_idx,
+#                 inFlowGrade=slope_idx,
+#                 pa=pa_idx,
+#                 sa=sa_idx,
+#                 ang=ang_idx,
+#                 vol=ang_idx,
+#                 sa_to_vol=sa_to_vol_idx,
+#                 bo=bo_idx,
+#             )
+#     self.graph = gr
+#     self.diGraph = dg
 
 
 # class MetaManager:
@@ -231,12 +233,12 @@ class Projection:
 #     toby.myFunc()
 #     pprint([vars(obj) for obj in Data.objects.filter(lambda: id == 1)])
 
-    # causes the creation of cylinder list objects withing cylinderList.cylinders
-    # class UserClass():
-    #     myList = CylinderList()
+# causes the creation of cylinder list objects withing cylinderList.cylinders
+# class UserClass():
+#     myList = CylinderList()
 
-    #     def addCyl(self,**args):
-    #         self.myList.cylinders.create(**args)
+#     def addCyl(self,**args):
+#         self.myList.cylinders.create(**args)
 
 
 # myUserClass = UserClass()
