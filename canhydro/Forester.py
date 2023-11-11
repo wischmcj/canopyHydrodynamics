@@ -71,14 +71,15 @@ class Forester:
         log.info(f"The following files found in {dir}: {file_names}")
         return paths
 
-    def qsm_from_file_names(self, dir=input_dir):
+    def qsm_from_file_names(self, dir=input_dir, file_name:str = None):
         if self.file_names == "":
             self.get_file_names(dir)
         collections = []
-        for filename in self.file_names:
-            c = CylinderCollection()
-            c.from_csv(filename, dir)
-            collections.append(c)
+        for file_obj in self.file_names:
+            if file_name == None or file_obj.name == file_name:
+                c = CylinderCollection()
+                c.from_csv(file_obj, dir)
+                collections.append(c)
         self.cylinder_collections = collections
 
     def networkSimplex():

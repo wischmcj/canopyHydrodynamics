@@ -30,9 +30,10 @@ def pytest_collection_modifyitems(items: list[Item]):
         elif "_int_" in item.nodeid:
             item.add_marker(pytest.mark.integration)
 
+
 @pytest.fixture
 def basic_forest():
-    forest = Forester("1_TenCyls.csv")
+    forest = Forester()
     forest.get_file_names(dir=test_input_dir)
     forest.qsm_from_file_names()
     return forest
@@ -43,5 +44,18 @@ def ten_cyls_col(basic_forest):
     collection = basic_forest.cylinder_collections[0]
     return collection
 
+@pytest.fixture
+def ez_projection():
+    forest = Forester()
+    forest.get_file_names(dir=test_input_dir )
+    forest.qsm_from_file_names(file_name= "2_EZ_projection.csv")
+    collection = forest.cylinder_collections[0]
+    return collection
 
-
+@pytest.fixture
+def happy_path_projection():
+    forest = Forester()
+    forest.get_file_names(dir=test_input_dir)
+    forest.qsm_from_file_names(file_name= "3_HappyPathWTrunk.csv")
+    collection = forest.cylinder_collections[0]
+    return collection

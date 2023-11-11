@@ -28,17 +28,17 @@ from shapely.geometry import Point, Polygon
 from shapely.ops import transform, unary_union
 
 from canhydro.Cylinder import Cylinder
-from canhydro.DataClasses import Model, QsmGraph
 from canhydro.global_vars import log, qsm_cols
-from canhydro.utils import intermitent_log
 from canhydro.Plotter import draw_cyls
+from canhydro.utils import intermitent_log
 
 NAME = "CylinderCollection"
 
 
 # By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
-class CylinderCollection(Model):
+class CylinderCollection:
     cylinders = defaultdict(list)
+
     # initialize our object level variables for cylider objects
     def __init__(self) -> None:
         self.file = ""
@@ -169,7 +169,7 @@ class CylinderCollection(Model):
             log.info(f"{plane}: invalid value for plane")
         else:
             polys = []
-            log.info(f"Projecction into {plane} axis begun for file {self.filename}")
+            log.info(f"Projection into {plane} axis begun for file {self.filename}")
             for idx, cyl in enumerate(self.cylinders):
                 poly = cyl.get_projection(plane)
                 polys.append(poly)
@@ -189,25 +189,20 @@ class CylinderCollection(Model):
     ):
         to_return = []
         return
-    
+
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
         return cyl_desc
 
-    def draw_collection(
-        self,
-        plane: str = "XY",
-        **args
-    ):
+    def draw_collection(self, plane: str = "XY", **args):
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
         """Draws cylinders meeting given characteristics onto the specified plane"""
         to_draw = [
             cyl.projected_data.get(plane).get("polygon")
             for cyl in self.cylinders
-            if cyl.meets_criteria(plane = plane, **args )
+            if cyl.meets_criteria(plane=plane, **args)
         ]
-        breakpoint()
         log.info(f"{len(to_draw)} cylinders matched criteria")
         self.union_poly = unary_union(to_draw)
         draw_cyls(to_draw)
@@ -218,30 +213,149 @@ class CylinderCollection(Model):
 
     def initialize_graph(self):
         # Graph and Attributes
-        attr_dict = {}
-        self.graph = QsmGraph(attr_dict)
+        gr = nx.Graph()
+        for cyl in self.cylinders:
+            attr = cyl.__dict__
+            child_node = attr['cyl_id']
+            parent_node = attr['parent_id']
+            gr.add_edge(child_node,parent_node,**attr)
+        self.graph = gr
 
-        self.flows = [
-            {
-                "cyls": [],
-                "drip_point": id,
-                "attributes": {"cyls": 0, "len": 0, "sa": 0, "pa": 0, "as": 0},
-            }
-        ]
-        self.drip_points = {"x": np.nan, "y": np.nan, "z": np.nan, "flow_id": np.nan}
-        self.flow_to_drip = {
-            0: 1
-        }  # A dictionary of flow ids with values equal to their drip node ids
-        self.trunk_nodes = []
-        self.drip_loc = np.nan
+        
+        # R = {}
+        # sid = self.df[" ID"]
+        # pid = self.df[" parentID"]
+        # sid.min()
 
-        # Calculations using graph results
-        self.stemTotal = {
-            "attributes": {"cyls": 0, "len": 0, "sa": 0, "pa": 0, "as": 0},
-            "loc": {"x": np.nan, "y": np.nan, "z": np.nan},
-        }
-        self.divide_points = []
-        self.stemPolys = []
+        # # QSM's are projected in different directions by swapping x,y and z values
+        # # however, for out edge calcualtions we need the typical orientation
+        # if self.projection == "XZ":
+        #     hypo = self.dy
+        #     a_leg = self.dx
+        #     b_leg = self.dz
+        # elif self.projection == "YZ":
+        #     hypo = self.dx
+        #     a_leg = self.dy
+        #     b_leg = self.dz
+        # else:  # 'XY'
+        #     hypo = self.dz
+        #     a_leg = self.dy
+        #     b_leg = self.dx
+
+        # attr = []
+        # gr = nx.Graph()
+        # for idx, curr_cyl_data in self.df.iterrows():
+        #     # print a progress update once every 10 thousand or so cylinders
+        #     # if np.random.uniform(0,1,1) < 0.0001:
+        #     #     log.info(self.fileName + ':  wdgraph - adding edge  {} \n'.format(np.round((idx/len(self.df[0]))*100,decimals=1)))
+        #     #     print('wdgraph - adding edges completed {} \n'.format(np.round((idx/len(self.df[0]))*100,decimals=1)))
+
+        #     # Our first cylinder has ID 0 and parentID -1.
+        #     # As a result cyilinder 0 is represented by and edge from node 0 to 1, and so on
+        #     child_node = sid[idx] + 1
+        #     par_node = pid[idx] + 1
+        #     curr_cyl_id = idx
+        #     par_cyl_id = np.where(sid == pid[idx])
+
+        #     len_idx = curr_cyl_data[12]
+        #     radius_idx = curr_cyl_data[9]
+        #     poly_idx = self.pSVXY[curr_cyl_id]
+        #     vector_idx = self.aV[curr_cyl_id]
+
+        #     run = math.sqrt(a_leg[curr_cyl_id] ** 2 + b_leg[curr_cyl_id] ** 2)
+        #     rise = hypo[curr_cyl_id]
+        #     if run == 0:
+        #         slope_idx = 1  # straightDown e.g. is in flow
+        #     else:
+        #         slope_idx = rise / run
+
+        #     sa_idx = (
+        #         2 * np.pi * radius_idx * (radius_idx + len_idx)
+        #         - 2 * np.pi * radius_idx * radius_idx
+        #     )
+        #     pa_idx = poly_idx.area
+        #     vol_idx = 2 * np.pi * len_idx * radius_idx * radius_idx
+        #     sa_to_vol_idx = sa_idx / vol_idx
+        #     ang_idx = np.arctan(slope_idx)
+        #     bo_idx = curr_cyl_data[20]
+
+        #     gr.add_edge(
+        #         child_node,
+        #         par_node,
+        #         length=len_idx,
+        #         radius=radius_idx,
+        #         aV=vector_idx,
+        #         poly=poly_idx,
+        #         inFlowGrade=slope_idx,
+        #         pa=pa_idx,
+        #         sa=sa_idx,
+        #         ang=ang_idx,
+        #         vol=vol_idx,
+        #         sa_to_vol=sa_to_vol_idx,
+        #         bo=bo_idx,
+        #     )
+        #     if slope_idx < (0 - (1 / 6)):
+        #         dg.add_edge(
+        #             child_node,
+        #             par_node,
+        #             length=len_idx,
+        #             radius=radius_idx,
+        #             aV=vector_idx,
+        #             poly=poly_idx,
+        #             inFlowGrade=slope_idx,
+        #             pa=pa_idx,
+        #             sa=sa_idx,
+        #             ang=ang_idx,
+        #             vol=vol_idx,
+        #             sa_to_vol=sa_to_vol_idx,
+        #             bo=bo_idx,
+        #         )
+        #     else:
+        #         dg.add_edge(
+        #             par_node,
+        #             child_node,
+        #             length=len_idx,
+        #             radius=radius_idx,
+        #             aV=vector_idx,
+        #             poly=poly_idx,
+        #             inFlowGrade=slope_idx,
+        #             pa=pa_idx,
+        #             sa=sa_idx,
+        #             ang=ang_idx,
+        #             vol=ang_idx,
+        #             sa_to_vol=sa_to_vol_idx,
+        #             bo=bo_idx,
+        #         )
+        # self.graph = gr
+        # self.diGraph = dg
+
+
+
+
+
+        # self.graph = QsmGraph(attr_dict)
+
+        # self.flows = [
+        #     {
+        #         "cyls": [],
+        #         "drip_point": id,
+        #         "attributes": {"cyls": 0, "len": 0, "sa": 0, "pa": 0, "as": 0},
+        #     }
+        # ]
+        # self.drip_points = {"x": np.nan, "y": np.nan, "z": np.nan, "flow_id": np.nan}
+        # self.flow_to_drip = {
+        #     0: 1
+        # }  # A dictionary of flow ids with values equal to their drip node ids
+        # self.trunk_nodes = []
+        # self.drip_loc = np.nan
+
+        # # Calculations using graph results
+        # self.stemTotal = {
+        #     "attributes": {"cyls": 0, "len": 0, "sa": 0, "pa": 0, "as": 0},
+        #     "loc": {"x": np.nan, "y": np.nan, "z": np.nan},
+        # }
+        # self.divide_points = []
+        # self.stemPolys = []
 
     def find_flows(self):
         # Graph and Attributes
