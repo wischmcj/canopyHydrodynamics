@@ -35,15 +35,14 @@ def pytest_collection_modifyitems(items: list[Item]):
 def basic_forest():
     forest = Forester()
     forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names()
+    # forest.qsm_from_file_names()
     return forest
 
-
 @pytest.fixture
-def ten_cyls_col(basic_forest):
+def flexible_collection(basic_forest, in_file_name: str = '1_TenCyls.csv'):
+    basic_forest.qsm_from_file_names(file_name=in_file_name)
     collection = basic_forest.cylinder_collections[0]
     return collection
-
 
 @pytest.fixture
 def ez_projection():
@@ -61,3 +60,14 @@ def happy_path_projection():
     forest.qsm_from_file_names(file_name="3_HappyPathWTrunk.csv")
     collection = forest.cylinder_collections[0]
     return collection
+
+
+@pytest.fixture
+def large_collection():
+    forest = Forester()
+    forest.get_file_names(dir=test_input_dir)
+    forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
+    collection = forest.cylinder_collections[0]
+    collection.project_cylinders('XZ')
+    return collection
+

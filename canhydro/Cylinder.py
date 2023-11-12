@@ -82,25 +82,23 @@ class Cylinder:  # (defaultdict):
         sa = 2 * np.pi * radius * (radius + length) - 2 * np.pi * radius * radius
         return sa
 
-    def weight_dict(self, cols: str = ""):
-        if cols == "":
-            attr_dict = {
-                "x": self.x,
-                "y": self.y,
-                "z": self.z,
-                "radius": self.radius,
-                "unit_vector": self.projected_data[""],
-                "length": self.length,
-                "surface_area": self.surface_area,
-                "volume": self.volume,
-                "sa_to_vol": self.sa_to_vol,
-                "branch_order": self.branch_order,
-                "branch_id": self.branch_id,
-                "parent_id": self.parent_id,
-                "reverse_branch_order": self.reverse_branch_order,
-                "segment_id": self.segment_id,
-                "angle": self.angle,
-            }
+    def weight_dict(self, plane: str = "XZ"):
+        attr_dict = {
+            "cyl_id": self.cyl_id,
+            "parent_id": self.parent_id,
+            "x": self.x,
+            "y": self.y,
+            "z": self.z,
+            "radius": self.radius,
+            "length": self.length,
+            "aV": self.projected_data[plane]["base_vector"],
+            "polygon": self.projected_data[plane]["polygon"],
+            "angle":self.angle,
+            "surface_area": self.surface_area,
+            "volume": self.volume,
+            "sa_to_vol": self.sa_to_vol,
+            "branch_order": self.branch_order,
+        }
         return attr_dict
 
     def create_from_list(self, attrs: list, columns=qsm_cols):
@@ -115,10 +113,11 @@ class Cylinder:  # (defaultdict):
         self.dz = self.z[1] - self.z[0]
         self.surface_area = self.calc_surface_area()
         self.sa_to_vol = self.surface_area / self.volume
-        self.angle = np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
+        run = np.sqrt(self.dx**2 + self.dy**2)
+        self.angle = np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2)) if run >0 else np.arctan(0)
         # log.info(str(self.__repr__()))
 
-    def get_projection(self, plane="XY"):
+    def get_projection(self, plane="XZ"):
         noCirPoints = 360
         tCir = np.linspace(
             0, 2 * np.pi, noCirPoints
@@ -283,6 +282,7 @@ class Cylinder:  # (defaultdict):
                         "base_vector": aV,
                         "anti_vector": bV,
                         "angle": ang,
+                        "area": cPS.area
                     }
                     self.projected_data[plane] = projection
             else:

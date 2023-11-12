@@ -1,3 +1,0 @@
-INFO:my-logger:Searching C:\Users\wisch\Documents\GitProjects\CanopyHydrodynamics\data\input for files
-INFO:my-logger:The following files found in C:\Users\wisch\Documents\GitProjects\CanopyHydrodynamics\data\input: ['Secrest27-05_000000_1.csv']
-INFO:my-logger:Processing C:\Users\wisch\Documents\GitProjects\CanopyHydrodynamics\data\input\Secrest27-05_000000_1.csv

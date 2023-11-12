@@ -7,6 +7,8 @@ import os
 from pathlib import Path
 
 import toml
+from memory_profiler import profile, LogFile
+import sys
 
 with open("user_def_config.toml") as f:
     config = toml.load(f)
@@ -35,6 +37,8 @@ print(qsm_cols)
 
 log_dir = DIR
 log_dir = Path("".join([log_dir, "log\log_", str(time_stamp)]))
+
+sys.stdout = LogFile(str(log_dir))
 
 logging.basicConfig(
     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"

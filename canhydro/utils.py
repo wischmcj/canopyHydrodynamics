@@ -58,8 +58,8 @@ def save_file(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method="
 
 def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
     if np.random.uniform(0, 1, 1) < freq:
-        log.info(msg + np.round((prog / whole) * 100, decimals=1))
-        print(msg + np.round((prog / whole) * 100, decimals=1))
+        log.info(msg + str(np.round((prog / whole) * 100, decimals=1)))
+        print(msg + str(np.round((prog / whole) * 100, decimals=1)))
 
 
 def lam_filter(objects, a_lambda: function, return_all: bool = False):
@@ -164,3 +164,4 @@ def concave_hull(boundary_points, alpha):
     m = geometry.MultiLineString(edge_points)
     triangles = list(polygonize(m))
     return unary_union(triangles), edge_points
+

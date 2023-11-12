@@ -14,7 +14,15 @@ class Projection:
     base_vector: list[int]
     anti_vector: list[int]
     angle: int()
-
+@dataclass
+class Flow:
+    num_cylinders: int()
+    projected_area: float()
+    surface_area: float()
+    angle_sum: float()
+    volume: float()
+    sa_to_vol: float()
+    drip_node_id: int()
 
 # @dataclass
 # one day... https://stackoverflow.com/questions/29446089/networkx-extensibility-for-custom-storage-of-nodes-edges

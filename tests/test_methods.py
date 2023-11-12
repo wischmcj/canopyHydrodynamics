@@ -81,9 +81,10 @@ def within_range(expected, actual, err):
 
 
 # Needs tested for various filters, as well as for XZ, YZ
-def test_project_cyliders(ez_projection, accepted_err=0.03):
-    ez_projection.project_cylinders(plane="XY")
-    actual = ez_projection.cylinders[0].projected_data["XY"]["angle"]
+@pytest.mark.parameterize('flexible_collection',[['2_EZ_projection.csv']],indirect=True)
+def test_project_cyliders(flexible_collection, accepted_err=0.03):
+    flexible_collection.project_cylinders(plane="XY")
+    actual = flexible_collection.cylinders[0].projected_data["XY"]["angle"]
     expected = ez_projection_xy_angle
     assert within_range(expected, actual, accepted_err)
 

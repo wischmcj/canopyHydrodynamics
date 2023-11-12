@@ -34,6 +34,8 @@ from canhydro.global_vars import input_dir, log, output_dir
 # from mpl_toolkits import mplot3d
 # from pickle import dump, load
 
+from memory_profiler import profile
+
 NAME = "Forester"
 
 
