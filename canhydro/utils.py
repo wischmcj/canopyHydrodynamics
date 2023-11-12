@@ -9,7 +9,7 @@ import shapely.geometry as geometry
 from scipy.spatial import Delaunay
 from shapely.ops import Point, Polygon, cascaded_union, polygonize
 
-from canhydro.global_vars import input_dir, output_dir, log
+from canhydro.global_vars import input_dir, log, output_dir
 
 
 def read_file_names(file_path=input_dir):
@@ -56,10 +56,24 @@ def save_file(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method="
                 toWrite.to_excel(writer, index=False, sheet_name=method)
 
 
-def intermitent_log(prog:int, whole:int, msg:str, freq:int = .0001):
+def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
     if np.random.uniform(0, 1, 1) < freq:
         log.info(msg + np.round((prog / whole) * 100, decimals=1))
         print(msg + np.round((prog / whole) * 100, decimals=1))
+
+
+def lam_filter(objects, a_lambda: function, return_all: bool = False):
+    """Takes in a lambda that filters on cylinder attrs"""
+    if a_lambda.__code__.co_name != "<lambda>":
+        raise ValueError("a lambda required")
+    if return_all:
+        filtered = [(obj, eval(a_lambda.__code__, vars(obj).copy())) for obj in objects]
+    else:
+        filtered = [
+            (obj, True) for obj in objects if eval(a_lambda.__code__, vars(obj).copy())
+        ]
+    objs, res = zip(*filtered)
+    return objs, res
 
 
 def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""):

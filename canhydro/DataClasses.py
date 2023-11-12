@@ -148,13 +148,15 @@ class MetaManager:
 class Manager:
     "Manages a client object"
 
-    data_base = defaultdict()
+    data_base = defaultdict(list)
 
     def __init__(self, client):
+        breakpoint()
         self._client = client
         self._client_name = f"{client.__module__}.{client.__qualname__}"
 
     def create(self, **kwargs):
+        breakpoint()
         self.data_base[self._client_name].append(self._client(**kwargs))
 
     def all(self):
@@ -209,23 +211,13 @@ class Model:
                 raise TypeError(f"Expected type {type(attrs[key])}, got {type(item)}")
 
 
-# if __name__ == "__main__":
-#     from pprint import pprint
+class CylinderList(Model):
+    def myfunc():
+        return True
 
-#     class CylinderList(Model):
-#         id = int()
-#         name = ''
-#         color = ''
+    # def __init__(self, **args):
+    #     super(CylinderList, self).__init__(**args)
 
-#         # def __init__(self,other):
-#         #     self.other = other
-
-#         def myFunc(self, **args):
-#             CylinderList.objects.create(**{"id": 1, "name": "brad", "color": "redd"})
-#             CylinderList.cylinders.create(**{"id": 2, "name": "sylvia", "color": "blue"})
-#             CylinderList.cylinders.create(**{"id": 3, "name": "paul", "color": "red"})
-#             CylinderList.cylinders.create(**{"id": 4, "name": "brandon", "color": "yello"})
-#             CylinderList.cylinders.create(**{"id": 5, "name": "martin", "color": "green"})
 
 #     toby = Cylinder()
 

@@ -27,10 +27,10 @@ from mpl_toolkits import mplot3d
 from shapely.geometry import Point, Polygon
 from shapely.ops import transform, unary_union
 
-from canhydro.Cylinder import Cylinder, CylinderList
+from canhydro.Cylinder import Cylinder
 from canhydro.global_vars import log, qsm_cols
 from canhydro.Plotter import draw_cyls
-from canhydro.utils import intermitent_log
+from canhydro.utils import concave_hull, intermitent_log, lam_filter
 
 NAME = "CylinderCollection"
 
@@ -66,7 +66,7 @@ class CylinderCollection:
             "stem_flow_hull_area": -1,
             "stem_psa": -1,
             "flowStats": -1,
-            "DBH": -1,
+            "dbh": -1,
             "tot_surface_area": -1,
             "stem_surface_area": -1,
         }
@@ -106,14 +106,6 @@ class CylinderCollection:
         self.stemPolys = []
         self.compGraphs = []
 
-    def filter(self, a_lambda):
-        if a_lambda.__code__.co_name != "<lambda>":
-            raise ValueError("a lambda required")
-
-        return (
-            cyl for cyl in self.cylinders if eval(a_lambda.__code__, vars(cyl).copy())
-        )
-
     def aggregate_characteristics(self):
         """Calculates the summations, averages etc. of cylinder characterictics
         that might be of interest"""
@@ -134,7 +126,6 @@ class CylinderCollection:
         log.info(f"Processing {str(file)}")
         # self.arr = pd.read_csv(file, header=0)
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
-        breakpoint()
         cylinders = [self.create_cyl(row) for row in self.arr]
         self.cylinders = cylinders
 
@@ -166,7 +157,7 @@ class CylinderCollection:
         self.theta = np.nan
         log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
 
-    def project_cylinders(self, plane: str = "XY"):
+    def project_cylinders(self, plane: str = "XZ"):
         """Projects cylinders onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
@@ -183,42 +174,53 @@ class CylinderCollection:
             self.stem_path_lengths = []
             self.pSV = None  # unsure if I want to keep this attr
 
-    def filter(self, a_lambda):
-        """Takes in a lambda that filters on cylinder attrs"""
-        if a_lambda.__code__.co_name != "<lambda>":
-            raise ValueError("a lambda required")
-        breakpoint()
-        return [
-            vars(obj)
-            for obj in self.cylinders
-            if eval(a_lambda.__code__, vars(obj).copy())
-        ]
-    
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
         return cyl_desc
 
-    def draw(self, plane: str = "XY", **filter):
+    def draw(
+        self,
+        plane: str = "XZ",
+        a_lambda: function = lambda: True,
+        highlight: bool = False,
+        **args,
+    ):
+        """Draws cylinders meeting given characteristics onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
-        """Draws cylinders meeting given characteristics onto the specified plane"""
-        filtered = [
-            (
-                cyl.projected_data.get(plane).get("polygon"),
-                cyl.meets_criteria(plane=plane, **filter),
-            )
-            for cyl in self.cylinders
-        ]
-        breakpoint()
-        to_draw = [u for (u, v) in filtered if v]
-        color = [v for (u, v) in filtered if v]
+        filtered_cyls, matches = lam_filter(
+            self.cylinders, a_lambda, return_all=highlight
+        )
+        to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
         log.info(f"{len(to_draw)} cylinders matched criteria")
         self.union_poly = unary_union(to_draw)
-        draw_cyls(collection=to_draw, colors=color)
+        draw_cyls(collection=to_draw, colors=matches, **args)
 
-    def watershed_boundary(self):
+    def get_dbh():
+        start_z = self.extent["min"][2]
+        higher_than_breast_radius = lam_filter(
+            self.cylinders, a_lambda=lambda: branch_order == 0 and z[0] <= start_z + 1.3
+        )
+        rbh = np.max(higher_than_breast_radius.radius)
+        self.treeQualities["dbh"] = 2 * rbh
+
+    def watershed_boundary(self, plane: str = "XZ", stem_only: bool = False):
+        # todo -- check data type of returned (do we really need geo pandas?)
+        g = self.graph
+
+        # filter for stem only if option selected
+        endNodes = [n for n in g.nodes if g.degree(n) == 1 and n != -1]
+        endCyls, _ = lam_filter(self.cylinders, lambda: cyl_id in endNodes)
+        centroids = [
+            cyl.projected_data[plane]["polygon"].point_on_surface() for cyl in endCyls
+        ]
+        tot_hull, _ = concave_hull(centroids, 2.2)
+        breakpoint()
+        # totHullGeo = geo.GeoSeries(tot_hull)
+        # canopyCover = totHullGeo.area
+        # canopyBoundary = totHullGeo.boundary.length
         self.hull = np.nan
-        self.stem_hull = np.nan
+        # self.stem_hull = np.nan
 
     def initialize_graph(self):
         # Graph and Attributes
@@ -229,115 +231,6 @@ class CylinderCollection:
             parent_node = attr["parent_id"]
             gr.add_edge(child_node, parent_node, **attr)
         self.graph = gr
-
-        # R = {}
-        # sid = self.df[" ID"]
-        # pid = self.df[" parentID"]
-        # sid.min()
-
-        # # QSM's are projected in different directions by swapping x,y and z values
-        # # however, for out edge calcualtions we need the typical orientation
-        # if self.projection == "XZ":
-        #     hypo = self.dy
-        #     a_leg = self.dx
-        #     b_leg = self.dz
-        # elif self.projection == "YZ":
-        #     hypo = self.dx
-        #     a_leg = self.dy
-        #     b_leg = self.dz
-        # else:  # 'XY'
-        #     hypo = self.dz
-        #     a_leg = self.dy
-        #     b_leg = self.dx
-
-        # attr = []
-        # gr = nx.Graph()
-        # for idx, curr_cyl_data in self.df.iterrows():
-        #     # print a progress update once every 10 thousand or so cylinders
-        #     # if np.random.uniform(0,1,1) < 0.0001:
-        #     #     log.info(self.fileName + ':  wdgraph - adding edge  {} \n'.format(np.round((idx/len(self.df[0]))*100,decimals=1)))
-        #     #     print('wdgraph - adding edges completed {} \n'.format(np.round((idx/len(self.df[0]))*100,decimals=1)))
-
-        #     # Our first cylinder has ID 0 and parentID -1.
-        #     # As a result cyilinder 0 is represented by and edge from node 0 to 1, and so on
-        #     child_node = sid[idx] + 1
-        #     par_node = pid[idx] + 1
-        #     curr_cyl_id = idx
-        #     par_cyl_id = np.where(sid == pid[idx])
-
-        #     len_idx = curr_cyl_data[12]
-        #     radius_idx = curr_cyl_data[9]
-        #     poly_idx = self.pSVXY[curr_cyl_id]
-        #     vector_idx = self.aV[curr_cyl_id]
-
-        #     run = math.sqrt(a_leg[curr_cyl_id] ** 2 + b_leg[curr_cyl_id] ** 2)
-        #     rise = hypo[curr_cyl_id]
-        #     if run == 0:
-        #         slope_idx = 1  # straightDown e.g. is in flow
-        #     else:
-        #         slope_idx = rise / run
-
-        #     sa_idx = (
-        #         2 * np.pi * radius_idx * (radius_idx + len_idx)
-        #         - 2 * np.pi * radius_idx * radius_idx
-        #     )
-        #     pa_idx = poly_idx.area
-        #     vol_idx = 2 * np.pi * len_idx * radius_idx * radius_idx
-        #     sa_to_vol_idx = sa_idx / vol_idx
-        #     ang_idx = np.arctan(slope_idx)
-        #     bo_idx = curr_cyl_data[20]
-
-        #     gr.add_edge(
-        #         child_node,
-        #         par_node,
-        #         length=len_idx,
-        #         radius=radius_idx,
-        #         aV=vector_idx,
-        #         poly=poly_idx,
-        #         inFlowGrade=slope_idx,
-        #         pa=pa_idx,
-        #         sa=sa_idx,
-        #         ang=ang_idx,
-        #         vol=vol_idx,
-        #         sa_to_vol=sa_to_vol_idx,
-        #         bo=bo_idx,
-        #     )
-        #     if slope_idx < (0 - (1 / 6)):
-        #         dg.add_edge(
-        #             child_node,
-        #             par_node,
-        #             length=len_idx,
-        #             radius=radius_idx,
-        #             aV=vector_idx,
-        #             poly=poly_idx,
-        #             inFlowGrade=slope_idx,
-        #             pa=pa_idx,
-        #             sa=sa_idx,
-        #             ang=ang_idx,
-        #             vol=vol_idx,
-        #             sa_to_vol=sa_to_vol_idx,
-        #             bo=bo_idx,
-        #         )
-        #     else:
-        #         dg.add_edge(
-        #             par_node,
-        #             child_node,
-        #             length=len_idx,
-        #             radius=radius_idx,
-        #             aV=vector_idx,
-        #             poly=poly_idx,
-        #             inFlowGrade=slope_idx,
-        #             pa=pa_idx,
-        #             sa=sa_idx,
-        #             ang=ang_idx,
-        #             vol=ang_idx,
-        #             sa_to_vol=sa_to_vol_idx,
-        #             bo=bo_idx,
-        #         )
-        # self.graph = gr
-        # self.diGraph = dg
-
-        # self.graph = QsmGraph(attr_dict)
 
         # self.flows = [
         #     {

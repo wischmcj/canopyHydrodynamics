@@ -5,6 +5,7 @@ from __future__ import annotations
 import calendar
 import os
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from math import isnan, pi, sqrt
 from multiprocessing import Pool
@@ -20,7 +21,7 @@ from matplotlib.pyplot import cm
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 
-from canhydro.DataClasses import Projection, Model
+from canhydro.DataClasses import Projection
 from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
 from canhydro.Plotter import draw_cyls
 
@@ -67,6 +68,10 @@ class Cylinder:  # (defaultdict):
     sa_to_vol: float = 0.0
     slope: float = 0.0
 
+    is_stem: bool = False
+    is_divide: bool = False
+    is_drip: bool = False
+
     # #blood for the blood god, software eng for the filter func
     # class_attrs = self.__get_class_attributes(type(self))
     # self.__init_instance(class_attrs, kwargs)
@@ -112,39 +117,6 @@ class Cylinder:  # (defaultdict):
         self.sa_to_vol = self.surface_area / self.volume
         self.angle = np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
         # log.info(str(self.__repr__()))
-
-    def meets_criteria(
-        self,
-        plane: str = "",
-        highlight: bool = False,
-        color: str = "",
-        branch_order: int = -1,
-        min_radius: int = -1,
-        max_radius: int = -1,
-        branch_id: int = -1,
-        segment_id: int = -1,
-    ) -> str:
-        order_match = (
-            True if branch_order == -1 else (self.branch_order == branch_order)
-        )
-        radius_match = (
-            self.radius >= min_radius
-            if max_radius == -1
-            else (self.radius >= min_radius and self.radius <= max_radius)
-        )
-        branch_id_match = True if branch_id == -1 else (self.branch_id == branch_id)
-        seg_id_match = True if segment_id == -1 else self.segment_id == segment_id
-        proj_match = self.projected_data.get(plane, "") != ""
-        match = (
-            order_match
-            and radius_match
-            and branch_id_match
-            and seg_id_match
-            and proj_match
-        )
-        return_color = color if color else "blue"
-        to_return = return_color if match else "grey" if highlight else ""
-        return to_return
 
     def get_projection(self, plane="XY"):
         noCirPoints = 360
@@ -315,7 +287,6 @@ class Cylinder:  # (defaultdict):
                     self.projected_data[plane] = projection
             else:
                 log.info(str(self.__dict__))
-                breakpoint()
                 log.info(f"dim_a[0] is null, unable to project cylinder {self.cyl_id}")
             return cPS
         except UnboundLocalError:
@@ -328,10 +299,3 @@ class Cylinder:  # (defaultdict):
     def get_flow_data():
         """Returns the flow ID and flow characteristics of the flow the cyl is contained in"""
         print("Get flow data not written")
-
-    
-@dataclass
-class CylinderList(Cylinder,Model):
-
-    def __init__(self, **kwargs):
-        super(CylinderList,self).__init__(**kwargs)
