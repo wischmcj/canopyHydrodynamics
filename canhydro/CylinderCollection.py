@@ -27,7 +27,7 @@ from mpl_toolkits import mplot3d
 from shapely.geometry import Point, Polygon
 from shapely.ops import transform, unary_union
 
-from canhydro.Cylinder import Cylinder
+from canhydro.Cylinder import Cylinder, CylinderList
 from canhydro.global_vars import log, qsm_cols
 from canhydro.Plotter import draw_cyls
 from canhydro.utils import intermitent_log
@@ -42,6 +42,8 @@ class CylinderCollection:
     # initialize our object level variables for cylider objects
     def __init__(self) -> None:
         self.file = ""
+
+        # self.collection = CylinderList()
 
         # Aggregate values from file
         self.surface_area = np.nan
@@ -132,6 +134,7 @@ class CylinderCollection:
         log.info(f"Processing {str(file)}")
         # self.arr = pd.read_csv(file, header=0)
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
+        breakpoint()
         cylinders = [self.create_cyl(row) for row in self.arr]
         self.cylinders = cylinders
 
@@ -180,16 +183,17 @@ class CylinderCollection:
             self.stem_path_lengths = []
             self.pSV = None  # unsure if I want to keep this attr
 
-    def filtered_collection(
-        self,
-        branch_order: int = -1,
-        min_radius: int = -1,
-        branch_id: int = -1,
-        segment_id: int = -1,
-    ):
-        to_return = []
-        return
-
+    def filter(self, a_lambda):
+        """Takes in a lambda that filters on cylinder attrs"""
+        if a_lambda.__code__.co_name != "<lambda>":
+            raise ValueError("a lambda required")
+        breakpoint()
+        return [
+            vars(obj)
+            for obj in self.cylinders
+            if eval(a_lambda.__code__, vars(obj).copy())
+        ]
+    
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
         return cyl_desc
@@ -199,16 +203,18 @@ class CylinderCollection:
             log.info(f"{plane}: invalid value for plane")
         """Draws cylinders meeting given characteristics onto the specified plane"""
         filtered = [
-            (cyl.projected_data.get(plane).get("polygon"),
-             cyl.meets_criteria(plane=plane, **filter))
+            (
+                cyl.projected_data.get(plane).get("polygon"),
+                cyl.meets_criteria(plane=plane, **filter),
+            )
             for cyl in self.cylinders
         ]
         breakpoint()
-        to_draw = [u for (u,v) in filtered if v]
-        color = [v for (u,v) in filtered if v]
+        to_draw = [u for (u, v) in filtered if v]
+        color = [v for (u, v) in filtered if v]
         log.info(f"{len(to_draw)} cylinders matched criteria")
         self.union_poly = unary_union(to_draw)
-        draw_cyls(collection =to_draw, colors = color)
+        draw_cyls(collection=to_draw, colors=color)
 
     def watershed_boundary(self):
         self.hull = np.nan

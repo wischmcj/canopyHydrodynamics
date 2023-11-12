@@ -20,7 +20,7 @@ from matplotlib.pyplot import cm
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 
-from canhydro.DataClasses import Projection
+from canhydro.DataClasses import Projection, Model
 from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
 from canhydro.Plotter import draw_cyls
 
@@ -116,8 +116,8 @@ class Cylinder:  # (defaultdict):
     def meets_criteria(
         self,
         plane: str = "",
-        highlight:bool = False,
-        color:str = '',
+        highlight: bool = False,
+        color: str = "",
         branch_order: int = -1,
         min_radius: int = -1,
         max_radius: int = -1,
@@ -142,8 +142,8 @@ class Cylinder:  # (defaultdict):
             and seg_id_match
             and proj_match
         )
-        return_color = color if color else 'blue'
-        to_return = return_color if match else 'grey' if highlight else ''
+        return_color = color if color else "blue"
+        to_return = return_color if match else "grey" if highlight else ""
         return to_return
 
     def get_projection(self, plane="XY"):
@@ -328,3 +328,10 @@ class Cylinder:  # (defaultdict):
     def get_flow_data():
         """Returns the flow ID and flow characteristics of the flow the cyl is contained in"""
         print("Get flow data not written")
+
+    
+@dataclass
+class CylinderList(Cylinder,Model):
+
+    def __init__(self, **kwargs):
+        super(CylinderList,self).__init__(**kwargs)
