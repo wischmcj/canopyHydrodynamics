@@ -32,7 +32,6 @@ time_stamp = str(calendar.timegm(current_GMT))
 qsm_cols = {}
 for column in config["qsm"]:
     qsm_cols[column] = config["qsm"][column]
-print(qsm_cols)
 
 log_dir = DIR
 log_dir = Path("".join([log_dir, r"log\log_", str(time_stamp)]))

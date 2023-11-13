@@ -40,6 +40,8 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
   - tests/test_efficiency.py compares run times of various different possible graph constructions
   - As you can see, setting edges literally equal to cylinder objects was technically the most efficient
   - However, given the readability concerns with this method, the slightly less efficient dictionary copying method was chosen
+
+--just set up
 443.47s setup    tests/test_efficiency.py::test_min_efficiency
 436.90s setup    tests/test_efficiency.py::test_base_efficiency
 435.01s setup    tests/test_efficiency.py::test_object_efficiency
@@ -50,8 +52,16 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
 0.00s teardown tests/test_efficiency.py::test_base_efficiency
 0.00s teardown tests/test_efficiency.py::test_min_efficiency
 
-
-
+--setup and finding stem flow component 
+620.79s setup    tests/test_efficiency.py::test_base_graph_test[4_LargeCollection.csv]
+615.27s setup    tests/test_efficiency.py::test_min_graph_test[4_LargeCollection.csv]
+613.70s setup    tests/test_efficiency.py::test_obj_graph_test[4_LargeCollection.csv]
+168.80s call     tests/test_efficiency.py::test_min_graph_test[4_LargeCollection.csv]
+93.96s call     tests/test_efficiency.py::test_base_graph_test[4_LargeCollection.csv]
+82.20s call     tests/test_efficiency.py::test_obj_graph_test[4_LargeCollection.csv]
+0.00s teardown tests/test_efficiency.py::test_base_graph_test[4_LargeCollection.csv]
+0.00s teardown tests/test_efficiency.py::test_obj_graph_test[4_LargeCollection.csv]
+0.00s teardown tests/test_efficiency.py::test_min_graph_test[4_LargeCollection.csv]
 INFO:root:Line #    Mem usage    Increment  Occurrences   Line Contents
 
 INFO:root:=============================================================
@@ -153,6 +163,69 @@ INFO:root:    50   1066.4 MiB      0.5 MiB           1           proj_area = fle
 INFO:root:    51   1066.4 MiB      0.0 MiB           1           print(proj_area)
 
 INFO:root:
+
+
+***test three***
+
+
+INFO:root:Line #    Mem usage    Increment  Occurrences   Line Contents
+
+INFO:root:=============================================================
+
+INFO:root:    33    957.7 MiB    957.7 MiB           1       @profile
+
+INFO:root:    34                                             def min_graph_test(flexible_collection):
+
+INFO:root:    35    982.9 MiB     25.2 MiB           1           flexible_collection.initialize_minimal_graph()
+
+INFO:root:    36    983.9 MiB      1.0 MiB           1           proj_area = flexible_collection.sum_over_min_graph()
+
+INFO:root:    37   1072.9 MiB     89.0 MiB           1           flexible_collection.find_flow_components_minimal()
+
+INFO:root:    38   1072.9 MiB      0.0 MiB           1           print(proj_area)
+
+INFO:root:
+
+
+
+INFO:root:Line #    Mem usage    Increment  Occurrences   Line Contents
+
+INFO:root:=============================================================
+
+INFO:root:    40    987.6 MiB    987.6 MiB           1       @profile
+
+INFO:root:    41                                             def base_graph_test(flexible_collection):
+
+INFO:root:    42   1029.2 MiB     41.6 MiB           1           flexible_collection.initialize_graph()
+
+INFO:root:    43   1031.9 MiB      2.8 MiB           1           proj_area = flexible_collection.sum_over_graph()
+
+INFO:root:    44   1287.3 MiB    255.3 MiB           1           flexible_collection.find_flow_components()
+
+INFO:root:    45   1287.3 MiB      0.0 MiB           1           print(proj_area)
+
+INFO:root:
+
+
+INFO:root:Line #    Mem usage    Increment  Occurrences   Line Contents
+
+INFO:root:=============================================================
+
+INFO:root:    47    956.6 MiB    956.6 MiB           1       @profile
+
+INFO:root:    48                                             def obj_graph_test(flexible_collection):
+
+INFO:root:    49    990.5 MiB     33.9 MiB           1           flexible_collection.initialize_object_graph()
+
+INFO:root:    50    995.1 MiB      4.7 MiB           1           proj_area = flexible_collection.sum_over_object_graph()
+
+INFO:root:    51   1279.0 MiB    283.9 MiB           1           flexible_collection.find_flow_components_object()
+
+INFO:root:    52   1279.0 MiB      0.0 MiB           1           print(proj_area)
+
+INFO:root:
+
+
 
 
 

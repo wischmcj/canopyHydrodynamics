@@ -39,6 +39,7 @@ def basic_forest():
 def flexible_collection(basic_forest, request):
     basic_forest.qsm_from_file_names(file_name=request.param)
     flexible_collection = basic_forest.cylinder_collections[0]
+    flexible_collection.project_cylinders("XZ")
     return flexible_collection
 
 

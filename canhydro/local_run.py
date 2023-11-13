@@ -54,8 +54,8 @@ class Townie:
     if __name__ == "__main__":
         forest = Forester()
         forest.get_file_names(dir=test_input_dir)
-        # forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
-        forest.qsm_from_file_names(file_name="3_HappyPathWTrunk.csv")
+        forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
+        # forest.qsm_from_file_names(file_name="3_HappyPathWTrunk.csv")
         forest.cylinder_collections[0].project_cylinders("XZ")
         # base_collection = forest.cylinder_collections[0]
         # min_collection = forest.cylinder_collections[0]

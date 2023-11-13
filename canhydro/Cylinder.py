@@ -6,12 +6,11 @@ from dataclasses import dataclass, field
 from math import isnan, sqrt
 
 import numpy as np
-from shapely.geometry import Polygon
-from shapely.ops import unary_union
 
 from canhydro.DataClasses import Projection
 from canhydro.global_vars import log, qsm_cols
 from canhydro.Plotter import draw_cyls
+from canhydro.utils import get_projection 
 
 # from descartes import PolygonPatch
 # from mpl_toolkits import mplot3d
@@ -117,173 +116,21 @@ class Cylinder:  # (defaultdict):
         b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
 
         if plane == "XY":
-            delt_a = self.dx
-            delt_b = self.dy
-            delt_c = self.dz
-            dim_a = np.transpose(self.x)
-            dim_b = np.transpose(self.y)
-            dim_c = np.transpose(self.z)
+            magnitude = [self.dx, self.dy, self.dz]
+            vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
         elif plane == "XZ":
-            delt_a = self.dx
-            delt_b = self.dz
-            delt_c = self.dy
-            dim_a = np.transpose(self.x)
-            dim_b = np.transpose(self.z)
-            dim_c = np.transpose(self.y)
+            magnitude = [self.dx, self.dz, self.dy]
+            vector = [np.transpose(self.x), np.transpose(self.z), np.transpose(self.y)]
         else:
-            delt_a = self.dy
-            delt_b = self.dz
-            delt_c = self.dx
-            dim_a = np.transpose(self.y)
-            dim_b = np.transpose(self.z)
-            dim_c = np.transpose(self.x)
-
-        # unit vector at base of cylinder, pointing up cylinder axis
-        vNorm = np.sqrt(delt_a**2 + delt_b**2 + delt_c**2)
-        aV = np.hstack((delt_a, delt_b, delt_c)) / vNorm
-        bV = -aV  # unit vector looking down from top circle (but not translated)
-
-        # function to find orthgonal vectors
-        oVz = lambda v, a, b: ((-v[0] * a - v[1] * b) / v[2])
-
-        # initializing min max arrays+
-        min_c = np.zeros_like(delt_c)
-        max_c = np.zeros_like(delt_c)
-
-        pSV = []
-        try:
-            # for each cylinder
-            if not np.isnan(dim_a[0]):
-                if np.logical_and(delt_a == 0, delt_b == 0):
-                    pX = dim_a[0] + self.radius * a_ortho
-                    pY = dim_b[0] + self.radius * b_ortho
-                    cPS = Polygon(list(zip(pX, pY)))
-                    min_c = np.min(dim_c[:])
-                    max_c = np.max(dim_c[:])
-                else:
-                    # find orthogonal vectors @ endpoints
-                    # Identifies corners of projected rectangle
-                    aVp1 = np.hstack((aV[1], -aV[0]))
-                    aVp2 = np.hstack((-aV[1], aV[0]))
-                    bVp1 = np.hstack((bV[1], -bV[0]))
-                    bVp2 = np.hstack((-bV[1], bV[0]))
-
-                    aVp1 = aVp1 / np.linalg.norm(aVp1)
-                    aVp2 = aVp2 / np.linalg.norm(aVp2)
-                    bVp1 = bVp1 / np.linalg.norm(bVp1)
-                    bVp2 = bVp2 / np.linalg.norm(bVp2)
-
-                    # from each endpoint, use radius to find vertices of the rectangle
-                    x1 = dim_a[0] + self.radius * aVp1[0]
-                    y1 = dim_b[0] + self.radius * aVp1[1]
-                    x2 = dim_a[0] + self.radius * aVp2[0]
-                    y2 = dim_b[0] + self.radius * aVp2[1]
-                    x3 = dim_a[1] + self.radius * bVp1[0]
-                    y3 = dim_b[1] + self.radius * bVp1[1]
-                    x4 = dim_a[1] + self.radius * bVp2[0]
-                    y4 = dim_b[1] + self.radius * bVp2[1]
-
-                    # calculate set of orthgonal vectors using lambda function
-                    # That is 360 orthogonal vectors ending at eqidistant points along
-                    # a circle of radius self.radius with the starting point of our cylinder
-                    # at is center
-                    ZOrtho = oVz(aV[:], a_ortho, b_ortho)
-
-                    # unit-ify the orthgonal vectors
-                    uovd = np.sqrt(a_ortho**2 + b_ortho**2 + ZOrtho**2)
-                    # Confounded - why does removing the first three [:,None]'s below lead to non-circular projections
-                    # for XZ?
-                    uov = (
-                        np.hstack((a_ortho[:, None], b_ortho[:, None], ZOrtho[:, None]))
-                        / uovd[:, None]
-                    )
-
-                    # donot re unit-fy, you only want the horizontal component, not the
-                    # renormalized horizontal component
-
-                    # using only the X and Y components, find circle coods in plane of
-                    # interest
-                    xaC = dim_a[0] + uov[:, 0] * self.radius
-                    yaC = dim_b[0] + uov[:, 1] * self.radius
-                    zaC = dim_c[0] + uov[:, 2] * self.radius
-
-                    xbC = dim_a[1] + uov[:, 0] * self.radius
-                    ybC = dim_b[1] + uov[:, 1] * self.radius
-                    zbC = dim_c[1] + uov[:, 2] * self.radius
-
-                    min_c = np.min(np.vstack((zaC, zbC)))
-                    max_c = np.max(np.vstack((zaC, zbC)))
-
-                    # assymble total package
-                    rX = np.vstack((x1, x2, x3, x4))
-                    rY = np.vstack((y1, y2, y3, y4))
-
-                    # test for circle parts in polygon
-                    try:
-                        c1 = Polygon(
-                            list(
-                                zip(
-                                    [0 if isnan(x) else x for x in xaC],
-                                    [0 if isnan(y) else y for y in yaC],
-                                )
-                            )
-                        )
-                        bBox = Polygon(
-                            list(
-                                zip(
-                                    [0 if isnan(x) else x for x in rX],
-                                    [0 if isnan(y) else y for y in rY],
-                                )
-                            )
-                        )
-                        c2 = Polygon(
-                            list(
-                                zip(
-                                    [0 if isnan(x) else x for x in xbC],
-                                    [0 if isnan(y) else y for y in ybC],
-                                )
-                            )
-                        )
-
-                        partsPS = [c1, bBox, c2]
-                    except:
-                        log.info("Error creating projection polygons")
-
-                    try:
-                        cPS = unary_union(partsPS)
-                    except:
-                        print(np.any(np.isnan(xaC)))
-                        log.info("Error unioning projection polygons")
-                        print(yaC)
-                        print(rX)
-                        print(rY)
-                        print(xbC)
-                        print(ybC)
-                    # get angle away from plane projected on to
-                    run = sqrt(delt_b**2 + delt_a**2)
-                    rise = delt_c
-                    if run == 0:
-                        slope = 1  # straightDown e.g. is in flow
-                    else:
-                        slope = rise / run
-                    ang = np.arctan(slope)
-                    projection = {
-                        "polygon": cPS,
-                        "base_vector": aV,
-                        "anti_vector": bV,
-                        "angle": ang,
-                        "area": cPS.area,
-                    }
-                    self.projected_data[plane] = projection
-            else:
-                log.info(str(self.__dict__))
-                log.info(f"dim_a[0] is null, unable to project cylinder {self.cyl_id}")
-            return cPS
-        except UnboundLocalError:
-            log.info(f"UnboundLocalError for {self.__dict__}")
+            magnitude = [self.dy, self.dz, self.dx]
+            vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
+        
+        projection = get_projection(vector, magnitude, self.radius)
+        self.projected_data[plane] = projection
+        return projection["polygon"]
 
     def draw(self, plane: str = "XY"):
-        poly = self.projected_data[plane]["poly"]
+        poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly])
 
     def get_flow_data():

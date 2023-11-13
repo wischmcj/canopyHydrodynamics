@@ -56,8 +56,3 @@ class Forester:
                 c.from_csv(file_obj, dir)
                 collections.append(c)
         self.cylinder_collections = collections
-
-    def networkSimplex():
-        # can be used to calculate flows on graphs with demands
-        # we could set a demand of generates X volume of flow
-        print("nxs")
