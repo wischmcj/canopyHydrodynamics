@@ -12,13 +12,9 @@ In VSCode, Code Coverage is recorded in config.xml. Delete this file to reset re
 # This page outlines the marks available to us
 from __future__ import annotations
 
-from typing import List
-
 import pytest
 from _pytest.nodes import Item
 
-from canhydro.Cylinder import Cylinder
-from canhydro.CylinderCollection import CylinderCollection
 from canhydro.Forester import Forester
 from canhydro.global_vars import test_input_dir
 
@@ -38,11 +34,13 @@ def basic_forest():
     # forest.qsm_from_file_names()
     return forest
 
+
 @pytest.fixture
-def flexible_collection(basic_forest, in_file_name: str = '1_TenCyls.csv'):
-    basic_forest.qsm_from_file_names(file_name=in_file_name)
-    collection = basic_forest.cylinder_collections[0]
-    return collection
+def flexible_collection(basic_forest, request):
+    basic_forest.qsm_from_file_names(file_name=request.param)
+    flexible_collection = basic_forest.cylinder_collections[0]
+    return flexible_collection
+
 
 @pytest.fixture
 def ez_projection():
@@ -68,6 +66,5 @@ def large_collection():
     forest.get_file_names(dir=test_input_dir)
     forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
     collection = forest.cylinder_collections[0]
-    collection.project_cylinders('XZ')
+    collection.project_cylinders("XZ")
     return collection
-

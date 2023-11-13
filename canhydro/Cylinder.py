@@ -2,27 +2,15 @@
 
 from __future__ import annotations
 
-import calendar
-import os
-from collections import defaultdict
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from math import isnan, pi, sqrt
-from multiprocessing import Pool
-from pathlib import Path
-from random import random
-from time import sleep
+from math import isnan, sqrt
 
-import geopandas as geo
-import matplotlib.pyplot as plt
-import networkx as nx
 import numpy as np
-from matplotlib.pyplot import cm
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
 from canhydro.DataClasses import Projection
-from canhydro.global_vars import input_dir, log, output_dir, qsm_cols
+from canhydro.global_vars import log, qsm_cols
 from canhydro.Plotter import draw_cyls
 
 # from descartes import PolygonPatch
@@ -70,7 +58,6 @@ class Cylinder:  # (defaultdict):
 
     is_stem: bool = False
     is_divide: bool = False
-    is_drip: bool = False
 
     # #blood for the blood god, software eng for the filter func
     # class_attrs = self.__get_class_attributes(type(self))
@@ -93,7 +80,7 @@ class Cylinder:  # (defaultdict):
             "length": self.length,
             "aV": self.projected_data[plane]["base_vector"],
             "polygon": self.projected_data[plane]["polygon"],
-            "angle":self.angle,
+            "angle": self.angle,
             "surface_area": self.surface_area,
             "volume": self.volume,
             "sa_to_vol": self.sa_to_vol,
@@ -114,7 +101,11 @@ class Cylinder:  # (defaultdict):
         self.surface_area = self.calc_surface_area()
         self.sa_to_vol = self.surface_area / self.volume
         run = np.sqrt(self.dx**2 + self.dy**2)
-        self.angle = np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2)) if run >0 else np.arctan(0)
+        self.angle = (
+            np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
+            if run > 0
+            else np.arctan(0)
+        )
         # log.info(str(self.__repr__()))
 
     def get_projection(self, plane="XZ"):
@@ -200,7 +191,6 @@ class Cylinder:  # (defaultdict):
 
                     # unit-ify the orthgonal vectors
                     uovd = np.sqrt(a_ortho**2 + b_ortho**2 + ZOrtho**2)
-                    # breakpoint()
                     # Confounded - why does removing the first three [:,None]'s below lead to non-circular projections
                     # for XZ?
                     uov = (
@@ -257,13 +247,13 @@ class Cylinder:  # (defaultdict):
 
                         partsPS = [c1, bBox, c2]
                     except:
-                        log.info(f"Error creating projection polygons")
+                        log.info("Error creating projection polygons")
 
                     try:
                         cPS = unary_union(partsPS)
                     except:
                         print(np.any(np.isnan(xaC)))
-                        log.info(f"Error unioning projection polygons")
+                        log.info("Error unioning projection polygons")
                         print(yaC)
                         print(rX)
                         print(rY)
@@ -282,7 +272,7 @@ class Cylinder:  # (defaultdict):
                         "base_vector": aV,
                         "anti_vector": bV,
                         "angle": ang,
-                        "area": cPS.area
+                        "area": cPS.area,
                     }
                     self.projected_data[plane] = projection
             else:

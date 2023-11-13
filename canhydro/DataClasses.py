@@ -4,7 +4,7 @@ from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Polygon
 
 
 @dataclass
@@ -14,6 +14,8 @@ class Projection:
     base_vector: list[int]
     anti_vector: list[int]
     angle: int()
+
+
 @dataclass
 class Flow:
     num_cylinders: int()
@@ -23,6 +25,7 @@ class Flow:
     volume: float()
     sa_to_vol: float()
     drip_node_id: int()
+
 
 # @dataclass
 # one day... https://stackoverflow.com/questions/29446089/networkx-extensibility-for-custom-storage-of-nodes-edges
@@ -40,7 +43,7 @@ class Flow:
 #     sid.min()
 
 #     # QSM's are projected in different directions by swapping x,y and z values
-#     # however, for out edge calcualtions we need the typical orientation
+#     # however, for out edge calculations we need the typical orientation
 #     if self.projection == "XZ":
 #         hypo = self.dy
 #         a_leg = self.dx
@@ -150,7 +153,7 @@ class MetaManager:
         if instance is None:
             return Manager(owner)
         else:
-            raise AttributeError(f"Manger isn't accessible via {owner} instances")
+            raise AttributeError(f"Manager isn't accessible via {owner} instances")
 
 
 class Manager:
@@ -159,12 +162,10 @@ class Manager:
     data_base = defaultdict(list)
 
     def __init__(self, client):
-        breakpoint()
         self._client = client
         self._client_name = f"{client.__module__}.{client.__qualname__}"
 
     def create(self, **kwargs):
-        breakpoint()
         self.data_base[self._client_name].append(self._client(**kwargs))
 
     def all(self):
@@ -232,7 +233,7 @@ class CylinderList(Model):
 #     toby.myFunc()
 #     pprint([vars(obj) for obj in Data.objects.filter(lambda: id == 1)])
 
-# causes the creation of cylinder list objects withing cylinderList.cylinders
+# causes the creation of cylinder list objects within cylinderList.cylinders
 # class UserClass():
 #     myList = CylinderList()
 
@@ -241,9 +242,7 @@ class CylinderList(Model):
 
 
 # myUserClass = UserClass()
-# breakpoint()
 # myUserClass.addCyl(**{"id": 1, "name": "brrad", "color": "red"})
-# breakpoint()
 
 
 # self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
@@ -258,4 +257,3 @@ class CylinderList(Model):
 # print([c for obj in CylinderList.cylinders.filter(lambda: id == 1)])
 # # print([vars(obj) for obj in CylinderList.cylinders.filter(lambda: 1 <= id <= 2)])
 # # print([vars(obj) for obj in CylinderList.cylinders.filter(lambda: color == "blue")])
-# breakpoint()

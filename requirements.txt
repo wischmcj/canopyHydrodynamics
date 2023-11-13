@@ -10,8 +10,8 @@ pandas==1.4.0
 pre-commit
 pylint
 pytest
+pytest-resource-usage==1.0.0
 ruff
 scipy==1.11.3
 Shapely==2.0.1
 toml
-pytest-resource-usage==1.0.0

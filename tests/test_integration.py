@@ -1,10 +1,4 @@
-"""This is inteded for tests invoving multiple classes"""
-
 from __future__ import annotations
-
-import pytest
-
-from canhydro import Cylinder, CylinderCollection, Forester
 
 
 def hello_test():
