@@ -24,13 +24,6 @@ class CollectionManager:
 
 
 class Forester:
-    #   Read in file names and create cylinder collection via CC class
-    #
-    #   Read in file, mostly an array of cylinders
-    #
-    #   Create graph
-    #
-    # initialize our object level variables for cylinder objects
     def __init__(self, file_names="", directory=input_dir) -> None:
         self.file_names = file_names
         self.directory = directory
