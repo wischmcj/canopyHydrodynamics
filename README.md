@@ -119,7 +119,7 @@ The code that you see zipped here is representiitive of the ongoing work in our 
   '9_DripOnTrunk.csv' displays the two drip issue in a simple and understandable way
 =======
 # canhydro
-Houses code relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
+This repository houses a bare bones script relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 (https://www.researchgate.net/publication/375530854)
 
