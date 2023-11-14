@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # canhydro `<sub>`(formerly dripDropFlow)`</sub>`
 
 This repository houses a bare bones script relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
@@ -116,3 +117,20 @@ The code that you see zipped here is representiitive of the ongoing work in our 
 ### Notes on the Di-graph Drip Flow algorithm
 
   '9_DripOnTrunk.csv' displays the two drip issue in a simple and understandable way
+=======
+# canhydro
+Houses code relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
+A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
+(https://www.researchgate.net/publication/375530854)
+
+<h1>CanopyHydrodymaics</h1>
+
+<h2>Contents:</h2>
+The main branch of the repository currently displays the code written for the above linked paper how it was run and reviewed. 
+For a sneak peak at the future of this repository, navigate to the 'productionalizing' branch, where you will see additions such as:
+- Funcionality refactored into methods
+- Linter(s) added for formatting and best practices adherence 
+- Fully fledged logging functionality
+- .toml Configuration enabled set up
+- A pytest based testing framework
+>>>>>>> 91d113a (Update README.md)
