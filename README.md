@@ -10,7 +10,7 @@ The main branch of the repository currently displays the code written for the ab
 ## Upcoming improvements
 For a sneak peak at the future of this repository, navigate to the ***productionalizing*** branch, where you will see additions such as:
 
-  + Funcionality refactored into methods
+  + Functionality refactored into methods
   + Linter(s) added for formatting and best practices adherence 
   + Fully fledged logging functionality
   + toml configuration enabled set up
