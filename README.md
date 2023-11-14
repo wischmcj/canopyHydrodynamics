@@ -52,7 +52,7 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
 0.00s teardown tests/test_efficiency.py::test_base_efficiency
 0.00s teardown tests/test_efficiency.py::test_min_efficiency
 
---setup and finding stem flow component 
+--setup and finding stem flow component
 620.79s setup    tests/test_efficiency.py::test_base_graph_test[4_LargeCollection.csv]
 615.27s setup    tests/test_efficiency.py::test_min_graph_test[4_LargeCollection.csv]
 613.70s setup    tests/test_efficiency.py::test_obj_graph_test[4_LargeCollection.csv]
@@ -226,6 +226,13 @@ INFO:root:    52   1279.0 MiB      0.0 MiB           1           print(proj_area
 INFO:root:
 
 
+
+2799.07s call     tests/test_efficiency.py::test_min_graph_test[4_LargeCollection.csv]
+721.71s setup    tests/test_efficiency.py::test_min_graph_test[4_LargeCollection.csv]
+682.37s setup    tests/test_efficiency.py::test_obj_graph_test[4_LargeCollection.csv]
+634.05s setup    tests/test_efficiency.py::test_base_graph_test[4_LargeCollection.csv]
+121.80s call     tests/test_efficiency.py::test_base_graph_test[4_LargeCollection.csv]
+112.85s call     tests/test_efficiency.py::test_obj_graph_test[4_LargeCollection.csv]
 
 
 

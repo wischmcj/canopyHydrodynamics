@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from canhydro.global_vars import test_input_dir
 
 test_input_dir = test_input_dir
@@ -14,29 +15,45 @@ test_input_dir = test_input_dir
 # sum_over_object_graph
 # sum_over_min_graph
 
+
 @pytest.mark.parametrize(
     "flexible_collection", ["4_LargeCollection.csv"], indirect=True
 )
+# @pytest.mark.parametrize(
+#     "flexible_collection", ["3_HappyPathWTrunk.csv"], indirect=True
+# )
 def test_base_graph_test(flexible_collection):
-    flexible_collection.initialize_graph()
+    flexible_collection.initialize_graph_from()
     proj_area = flexible_collection.sum_over_graph()
     flexible_collection.find_flow_components()
+    flexible_collection.calculate_flows()
+
 
 @pytest.mark.parametrize(
     "flexible_collection", ["4_LargeCollection.csv"], indirect=True
 )
+# @pytest.mark.parametrize(
+#     "flexible_collection", ["3_HappyPathWTrunk.csv"], indirect=True
+# )
 def test_min_graph_test(flexible_collection):
-    flexible_collection.initialize_minimal_graph()
+    flexible_collection.initialize_minimal_graph_from()
     proj_area = flexible_collection.sum_over_min_graph()
     flexible_collection.find_flow_components_minimal()
+    flexible_collection.calculate_flows_min()
+
 
 @pytest.mark.parametrize(
     "flexible_collection", ["4_LargeCollection.csv"], indirect=True
-)   
+)
+# @pytest.mark.parametrize(
+#     "flexible_collection", ["3_HappyPathWTrunk.csv"], indirect=True
+# )
 def test_obj_graph_test(flexible_collection):
-    flexible_collection.initialize_object_graph()
+    flexible_collection.initialize_object_graph_from()
     proj_area = flexible_collection.sum_over_object_graph()
     flexible_collection.find_flow_components_object()
+    flexible_collection.calculate_flows_obj()
+
 
 # @pytest.mark.report_uss
 # @pytest.mark.report_tracemalloc
@@ -45,6 +62,7 @@ def test_obj_graph_test(flexible_collection):
 # def test_base_efficiency(large_collection):
 #     large_collection.initialize_graph()
 #     proj_area = large_collection.sum_over_graph()
+
 #     print(str(proj_area))
 #     assert 1==1
 

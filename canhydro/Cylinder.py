@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from math import isnan, sqrt
 
 import numpy as np
 
 from canhydro.DataClasses import Projection
-from canhydro.global_vars import log, qsm_cols
+from canhydro.global_vars import qsm_cols
 from canhydro.Plotter import draw_cyls
-from canhydro.utils import get_projection 
+from canhydro.utils import get_projection
 
 # from descartes import PolygonPatch
 # from mpl_toolkits import mplot3d
@@ -26,7 +25,7 @@ NAME = "Cylinder"
 
 @dataclass
 class Cylinder:  # (defaultdict):
-    cyl_id: int()
+    cyl_id: int
     x: np.ndarray  # len 2 array
     y: np.ndarray  # len 2 array
     z: np.ndarray  # len 2 array
@@ -77,7 +76,7 @@ class Cylinder:  # (defaultdict):
             "z": self.z,
             "radius": self.radius,
             "length": self.length,
-            "aV": self.projected_data[plane]["base_vector"],
+            "xz_area": self.xz_area,
             "polygon": self.projected_data[plane]["polygon"],
             "angle": self.angle,
             "surface_area": self.surface_area,
@@ -105,6 +104,7 @@ class Cylinder:  # (defaultdict):
             if run > 0
             else np.arctan(0)
         )
+        self.xz_area = None
         # log.info(str(self.__repr__()))
 
     def get_projection(self, plane="XZ"):
@@ -124,9 +124,13 @@ class Cylinder:  # (defaultdict):
         else:
             magnitude = [self.dy, self.dz, self.dx]
             vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
-        
+
         projection = get_projection(vector, magnitude, self.radius)
         self.projected_data[plane] = projection
+
+        self.xz_area = (
+            self.projected_data[plane]["XZ"]["area"] if plane == "XY" else None
+        )
         return projection["polygon"]
 
     def draw(self, plane: str = "XY"):

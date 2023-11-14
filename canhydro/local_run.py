@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+import calendar
 import os
 import shutil
 import stat
+import time
 
-import global_vars
 from Forester import Forester
+from global_vars import log, test_input_dir
 from memory_profiler import profile
-
-DIR = global_vars.DIR
-test_input_dir = global_vars.test_input_dir
 
 
 @profile
@@ -31,35 +30,60 @@ class Townie:
         shutil.rmtree(filename, onerror=on_rm_error)
 
     @profile
-    def min_graph_test(flexible_collection):
-        flexible_collection.initialize_minimal_graph()
+    def min_graph_test():
+        forest = Forester()
+        forest.get_file_names(dir=test_input_dir)
+        forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
+        flexible_collection = forest.cylinder_collections[0]
+        flexible_collection.project_cylinders("XZ")
+        flexible_collection.initialize_minimal_graph_from()
         proj_area = flexible_collection.sum_over_min_graph()
         flexible_collection.find_flow_components_minimal()
         print(proj_area)
 
     @profile
-    def base_graph_test(flexible_collection):
-        flexible_collection.initialize_graph()
+    def base_graph_test():
+        forest = Forester()
+        forest.get_file_names(dir=test_input_dir)
+        forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
+        flexible_collection = forest.cylinder_collections[0]
+        flexible_collection.project_cylinders("XZ")
+        flexible_collection.initialize_graph_from()
         proj_area = flexible_collection.sum_over_graph()
         flexible_collection.find_flow_components()
         print(proj_area)
 
     @profile
-    def obj_graph_test(flexible_collection):
-        flexible_collection.initialize_object_graph()
+    def obj_graph_test():
+        forest = Forester()
+        forest.get_file_names(dir=test_input_dir)
+        forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
+        flexible_collection = forest.cylinder_collections[0]
+        flexible_collection.project_cylinders("XZ")
+        flexible_collection.initialize_object_graph_from()
         proj_area = flexible_collection.sum_over_object_graph()
         flexible_collection.find_flow_components_object()
         print(proj_area)
 
     if __name__ == "__main__":
-        forest = Forester()
-        forest.get_file_names(dir=test_input_dir)
-        forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
-        # forest.qsm_from_file_names(file_name="3_HappyPathWTrunk.csv")
-        forest.cylinder_collections[0].project_cylinders("XZ")
-        # base_collection = forest.cylinder_collections[0]
-        # min_collection = forest.cylinder_collections[0]
-        obj_collection = forest.cylinder_collections[0]
-        # base_graph_test(base_collection)
-        # min_graph_test(min_collection)
-        obj_graph_test(obj_collection)
+        current_GMT = time.gmtime()
+        time_stamp = str(calendar.timegm(current_GMT))
+        log.info(f"base_graph_test started at {time_stamp}")
+
+        base_graph_test()
+
+        current_GMT = time.gmtime()
+        time_stamp = str(calendar.timegm(current_GMT))
+        log.info(f"min_graph_test started at {time_stamp}")
+
+        min_graph_test()
+
+        current_GMT = time.gmtime()
+        time_stamp = str(calendar.timegm(current_GMT))
+        log.info(f"obj_graph_test started at {time_stamp}")
+
+        obj_graph_test()
+
+        current_GMT = time.gmtime()
+        time_stamp = str(calendar.timegm(current_GMT))
+        log.info(f"finished at {time_stamp}")
