@@ -116,7 +116,7 @@ The code that you see zipped here is representiitive of the ongoing work in our 
 
   '9_DripOnTrunk.csv' displays the two drip issue in a simple and understandable way
 <h3>Upcoming improvements</h3>
-For a sneak peak at the future of this repository, navigate to the 'productionalizing' branch, where you will see additions such as:
+For a sneak peak at the future of this repository, navigate to the '*productionalizing*' branch, where you will see additions such as:
 
   + Funcionality refactored into methods
   + Linter(s) added for formatting and best practices adherence 
