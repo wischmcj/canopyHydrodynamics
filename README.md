@@ -123,7 +123,8 @@ This repository houses a bare bones script relating to 'A LiDAR-driven pruning a
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 (https://www.researchgate.net/publication/375530854)
 
-<h3>Contents:</h3>
+## Contents:
+
 The main branch of the repository currently displays the code written for the above linked paper how it was run and reviewed.
 
 <h3>Upcoming improvements</h3>
