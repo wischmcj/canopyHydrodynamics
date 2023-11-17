@@ -235,7 +235,7 @@ class CylinderCollection:
             # endCyls, _ = lam_filter(self.cylinders, lambda: cyl_id in endNodes)
             endCyls = [cyl for cyl in self.cylinders if cyl.cyl_id in endNodes or cyl.branch_order ==0]
             boundary_centroids = [ cyl.projected_data[plane]["polygon"].point_on_surface() for cyl in endCyls]
-            breakpoint()
+
             hull, _ = concave_hull(boundary_centroids, curvature_alpha)
             draw_cyls([hull])
 

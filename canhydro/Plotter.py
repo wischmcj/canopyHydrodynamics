@@ -9,7 +9,7 @@ from canhydro.global_vars import log
 from typing import Optional 
 
 
-def draw_cyls(collection: Optional(list[Polygon],Polygon), colors: list[bool] = [False]):
+def draw_cyls(collection: Optional(list[Polygon],Polygon), colors: list[bool] = [True]):
     log.info("Plotting cylinder collection")
     fig, ax = plt.subplots()
     geoPolys = geo.GeoSeries(collection)

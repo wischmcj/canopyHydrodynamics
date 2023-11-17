@@ -132,13 +132,14 @@ def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""
             with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
                 toWrite.to_excel(writer, index=False, sheet_name=method)
 
-def concave_hull(boundary_points, alpha):
+def concave_hull(boundary_points, alpha:int= 0):
     """alpha shape / concave hull
     Draws a minimal concave polygon with a concavity factor alpha"""
+    
     if len(boundary_points) < 4:
         # When you have a triangle, there is no sense in computing an alpha
         # shape.
-        return geometry.MultiPoint(list(boundary_points)).convex_hull
+        return geometry.MultiPoint(list(boundary_points)).convex_hull, boundary_points
 
     def add_edge(edges, edge_points, coords, i, j):
         # adds a line between points i and j
