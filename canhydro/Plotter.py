@@ -6,9 +6,10 @@ from shapely.geometry import Polygon
 from shapely.ops import unary_union as union
 
 from canhydro.global_vars import log
+from typing import Optional 
 
 
-def draw_cyls(collection: list[Polygon], colors: list[bool] = None):
+def draw_cyls(collection: Optional(list[Polygon],Polygon), colors: list[bool] = [False]):
     log.info("Plotting cylinder collection")
     fig, ax = plt.subplots()
     geoPolys = geo.GeoSeries(collection)

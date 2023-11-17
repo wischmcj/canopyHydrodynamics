@@ -127,13 +127,13 @@ class Cylinder:  # (defaultdict):
 
         projection = get_projection(vector, magnitude, self.radius)
         self.projected_data[plane] = projection
-
-        self.xz_area = (
-            self.projected_data[plane]["XZ"]["area"] if plane == "XY" else None
-        )
+        if plane == "XZ":
+            self.xz_area = (
+                self.projected_data["XZ"]["area"] 
+            )
         return projection["polygon"]
 
-    def draw(self, plane: str = "XY"):
+    def draw(self, plane: str = "XZ"):
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly])
 

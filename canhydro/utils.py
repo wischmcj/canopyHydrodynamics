@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import os
+import shutil
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,6 +16,22 @@ from canhydro.global_vars import input_dir, log
 
 # from global_vars import input_dir, log
 
+
+def on_rm_error(func, path, exc_info):
+    # path contains the path of the file that couldn't be removed
+    # let's just assume that it's read-only and unlink it.
+    os.chmod(path, stat.S_IWRITE)
+    os.unlink(path)
+
+def create_dir_and_file(filename) -> None:
+    print(type(filename))
+    os.makedirs(filename, exist_ok=True)
+    f = open(r"test\demofile2.csv", "w")
+    f.write("Now the file has more content!")
+    f.close()
+
+def del_dir(filename) -> None:
+    shutil.rmtree(filename, onerror=on_rm_error)
 
 def read_file_names(file_path=input_dir):
     """Reads in filenames to list"""
@@ -115,7 +132,6 @@ def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""
             with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
                 toWrite.to_excel(writer, index=False, sheet_name=method)
 
-
 def concave_hull(boundary_points, alpha):
     """alpha shape / concave hull
     Draws a minimal concave polygon with a concavity factor alpha"""
@@ -132,7 +148,7 @@ def concave_hull(boundary_points, alpha):
         edges.add((i, j))
         edge_points.append(coords[[i, j]])
 
-    coords = np.array([point.coords[0] for point in boundary_points])
+    coords = np.array([point.coords[0] for point in boundary_points if len(point.coords)>0])
 
     # Minimal set of triangles with points in set
     tri = Delaunay(coords)
@@ -141,7 +157,7 @@ def concave_hull(boundary_points, alpha):
     edge_points = []
     # loop over triangles:
     # ia, ib, ic = indices of corner points of the triangle
-    for ia, ib, ic in tri.vertices:
+    for ia, ib, ic in tri.simplices:
         pa = coords[ia]
         pb = coords[ib]
         pc = coords[ic]
@@ -199,6 +215,13 @@ def get_projection(vector:list, magnitude:list, radius:float()):
     min_c = np.zeros_like(delt_c)
     max_c = np.zeros_like(delt_c)
     pSV = []
+    projection = {
+                    "polygon": Polygon(),
+                    "base_vector": None,
+                    "anti_vector": None,
+                    "angle": None,
+                    "area": None,
+                }
     try:
         # for each cylinder
         if not np.isnan(dim_a[0]):
