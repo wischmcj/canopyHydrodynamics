@@ -8,8 +8,8 @@ import numpy as np
 
 from canhydro.DataClasses import Projection
 from canhydro.global_vars import qsm_cols
-from canhydro.Plotter import draw_cyls
-from canhydro.utils import get_projection
+from canhydro.geometry import get_projection ,draw_cyls
+
 
 # from descartes import PolygonPatch
 # from mpl_toolkits import mplot3d

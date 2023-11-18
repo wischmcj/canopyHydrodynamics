@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Union
+import numpy as np
 
 from shapely.geometry import Polygon
 
@@ -25,6 +27,8 @@ class Flow:
     volume: float()
     sa_to_vol: float()
     drip_node_id: int()
+
+coord_list = Union[list[tuple[float]], np.ndarray]
 
 
 # @dataclass

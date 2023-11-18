@@ -22,8 +22,8 @@ import alphashape
 
 
 from canhydro.global_vars import DIR, test_input_dir
-from canhydro.utils import lam_filter, read_file_names, concave_hull
-from canhydro.Plotter import draw_cyls
+from canhydro.utils import lam_filter, read_file_names
+from canhydro.geometry import concave_hull, furthest_point, union, draw_cyls
 from tests.expected_results import (ez_projection_xy_angle, hp_edges,
                                     ten_cyls_bo_and_rad, ten_cyls_bo_one,
                                     ten_cyls_edges, ten_cyls_id_one,
@@ -85,7 +85,7 @@ import alphashape
 
 def test_zero_curve_alpha():
     points_2d = sorted([(0., 0.), (0., 1.), (1., 1.), (1., 0.),
-        (0.5, 0.25), (0.5, 0.75), (0.25, 0.5), (0.75, 0.5)]
+        (0.5, 0.25), (0.5, 0.75), (0.25, 0.5), (0.75, 0.5)])
     alpha_shape =  alphashape.alphashape(points_2d, 2.0)
     boundary = [Point((x,y)) for (x,y) in points_2d]
     

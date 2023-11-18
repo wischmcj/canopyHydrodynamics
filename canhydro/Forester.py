@@ -22,7 +22,6 @@ class CollectionManager:
         else:
             raise AttributeError(f"Forester isn't accessible via {objtype} instances")
 
-
 class Forester:
     def __init__(self, file_names="", directory=input_dir) -> None:
         self.file_names = file_names

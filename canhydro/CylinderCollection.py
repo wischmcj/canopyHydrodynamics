@@ -13,9 +13,9 @@ from memory_profiler import LogFile, profile
 from canhydro.Cylinder import Cylinder
 from canhydro.DataClasses import Flow
 from canhydro.global_vars import log, qsm_cols
-from canhydro.Plotter import draw_cyls
-from canhydro.utils import (concave_hull, furthest_point, intermitent_log,
-                            lam_filter, union)
+from canhydro.utils import (intermitent_log,
+                            lam_filter)
+from canhydro.geometry import concave_hull, furthest_point, union, draw_cyls
 
 sys.stdout = LogFile()
 
@@ -234,9 +234,9 @@ class CylinderCollection:
             ]
             # endCyls, _ = lam_filter(self.cylinders, lambda: cyl_id in endNodes)
             endCyls = [cyl for cyl in self.cylinders if cyl.cyl_id in endNodes or cyl.branch_order ==0]
-            boundary_centroids = [ cyl.projected_data[plane]["polygon"].point_on_surface() for cyl in endCyls]
+            boundary_points = [ (cyl.x[1], cyl.y[1], cyl.z[1]) for cyl in endCyls]
 
-            hull, _ = concave_hull(boundary_centroids, curvature_alpha)
+            hull, _ = concave_hull(boundary_points, curvature_alpha)
             draw_cyls([hull])
 
             if "stem" in name:
