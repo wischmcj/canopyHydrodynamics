@@ -1,21 +1,20 @@
+from __future__ import annotations
 
-from typing import Union
 import math
 
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import numpy as np
-import geopandas as geo
-
-from shapely.geometry import Polygon
+from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
-from shapely.ops import polygonize, unary_union as union
-from shapely.geometry import Polygon
+from shapely.geometry import MultiLineString, Polygon
+from shapely.ops import polygonize, unary_union
 
-from scipy.linalg import lu_factor, lu_solve 
-import scipy.sparse 
-
-from canhydro.global_vars import log
 from canhydro.DataClasses import coord_list
+from canhydro.global_vars import log
+
+
+def union(**args):
+    return unary_union(**args)
 
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
@@ -25,10 +24,16 @@ def circumcenter_lapack(points: coord_list) -> np.ndarray:
     """
     points = np.asarray(points)
     rows, _ = points.shape
-    A = np.bmat(obj =[[2 * np.dot(points, points.T), np.ones((rows, 1))], [np.ones((1, rows)), np.zeros((1, 1))]])
-    b = np.hstack((np.sum(points * points, axis=1),np.ones((1))))
+    A = np.bmat(
+        obj=[
+            [2 * np.dot(points, points.T), np.ones((rows, 1))],
+            [np.ones((1, rows)), np.zeros((1, 1))],
+        ]
+    )
+    b = np.hstack((np.sum(points * points, axis=1), np.ones(1)))
     sir_c = np.linalg.solve(A, b)[:-1]
     return sir_c
+
 
 def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     """
@@ -38,23 +43,29 @@ def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     """
     points = np.asarray(points)
     rows, columns = points.shape
-    A = np.bmat(obj =[[2 * np.dot(points, points.T), np.ones((rows, 1))], [np.ones((1, rows)), np.zeros((1, 1))]])
-    b = np.hstack((np.sum(points * points, axis=1),
-                   np.ones((1))))
+    A = np.bmat(
+        obj=[
+            [2 * np.dot(points, points.T), np.ones((rows, 1))],
+            [np.ones((1, rows)), np.zeros((1, 1))],
+        ]
+    )
+    b = np.hstack((np.sum(points * points, axis=1), np.ones(1)))
     lu, piv = lu_factor(A)
     sir_c = lu_solve((lu, piv), b)
     return sir_c
 
+
 def circumradius(points: coord_list) -> float:
     """
-    Calculte the radius of the circle in which the given polygon may be inscribed 
+    Calculte the radius of the circle in which the given polygon may be inscribed
     """
     points = np.asarray(points)
-    return np.linalg.norm(points[0, :] - np.dot(circumcenter_LAPACK(points), points))
+    return np.linalg.norm(points[0, :] - np.dot(circumcenter_lapack(points), points))
 
-def simplices(points: coord_list)->coord_list:
+
+def simplices(points: coord_list) -> coord_list:
     """
-        Yeilds simpicies and radius
+    Yeilds simpicies and radius
     """
     coords = np.asarray(points)
     tri = Delaunay(coords)
@@ -64,34 +75,40 @@ def simplices(points: coord_list)->coord_list:
         try:
             yield simplex, circumradius(simplex_points)
         except np.linalg.LinAlgError:
-            log.Warning('Singleton returned - likely caused by all points '
-                          'lying in an N-1 space.')
+            log.Warning(
+                "Singleton returned - likely caused by all points "
+                "lying in an N-1 space."
+            )
 
-def maximal_alpha(boundary_points: coord_list, union_poly: Polygon)-> float:
+
+def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> float:
     """
     Finds the minimal alpha shape for the given coord list that still contains the given polygon
     """
-    upper = 10 # annectotally seems to be plenty high to ensure a discontinuous alpha shape
+    upper = (
+        10  # annectotally seems to be plenty high to ensure a discontinuous alpha shape
+    )
     lower = 0
     candidate = start
     itterations = 10
-    while runs<= itterations:
-        alpha = (upper-lower)/2
+    while runs <= itterations:
+        alpha = (upper - lower) / 2
         hull, _ = concave_hull(boundary_points, union_poly)
         if hull.contains(Polygon):
-            # The tested curvature is less than or equal to the max curvature for a continuous alpha shape 
+            # The tested curvature is less than or equal to the max curvature for a continuous alpha shape
             lower = alpha
         else:
-            # The tested curvature is greater than or equal to the max curvature for a continuous alpha shape 
-            upper = alpha            
-        runs+=1
+            # The tested curvature is greater than or equal to the max curvature for a continuous alpha shape
+            upper = alpha
+        runs += 1
     return alpha
 
-#might eventually be updated to deal with 3d a la https://github.com/bellockk/alphashape/blob/master/alphashape/optimizealpha.py
-def concave_hull(boundary_points, alpha:int= 0):
+
+# might eventually be updated to deal with 3d a la https://github.com/bellockk/alphashape/blob/master/alphashape/optimizealpha.py
+def concave_hull(boundary_points, alpha: int = 0):
     """alpha shape / concave hull
     Draws a minimal concave polygon with a concavity factor alpha"""
-    
+
     if len(boundary_points) < 4:
         # When you have a triangle, there is no sense in computing an alpha
         # shape.
@@ -105,7 +122,9 @@ def concave_hull(boundary_points, alpha:int= 0):
         edges.add((i, j))
         edge_points.append(coords[[i, j]])
 
-    coords = np.array(sorted([point.coords[0] for point in boundary_points if len(point.coords)>0]))
+    coords = np.array(
+        sorted(point.coords[0] for point in boundary_points if len(point.coords) > 0)
+    )
     # Minimal set of triangles with points in set
 
     edges = set()
@@ -114,7 +133,6 @@ def concave_hull(boundary_points, alpha:int= 0):
     # ia, ib, ic = indices of corner points of the triangle
     tri = simplices(coords)
     for (ia, ib, ic), _ in tri:
-        breakpoint()
         pa = coords[ia]
         pb = coords[ib]
         pc = coords[ic]
@@ -138,18 +156,17 @@ def concave_hull(boundary_points, alpha:int= 0):
             add_edge(edges, edge_points, coords, ib, ic)
             add_edge(edges, edge_points, coords, ic, ia)
 
-    m = geometry.MultiLineString(edge_points)
+    m = MultiLineString(edge_points)
     triangles = list(polygonize(m))
     return unary_union(triangles), edge_points
 
-def union(list):
-    return unary_union(list)
 
 def furthest_point(point, points):
     furthest_index = distance.cdist([point], points).argmax()
     return points[furthest_index]
 
-def get_projection(vector:list, magnitude:list, radius:float()):
+
+def get_projection(vector: list, magnitude: list, radius: float()):
     noCirPoints = 360
     tCir = np.linspace(
         0, 2 * np.pi, noCirPoints
@@ -173,12 +190,12 @@ def get_projection(vector:list, magnitude:list, radius:float()):
     max_c = np.zeros_like(delt_c)
     pSV = []
     projection = {
-                    "polygon": Polygon(),
-                    "base_vector": None,
-                    "anti_vector": None,
-                    "angle": None,
-                    "area": None,
-                }
+        "polygon": Polygon(),
+        "base_vector": None,
+        "anti_vector": None,
+        "angle": None,
+        "area": None,
+    }
     try:
         # for each cylinder
         if not np.isnan(dim_a[0]):
@@ -292,20 +309,18 @@ def get_projection(vector:list, magnitude:list, radius:float()):
                 }
                 return projection
         else:
-            log.info(f"dim_a[0] is null, unable to project")
+            log.info("dim_a[0] is null, unable to project")
         return projection
     except UnboundLocalError:
-        log.info(f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}")
+        log.info(
+            f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
+        )
 
-    
-def draw_cyls(collection: Union[list[Polygon],Polygon], colors: list[bool] = [True]):
+
+def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True]):
     log.info("Plotting cylinder collection")
     fig, ax = plt.subplots()
     geoPolys = GeoSeries(collection)
     colors = ["Blue" if col else "Grey" for col in colors]
     geoPolys.plot(ax=ax, color=colors)
     plt.show()
-
-
-def unary_union(polys):
-    return union(polys)
