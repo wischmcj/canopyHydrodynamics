@@ -75,7 +75,7 @@ class Cylinder:  # (defaultdict):
             "z": self.z,
             "radius": self.radius,
             "length": self.length,
-            "xz_area": self.xz_area,
+            "xy_area": self.xy_area,
             "polygon": self.projected_data[plane]["polygon"],
             "angle": self.angle,
             "surface_area": self.surface_area,
@@ -103,10 +103,10 @@ class Cylinder:  # (defaultdict):
             if run > 0
             else np.arctan(0)
         )
-        self.xz_area = None
+        self.xy_area = None
         # log.info(str(self.__repr__()))
 
-    def get_projection(self, plane="XZ"):
+    def get_projection(self, plane="XY"):
         noCirPoints = 360
         tCir = np.linspace(
             0, 2 * np.pi, noCirPoints
@@ -126,11 +126,11 @@ class Cylinder:  # (defaultdict):
 
         projection = get_projection(vector, magnitude, self.radius)
         self.projected_data[plane] = projection
-        if plane == "XZ":
-            self.xz_area = self.projected_data["XZ"]["area"]
+        if plane == "XY":
+            self.xy_area = self.projected_data["XY"]["area"]
         return projection["polygon"]
 
-    def draw(self, plane: str = "XZ"):
+    def draw(self, plane: str = "XY"):
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly])
 

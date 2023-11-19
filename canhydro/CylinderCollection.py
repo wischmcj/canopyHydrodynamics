@@ -58,7 +58,11 @@ class CylinderCollection:
         }
 
         # Projection Attrs
-        self.union_poly = None
+        self.union_polys = {
+            "XY": None,
+            "XZ": None,
+            "YZ": None
+        }
         self.stem_path_lengths = []
         self.hull = None
         self.stem_hull = None
@@ -141,7 +145,7 @@ class CylinderCollection:
         self.theta = np.nan
         log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
 
-    def project_cylinders(self, plane: str = "XZ"):
+    def project_cylinders(self, plane: str = "XY"):
         """Projects cylinders onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
@@ -154,8 +158,8 @@ class CylinderCollection:
                 # print a progress update once every 10 thousand or so cylinders
                 intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
             # Projection Attrs
-            self.union_poly = unary_union(polys)
-            self.stem_path_lengths = []
+            self.union_polys[plane] = unary_union(polys)
+            # self.stem_path_lengths = []
             self.pSV = polys  # unsure if I want to keep this attr
 
     def get_collection_data(self):
@@ -164,7 +168,7 @@ class CylinderCollection:
 
     def draw(
         self,
-        plane: str = "XZ",
+        plane: str = "XY",
         highlight_lambda: function = lambda: True,
         filter_lambda: function = lambda: True,
         **args,
@@ -179,7 +183,6 @@ class CylinderCollection:
         )
         to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
         log.info(f"{len(to_draw)} cylinders matched criteria")
-        self.union_poly = unary_union(to_draw)
         draw_cyls(collection=to_draw, colors=matches, **args)
 
     def get_dbh(self):
@@ -267,7 +270,7 @@ class CylinderCollection:
             else:
                 self.hull = hull
         else:
-            log.info("")
+            log.info("No projected data with which to define watershed")
 
     def initialize_graph(self):
         """This function initialized edge attributes as cylinder objects"""
@@ -292,7 +295,7 @@ class CylinderCollection:
         """This function initialized edge attributes as FULL cylinder dicts"""
         gr = self.graph
         areas = [
-            attr["cylinder"].projected_data["XZ"]["polygon"].area
+            attr["cylinder"].projected_data["XY"]["polygon"].area
             for u, v, attr in gr.edges(data=True)
             if u > 5000
         ]
@@ -318,7 +321,10 @@ class CylinderCollection:
 
         return contracted, neighbors
 
-    def find_trunk_distance(self):
+    def find_trunk_distances(self):
+        """
+            Finds the distance in the graph (in number of nodes) between each node and the closest trunk node
+        """
         trunk_nodes = self.get_trunk_nodes()
 
         trunk_contraction, titans = self.contracted_nodes(
@@ -367,7 +373,7 @@ class CylinderCollection:
         # algo does not play well with floats
         if metric == "projected_area":
             sum(
-                attr["projected_data"]["XZ"]["area"] * 10000
+                attr["projected_data"]["XY"]["area"] * 10000
                 for u, v, attr in graph.edges(data=True)
             ) / 10000
         else:
@@ -396,7 +402,7 @@ class CylinderCollection:
             Flow(
                 **{
                     "num_cylinders": num_stem_edges,
-                    "projected_area": np.sum([cyl.xz_area for _, _, cyl in stem_edges]),
+                    "projected_area": np.sum([cyl.xy_area for _, _, cyl in stem_edges]),
                     "surface_area": np.sum(
                         [cyl.surface_area for _, _, cyl in stem_edges]
                     ),
@@ -429,7 +435,7 @@ class CylinderCollection:
                 Flow(
                     **{
                         "num_cylinders": num_cyls,
-                        "projected_area": np.sum([cyl.xz_area for _, _, cyl in edges]),
+                        "projected_area": np.sum([cyl.xy_area for _, _, cyl in edges]),
                         "surface_area": np.sum(
                             [cyl.surface_area for _, _, cyl in edges]
                         ),
@@ -473,37 +479,40 @@ class CylinderCollection:
         self.trunk_lean = angle
         return angle
 
-    def statistics():
+    def statistics(self):
+        if not self.pSV:
+            self.project_cylinders(plane="XY")
         if not self.hull:
             self.watershed_boundary()
         if not self.stem_hull:
-            self.watershed_boundary()
-        if not self.pSV:
-            self.project_cylinders(plane="XZ")
+            if not self.stem_flow_component:
+                self.find_flow_components()
+                self.calculate_flows()
+            self.watershed_boundary(component=self.stem_flow_component)
 
     #     endNodePoly = [self._pSV[n-1] for n in g.nodes if g.degree(n)==1 and n!= 0]
     #     centroids = [x.point_on_surface() for x in endNodePoly]
     #     tot_hull, edge_points = concave_hull(centroids,2.2)
     #     totHullGeo =geo.GeoSeries(tot_hull)
-    #     canopyCover = totHullGeo.area
-    #     canopyBoundary = totHullGeo.boundary.length
-
+        canopyCover = self.hull.area
+        canopyBoundary = self.boundary.length
+        log.info("Found canpopy stats")
     #     print('found hull stats')
 
-    #     #calculate overlaps
-    #     totPoly = unary_union(geo.GeoSeries(self._pSV))
-    #     projected_union_area = totPoly.area
+        #calculate overlaps
+        totPoly = unary_union(self.union_polys["XY"])
+        projected_union_area = totPoly.area
 
-    #     area = 0
-    #     for poly in self._pSV:
-    #         area+=poly.area
-    #     print('found total area')
+        sum_projected_areas = 0
+        for poly in self.pSV:
+            sum_projected_areas+=poly.area
+        print('found total area')
 
-    #     canopy_heights = pd.DataFrame(self._z[0])[self._BO>0]
-    #     canopy_percentiles = canopy_heights.describe()
-    #     topQuarterPolys     =  geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[6][0]])[0])
-    #     topHalfPolys        =  geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[5][0]])[0])
-    #     topThreeQuarterPolys= geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[4][0]])[0])
+        canopy_heights = pd.DataFrame(self._z[0])[self._BO>0]
+        canopy_percentiles = canopy_heights.describe()
+        topQuarterPolys     =  geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[6][0]])[0])
+        topHalfPolys        =  geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[5][0]])[0])
+        topThreeQuarterPolys= geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[4][0]])[0])
 
     #     topQuarterArea     =0
     #     topHalfArea        =0

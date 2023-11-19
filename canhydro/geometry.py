@@ -69,7 +69,6 @@ def simplices(points: coord_list) -> coord_list:
 
     for simplex in tri.simplices:
         simplex_points = coords[simplex]
-        print(f"lenght of simplex {len(simplex)}")
         try:
             yield simplex, circumradius(simplex_points)
         except np.linalg.LinAlgError:

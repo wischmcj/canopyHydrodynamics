@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 from canhydro.global_vars import DIR
 from canhydro.utils import lam_filter, read_file_names
+from canhydro.geometry import draw_cyls
 from tests.expected_results import (ez_projection_xy_angle, hp_edges,
                                     small_tree_dbh, small_tree_flows,
                                     small_tree_wateshed_poly,
@@ -22,6 +23,7 @@ from tests.expected_results import (ez_projection_xy_angle, hp_edges,
                                     ten_cyls_edges, ten_cyls_flows,
                                     ten_cyls_id_one, ten_cyls_is_stem,
                                     ten_cyls_rows)
+from tests.expected_results_shapes import small_tree_wateshed_poly
 
 # DIR = DIR
 # test_input_dir = test_input_dir
@@ -137,9 +139,11 @@ def test_dbh(flexible_collection):
 @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
 def test_watershed(flexible_collection):
     flexible_collection.initialize_graph()
+    flexible_collection.project_cylinders("XY")
     flexible_collection.watershed_boundary(flexible_collection.graph)
     actual_poly = flexible_collection.hull
     expected_poly = small_tree_wateshed_poly
+    breakpoint()
     assert actual_poly == expected_poly
 
 
@@ -151,7 +155,7 @@ def test_find_flows_ten_cyls(flexible_collection):
     flexible_collection.calculate_flows()
     actual = flexible_collection.flows
     expected = ten_cyls_flows
-    assert expected == actual
+    assert expected == str(actual)
 
 
 # needs verification
@@ -164,5 +168,4 @@ def test_find_flows_small_tree(flexible_collection):
     actual = flexible_collection.flows
     # flexible_collection.draw(highlight_lambda=lambda : is_stem, filter_lambda = lambda:cyl_id>100 )
     expected = small_tree_flows
-    breakpoint()
-    assert expected == actual
+    assert expected == str(actual)

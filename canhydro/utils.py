@@ -168,5 +168,5 @@ def countlines(start, lines=0, header=True, begin_start=None):
     return lines
 
 
-# if __name__ == "__main__":
-#     countlines(r'C:\Users\wisch\documents\gitprojects\canopyhydrodynamics')
+if __name__ == "__main__":
+    countlines(r'C:\Users\wisch\documents\gitprojects\canopyhydrodynamics')
