@@ -7,9 +7,8 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from canhydro.DataClasses import Projection
+from canhydro.geometry import draw_cyls, get_projection
 from canhydro.global_vars import qsm_cols
-from canhydro.geometry import get_projection ,draw_cyls
-
 
 # from descartes import PolygonPatch
 # from mpl_toolkits import mplot3d
@@ -128,9 +127,7 @@ class Cylinder:  # (defaultdict):
         projection = get_projection(vector, magnitude, self.radius)
         self.projected_data[plane] = projection
         if plane == "XZ":
-            self.xz_area = (
-                self.projected_data["XZ"]["area"] 
-            )
+            self.xz_area = self.projected_data["XZ"]["area"]
         return projection["polygon"]
 
     def draw(self, plane: str = "XZ"):

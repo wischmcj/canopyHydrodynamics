@@ -1,79 +1,76 @@
+from __future__ import annotations
 
 import unittest
-from click.testing import CliRunner
-import itertools
 
+import alphashape
 import shapely
 from alphashape.alphashape import alphashape
-from alphashape import cli
 from shapely.geometry import Point
-from canhydro.utils import lam_filter, read_file_names
 
-from canhydro.geometry import concave_hull, furthest_point, union
+from canhydro.geometry import concave_hull
+from tests.expected_results_shapes import small_tree_wateshed_poly, star_poly
 
-from tests.expected_results_shapes import (
-    star_poly
-)
+
 class TestAlphashape(unittest.TestCase):
     """Tests for `alphashape` package."""
 
-    # def setUp(self):
-    #     """Set up test fixtures, if any."""
+    def setUp(self):
+        """Set up test fixtures, if any."""
 
-    # def tearDown(self):
-    #     """Tear down test fixtures, if any."""
+    def tearDown(self):
+        """Tear down test fixtures, if any."""
 
-    # def test_given_a_point_return_a_point(self):
-    #     """
-    #     Given a point, the alphashape function should return the same point
-    #     """
-    #     point_a, _ = concave_hull([(0., 0.)], 0)
-    #     point_c, _ = concave_hull([(1., 0.)], 0)
-    #     point_b, _ = concave_hull([(0., 1.)], 0)
-    #     point_d, _ = concave_hull([(0., 0.)], 99)
-    #     point_e, _ = concave_hull([(1., 0.)], 99)
-    #     point_f, _ = concave_hull([(0., 1.)], 99)
-    #     assert shapely.geometry.Point([0., 0.]) == point_a
-    #     assert shapely.geometry.Point([1., 0.]) == point_c
-    #     assert shapely.geometry.Point([0., 1.]) == point_b
-    #     assert shapely.geometry.Point([0., 0.]) == point_d
-    #     assert shapely.geometry.Point([1., 0.]) == point_e
-    #     assert shapely.geometry.Point([0., 1.]) == point_f
+    def test_given_a_point_return_a_point(self):
+        """
+        Given a point, the alphashape function should return the same point
+        """
+        point_a, _ = concave_hull([(0.0, 0.0)], 0)
+        point_c, _ = concave_hull([(1.0, 0.0)], 0)
+        point_b, _ = concave_hull([(0.0, 1.0)], 0)
+        point_d, _ = concave_hull([(0.0, 0.0)], 99)
+        point_e, _ = concave_hull([(1.0, 0.0)], 99)
+        point_f, _ = concave_hull([(0.0, 1.0)], 99)
+        assert shapely.geometry.Point([0.0, 0.0]) == point_a
+        assert shapely.geometry.Point([1.0, 0.0]) == point_c
+        assert shapely.geometry.Point([0.0, 1.0]) == point_b
+        assert shapely.geometry.Point([0.0, 0.0]) == point_d
+        assert shapely.geometry.Point([1.0, 0.0]) == point_e
+        assert shapely.geometry.Point([0.0, 1.0]) == point_f
 
-    # def test_given_a_line_with_dupicate_points_return_a_point(self):
-    #     """
-    #     Given a line with duplicate points, the alphashape function should
-    #     return a point
-    #     """
-    #     actual, _  = concave_hull([(0., 1.), (0., 1.)], 0)
-    #     assert shapely.geometry.Point([0., 1.]) == actual
+    def test_given_a_line_with_dupicate_points_return_a_point(self):
+        """
+        Given a line with duplicate points, the alphashape function should
+        return a point
+        """
+        actual, _ = concave_hull([(0.0, 1.0), (0.0, 1.0)], 0)
+        assert shapely.geometry.Point([0.0, 1.0]) == actual
 
-    # def test_given_a_line_with_unique_points_return_a_line(self):
-    #     """
-    #     Given a line with unique points, the alphashape function should return
-    #     the same line
-    #     """
-        
-    #     actual_horz, _= concave_hull([(0., 0.), (0., 1.)], 0)
-    #     actual_diag, _= concave_hull([(1., 0.), (0., 1.)], 0)
-    #     assert shapely.geometry.LineString([(0., 0.), (0., 1.)]) == actual_horz
-    #     assert shapely.geometry.LineString([(1., 0.), (0., 1.)]) == actual_diag
+    def test_given_a_line_with_unique_points_return_a_line(self):
+        """
+        Given a line with unique points, the alphashape function should return
+        the same line
+        """
 
-    # def test_given_a_triangle_with_duplicate_points_returns_a_point(self):
-    #     """
-    #     Given a triangle with two unique points, the alphashape function should
-    #     return a point
-    #     """
-    #     dupe_tri, _ = concave_hull([(0., 1.), (0., 1.), (0., 1.)], 0)
-    #     assert shapely.geometry.Point((0., 1.)) == dupe_tri
+        actual_horz, _ = concave_hull([(0.0, 0.0), (0.0, 1.0)], 0)
+        actual_diag, _ = concave_hull([(1.0, 0.0), (0.0, 1.0)], 0)
+        assert shapely.geometry.LineString([(0.0, 0.0), (0.0, 1.0)]) == actual_horz
+        assert shapely.geometry.LineString([(1.0, 0.0), (0.0, 1.0)]) == actual_diag
 
-    # def test_given_a_triangle_with_two_duplicate_points_returns_a_line(self):
-    #     """
-    #     Given a line with two unique points, the alphashape function should
-    #     return a line with the unique points
-    #     """
-    #     tri_two_dupe,_ = concave_hull([(1., 0.), (0., 1.), (0., 1.)], 0)
-    #     assert shapely.geometry.LineString([(1., 0.), (0., 1.)]) == tri_two_dupe
+    def test_given_a_triangle_with_duplicate_points_returns_a_point(self):
+        """
+        Given a triangle with two unique points, the alphashape function should
+        return a point
+        """
+        dupe_tri, _ = concave_hull([(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)], 0)
+        assert shapely.geometry.Point((0.0, 1.0)) == dupe_tri
+
+    def test_given_a_triangle_with_two_duplicate_points_returns_a_line(self):
+        """
+        Given a line with two unique points, the alphashape function should
+        return a line with the unique points
+        """
+        tri_two_dupe, _ = concave_hull([(1.0, 0.0), (0.0, 1.0), (0.0, 1.0)], 0)
+        assert shapely.geometry.LineString([(1.0, 0.0), (0.0, 1.0)]) == tri_two_dupe
 
     # def test_given_a_four_point_polygon_with_small_alpha_return_input(self):
     #     """
@@ -84,28 +81,57 @@ class TestAlphashape(unittest.TestCase):
     #     quad_small, _= concave_hull(pts, .0001)
     #     assert shapely.geometry.Polygon([(0., 0.), (0., 1.), (1., 1.), (1., 0.), (0., 0.)]).equals(quad_small)
 
+    @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
+    def test_small_tree(flexible_collection):
+        flexible_collection.project_cylinders(plane="XY")
+        flexible_collection.initialize_graph()
+        flexible_collection.watershed_boundary(flexible_collection.graph, plane="XY")
+        expected = small_tree_wateshed_poly
+        actual = flexible_collection.hull
+        assert str(actual) == expected
+
     def test_star_poly(self):
         """
         Given a 3-dimensional data set, return an expected set of edges.
         """
-        coords_2d = sorted([
-            (0., 0.), (0., 0.), (0., 1.),
-            (1., 0.), (1., 1.), (1., 0.),
-            (0., 1.), (1., 1.), (.25, .5),
-            (.5, .25), (.5, .5), (.75, .5),
-            (.5, .75), (.5, .5)
-        ])
-        points_2d = [Point((x,y)) for (x,y) in coords_2d]
-        expected_vertices = [
-            [0., 0.], [0., 0.], [0., 1.],
-            [0., 1.], [1., 0.], [1., 0.],
-            [1., 1.], [1., 1.], [0.25, 0.5],
-            [0.5, 0.25], [0.5, 0.5], [0.5, 0.5],
-            [0.5, 0.75], [0.75, 0.5]
+        coords_2d = sorted(
+            [
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (0.0, 1.0),
+                (1.0, 0.0),
+                (1.0, 1.0),
+                (1.0, 0.0),
+                (0.0, 1.0),
+                (1.0, 1.0),
+                (0.25, 0.5),
+                (0.5, 0.25),
+                (0.5, 0.5),
+                (0.75, 0.5),
+                (0.5, 0.75),
+                (0.5, 0.5),
             ]
-        
+        )
+        points_2d = [Point((x, y)) for (x, y) in coords_2d]
+        expected_vertices = [
+            [0.0, 0.0],
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [1.0, 1.0],
+            [0.25, 0.5],
+            [0.5, 0.25],
+            [0.5, 0.5],
+            [0.5, 0.5],
+            [0.5, 0.75],
+            [0.75, 0.5],
+        ]
+
         expected = star_poly
-        results, _ = concave_hull(points_2d,2.1)
+        results, _ = concave_hull(points_2d, 2.1)
         assert results.contains(expected)
         assert expected.contains(results)
         # breakpoint()
@@ -114,40 +140,92 @@ class TestAlphashape(unittest.TestCase):
         """
         Given a 3-dimensional data set, return an expected set of edges.
         """
-        coords_2d = sorted([
-            (0., 0.), (0., 0.), (0., 1.),
-            (1., 0.), (1., 1.), (1., 0.),
-            (0., 1.), (1., 1.), (.25, .5),
-            (.5, .25), (.5, .5), (.75, .5),
-            (.5, .75), (.5, .5)
-        ])
-        points_2d = [Point((x,y)) for (x,y) in coords_2d]
-        expected_vertices = [
-            [0., 0.], [0., 0.], [0., 1.],
-            [0., 1.], [1., 0.], [1., 0.],
-            [1., 1.], [1., 1.], [0.25, 0.5],
-            [0.5, 0.25], [0.5, 0.5], [0.5, 0.5],
-            [0.5, 0.75], [0.75, 0.5]
+        coords_2d = sorted(
+            [
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (0.0, 1.0),
+                (1.0, 0.0),
+                (1.0, 1.0),
+                (1.0, 0.0),
+                (0.0, 1.0),
+                (1.0, 1.0),
+                (0.25, 0.5),
+                (0.5, 0.25),
+                (0.5, 0.5),
+                (0.75, 0.5),
+                (0.5, 0.75),
+                (0.5, 0.5),
             ]
-        
+        )
+        points_2d = [Point((x, y)) for (x, y) in coords_2d]
+        expected_vertices = [
+            [0.0, 0.0],
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [1.0, 1.0],
+            [0.25, 0.5],
+            [0.5, 0.25],
+            [0.5, 0.5],
+            [0.5, 0.5],
+            [0.5, 0.75],
+            [0.75, 0.5],
+        ]
+
         expected = star_poly
-        results, _ = concave_hull(points_2d,2.1)
+        results, _ = concave_hull(points_2d, 2.1)
         assert results.contains(expected)
         assert expected.contains(results)
         # breakpoint()
 
+    def test_zero_curve_alpha():
+        points_2d = sorted(
+            [
+                (0.0, 0.0),
+                (0.0, 1.0),
+                (1.0, 1.0),
+                (1.0, 0.0),
+                (0.5, 0.25),
+                (0.5, 0.75),
+                (0.25, 0.5),
+                (0.75, 0.5),
+            ]
+        )
+        alpha_shape = alphashape.alphashape(points_2d, 2.0)
+        boundary = [Point(x, y) for (x, y) in points_2d]
+
+        hull, _ = concave_hull(boundary, 2.0)
+        # fig, ax = plt.subplots()
+        # geopoly = geo.GeoSeries(hull)
+        # geopoly.plot(ax =ax)
+        # plt.show()
+        assert alpha_shape == hull
 
     def test_3_dimensional_regression(self):
         """
         Given a 3-dimensional data set, return an expected set of edges.
         """
         points_3d = [
-            (0., 0., 0.), (0., 0., 1.), (0., 1., 0.),
-            (1., 0., 0.), (1., 1., 0.), (1., 0., 1.),
-            (0., 1., 1.), (1., 1., 1.), (.25, .5, .5),
-            (.5, .25, .5), (.5, .5, .25), (.75, .5, .5),
-            (.5, .75, .5), (.5, .5, .75)
+            (0.0, 0.0, 0.0),
+            (0.0, 0.0, 1.0),
+            (0.0, 1.0, 0.0),
+            (1.0, 0.0, 0.0),
+            (1.0, 1.0, 0.0),
+            (1.0, 0.0, 1.0),
+            (0.0, 1.0, 1.0),
+            (1.0, 1.0, 1.0),
+            (0.25, 0.5, 0.5),
+            (0.5, 0.25, 0.5),
+            (0.5, 0.5, 0.25),
+            (0.75, 0.5, 0.5),
+            (0.5, 0.75, 0.5),
+            (0.5, 0.5, 0.75),
         ]
+
     #     expected = {
     #     }
     #     expected_vertices = [

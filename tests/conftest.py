@@ -17,7 +17,7 @@ from _pytest.nodes import Item
 
 from canhydro.Forester import Forester
 from canhydro.global_vars import test_input_dir
-from functools import lru_cache
+
 
 def pytest_collection_modifyitems(items: list[Item]):
     for item in items:
@@ -27,7 +27,7 @@ def pytest_collection_modifyitems(items: list[Item]):
             item.add_marker(pytest.mark.integration)
 
 
-@lru_cache(maxsize=256)
+# @lru_cache(maxsize=256)
 @pytest.fixture
 def basic_forest():
     forest = Forester()
@@ -36,7 +36,7 @@ def basic_forest():
     return forest
 
 
-@lru_cache(maxsize=256)
+# @lru_cache(maxsize=256)
 @pytest.fixture
 def flexible_collection(basic_forest, request):
     basic_forest.qsm_from_file_names(file_name=request.param)

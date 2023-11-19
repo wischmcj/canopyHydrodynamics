@@ -1,20 +1,18 @@
+"""Spacially centeric code"""
 from __future__ import annotations
 
 import math
 
 import matplotlib.pyplot as plt
 import numpy as np
+from geopandas import GeoSeries
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
-from shapely.geometry import MultiLineString, Polygon
+from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
 
 from canhydro.DataClasses import coord_list
 from canhydro.global_vars import log
-
-
-def union(**args):
-    return unary_union(**args)
 
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
@@ -31,8 +29,7 @@ def circumcenter_lapack(points: coord_list) -> np.ndarray:
         ]
     )
     b = np.hstack((np.sum(points * points, axis=1), np.ones(1)))
-    sir_c = np.linalg.solve(A, b)[:-1]
-    return sir_c
+    return np.linalg.solve(A, b)[:-1]
 
 
 def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
@@ -72,6 +69,7 @@ def simplices(points: coord_list) -> coord_list:
 
     for simplex in tri.simplices:
         simplex_points = coords[simplex]
+        print(f"lenght of simplex {len(simplex)}")
         try:
             yield simplex, circumradius(simplex_points)
         except np.linalg.LinAlgError:
@@ -89,7 +87,6 @@ def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> float:
         10  # annectotally seems to be plenty high to ensure a discontinuous alpha shape
     )
     lower = 0
-    candidate = start
     itterations = 10
     while runs <= itterations:
         alpha = (upper - lower) / 2
@@ -112,7 +109,7 @@ def concave_hull(boundary_points, alpha: int = 0):
     if len(boundary_points) < 4:
         # When you have a triangle, there is no sense in computing an alpha
         # shape.
-        return geometry.MultiPoint(list(boundary_points)).convex_hull, boundary_points
+        return MultiPoint(list(boundary_points)).convex_hull, boundary_points
 
     def add_edge(edges, edge_points, coords, i, j):
         # adds a line between points i and j

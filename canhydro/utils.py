@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import math
 import os
 import shutil
 import stat
-from typing import Union, Tuple, List
-import warnings
 
-from pandas import read_excel, ExcelWriter
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+import numpy as np
+
 from canhydro.global_vars import input_dir, log
 
 # from global_vars import input_dir, log
@@ -132,32 +130,35 @@ def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""
             with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
                 toWrite.to_excel(writer, index=False, sheet_name=method)
 
+
 def countlines(start, lines=0, header=True, begin_start=None):
     """
-    Counts the lines contained in this project and prints results by 
+    Counts the lines contained in this project and prints results by
     file. For Vanity.
     """
     if header:
-        print('{:>10} |{:>10} | {:<20}'.format('ADDED', 'TOTAL', 'FILE'))
-        print('{:->11}|{:->11}|{:->20}'.format('', '', ''))
+        print("{:>10} |{:>10} | {:<20}".format("ADDED", "TOTAL", "FILE"))
+        print("{:->11}|{:->11}|{:->20}".format("", "", ""))
 
     for thing in os.listdir(start):
         thing = os.path.join(start, thing)
         if os.path.isfile(thing):
-            if thing.endswith('.py'):
-                with open(thing, 'r') as f:
+            if thing.endswith(".py"):
+                with open(thing) as f:
                     newlines = f.readlines()
                     newlines = len(newlines)
                     lines += newlines
 
                     if begin_start is not None:
-                        reldir_of_thing = '.' + thing.replace(begin_start, '')
+                        reldir_of_thing = "." + thing.replace(begin_start, "")
                     else:
-                        reldir_of_thing = '.' + thing.replace(start, '')
+                        reldir_of_thing = "." + thing.replace(start, "")
 
-                    print('{:>10} |{:>10} | {:<20}'.format(
-                            newlines, lines, reldir_of_thing))
-
+                    print(
+                        "{:>10} |{:>10} | {:<20}".format(
+                            newlines, lines, reldir_of_thing
+                        )
+                    )
 
     for thing in os.listdir(start):
         thing = os.path.join(start, thing)
@@ -165,6 +166,7 @@ def countlines(start, lines=0, header=True, begin_start=None):
             lines = countlines(thing, lines, header=False, begin_start=start)
 
     return lines
+
 
 # if __name__ == "__main__":
 #     countlines(r'C:\Users\wisch\documents\gitprojects\canopyhydrodynamics')

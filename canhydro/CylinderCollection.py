@@ -9,13 +9,14 @@ import sys
 import networkx as nx
 import numpy as np
 from memory_profiler import LogFile, profile
+from shapely.geometry import Point
+from shapely.ops import unary_union
 
 from canhydro.Cylinder import Cylinder
 from canhydro.DataClasses import Flow
+from canhydro.geometry import concave_hull, draw_cyls, furthest_point
 from canhydro.global_vars import log, qsm_cols
-from canhydro.utils import (intermitent_log,
-                            lam_filter)
-from canhydro.geometry import concave_hull, furthest_point, union, draw_cyls
+from canhydro.utils import intermitent_log, lam_filter
 
 sys.stdout = LogFile()
 
@@ -46,14 +47,14 @@ class CylinderCollection:
         self.aggregate_angle = np.nan
         self.descriptive_vectors = np.nan  # Average, median, mode vectors
         self.treeQualities = {
-            "total_psa": -1,
-            "tot_hull_area": -1,
-            "stem_flow_hull_area": -1,
-            "stem_psa": -1,
-            "flowStats": -1,
-            "dbh": -1,
-            "tot_surface_area": -1,
-            "stem_surface_area": -1,
+            "total_psa": None,
+            "tot_hull_area": None,
+            "stem_flow_hull_area": None,
+            "stem_psa": None,
+            "flowStats": None,
+            "dbh": None,
+            "tot_surface_area": None,
+            "stem_surface_area": None,
         }
 
         # Projection Attrs
@@ -77,8 +78,8 @@ class CylinderCollection:
         }  # A dictionary of flow ids with values equal to their drip node ids
         self.trunk_nodes = []
         self.drip_loc = None
-        self.stemFlowComponent = None
-        self.dripFlowComponents = None
+        self.stem_flow_component = None
+        self.drip_flow_components = None
         # Calculations using graph results
         self.stemTotal = {
             "attributes": {"cyls": 0, "len": 0, "sa": 0, "pa": 0, "as": 0},
@@ -153,7 +154,7 @@ class CylinderCollection:
                 # print a progress update once every 10 thousand or so cylinders
                 intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
             # Projection Attrs
-            self.union_poly = union(polys)
+            self.union_poly = unary_union(polys)
             self.stem_path_lengths = []
             self.pSV = polys  # unsure if I want to keep this attr
 
@@ -164,32 +165,45 @@ class CylinderCollection:
     def draw(
         self,
         plane: str = "XZ",
-        a_lambda: function = lambda: True,
-        highlight: bool = False,
+        highlight_lambda: function = lambda: True,
+        filter_lambda: function = lambda: True,
         **args,
     ):
         """Draws cylinders meeting given characteristics onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
+        cylinders, _ = lam_filter(self.cylinders, filter_lambda)
+        breakpoint()
         filtered_cyls, matches = lam_filter(
-            self.cylinders, a_lambda, return_all=highlight
+            cylinders, highlight_lambda, return_all=True
         )
         to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
         log.info(f"{len(to_draw)} cylinders matched criteria")
-        self.union_poly = union(to_draw)
+        self.union_poly = unary_union(to_draw)
         draw_cyls(collection=to_draw, colors=matches, **args)
 
     def get_dbh(self):
-        g = self.graph
-        if self.end_nodes:
-            return self.end_nodes
-        elif len(g.nodes) > 0:
+        """a real trainwreck of a function to find dbh"""
+        if self.treeQualities["dbh"]:
+            return self.treeQualities["dbh"]
+        else:
+            desired_height = 1.3
+            approx_height_range_start = desired_height - 0.1
             start_z = self.extent["min"][2]
-            higher_than_breast_radius = lam_filter(
-                self.cylinders,
-                a_lambda=lambda: branch_order == 0 and z[0] >= start_z + 1.3,
-            )
-            rbh = np.max(higher_than_breast_radius.radius)
+            # trunk = lam_filter(
+            #     self.cylinders,
+            #     a_lambda=lambda: branch_order == 0,
+            # )
+            diff_from_desired_height = [
+                (abs(cyl.z[0] - desired_height), cyl.cyl_id)
+                for cyl in self.cylinders
+                if cyl.z[0] >= start_z + approx_height_range_start
+                and cyl.branch_order == 0
+            ]
+            closest_to_target_id = np.argmin(np.array(diff_from_desired_height[:][0]))
+            rbh = self.cylinders[
+                int(diff_from_desired_height[closest_to_target_id][1])
+            ].radius
             self.treeQualities["dbh"] = 2 * rbh
 
     def get_end_nodes(self) -> list[int]:
@@ -222,19 +236,28 @@ class CylinderCollection:
             return list(None)
 
     def watershed_boundary(
-        self, component , plane: str = "XY", curvature_alpha: float() = 2, name: str = ""
+        self,
+        component=None,
+        plane: str = "XY",
+        curvature_alpha: float() = 2,
+        name: str = "",
     ) -> None:
         """Generates tightly fit concave_hull (alpha shape) around the passed component"""
         """Alpha determines the tightness of the fit of the shape. Too low an alpha results in multiple"""
         if self.cylinders[1].projected_data.get(plane, False):
             # want to get a ring of points around the component
             # however, the root node also has degree one, so we exclude it with n!= -1
+            component = component if component else self.graph
             endNodes = [
                 n for n in component.nodes if component.degree(n) == 1 and n != -1
             ]
             # endCyls, _ = lam_filter(self.cylinders, lambda: cyl_id in endNodes)
-            endCyls = [cyl for cyl in self.cylinders if cyl.cyl_id in endNodes or cyl.branch_order ==0]
-            boundary_points = [ (cyl.x[1], cyl.y[1], cyl.z[1]) for cyl in endCyls]
+            endCyls = [
+                cyl
+                for cyl in self.cylinders
+                if cyl.cyl_id in endNodes or cyl.branch_order == 0
+            ]
+            boundary_points = [Point(cyl.x[1], cyl.y[1]) for cyl in endCyls]
 
             hull, _ = concave_hull(boundary_points, curvature_alpha)
             draw_cyls([hull])
@@ -246,8 +269,6 @@ class CylinderCollection:
         else:
             log.info("")
 
-
-    @profile
     def initialize_graph(self):
         """This function initialized edge attributes as cylinder objects"""
         gr = nx.Graph()
@@ -257,7 +278,6 @@ class CylinderCollection:
             gr.add_edge(child_node, parent_node, cylinder=cyl)
         self.graph = gr
 
-    @profile
     def initialize_graph_from(self):
         """This function initialized edge attributes as cylinder objects"""
         gr = nx.Graph()
@@ -268,7 +288,6 @@ class CylinderCollection:
         gr.add_edges_from(edges)
         self.graph = gr
 
-    @profile
     def sum_over_graph(self):
         """This function initialized edge attributes as FULL cylinder dicts"""
         gr = self.graph
@@ -330,13 +349,19 @@ class CylinderCollection:
         ).copy()  # returns the connected component containing the root
         G_drip.remove_edges_from(stem_flow_component.edges())
         drip_flow_components = nx.connected_components(G_drip)
-        component_graphs = [g.subgraph(c).copy() for c in drip_flow_components]
+
+        component_graphs = [
+            g.subgraph(c).copy() for c in drip_flow_components if len(c) > 1
+        ]
         log.info(
             f"{self.filename} found to have {len(component_graphs)} drip components"
         )
 
-        self.stemFlowComponent = stem_flow_component
-        self.dripFlowComponents = component_graphs
+        for cyl in self.cylinders:
+            if cyl.cyl_id in stem_flow_component.nodes():
+                cyl.is_stem = True
+        self.stem_flow_component = stem_flow_component
+        self.drip_flow_components = component_graphs
 
     def flowCost(self, graph, metric):
         # algo does not play well with floats
@@ -351,14 +376,17 @@ class CylinderCollection:
     @profile
     def calculate_flows(self):
         """uses subgraphs from FindFlowComponents to aggregate flow characteristics"""
-        stem_flow_component = self.stemFlowComponent
-        drip_flow_components = self.dripFlowComponents
+        stem_flow_component = self.stem_flow_component
+        drip_flow_components = self.drip_flow_components
         g = self.graph
         edge_attributes = {}
         flow_chars = []
         G_return = copy.deepcopy(g)
 
-        stem_edges = [attr for u, v, attr in stem_flow_component.edges(data=True)]
+        stem_edges = [
+            (u, v, attr["cylinder"])
+            for u, v, attr in stem_flow_component.edges(data=True)
+        ]
 
         for u, v, _ in stem_edges:
             edge_attributes[(u, v)] = {"dripNode": 0, "flowType": "stem", "flowID": 0}
@@ -368,46 +396,47 @@ class CylinderCollection:
             Flow(
                 **{
                     "num_cylinders": num_stem_edges,
-                    "projected_area": np.sum([attr["cylinder"] for attr in stem_edges]),
+                    "projected_area": np.sum([cyl.xz_area for _, _, cyl in stem_edges]),
                     "surface_area": np.sum(
-                        [attr["surface_area"] for attr in stem_edges]
+                        [cyl.surface_area for _, _, cyl in stem_edges]
                     ),
-                    "angle_sum": np.sum([attr["angle"] for attr in stem_edges]),
-                    "volume": np.sum([attr["volume"] for attr in stem_edges]),
-                    "sa_to_vol": np.sum([attr["sa_to_vol"] for attr in stem_edges]),
+                    "angle_sum": np.sum([cyl.angle for _, _, cyl in stem_edges]),
+                    "volume": np.sum([cyl.volume for _, _, cyl in stem_edges]),
+                    "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in stem_edges]),
                     "drip_node_id": 0,
                 }
             )
         )  # stemflow drips to the trunk
         for idx, flow in enumerate(drip_flow_components):
-            edges = [(u, v, cyl["cylinder"]) for u, v, cyl in flow.edges(data=True)]
-            heights = [cyl.z[0] for cyl in edges]
+            edges = [(u, v, attr["cylinder"]) for u, v, attr in flow.edges(data=True)]
             nodes = [n for n in flow]
-            num_cyls = len(flow.edges())
-            drip_node = nodes[0]  # not quite..
+            # drip points are technically nodes, which are located at the start and end of edges (representing cylinders )
+            # the node at the start of an edge shares an id with the edge's corrosponding cylinder
+            drip_point_id = np.argmin([cyl.z[0] for _, _, cyl in edges])
+            drip_node = edges[drip_point_id][0]
 
-            num_cyls
-            for u, v in flow.edges():
-                edge_attributes[(u, v)] = {
+            num_cyls = len(flow.edges())
+
+            edge_attributes = {
+                (u, v): {
                     "dripNode": drip_node,
                     "flowType": "drip",
                     "flowID": (idx + 1),
                 }
-
+                for u, v, _ in edges
+            }
             flow_chars.append(
                 Flow(
                     **{
                         "num_cylinders": num_cyls,
-                        "projected_area": np.sum(
-                            [attr.xz_area for _, _, attr in edges]
-                        ),
+                        "projected_area": np.sum([cyl.xz_area for _, _, cyl in edges]),
                         "surface_area": np.sum(
-                            [attr.surface_area for _, _, attr in edges]
+                            [cyl.surface_area for _, _, cyl in edges]
                         ),
-                        "angle_sum": np.sum([attr.angle for _, _, attr in edges]),
-                        "volume": np.sum([attr.volume for _, _, attr in edges]),
-                        "sa_to_vol": np.sum([attr.sa_to_vol for _, _, attr in edges]),
-                        "drip_node_id": 0,
+                        "angle_sum": np.sum([cyl.angle for _, _, cyl in edges]),
+                        "volume": np.sum([cyl.volume for _, _, cyl in edges]),
+                        "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in edges]),
+                        "drip_node_id": drip_node,
                     }
                 )
             )
@@ -429,11 +458,8 @@ class CylinderCollection:
 
     def find_trunk_lean(self):
         """Draws a straight line from base to tip of the trunk
-            Finds the angle of that line from the XZ plane"""
-        trunk_beg = lam_filter(
-            self.cylinders,
-            a_lambda=lambda: branch_order == 0
-        )
+        Finds the angle of that line from the XZ plane"""
+        trunk_beg = lam_filter(self.cylinders, a_lambda=lambda: branch_order == 0)
         trunk_points = [(cyl.x[0], cyl.y[0], cyl.z[0]) for cyl in trunk_beg]
         root = trunk_points[0]
         furthest_afeild = furthest_point(root, trunk_points)
@@ -448,13 +474,12 @@ class CylinderCollection:
         return angle
 
     def statistics():
-
         if not self.hull:
             self.watershed_boundary()
         if not self.stem_hull:
             self.watershed_boundary()
         if not self.pSV:
-            self.project_cylinders(plane='XZ')
+            self.project_cylinders(plane="XZ")
 
     #     endNodePoly = [self._pSV[n-1] for n in g.nodes if g.degree(n)==1 and n!= 0]
     #     centroids = [x.point_on_surface() for x in endNodePoly]
@@ -466,7 +491,7 @@ class CylinderCollection:
     #     print('found hull stats')
 
     #     #calculate overlaps
-    #     totPoly = union(geo.GeoSeries(self._pSV))
+    #     totPoly = unary_union(geo.GeoSeries(self._pSV))
     #     projected_union_area = totPoly.area
 
     #     area = 0
@@ -497,11 +522,11 @@ class CylinderCollection:
     #         topThreeQuarterArea      += area
     #     print(4)
 
-    #     topQuarterAggArea =    union(geo.GeoSeries(topQuarterPolys)).area
-    #     topHalfAggArea     =   union(geo.GeoSeries(topHalfPolys)).area
-    #     topThreeQuarterAggArea=union(geo.GeoSeries(topThreeQuarterPolys)).area
+    #     topQuarterAggArea =    unary_union(geo.GeoSeries(topQuarterPolys)).area
+    #     topHalfAggArea     =   unary_union(geo.GeoSeries(topHalfPolys)).area
+    #     topThreeQuarterAggArea=unary_union(geo.GeoSeries(topThreeQuarterPolys)).area
 
-    #     totPoly = union(geo.GeoSeries(self._pSV))
+    #     totPoly = unary_union(geo.GeoSeries(self._pSV))
     #     projected_union_area = totPoly.area
     #     area = 0
     #     for poly in self._pSV:
@@ -535,10 +560,10 @@ class CylinderCollection:
     #                 surface_area = 2* np.pi*self._radius[n-1]*(self._radius[n-1] +self._cLength[n-1])-(2*np.pi*self._radius[n-1]*self._radius[n-1])
     #                 sumStemSurfaceArea+=surface_area
 
-    #     totPoly = union(geo.GeoSeries(StemPolys))
+    #     totPoly = unary_union(geo.GeoSeries(StemPolys))
     #     stem_projected_union_area = totPoly.area
 
-    #     WholeStemPoly = union(geo.GeoSeries(self._stemPolys))
+    #     WholeStemPoly = unary_union(geo.GeoSeries(self._stemPolys))
     #     projected_stem_area = WholeStemPoly.area
 
     #     DivideCentroids = [x.point_on_surface() for x in self._dividePolys]
