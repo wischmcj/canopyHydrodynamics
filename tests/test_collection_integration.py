@@ -15,7 +15,6 @@ sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 from canhydro.global_vars import DIR
 from canhydro.utils import lam_filter, read_file_names
-from canhydro.geometry import draw_cyls
 from tests.expected_results import (ez_projection_xy_angle, hp_edges,
                                     small_tree_dbh, small_tree_flows,
                                     small_tree_wateshed_poly,

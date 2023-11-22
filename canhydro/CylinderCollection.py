@@ -14,7 +14,8 @@ from shapely.ops import unary_union
 
 from canhydro.Cylinder import Cylinder
 from canhydro.DataClasses import Flow
-from canhydro.geometry import concave_hull, draw_cyls, furthest_point
+from canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
+                               get_projected_overlap)
 from canhydro.global_vars import log, qsm_cols
 from canhydro.utils import intermitent_log, lam_filter
 
@@ -58,11 +59,7 @@ class CylinderCollection:
         }
 
         # Projection Attrs
-        self.union_polys = {
-            "XY": None,
-            "XZ": None,
-            "YZ": None
-        }
+        self.projections = {"XY": False, "XZ": False, "YZ": False}
         self.stem_path_lengths = []
         self.hull = None
         self.stem_hull = None
@@ -145,10 +142,14 @@ class CylinderCollection:
         self.theta = np.nan
         log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
 
-    def project_cylinders(self, plane: str = "XY"):
+    def project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
         """Projects cylinders onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
+        elif not force_rerun and self.projections[plane]:
+            log.info(
+                "cached projections exist, pass 'force_rerun=True to calculate new projections "
+            )
         else:
             polys = []
             log.info(f"Projection into {plane} axis begun for file {self.filename}")
@@ -157,10 +158,8 @@ class CylinderCollection:
                 polys.append(poly)
                 # print a progress update once every 10 thousand or so cylinders
                 intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
-            # Projection Attrs
-            self.union_polys[plane] = unary_union(polys)
-            # self.stem_path_lengths = []
-            self.pSV = polys  # unsure if I want to keep this attr
+            # Used by other functions to know what projections have been run
+            self.projections[plane] = True
 
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
@@ -244,33 +243,31 @@ class CylinderCollection:
         plane: str = "XY",
         curvature_alpha: float() = 2,
         name: str = "",
+        draw: bool = False,
     ) -> None:
         """Generates tightly fit concave_hull (alpha shape) around the passed component"""
         """Alpha determines the tightness of the fit of the shape. Too low an alpha results in multiple"""
-        if self.cylinders[1].projected_data.get(plane, False):
-            # want to get a ring of points around the component
-            # however, the root node also has degree one, so we exclude it with n!= -1
-            component = component if component else self.graph
-            endNodes = [
-                n for n in component.nodes if component.degree(n) == 1 and n != -1
-            ]
-            # endCyls, _ = lam_filter(self.cylinders, lambda: cyl_id in endNodes)
-            endCyls = [
-                cyl
-                for cyl in self.cylinders
-                if cyl.cyl_id in endNodes or cyl.branch_order == 0
-            ]
-            boundary_points = [Point(cyl.x[1], cyl.y[1]) for cyl in endCyls]
+        if not self.projections[plane]:
+            self.project_cylinders(plane)
+        # want to get a ring of points around the component
+        # however, the root node also has degree one, so we exclude it with n!= -1
+        component = component if component else self.graph
+        endNodes = [n for n in component.nodes if component.degree(n) == 1 and n != -1]
+        # endCyls, _ = lam_filter(self.cylinders, lambda: cyl_id in endNodes)
+        endCyls = [
+            cyl
+            for cyl in self.cylinders
+            if cyl.cyl_id in endNodes or cyl.branch_order == 0
+        ]
+        boundary_points = [Point(cyl.x[1], cyl.y[1]) for cyl in endCyls]
 
-            hull, _ = concave_hull(boundary_points, curvature_alpha)
+        hull, _ = concave_hull(boundary_points, curvature_alpha)
+        if draw:
             draw_cyls([hull])
-
-            if "stem" in name:
-                self.stem_hull = hull
-            else:
-                self.hull = hull
+        if "stem" in name:
+            self.stem_hull = hull
         else:
-            log.info("No projected data with which to define watershed")
+            self.hull = hull
 
     def initialize_graph(self):
         """This function initialized edge attributes as cylinder objects"""
@@ -323,7 +320,7 @@ class CylinderCollection:
 
     def find_trunk_distances(self):
         """
-            Finds the distance in the graph (in number of nodes) between each node and the closest trunk node
+        Finds the distance in the graph (in number of nodes) between each node and the closest trunk node
         """
         trunk_nodes = self.get_trunk_nodes()
 
@@ -479,6 +476,37 @@ class CylinderCollection:
         self.trunk_lean = angle
         return angle
 
+    def find_overlap_by_percentile(
+        self,
+        plane: str = "XY",
+        percentiles: list[float] = [25, 50, 75],
+        metric: str = "z",
+    ):
+        percentiles.sort()
+        if not self.projections[plane]:
+            self.project_cylinders(plane)
+        # if eval(metric) not in vars(Cylinder):
+        #     log.info(f"Provided metric invalid: {eval(metric)} is not a property of Cylinder")
+        non_trunk_polys, _ = lam_filter(self.cylinders, lambda: branch_order != 0)
+        cyl_metric = [cyl.z[0] for cyl in non_trunk_polys]
+        percentiles_by_metric = np.percentile(cyl_metric, percentiles)
+        prev_perc = 0
+        poly_matrix = []
+        for perc in percentiles_by_metric:
+            poly_matrix.append(
+                [
+                    cyl.projected_data[plane]["polygon"]
+                    for cyl in non_trunk_polys
+                    if cyl.z[0] <= perc and cyl.z[0] > prev_perc
+                ]
+            )
+            prev_perc = perc
+        breakpoint()
+        overlaps = get_projected_overlap(poly_matrix, percentiles)
+        breakpoint()
+
+        return overlaps
+
     def statistics(self):
         if not self.pSV:
             self.project_cylinders(plane="XY")
@@ -490,29 +518,41 @@ class CylinderCollection:
                 self.calculate_flows()
             self.watershed_boundary(component=self.stem_flow_component)
 
-    #     endNodePoly = [self._pSV[n-1] for n in g.nodes if g.degree(n)==1 and n!= 0]
-    #     centroids = [x.point_on_surface() for x in endNodePoly]
-    #     tot_hull, edge_points = concave_hull(centroids,2.2)
-    #     totHullGeo =geo.GeoSeries(tot_hull)
+        #     endNodePoly = [self._pSV[n-1] for n in g.nodes if g.degree(n)==1 and n!= 0]
+        #     centroids = [x.point_on_surface() for x in endNodePoly]
+        #     tot_hull, edge_points = concave_hull(centroids,2.2)
+        #     totHullGeo =geo.GeoSeries(tot_hull)
         canopyCover = self.hull.area
         canopyBoundary = self.boundary.length
         log.info("Found canpopy stats")
-    #     print('found hull stats')
+        #     print('found hull stats')
 
-        #calculate overlaps
+        # calculate overlaps
         totPoly = unary_union(self.union_polys["XY"])
         projected_union_area = totPoly.area
 
+        polys = self.pSV
         sum_projected_areas = 0
-        for poly in self.pSV:
-            sum_projected_areas+=poly.area
-        print('found total area')
+        for poly in polys:
+            sum_projected_areas += poly.area
+        print("found total area")
 
-        canopy_heights = pd.DataFrame(self._z[0])[self._BO>0]
+        canopy_heights = pd.DataFrame(self._z[0])[self._BO > 0]
         canopy_percentiles = canopy_heights.describe()
-        topQuarterPolys     =  geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[6][0]])[0])
-        topHalfPolys        =  geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[5][0]])[0])
-        topThreeQuarterPolys= geo.GeoSeries((pd.DataFrame(self._pSV)[self._z[0]>=canopy_percentiles.iloc[4][0]])[0])
+        percentiles = [0.25, 0.5, 0.75]
+        perc = [np.percentile()]
+
+        overlap = self.find_overlap(percentiles=[0.25, 0.5, 0.75])
+
+        topQuarterPolys = pd.DataFrame(self.pSV)[
+            self._z[0] >= canopy_percentiles.iloc[6][0]
+        ]
+        topHalfPolys = pd.DataFrame(self.pSV)[
+            self._z[0] >= canopy_percentiles.iloc[5][0]
+        ]
+        topThreeQuarterPolys = pd.DataFrame(self.pSV)[
+            self._z[0] >= canopy_percentiles.iloc[4][0]
+        ]
 
     #     topQuarterArea     =0
     #     topHalfArea        =0

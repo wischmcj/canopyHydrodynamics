@@ -162,6 +162,44 @@ def furthest_point(point, points):
     return points[furthest_index]
 
 
+def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
+    """Takes in a list of lists of polygons, each list representing a diff percentile grouping of polygons
+    'climbs the tree' itteratiely determininng the additional overlap/shade added by each percentile grouping
+    """
+    if len(labels) != len(shading_poly_list):
+        log.info(
+            f"Not enough labels; expected {len(shading_poly_list)} got {len(labels)}"
+        )
+    elif len(set(labels)) != len(labels):
+        log.info("Labels must be distinct")
+    else:
+        overlap_dict = {}
+        shaded_polys = []
+        for idx, shader_polys in enumerate(shading_poly_list):
+            print(idx)
+            shader_union_poly = unary_union(shader_polys)
+            shader_sum = np.sum([poly.area for poly in shader_polys])
+            shaded_union = unary_union(shaded_polys)
+            total_union = unary_union(shaded_polys)
+
+            shader_on_shaded_w_overlap = shader_union_poly.area + shaded_union.area
+            shader_on_shaded_w_o_overlap = total_union.area
+            shader_on_shaded_overlap = (
+                shader_on_shaded_w_overlap - shader_on_shaded_w_o_overlap
+            )
+
+            shader_internal_overlap = shader_sum - shader_union_poly.area
+
+            overlap_dict[labels[idx]] = {
+                "sum_area": shader_sum,
+                "effective_area": shader_union_poly.area,
+                "internal_overlap": shader_internal_overlap,
+                "overlap_with_previous": shader_on_shaded_overlap,
+            }
+            shaded_polys.extend(shader_polys)
+        return overlap_dict
+
+
 def get_projection(vector: list, magnitude: list, radius: float()):
     noCirPoints = 360
     tCir = np.linspace(
