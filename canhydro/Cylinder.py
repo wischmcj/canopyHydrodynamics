@@ -96,14 +96,14 @@ class Cylinder:  # (defaultdict):
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] - self.z[0]
         self.surface_area = self.calc_surface_area()
-        self.sa_to_vol = self.surface_area / self.volume
+        self.sa_to_vol = 0 if self.volume == 0 else self.surface_area / self.volume
         run = np.sqrt(self.dx**2 + self.dy**2)
         self.angle = (
-            np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
-            if run > 0
-            else np.arctan(0)
+            np.arctan(0)
+            if run == 0
+            else np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
         )
-        self.xy_area = None
+        self.xy_area = 0
         # log.info(str(self.__repr__()))
 
     def get_projection(self, plane="XY"):

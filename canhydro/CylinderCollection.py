@@ -17,7 +17,7 @@ from canhydro.DataClasses import Flow
 from canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
                                get_projected_overlap)
 from canhydro.global_vars import log, qsm_cols
-from canhydro.utils import intermitent_log, lam_filter
+from canhydro.utils import intermitent_log, lam_filter, save_file
 
 sys.stdout = LogFile()
 
@@ -60,6 +60,8 @@ class CylinderCollection:
 
         # Projection Attrs
         self.projections = {"XY": False, "XZ": False, "YZ": False}
+        self.stem_path_union_polys = {"XY": False, "XZ": False, "YZ": False}
+        self.stem_path_sum_area = {"XY": 0, "XZ": 0, "YZ": 0}
         self.stem_path_lengths = []
         self.hull = None
         self.stem_hull = None
@@ -82,10 +84,7 @@ class CylinderCollection:
         self.stem_flow_component = None
         self.drip_flow_components = None
         # Calculations using graph results
-        self.stemTotal = {
-            "attributes": {"cyls": 0, "len": 0, "sa": 0, "pa": 0, "as": 0},
-            "loc": {"x": np.nan, "y": np.nan, "z": np.nan},
-        }
+        self.flow_chars = {}
         self.divide_points = []
         self.stemPolys = []
         self.compGraphs = []
@@ -160,6 +159,7 @@ class CylinderCollection:
                 intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
             # Used by other functions to know what projections have been run
             self.projections[plane] = True
+            self.pSV = polys
 
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
@@ -175,8 +175,9 @@ class CylinderCollection:
         """Draws cylinders meeting given characteristics onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
+        if not self.projections[plane]:
+            self.project_cylinders(plane)
         cylinders, _ = lam_filter(self.cylinders, filter_lambda)
-        breakpoint()
         filtered_cyls, matches = lam_filter(
             cylinders, highlight_lambda, return_all=True
         )
@@ -242,7 +243,7 @@ class CylinderCollection:
         component=None,
         plane: str = "XY",
         curvature_alpha: float() = 2,
-        name: str = "",
+        stem: bool = False,
         draw: bool = False,
     ) -> None:
         """Generates tightly fit concave_hull (alpha shape) around the passed component"""
@@ -264,7 +265,7 @@ class CylinderCollection:
         hull, _ = concave_hull(boundary_points, curvature_alpha)
         if draw:
             draw_cyls([hull])
-        if "stem" in name:
+        if stem:
             self.stem_hull = hull
         else:
             self.hull = hull
@@ -377,7 +378,7 @@ class CylinderCollection:
             sum(attr[metric] * 10000 for u, v, attr in graph.edges(data=True)) / 10000
 
     @profile
-    def calculate_flows(self):
+    def calculate_flows(self, plane: str = "XY"):
         """uses subgraphs from FindFlowComponents to aggregate flow characteristics"""
         stem_flow_component = self.stem_flow_component
         drip_flow_components = self.drip_flow_components
@@ -393,13 +394,19 @@ class CylinderCollection:
 
         for u, v, _ in stem_edges:
             edge_attributes[(u, v)] = {"dripNode": 0, "flowType": "stem", "flowID": 0}
+        log.info("attempting to sum stem edges ")
 
         num_stem_edges = len(stem_edges)
         flow_chars.append(
             Flow(
                 **{
                     "num_cylinders": num_stem_edges,
-                    "projected_area": np.sum([cyl.xy_area for _, _, cyl in stem_edges]),
+                    "projected_area": np.sum(
+                        [
+                            float(cyl.projected_data[plane]["area"])
+                            for _, _, cyl in stem_edges
+                        ]
+                    ),
                     "surface_area": np.sum(
                         [cyl.surface_area for _, _, cyl in stem_edges]
                     ),
@@ -410,7 +417,18 @@ class CylinderCollection:
                 }
             )
         )  # stemflow drips to the trunk
+        log.info(f"summed stem edges {flow_chars}")
+        # this probably doesnt belong here but its efficient to do it now
+        stem_polys = [cyl.projected_data[plane]["polygon"] for _, _, cyl in stem_edges]
+        self.stem_path_union_polys[plane] = unary_union(
+            [cyl.projected_data[plane]["polygon"] for _, _, cyl in stem_edges]
+        )
+        self.stem_path_sum_area[plane] = np.sum(
+            [cyl.projected_data[plane]["area"] for _, _, cyl in stem_edges]
+        )
+
         for idx, flow in enumerate(drip_flow_components):
+            log.info(f"identifying  drip edges in component {idx}")
             edges = [(u, v, attr["cylinder"]) for u, v, attr in flow.edges(data=True)]
             nodes = [n for n in flow]
             # drip points are technically nodes, which are located at the start and end of edges (representing cylinders )
@@ -420,6 +438,7 @@ class CylinderCollection:
 
             num_cyls = len(flow.edges())
 
+            log.info(f"attempting to sum drip edges for component {idx}")
             edge_attributes = {
                 (u, v): {
                     "dripNode": drip_node,
@@ -432,7 +451,12 @@ class CylinderCollection:
                 Flow(
                     **{
                         "num_cylinders": num_cyls,
-                        "projected_area": np.sum([cyl.xy_area for _, _, cyl in edges]),
+                        "projected_area": np.sum(
+                            [
+                                float(cyl.projected_data[plane]["area"])
+                                for _, _, cyl in edges
+                            ]
+                        ),
                         "surface_area": np.sum(
                             [cyl.surface_area for _, _, cyl in edges]
                         ),
@@ -443,6 +467,7 @@ class CylinderCollection:
                     }
                 )
             )
+            log.info(f"summed drip edges in component {idx}")
 
         self.flows = flow_chars
 
@@ -501,157 +526,155 @@ class CylinderCollection:
                 ]
             )
             prev_perc = perc
-        breakpoint()
         overlaps = get_projected_overlap(poly_matrix, percentiles)
-        breakpoint()
 
         return overlaps
 
-    def statistics(self):
+    def statistics(self, plane: str = "XY"):
         if not self.pSV:
-            self.project_cylinders(plane="XY")
+            self.project_cylinders(plane)
         if not self.hull:
-            self.watershed_boundary()
+            self.watershed_boundary(component=self.graph)
         if not self.stem_hull:
             if not self.stem_flow_component:
                 self.find_flow_components()
-                self.calculate_flows()
-            self.watershed_boundary(component=self.stem_flow_component)
+                self.calculate_flows(plane=plane)
+            self.watershed_boundary(
+                component=self.stem_flow_component, plane=plane, stem=True
+            )
 
         #     endNodePoly = [self._pSV[n-1] for n in g.nodes if g.degree(n)==1 and n!= 0]
         #     centroids = [x.point_on_surface() for x in endNodePoly]
         #     tot_hull, edge_points = concave_hull(centroids,2.2)
         #     totHullGeo =geo.GeoSeries(tot_hull)
-        canopyCover = self.hull.area
-        canopyBoundary = self.boundary.length
-        log.info("Found canpopy stats")
-        #     print('found hull stats')
+        canopy_cover = self.hull.area
+        canopy_boundary = self.hull.boundary.length
 
-        # calculate overlaps
-        totPoly = unary_union(self.union_polys["XY"])
-        projected_union_area = totPoly.area
+        canopy_cover_stem = self.stem_hull.area
+        canopy_boundary_stem = self.stem_hull.boundary.length
 
-        polys = self.pSV
-        sum_projected_areas = 0
-        for poly in polys:
-            sum_projected_areas += poly.area
+        log.info("Found hull/a;pha shape stats")
+
+        # calculate projected areas and (therefore) overlaps
+        tot_poly = unary_union(self.pSV)
+        projected_union_area = tot_poly.area
+
+        sum_projected_area = np.sum([poly.area for poly in self.pSV])
+
+        projected_union_area_stem = self.stem_path_union_polys[plane].area
+        sum_projected_area_stem = self.stem_path_sum_area[plane]
+
         print("found total area")
 
-        canopy_heights = pd.DataFrame(self._z[0])[self._BO > 0]
-        canopy_percentiles = canopy_heights.describe()
-        percentiles = [0.25, 0.5, 0.75]
-        perc = [np.percentile()]
+        overlap_dict = self.find_overlap_by_percentile(percentiles=[25, 50, 75])
 
-        overlap = self.find_overlap(percentiles=[0.25, 0.5, 0.75])
+        tot_poly = unary_union(self.pSV)
+        projected_area_w_o_overlap = tot_poly.area
+        projected_area_w_overlap = np.sum([poly.area for poly in self.pSV])
 
-        topQuarterPolys = pd.DataFrame(self.pSV)[
-            self._z[0] >= canopy_percentiles.iloc[6][0]
-        ]
-        topHalfPolys = pd.DataFrame(self.pSV)[
-            self._z[0] >= canopy_percentiles.iloc[5][0]
-        ]
-        topThreeQuarterPolys = pd.DataFrame(self.pSV)[
-            self._z[0] >= canopy_percentiles.iloc[4][0]
-        ]
+        min_x = self.extent["min"][0]
+        max_x = self.extent["max"][0]
+        min_y = self.extent["min"][1]
+        max_y = self.extent["max"][1]
+        min_z = self.extent["min"][2]
+        max_z = self.extent["max"][2]
 
-    #     topQuarterArea     =0
-    #     topHalfArea        =0
-    #     topThreeQuarterArea=0
+        stem_flow = [flow for flow in self.flows if flow.drip_node_id == 0][0]
 
-    #     print(1)
-    #     for area in topQuarterPolys.area:
-    #         topQuarterArea      += area
-    #     print(2)
+        total_surface_area = np.sum([cyl.surface_area for cyl in self.cylinders])
+        total_volume = np.sum([cyl.volume for cyl in self.cylinders])
+        max_bo = np.max([cyl.branch_order for cyl in self.cylinders])
 
-    #     for area in topHalfPolys.area:
-    #         topHalfArea      += area
-    #     print(3)
-    #     i=0
-    #     for area in topThreeQuarterPolys.area:
-    #         topThreeQuarterArea      += area
-    #     print(4)
+        statistics = {
+            "total_psa": projected_union_area,
+            "psa_w_overlap": sum_projected_area,
+            "stem_psa": projected_union_area_stem,
+            "stem_psa_w_overlap": sum_projected_area_stem,
+            "tot_surface_area": total_surface_area,
+            "stem_surface_area": stem_flow.surface_area,
+            "tot_hull_area": canopy_cover,
+            "tot_hull_boundary": canopy_boundary,
+            "stem_hull_area": canopy_cover_stem,
+            "stem_hull_boundary": canopy_boundary_stem,
+            "max_bo": max_bo,
+            "topQuarterTotPsa": overlap_dict[75]["sum_psa"],
+            "topHalfTotPsa": overlap_dict[50]["sum_psa"],
+            "topThreeQuarterTotPsa": overlap_dict[25]["sum_psa"],
+            "TotalShade": sum_projected_area - projected_union_area,
+            "top_quarter_shade": overlap_dict[75]["overlap_with_previous"],
+            "top_half_shade": overlap_dict[50]["overlap_with_previous"],
+            "top_three_quarter_shade": overlap_dict[25]["overlap_with_previous"],
+            "DBH": self.get_dbh(),
+            "volume": total_volume,
+            "X_max": max_x,
+            "Y_max": max_y,
+            "Z_max": max_z,
+            "X_min": min_x,
+            "Y_min": min_y,
+            "Z_min": min_z,
+            "Order_zero_angle_avg": np.average(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 0)
+                ]
+            ),
+            "Order_zero_angle_std": np.std(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 0)
+                ]
+            ),
+            "Order_one_angle_avg": np.average(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 1)
+                ]
+            ),
+            "Order_one_angle_std": np.std(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 1)
+                ]
+            ),
+            "Order_two_angle_avg": np.average(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 2)
+                ]
+            ),
+            "Order_two_angle_std": np.std(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 2)
+                ]
+            ),
+            "Order_three_angle_avg": np.average(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 3)
+                ]
+            ),
+            "Order_three_angle_std": np.std(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 3)
+                ]
+            ),
+            "order_gr_four_angle_avg": np.average(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 4)
+                ]
+            ),
+            "order_gr_four_angle_std": np.std(
+                [
+                    cyl.angle
+                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 4)
+                ]
+            ),
+            "fileName": self._fileName + self._projection,
+        }
 
-    #     topQuarterAggArea =    unary_union(geo.GeoSeries(topQuarterPolys)).area
-    #     topHalfAggArea     =   unary_union(geo.GeoSeries(topHalfPolys)).area
-    #     topThreeQuarterAggArea=unary_union(geo.GeoSeries(topThreeQuarterPolys)).area
+        save_file(statistics, subdir="statistics", method="statistics")
 
-    #     totPoly = unary_union(geo.GeoSeries(self._pSV))
-    #     projected_union_area = totPoly.area
-    #     area = 0
-    #     for poly in self._pSV:
-    #         area+=poly.area
-    #     print(5)
-
-    #     if self._projection == 'XZ':
-    #         X_max = np.max(self._y)
-    #         Y_max = np.max(self._x)
-    #         Z_max = np.max(self._z)
-    #     elif self._projection == 'YZ':
-    #         X_max = np.max(self._z)
-    #         Y_max = np.max(self._x)
-    #         Z_max = np.max(self._y)
-    #     else: # 'XY'
-    #         X_max = np.max(self._x)
-    #         Y_max = np.max(self._y)
-    #         Z_max = np.max(self._z)
-
-    #     nodes = self._graph.nodes()
-    #     filt_nodes = list(nodes)
-    #     StemPolys=[]
-    #     sumStemSurfaceArea = 0
-    #     sumStemProjectedArea = 0
-    #     for idx,n in enumerate(nodes):
-    #         if idx+1 <= len(filt_nodes): parent = self._pID[n-1]+1
-    #         if n in filt_nodes and n>0:
-    #             if g.edges[parent,n]['flowType'] =='stem':
-    #                 StemPolys.append(self._pSV[n-1])
-    #                 sumStemProjectedArea +=self._pSV[n-1].area
-    #                 surface_area = 2* np.pi*self._radius[n-1]*(self._radius[n-1] +self._cLength[n-1])-(2*np.pi*self._radius[n-1]*self._radius[n-1])
-    #                 sumStemSurfaceArea+=surface_area
-
-    #     totPoly = unary_union(geo.GeoSeries(StemPolys))
-    #     stem_projected_union_area = totPoly.area
-
-    #     WholeStemPoly = unary_union(geo.GeoSeries(self._stemPolys))
-    #     projected_stem_area = WholeStemPoly.area
-
-    #     DivideCentroids = [x.point_on_surface() for x in self._dividePolys]
-    #     hull, edge_points = concave_hull(DivideCentroids, 2.2)
-
-    #     statistics  = {'total_psa':projected_union_area,
-    #                                         'psa_w_overlap':area,
-    #                                         'stem_psa':stem_projected_union_area,
-    #                                         'stem_psa_w_overlap': sumStemProjectedArea,
-    #                                         'tot_surface_area':np.sum(surface_area),
-    #                                         'stem_surface_area':sumStemSurfaceArea,
-    #                                         'tot_hull_area':canopyCover,
-    #                                         'tot_hull_boundary':canopyBoundary,
-    #                                         'stem_hull_area':hull.area,
-    #                                         'stem_hull_boundary':totHullGeo.boundary.length,
-    #                                         'max_bo': np.max(self._BO),
-    #                                         'topQuarterTotPsa':topQuarterArea,
-    #                                         'topHalfTotPsa':topHalfArea,
-    #                                         'topThreeQuarterTotPsa':topThreeQuarterArea,
-    #                                         'TotalShade': area - projected_union_area ,
-    #                                         'topQuarterShade':topQuarterArea-topQuarterAggArea,
-    #                                         'topHalfShade':topHalfArea-topHalfAggArea,
-    #                                         'topThreeQuarterShade':topThreeQuarterArea-topThreeQuarterAggArea,
-    #                                         'DBH':DBH,
-    #                                         'volume':np.sum(volume),
-    #                                         'X_max':X_max,
-    #                                         'Y_max':Y_max,
-    #                                         'Z_max':Z_max,
-    #                                         'Order_zero_angle_avg':np.average(pd.DataFrame(angles)[self._BO==0][0]),
-    #                                         'Order_zero_angle_std':np.std(pd.DataFrame(angles)[self._BO==0][0]),
-    #                                         'Order_one_angle_avg':np.average(pd.DataFrame(angles)[self._BO==1][0]),
-    #                                         'Order_one_angle_std':np.std(pd.DataFrame(angles)[self._BO==1][0]),
-    #                                         'Order_two_angle_avg':np.average(pd.DataFrame(angles)[self._BO==2][0]),
-    #                                         'Order_two_angle_std':np.std(pd.DataFrame(angles)[self._BO==2][0]),
-    #                                         'Order_three_angle_avg':np.average(pd.DataFrame(angles)[self._BO==3][0]),
-    #                                         'Order_three_angle_std':np.std(pd.DataFrame(angles)[self._BO==3][0]),
-    #                                         'order_gr_four_angle_avg':np.average(pd.DataFrame(angles)[self._BO>=3][0]),
-    #                                         'order_gr_four_angle_std':np.std(pd.DataFrame(angles)[self._BO>=3][0]),
-    #                                         'fileName':self._fileName + self._projection,
-    #                                         }
-
-    #     return statistics
+        return statistics

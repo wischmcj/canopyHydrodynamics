@@ -225,10 +225,10 @@ def get_projection(vector: list, magnitude: list, radius: float()):
     pSV = []
     projection = {
         "polygon": Polygon(),
-        "base_vector": None,
-        "anti_vector": None,
-        "angle": None,
-        "area": None,
+        "base_vector": (0, 0, 0),
+        "anti_vector": (0, 0, 0),
+        "angle": 0,
+        "area": 0,
     }
     try:
         # for each cylinder
@@ -239,6 +239,15 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                 cPS = Polygon(list(zip(pX, pY)))
                 min_c = np.min(dim_c[:])
                 max_c = np.max(dim_c[:])
+                ang = 0
+                projection = {
+                    "polygon": cPS,
+                    "base_vector": aV,
+                    "anti_vector": bV,
+                    "angle": ang,
+                    "area": cPS.area,
+                }
+                return projection
             else:
                 # find orthogonal vectors @ endpoints
                 # Identifies corners of projected rectangle
