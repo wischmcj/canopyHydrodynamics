@@ -61,6 +61,10 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
   geoPolys_yz.plot(ax=ax[2])
 
 
+<h2>'Planned' Improvements</h2>
+  - Check area of overlap against (union area - sum area)
+    - Should be less efficient/ more accurate
+
 <h2>Wishlist</h2>
   - Optimizing the alpha value for alphashapes 
       - Can be done locally for areas with different point densities 
@@ -71,8 +75,9 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
   - Integrate Point cloud processing libraries like Tree tool
     - https://github.com/porteratzo/TreeTool
   - pip install -U pytreedb
-
-
+  - A more robust meta manager that stores to a cloud based db
+  - Local (maybe also remote) caching
+  - 3d plotting
 
 
 

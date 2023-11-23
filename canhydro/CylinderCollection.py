@@ -34,7 +34,7 @@ class CylinderCollection:
         # self.collection = CylinderList()
         # Aggregate values from file
         self.surface_area = np.nan
-        self.filename = ""
+        self.file_name = ""
         self.volume = np.nan
         self.avg_sa_to_vol = np.nan
         self.max_branch_order = np.nan
@@ -60,8 +60,7 @@ class CylinderCollection:
 
         # Projection Attrs
         self.projections = {"XY": False, "XZ": False, "YZ": False}
-        self.stem_path_union_polys = {"XY": False, "XZ": False, "YZ": False}
-        self.stem_path_sum_area = {"XY": 0, "XZ": 0, "YZ": 0}
+        self.stem_polys = {"XY": None, "XZ": None, "YZ": None}
         self.stem_path_lengths = []
         self.hull = None
         self.stem_hull = None
@@ -106,7 +105,7 @@ class CylinderCollection:
         """Initializes a new Cyl Collection based on the data in a QSM
         with the configured column locations"""
         self.file = file
-        self.filename = file.name
+        self.file_name = file.name
         log.info(f"Processing {str(file)}")
         # self.arr = pd.read_csv(file, header=0)
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
@@ -151,7 +150,7 @@ class CylinderCollection:
             )
         else:
             polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.filename}")
+            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
             for idx, cyl in enumerate(self.cylinders):
                 poly = cyl.get_projection(plane)
                 polys.append(poly)
@@ -343,7 +342,7 @@ class CylinderCollection:
         ]
         inFlowGraph = copy.deepcopy(g)  # This could probably just be a subgraph...
         inFlowGraph.remove_edges_from(drip_edges)
-        log.info(f"{self.filename} found to have {len(drip_edges)} drip edges")
+        log.info(f"{self.file_name} found to have {len(drip_edges)} drip edges")
 
         # separating the stem flow from the drip flows and the drip flows from each other
         G_drip = copy.deepcopy(g)
@@ -358,7 +357,7 @@ class CylinderCollection:
             g.subgraph(c).copy() for c in drip_flow_components if len(c) > 1
         ]
         log.info(
-            f"{self.filename} found to have {len(component_graphs)} drip components"
+            f"{self.file_name} found to have {len(component_graphs)} drip components"
         )
 
         for cyl in self.cylinders:
@@ -396,6 +395,11 @@ class CylinderCollection:
             edge_attributes[(u, v)] = {"dripNode": 0, "flowType": "stem", "flowID": 0}
         log.info("attempting to sum stem edges ")
 
+        # this probably doesnt belong here but its efficient to do it now
+        # is 'needed' for statistics section
+        stem_polys = [cyl.projected_data[plane]["polygon"] for _, _, cyl in stem_edges]
+        self.stem_polys[plane] = stem_polys
+
         num_stem_edges = len(stem_edges)
         flow_chars.append(
             Flow(
@@ -418,14 +422,6 @@ class CylinderCollection:
             )
         )  # stemflow drips to the trunk
         log.info(f"summed stem edges {flow_chars}")
-        # this probably doesnt belong here but its efficient to do it now
-        stem_polys = [cyl.projected_data[plane]["polygon"] for _, _, cyl in stem_edges]
-        self.stem_path_union_polys[plane] = unary_union(
-            [cyl.projected_data[plane]["polygon"] for _, _, cyl in stem_edges]
-        )
-        self.stem_path_sum_area[plane] = np.sum(
-            [cyl.projected_data[plane]["area"] for _, _, cyl in stem_edges]
-        )
 
         for idx, flow in enumerate(drip_flow_components):
             log.info(f"identifying  drip edges in component {idx}")
@@ -556,18 +552,22 @@ class CylinderCollection:
         log.info("Found hull/a;pha shape stats")
 
         # calculate projected areas and (therefore) overlaps
+        # Unary union gives a single contiguous polygon when fed many overlapping cylinders
+        # The area of the union thus differs from the sum of the areas of its components 
+        # in that the former counts overlaps only once
         tot_poly = unary_union(self.pSV)
         projected_union_area = tot_poly.area
-
         sum_projected_area = np.sum([poly.area for poly in self.pSV])
 
-        projected_union_area_stem = self.stem_path_union_polys[plane].area
-        sum_projected_area_stem = self.stem_path_sum_area[plane]
+        union_poly_stem = unary_union(self.stem_polys[plane])
+        projected_union_area_stem = union_poly_stem.area
+        sum_projected_area_stem = np.sum([poly.area for poly in self.stem_polys[plane]])
 
-        print("found total area")
+        log.info("found projected areas")
 
+        # this could techically be conmbined with the above by adding a percentile of 100
+        # 
         overlap_dict = self.find_overlap_by_percentile(percentiles=[25, 50, 75])
-
         tot_poly = unary_union(self.pSV)
         projected_area_w_o_overlap = tot_poly.area
         projected_area_w_overlap = np.sum([poly.area for poly in self.pSV])
@@ -585,6 +585,12 @@ class CylinderCollection:
         total_volume = np.sum([cyl.volume for cyl in self.cylinders])
         max_bo = np.max([cyl.branch_order for cyl in self.cylinders])
 
+        order_zero_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 0)
+        order_one_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 1)
+        order_two_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 2)
+        order_three_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 3)
+        order_four_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 4)
+
         statistics = {
             "total_psa": projected_union_area,
             "psa_w_overlap": sum_projected_area,
@@ -597,9 +603,9 @@ class CylinderCollection:
             "stem_hull_area": canopy_cover_stem,
             "stem_hull_boundary": canopy_boundary_stem,
             "max_bo": max_bo,
-            "topQuarterTotPsa": overlap_dict[75]["sum_psa"],
-            "topHalfTotPsa": overlap_dict[50]["sum_psa"],
-            "topThreeQuarterTotPsa": overlap_dict[25]["sum_psa"],
+            "topQuarterTotPsa": overlap_dict[75]["sum_area"],
+            "topHalfTotPsa": overlap_dict[50]["sum_area"],
+            "topThreeQuarterTotPsa": overlap_dict[25]["sum_area"],
             "TotalShade": sum_projected_area - projected_union_area,
             "top_quarter_shade": overlap_dict[75]["overlap_with_previous"],
             "top_half_shade": overlap_dict[50]["overlap_with_previous"],
@@ -615,66 +621,66 @@ class CylinderCollection:
             "Order_zero_angle_avg": np.average(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 0)
+                    for cyl in order_zero_cyls
                 ]
             ),
             "Order_zero_angle_std": np.std(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 0)
+                    for cyl in order_zero_cyls
                 ]
             ),
             "Order_one_angle_avg": np.average(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 1)
+                    for cyl in order_one_cyls
                 ]
             ),
             "Order_one_angle_std": np.std(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 1)
+                    for cyl in order_one_cyls
                 ]
             ),
             "Order_two_angle_avg": np.average(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 2)
+                    for cyl in order_two_cyls
                 ]
             ),
             "Order_two_angle_std": np.std(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 2)
+                    for cyl in order_two_cyls
                 ]
             ),
             "Order_three_angle_avg": np.average(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 3)
+                    for cyl in order_three_cyls
                 ]
             ),
             "Order_three_angle_std": np.std(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 3)
+                    for cyl in order_three_cyls
                 ]
             ),
             "order_gr_four_angle_avg": np.average(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 4)
+                    for cyl in order_four_cyls
                 ]
             ),
             "order_gr_four_angle_std": np.std(
                 [
                     cyl.angle
-                    for cyl in lam_filter(self.cylinders, lambda: branch_order == 4)
+                    for cyl in order_four_cyls
                 ]
             ),
-            "fileName": self._fileName + self._projection,
+            "file_name": self.file_name + plane,
         }
 
-        save_file(statistics, subdir="statistics", method="statistics")
+        save_file(self.file_name, statistics, subdir="statistics", method="statistics")
 
         return statistics

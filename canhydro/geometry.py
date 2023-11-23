@@ -158,6 +158,11 @@ def concave_hull(boundary_points, alpha: int = 0):
 
 
 def furthest_point(point, points):
+    """
+    Finds the furthers point in the list 'points' from the input 'point'
+
+    scipy has a potentially quicker func
+    """
     furthest_index = distance.cdist([point], points).argmax()
     return points[furthest_index]
 
@@ -165,6 +170,9 @@ def furthest_point(point, points):
 def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
     """Takes in a list of lists of polygons, each list representing a diff percentile grouping of polygons
     'climbs the tree' itteratiely determininng the additional overlap/shade added by each percentile grouping
+
+    shapely's intersection function could be used, and would be slightly more accurate. However, it is also
+    rather slow for the intersection of this many shapes 
     """
     if len(labels) != len(shading_poly_list):
         log.info(
@@ -201,6 +209,12 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
 
 
 def get_projection(vector: list, magnitude: list, radius: float()):
+    """
+    Takes in the vector (starting point), magnitude and radius that fully define a cylinder.
+    Finds the projection of the cylinder on a plane 
+
+    Some linear algebra/diff eq could help us find this for an arbtrary plane.
+    """
     noCirPoints = 360
     tCir = np.linspace(
         0, 2 * np.pi, noCirPoints

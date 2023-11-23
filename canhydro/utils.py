@@ -4,12 +4,11 @@ import os
 import shutil
 import stat
 
+import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-from canhydro.global_vars import input_dir, log
-
-# from global_vars import input_dir, log
+from canhydro.global_vars import input_dir, log,output_dir
 
 
 def on_rm_error(func, path, exc_info):
@@ -40,14 +39,10 @@ def read_file_names(file_path=input_dir):
     return fileNames
 
 
-def save_file(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""):
-    proj = "XY"
-    if self.rev:
-        proj = "XZ"
-    file_arr = os.path.splitext(os.path.basename(self.filename))
-    dir = "/".join([self.output_dir, method, ""]).replace("/", "\\")
-    ofname = "_".join([file_arr[0], method, proj, fileFormat]).replace("/", "\\")
-    aggname = "_".join(["agg", method, proj, fileFormat]).replace("/", "\\")
+def save_file(file, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""):
+    dir = "/".join([output_dir, method, ""]).replace("/", "\\")
+    ofname = "_".join([file, method, fileFormat]).replace("/", "\\")
+    aggname = "_".join(["agg", method, fileFormat]).replace("/", "\\")
     folderExists = os.path.exists(dir)
     fileExists = os.path.exists(dir + ofname)
     aggExists = os.path.exists(dir + aggname)
