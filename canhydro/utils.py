@@ -1,14 +1,14 @@
 from __future__ import annotations
 
+import csv
 import os
 import shutil
 import stat
+from typing import Union
 
-import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 
-from canhydro.global_vars import input_dir, log,output_dir
+from canhydro.global_vars import input_dir, log, output_dir, time_stamp
 
 
 def on_rm_error(func, path, exc_info):
@@ -39,35 +39,58 @@ def read_file_names(file_path=input_dir):
     return fileNames
 
 
-def save_file(file, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""):
-    dir = "/".join([output_dir, method, ""]).replace("/", "\\")
-    ofname = "_".join([file, method, fileFormat]).replace("/", "\\")
+def save_file(
+    file,
+    out_file: Union(list[dict], dict),
+    overwrite: bool = False,
+    subdir: str = "agg",
+    fileFormat=".csv",
+    method="",
+):
+    dir = "/".join([str(output_dir), method, ""]).replace("/", "\\")
+    ofname = "_".join([file, method]).replace("/", "\\")
+    ofname_ext = "".join([ofname, fileFormat]).replace("/", "\\")
     aggname = "_".join(["agg", method, fileFormat]).replace("/", "\\")
+    aggname_ext = "".join([aggname, fileFormat]).replace("/", "\\")
     folderExists = os.path.exists(dir)
-    fileExists = os.path.exists(dir + ofname)
-    aggExists = os.path.exists(dir + aggname)
+    fileExists = os.path.exists(dir + ofname_ext)
+    aggExists = os.path.exists(dir + aggname_ext)
     if not folderExists:
         os.makedirs(dir)
-    if fileFormat == ".png":
-        plt.savefig(dir + ofname, format="png", dpi=1200)
-    else:
-        if fileExists:
-            exist = pd.read_excel(
-                open(dir + ofname, "rb"), sheet_name=method, engine="openpyxl"
-            )
-            toWrite = toWrite.append(exist)
-        with pd.ExcelWriter(dir + ofname, engine="openpyxl", mode="w") as writer:
-            toWrite.to_excel(writer, index=False, sheet_name=method)
-        if not aggExists:
-            with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
-                toWrite.to_excel(writer, index=False, sheet_name=method)
-        else:
-            exist = pd.read_excel(
-                open(dir + aggname, "rb"), sheet_name=method, engine="openpyxl"
-            )
-            toWrite = toWrite.append(exist)
-            with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
-                toWrite.to_excel(writer, index=False, sheet_name=method)
+
+    to_write = []
+    if isinstance(out_file, dict):
+        out_file = [out_file]
+
+    headers = list(out_file[0].keys())
+    to_write.append(headers)
+    log.info(f"{to_write}")
+    for dic in out_file:
+        cur_row = []
+        for _, value in dic.items():
+            cur_row.append(value)
+        cur_row.append(time_stamp)
+        to_write.append(cur_row)
+
+    if fileExists:
+        with open(dir + ofname_ext) as csv_file:
+            reader = csv.reader(csv_file)
+            existing_rows = list(reader)
+            breakpoint()
+            if existing_rows[0] == headers:
+                for row in existing_rows[1:]:
+                    if row != []:
+                        to_write.append(row)
+            else:
+                log.warning(
+                    f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
+                )
+    if overwrite:
+        log.info(f"{to_write}")
+        with open(dir + ofname_ext, "w") as csv_file:
+            writer = csv.writer(csv_file)
+            for row in to_write:
+                writer.writerow(row)
 
 
 def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
@@ -90,43 +113,7 @@ def lam_filter(objects, a_lambda: function, return_all: bool = False):
     return objs, res
 
 
-def saveFile(self, toWrite=[], subdir: str = "agg", fileFormat=".png", method=""):
-    proj = self._projection
-    file_arr = os.path.splitext(os.path.basename(self._fileName))
-    dir = "/".join([self._output_dir, method, ""]).replace("/", "\\")
-    ofname = "_".join([file_arr[0], method, proj, fileFormat]).replace("/", "\\")
-    aggname = "_".join(["agg", method, proj, fileFormat]).replace("/", "\\")
-    folderExists = os.path.exists(dir)
-    fileExists = os.path.exists(dir + ofname)
-    aggExists = os.path.exists(dir + aggname)
-    if not folderExists:
-        os.makedirs(dir)
-    if fileFormat == ".png":
-        plt.savefig(dir + ofname, format="png", dpi=1200)
-    else:
-        if not fileExists:
-            with pd.ExcelWriter(dir + ofname, engine="openpyxl", mode="w") as writer:
-                toWrite.to_excel(writer, index=False, sheet_name=method)
-        else:
-            exist = pd.read_excel(
-                open(dir + ofname, "rb"), sheet_name=method, engine="openpyxl"
-            )
-            toWrite = toWrite.append(exist)
-            with pd.ExcelWriter(dir + ofname, engine="openpyxl", mode="w") as writer:
-                toWrite.to_excel(writer, index=False, sheet_name=method)
-        if not aggExists:
-            with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
-                toWrite.to_excel(writer, index=False, sheet_name=method)
-        else:
-            exist = pd.read_excel(
-                open(dir + aggname, "rb"), sheet_name=method, engine="openpyxl"
-            )
-            toWrite = toWrite.append(exist)
-            with pd.ExcelWriter(dir + aggname, engine="openpyxl", mode="w") as writer:
-                toWrite.to_excel(writer, index=False, sheet_name=method)
-
-
-def countlines(start, lines=0, header=True, begin_start=None):
+def count_lines(start, lines=0, header=True, begin_start=None):
     """
     Counts the lines contained in this project and prints results by
     file. For Vanity.
@@ -164,4 +151,4 @@ def countlines(start, lines=0, header=True, begin_start=None):
 
 
 if __name__ == "__main__":
-    countlines(r'C:\Users\wisch\documents\gitprojects\canopyhydrodynamics')
+    count_lines(r"C:\Users\wisch\documents\gitprojects\canopyhydrodynamics")

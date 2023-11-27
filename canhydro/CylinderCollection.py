@@ -8,7 +8,7 @@ import sys
 
 import networkx as nx
 import numpy as np
-from memory_profiler import LogFile, profile
+from memory_profiler import LogFile
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
@@ -366,17 +366,7 @@ class CylinderCollection:
         self.stem_flow_component = stem_flow_component
         self.drip_flow_components = component_graphs
 
-    def flowCost(self, graph, metric):
-        # algo does not play well with floats
-        if metric == "projected_area":
-            sum(
-                attr["projected_data"]["XY"]["area"] * 10000
-                for u, v, attr in graph.edges(data=True)
-            ) / 10000
-        else:
-            sum(attr[metric] * 10000 for u, v, attr in graph.edges(data=True)) / 10000
-
-    @profile
+    # @profile
     def calculate_flows(self, plane: str = "XY"):
         """uses subgraphs from FindFlowComponents to aggregate flow characteristics"""
         stem_flow_component = self.stem_flow_component
@@ -393,7 +383,7 @@ class CylinderCollection:
 
         for u, v, _ in stem_edges:
             edge_attributes[(u, v)] = {"dripNode": 0, "flowType": "stem", "flowID": 0}
-        log.info("attempting to sum stem edges ")
+        # log.info("attempting to sum stem edges ")
 
         # this probably doesnt belong here but its efficient to do it now
         # is 'needed' for statistics section
@@ -421,7 +411,7 @@ class CylinderCollection:
                 }
             )
         )  # stemflow drips to the trunk
-        log.info(f"summed stem edges {flow_chars}")
+        # log.info(f"summed stem edges {flow_chars}")
 
         for idx, flow in enumerate(drip_flow_components):
             log.info(f"identifying  drip edges in component {idx}")
@@ -434,7 +424,7 @@ class CylinderCollection:
 
             num_cyls = len(flow.edges())
 
-            log.info(f"attempting to sum drip edges for component {idx}")
+            # log.info(f"attempting to sum drip edges for component {idx}")
             edge_attributes = {
                 (u, v): {
                     "dripNode": drip_node,
@@ -463,7 +453,7 @@ class CylinderCollection:
                     }
                 )
             )
-            log.info(f"summed drip edges in component {idx}")
+            # log.info(f"summed drip edges in component {idx}")
 
         self.flows = flow_chars
 
@@ -553,7 +543,7 @@ class CylinderCollection:
 
         # calculate projected areas and (therefore) overlaps
         # Unary union gives a single contiguous polygon when fed many overlapping cylinders
-        # The area of the union thus differs from the sum of the areas of its components 
+        # The area of the union thus differs from the sum of the areas of its components
         # in that the former counts overlaps only once
         tot_poly = unary_union(self.pSV)
         projected_union_area = tot_poly.area
@@ -566,7 +556,7 @@ class CylinderCollection:
         log.info("found projected areas")
 
         # this could techically be conmbined with the above by adding a percentile of 100
-        # 
+        #
         overlap_dict = self.find_overlap_by_percentile(percentiles=[25, 50, 75])
         tot_poly = unary_union(self.pSV)
         projected_area_w_o_overlap = tot_poly.area
@@ -585,11 +575,11 @@ class CylinderCollection:
         total_volume = np.sum([cyl.volume for cyl in self.cylinders])
         max_bo = np.max([cyl.branch_order for cyl in self.cylinders])
 
-        order_zero_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 0)
-        order_one_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 1)
-        order_two_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 2)
-        order_three_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 3)
-        order_four_cyls, _ =  lam_filter(self.cylinders, lambda: branch_order == 4)
+        order_zero_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 0)
+        order_one_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 1)
+        order_two_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 2)
+        order_three_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 3)
+        order_four_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 4)
 
         statistics = {
             "total_psa": projected_union_area,
@@ -618,69 +608,67 @@ class CylinderCollection:
             "X_min": min_x,
             "Y_min": min_y,
             "Z_min": min_z,
-            "Order_zero_angle_avg": np.average(
-                [
-                    cyl.angle
-                    for cyl in order_zero_cyls
-                ]
-            ),
-            "Order_zero_angle_std": np.std(
-                [
-                    cyl.angle
-                    for cyl in order_zero_cyls
-                ]
-            ),
-            "Order_one_angle_avg": np.average(
-                [
-                    cyl.angle
-                    for cyl in order_one_cyls
-                ]
-            ),
-            "Order_one_angle_std": np.std(
-                [
-                    cyl.angle
-                    for cyl in order_one_cyls
-                ]
-            ),
-            "Order_two_angle_avg": np.average(
-                [
-                    cyl.angle
-                    for cyl in order_two_cyls
-                ]
-            ),
-            "Order_two_angle_std": np.std(
-                [
-                    cyl.angle
-                    for cyl in order_two_cyls
-                ]
-            ),
+            "Order_zero_angle_avg": np.average([cyl.angle for cyl in order_zero_cyls]),
+            "Order_zero_angle_std": np.std([cyl.angle for cyl in order_zero_cyls]),
+            "Order_one_angle_avg": np.average([cyl.angle for cyl in order_one_cyls]),
+            "Order_one_angle_std": np.std([cyl.angle for cyl in order_one_cyls]),
+            "Order_two_angle_avg": np.average([cyl.angle for cyl in order_two_cyls]),
+            "Order_two_angle_std": np.std([cyl.angle for cyl in order_two_cyls]),
             "Order_three_angle_avg": np.average(
-                [
-                    cyl.angle
-                    for cyl in order_three_cyls
-                ]
+                [cyl.angle for cyl in order_three_cyls]
             ),
-            "Order_three_angle_std": np.std(
-                [
-                    cyl.angle
-                    for cyl in order_three_cyls
-                ]
-            ),
+            "Order_three_angle_std": np.std([cyl.angle for cyl in order_three_cyls]),
             "order_gr_four_angle_avg": np.average(
-                [
-                    cyl.angle
-                    for cyl in order_four_cyls
-                ]
+                [cyl.angle for cyl in order_four_cyls]
             ),
-            "order_gr_four_angle_std": np.std(
-                [
-                    cyl.angle
-                    for cyl in order_four_cyls
-                ]
-            ),
+            "order_gr_four_angle_std": np.std([cyl.angle for cyl in order_four_cyls]),
             "file_name": self.file_name + plane,
         }
-
-        save_file(self.file_name, statistics, subdir="statistics", method="statistics")
+        save_file(
+            self.file_name.replace(".csv", ""),
+            out_file=statistics,
+            subdir="statistics",
+            method="statistics",
+        )
 
         return statistics
+
+    def describe(self, metric: str, a_lambda: function = lambda: True, **args) -> dict:
+        """
+        Takes in a metric of the tree and a filter and returns summary stats
+        for the given input metric
+        Potentially outputs a histogram if requested?
+        """
+        return {True}
+
+    def compare(
+        metric: str,
+        a_lambda: function = lambda: True,
+        b_lambda: function = lambda: True,
+    ):
+        """
+        Compares the two lists of metrics defined by the two input functions
+        """
+
+    def drip_map(self, a_lambda) -> None:
+        """
+        Returns a plot showing the locations of the drip points, subject
+        to input params
+        """
+
+    def divide_points(self) -> None:
+        """
+        Identifies boundary areas in the canopy on either side of which
+        branches drain to different locatiosn (drip points or stem)
+        """
+
+    def drip_map(
+        self, a_lambda: function = lambda: True, scale: int = 10, **plot_args
+    ) -> None:
+        """
+        Returns a plot showing the locations of the drip points, subject
+        to input params
+
+        a_lambda: funtion to filter drip points displayed (e.g. those with projected area>10m^2 )
+        scale: how large of a boundary to draw around drip points
+        """

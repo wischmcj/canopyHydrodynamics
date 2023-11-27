@@ -1,5 +1,8 @@
 
 
+from __future__ import annotations
+
+
 class AlternativeCylCollection():
 
     @profile
@@ -12,7 +15,7 @@ class AlternativeCylCollection():
             parent_node = attr["parent_id"]
             gr.add_edge(child_node, parent_node, **attr)
         self.graph = gr
-        
+
     @profile
     def initialize_minimal_graph(self):
         """This function initialized edge attributes as cylinder objects"""
@@ -111,7 +114,7 @@ class AlternativeCylCollection():
         self.get_trunk_nodes()
 
 
-        
+
     def find_flow_components_minimal(self, inFlowGradeLim=-1 / 6):
         """Finding Stemflow contributing area"""
         g = self.min_graph
@@ -163,6 +166,16 @@ class AlternativeCylCollection():
         # }
         # self.divide_points = []
         # self.stemPolys = []
+
+    def flowCost(self, graph, metric):
+        # algo does not play well with floats
+        if metric == "projected_area":
+            sum(
+                attr["projected_data"]["XY"]["area"] * 10000
+                for u, v, attr in graph.edges(data=True)
+            ) / 10000
+        else:
+            sum(attr[metric] * 10000 for u, v, attr in graph.edges(data=True)) / 10000
 
 
     @profile
