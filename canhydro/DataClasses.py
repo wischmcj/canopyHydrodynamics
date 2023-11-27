@@ -27,6 +27,7 @@ class Flow:
     volume: float()
     sa_to_vol: float()
     drip_node_id: int()
+    drip_node_loc: tuple()
 
 coord_list = Union[list[tuple[float]], np.ndarray]
 

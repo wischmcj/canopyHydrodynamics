@@ -15,7 +15,7 @@ from shapely.ops import unary_union
 from canhydro.Cylinder import Cylinder
 from canhydro.DataClasses import Flow
 from canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
-                               get_projected_overlap)
+                               closest_points, get_projected_overlap, imshow)
 from canhydro.global_vars import log, qsm_cols
 from canhydro.utils import intermitent_log, lam_filter, save_file
 
@@ -80,6 +80,7 @@ class CylinderCollection:
         }  # A dictionary of flow ids with values equal to their drip node ids
         self.trunk_nodes = []
         self.drip_loc = None
+        self.drip_point_loc = None
         self.stem_flow_component = None
         self.drip_flow_components = None
         # Calculations using graph results
@@ -408,6 +409,7 @@ class CylinderCollection:
                     "volume": np.sum([cyl.volume for _, _, cyl in stem_edges]),
                     "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in stem_edges]),
                     "drip_node_id": 0,
+                    "drip_node_loc": (self.cylinders[0].x[0],self.cylinders[0].y[0])
                 }
             )
         )  # stemflow drips to the trunk
@@ -420,7 +422,9 @@ class CylinderCollection:
             # drip points are technically nodes, which are located at the start and end of edges (representing cylinders )
             # the node at the start of an edge shares an id with the edge's corrosponding cylinder
             drip_point_id = np.argmin([cyl.z[0] for _, _, cyl in edges])
-            drip_node = edges[drip_point_id][0]
+            drip_edge = edges[drip_point_id]
+            drip_node = drip_edge[0]
+            drip_node_loc = (drip_edge[2].x[0],drip_edge[2].y[0],drip_edge[2].z[0])
 
             num_cyls = len(flow.edges())
 
@@ -450,6 +454,7 @@ class CylinderCollection:
                         "volume": np.sum([cyl.volume for _, _, cyl in edges]),
                         "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in edges]),
                         "drip_node_id": drip_node,
+                        "drip_node_loc": drip_node_loc
                     }
                 )
             )
@@ -476,7 +481,7 @@ class CylinderCollection:
         trunk_beg = lam_filter(self.cylinders, a_lambda=lambda: branch_order == 0)
         trunk_points = [(cyl.x[0], cyl.y[0], cyl.z[0]) for cyl in trunk_beg]
         root = trunk_points[0]
-        furthest_afeild = furthest_point(root, trunk_points)
+        furthest_afeild, _ = furthest_point(root, trunk_points)
         dx, dy, dz = ((a - b) for a, b in zip(furthest_afeild, root))
         run = np.sqrt(self.dx**2 + self.dy**2)
         angle = (
@@ -672,3 +677,52 @@ class CylinderCollection:
         a_lambda: funtion to filter drip points displayed (e.g. those with projected area>10m^2 )
         scale: how large of a boundary to draw around drip points
         """
+        #excluding trunk node 
+        drip_nodes = [(f.drip_node_id, f.projected_area, f.drip_node_loc) for f in self.flows if f.drip_node_id != 0]
+    
+        distinct_drip_node_ids = set([node[0] for node in drip_nodes])
+
+        flow_by_area_dict = {}
+        for node in distinct_drip_node_ids:
+            area = np.sum([flow[1] for flow in drip_nodes if flow[0] ==node ])
+            flow_by_area_dict[node] = area
+        
+        point_cutoff = np.percentile([area for _, area in flow_by_area_dict.items()],50)
+        drip_points = [node for node, area in flow_by_area_dict.items() if area > point_cutoff ]
+
+        drip_point_locs = [node[2]*scale for node in drip_nodes if node[0] in drip_points]
+        breakpoint()
+        # generating the plot to be mapped 
+        min = np.min([self.extent["min"][0],self.extent["min"][1]])*scale
+        max =  np.min([self.extent["max"][0],self.extent["max"][1]])*scale
+        x = np.arange(min,max)
+        y = np.arange(min,max)
+        # drip_loc
+        x, y = np.meshgrid(x, y)
+
+        z = closest_points((x,y),drip_point_locs,num_returned=1)
+        breakpoint()
+            
+        # while curr_y_scale <= abs(scale) and y_loc+curr_y_scale < size_y:   
+        #     curr_x_scale = scale 
+        #     while curr_x_scale <= abs(scale) and x_loc+curr_x_scale < size_x:
+        #         if abs(curr_y_scale) + abs(curr_x_scale) <= 15 and abs(curr_x_scale)<=9 and abs(curr_y_scale)<=9 and drip_loc[y_loc+curr_y_scale,x_loc+curr_x_scale]<=100:
+        #             mult = (50 -(math.sqrt((curr_y_scale*curr_y_scale) + (curr_x_scale*curr_x_scale))))
+        #             if max_scale < mult:
+        #                 max_scale = mult
+        #             drip_loc[y_loc+curr_y_scale,x_loc+curr_x_scale] += node_flow_sa*(100 -(math.sqrt((curr_y_scale*curr_y_scale) + (curr_x_scale*curr_x_scale))))
+        #         #print(curr_x_scale,curr_y_scale)
+        #         curr_x_scale =curr_x_scale + 1 
+        #     curr_y_scale =curr_y_scale + 1
+                
+        # self.drip_point_loc = drip_point_locs
+        # print('Max scaling was ')
+        # print(max_scale)
+        # # plt.imshow(drip_loc,interpolation='mitchell', cmap='Blues',aspect='auto',extent =[min_x,max_x,min_y,max_y] )
+        # flows  = pd.concat([self.dripTotal,self.stemTotal], ignore_index=True, axis=0)
+        # self.save_file(flows, 'flowStats','.xlsx', 'flowStatsFin' )
+        # self.save_file(method = 'dripMapPlotWStemFin' ) 
+        # log.info(f'{self.filename} drips agged')   
+        # plt.close()     
+
+

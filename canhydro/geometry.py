@@ -52,10 +52,11 @@ def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     return sir_c
 
 
-def circumradius(points: coord_list) -> float:
+def circumradius(points: coord_list, center:np.ndarray ) -> float:
     """
     Calculte the radius of the circle in which the given polygon may be inscribed
     """
+    center = center if center else circumcenter_lapack(points)
     points = np.asarray(points)
     return np.linalg.norm(points[0, :] - np.dot(circumcenter_lapack(points), points))
 
@@ -70,12 +71,12 @@ def simplices(points: coord_list) -> coord_list:
     for simplex in tri.simplices:
         simplex_points = coords[simplex]
         try:
-            yield simplex, circumradius(simplex_points)
-        except np.linalg.LinAlgError:
-            log.Warning(
-                "Singleton returned - likely caused by all points "
-                "lying in an N-1 space."
-            )
+            center = circumcenter_lapack(points)
+            yield simplex, circumradius(simplex_points, center), center
+        except np.linalg.LinAlgError as err:
+            log.warning(f"""Error calculating simplicies,
+                        input invalid (potentially coincident points)
+                         {err}""")
 
 
 def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> float:
@@ -101,7 +102,7 @@ def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> float:
 
 
 # might eventually be updated to deal with 3d a la https://github.com/bellockk/alphashape/blob/master/alphashape/optimizealpha.py
-def concave_hull(boundary_points, alpha: int = 0):
+def concave_hull(boundary_points, alpha: int = 0, voronoi:bool =False):
     """alpha shape / concave hull
     Draws a minimal concave polygon with a concavity factor alpha"""
 
@@ -117,6 +118,11 @@ def concave_hull(boundary_points, alpha: int = 0):
             return
         edges.add((i, j))
         edge_points.append(coords[[i, j]])
+    
+    def add_center(centers, center):
+        if center in centers:
+            return
+        centers.add(center)
 
     coords = np.array(
         sorted(point.coords[0] for point in boundary_points if len(point.coords) > 0)
@@ -124,47 +130,89 @@ def concave_hull(boundary_points, alpha: int = 0):
     # Minimal set of triangles with points in set
 
     edges = set()
+    centers = set()
     edge_points = []
     # loop over triangles:
     # ia, ib, ic = indices of corner points of the triangle
     tri = simplices(coords)
-    for (ia, ib, ic), _ in tri:
-        pa = coords[ia]
-        pb = coords[ib]
-        pc = coords[ic]
+    for (ia, ib, ic), _, center in tri:
+        if len(coords[0])==2:
+            #simpler logic suffices in 2d
+            pa = coords[ia]
+            pb = coords[ib]
+            pc = coords[ic]
 
-        # Lengths of sides of triangle
-        a = math.sqrt((pa[0] - pb[0]) ** 2 + (pa[1] - pb[1]) ** 2)
-        b = math.sqrt((pb[0] - pc[0]) ** 2 + (pb[1] - pc[1]) ** 2)
-        c = math.sqrt((pc[0] - pa[0]) ** 2 + (pc[1] - pa[1]) ** 2)
+            # Lengths of sides of triangle
+            a = math.sqrt((pa[0] - pb[0]) ** 2 + (pa[1] - pb[1]) ** 2)
+            b = math.sqrt((pb[0] - pc[0]) ** 2 + (pb[1] - pc[1]) ** 2)
+            c = math.sqrt((pc[0] - pa[0]) ** 2 + (pc[1] - pa[1]) ** 2)
 
-        # Semiperimeter of triangle
-        s = (a + b + c) / 2.0
+            # Semiperimeter of triangle
+            s = (a + b + c) / 2.0
 
-        # Area of triangle by Heron's formula
-        area = math.sqrt(s * (s - a) * (s - b) * (s - c))
-        circum_r = a * b * c / (4.0 * area)
+            # Area of triangle by Heron's formula
+            area = math.sqrt(s * (s - a) * (s - b) * (s - c))
+            circum_r = a * b * c / (4.0 * area)
 
-        # Here's the radius filter.
-        # print circum_r
-        if circum_r < 1.0 / alpha:
-            add_edge(edges, edge_points, coords, ia, ib)
-            add_edge(edges, edge_points, coords, ib, ic)
-            add_edge(edges, edge_points, coords, ic, ia)
+            # Here's the radius filter.
+            # print circum_r
+            if circum_r < 1.0 / alpha:
+                add_edge(edges, edge_points, coords, ia, ib)
+                add_edge(edges, edge_points, coords, ib, ic)
+                add_edge(edges, edge_points, coords, ic, ia)
+                add_center(centers, center)
+        else:
+            #To Do - 3D version using trimesh/itertools
+            do_nothing = True
+            
+
+    if voronoi:
+        v_diag = MultiLineString(centers)
+
 
     m = MultiLineString(edge_points)
     triangles = list(polygonize(m))
-    return unary_union(triangles), edge_points
+    return unary_union(triangles), edge_points, centers
 
-
-def furthest_point(point, points):
+def voronoi(points, centers:np.array[np.ndarray]=None):
     """
-    Finds the furthers point in the list 'points' from the input 'point'
-
-    scipy has a potentially quicker func
+    Construct a voronoi diagram based on the provided centers 
     """
-    furthest_index = distance.cdist([point], points).argmax()
-    return points[furthest_index]
+    if not centers:
+        coords = np.array(
+            sorted(point.coords[0] for point in points if len(point.coords) > 0)
+        )
+        tri = simplices(coords)
+
+    for center in centers:
+        closest_points(center,points)
+    return
+
+def closest_points(point:tuple, points:np.array, num_returned:int =3 ):
+    """
+    Finds the closest point in the list 'points' from the input 'point'
+
+    """
+    points_to_return    = []
+    distances_to_return = []
+    distances = distance.cdist([point], points)
+    for i in np.arrange(num_returned):
+        closest_index = distances.argmin()
+        points_to_return.append(points[closest_index])
+        distances_to_return.append(distances[closest_index])
+        distances = np.delete(distances,closest_index)
+
+    return points_to_return[0] if num_returned ==1 else points_to_return
+
+
+def furthest_point(point:tuple, points:np.array, ):
+    """
+    Finds the furthest point in the list 'points' from the input 'point'
+
+    """
+    distances = distance.cdist([point], points)
+    furthest_index = distances.argmax()
+    return points[furthest_index], distances[furthest_index]
 
 
 def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
@@ -381,3 +429,6 @@ def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True]):
     colors = ["Blue" if col else "Grey" for col in colors]
     geoPolys.plot(ax=ax, color=colors)
     plt.show()
+
+def imshow(**args):
+    plt.imshow(**args)

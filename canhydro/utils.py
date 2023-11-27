@@ -76,7 +76,6 @@ def save_file(
         with open(dir + ofname_ext) as csv_file:
             reader = csv.reader(csv_file)
             existing_rows = list(reader)
-            breakpoint()
             if existing_rows[0] == headers:
                 for row in existing_rows[1:]:
                     if row != []:
