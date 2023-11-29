@@ -9,9 +9,11 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
       - python -m venv ~\Venvs\CanopyHydroEnv
 
 - Start-up
-  1. Activate venv with -  ~\Venvs\CanopyHydroEnv\Scripts\activate
-  2. Install requirements - pip install requirements.txt
+  The setup.py that will perform these tasks is not yet complete so setup must be done manually
+  1. Activate venv with -  ~\Venvs\CanopyHydroEnv\Scripts\activate.ps1 (PowerShell)
+  2. Install requirements - pip install -r requirements.txt
   3. Install pre-commit - pre-commit install
+  4.
 
 - pre-commit
   1. set-up - https://pre-commit.com/
@@ -66,11 +68,11 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
     - Should be less efficient/ more accurate
 
 <h2>Wishlist</h2>
-  - Optimizing the alpha value for alphashapes 
-      - Can be done locally for areas with different point densities 
+  - Optimizing the alpha value for alphashapes
+      - Can be done locally for areas with different point densities
   - Smoothing cylinders to eliminate false drip points
       -polygon.buffer
-  - Creating QSMs from point cloud data 
+  - Creating QSMs from point cloud data
     - would almost certainly need to leverage c++
   - Integrate Point cloud processing libraries like Tree tool
     - https://github.com/porteratzo/TreeTool
@@ -79,9 +81,13 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
   - Local (maybe also remote) caching
   - 3d plotting
 
-
-
-
-
-
-
+<h2>Tutorials </h2>
+  <h3>Displaying, Filtering and Highlighting</h3>
+    flexible_collection.draw(plane = 'XZ')
+    flexible_collection.draw(plane = 'XZ', a_lambda = lambda: cyl_id>100)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>50)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75, highlight_lambda = lambda:branch_order==2)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:branch_order==2)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)

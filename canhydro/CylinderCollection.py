@@ -15,7 +15,7 @@ from shapely.ops import unary_union
 from canhydro.Cylinder import Cylinder
 from canhydro.DataClasses import Flow
 from canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
-                               closest_points, get_projected_overlap, imshow)
+                               get_projected_overlap)
 from canhydro.global_vars import log, qsm_cols
 from canhydro.utils import intermitent_log, lam_filter, save_file
 
@@ -409,7 +409,7 @@ class CylinderCollection:
                     "volume": np.sum([cyl.volume for _, _, cyl in stem_edges]),
                     "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in stem_edges]),
                     "drip_node_id": 0,
-                    "drip_node_loc": (self.cylinders[0].x[0],self.cylinders[0].y[0])
+                    "drip_node_loc": (self.cylinders[0].x[0], self.cylinders[0].y[0]),
                 }
             )
         )  # stemflow drips to the trunk
@@ -424,7 +424,7 @@ class CylinderCollection:
             drip_point_id = np.argmin([cyl.z[0] for _, _, cyl in edges])
             drip_edge = edges[drip_point_id]
             drip_node = drip_edge[0]
-            drip_node_loc = (drip_edge[2].x[0],drip_edge[2].y[0],drip_edge[2].z[0])
+            drip_node_loc = (drip_edge[2].x[0], drip_edge[2].y[0], drip_edge[2].z[0])
 
             num_cyls = len(flow.edges())
 
@@ -454,7 +454,7 @@ class CylinderCollection:
                         "volume": np.sum([cyl.volume for _, _, cyl in edges]),
                         "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in edges]),
                         "drip_node_id": drip_node,
-                        "drip_node_loc": drip_node_loc
+                        "drip_node_loc": drip_node_loc,
                     }
                 )
             )
@@ -667,62 +667,79 @@ class CylinderCollection:
         branches drain to different locatiosn (drip points or stem)
         """
 
-    def drip_map(
-        self, a_lambda: function = lambda: True, scale: int = 10, **plot_args
-    ) -> None:
-        """
-        Returns a plot showing the locations of the drip points, subject
-        to input params
+    # def drip_map(
+    #     self, a_lambda: function = lambda: True, scale: int = 100, **plot_args
+    # ) -> None:
+    #     """
+    #     Returns a plot showing the locations of the drip points, subject
+    #     to input params
 
-        a_lambda: funtion to filter drip points displayed (e.g. those with projected area>10m^2 )
-        scale: how large of a boundary to draw around drip points
-        """
-        #excluding trunk node 
-        drip_nodes = [(f.drip_node_id, f.projected_area, f.drip_node_loc) for f in self.flows if f.drip_node_id != 0]
-    
-        distinct_drip_node_ids = set([node[0] for node in drip_nodes])
+    #     a_lambda: funtion to filter drip points displayed (e.g. those with projected area>10m^2 )
+    #     scale: how large of a boundary to draw around drip points
+    #     """
+    #     #excluding trunk node
+    #     drip_nodes = [(f.drip_node_id, f.projected_area, f.drip_node_loc) for f in self.flows if f.drip_node_id != 0]
 
-        flow_by_area_dict = {}
-        for node in distinct_drip_node_ids:
-            area = np.sum([flow[1] for flow in drip_nodes if flow[0] ==node ])
-            flow_by_area_dict[node] = area
-        
-        point_cutoff = np.percentile([area for _, area in flow_by_area_dict.items()],50)
-        drip_points = [node for node, area in flow_by_area_dict.items() if area > point_cutoff ]
+    #     distinct_drip_node_ids = set([node[0] for node in drip_nodes])
 
-        drip_point_locs = [node[2]*scale for node in drip_nodes if node[0] in drip_points]
-        breakpoint()
-        # generating the plot to be mapped 
-        min = np.min([self.extent["min"][0],self.extent["min"][1]])*scale
-        max =  np.min([self.extent["max"][0],self.extent["max"][1]])*scale
-        x = np.arange(min,max)
-        y = np.arange(min,max)
-        # drip_loc
-        x, y = np.meshgrid(x, y)
+    #     flow_by_area_dict = {}
+    #     for node in distinct_drip_node_ids:
+    #         area = np.sum([flow[1] for flow in drip_nodes if flow[0] ==node ])
+    #         flow_by_area_dict[node] = area
 
-        z = closest_points((x,y),drip_point_locs,num_returned=1)
-        breakpoint()
-            
-        # while curr_y_scale <= abs(scale) and y_loc+curr_y_scale < size_y:   
-        #     curr_x_scale = scale 
-        #     while curr_x_scale <= abs(scale) and x_loc+curr_x_scale < size_x:
-        #         if abs(curr_y_scale) + abs(curr_x_scale) <= 15 and abs(curr_x_scale)<=9 and abs(curr_y_scale)<=9 and drip_loc[y_loc+curr_y_scale,x_loc+curr_x_scale]<=100:
-        #             mult = (50 -(math.sqrt((curr_y_scale*curr_y_scale) + (curr_x_scale*curr_x_scale))))
-        #             if max_scale < mult:
-        #                 max_scale = mult
-        #             drip_loc[y_loc+curr_y_scale,x_loc+curr_x_scale] += node_flow_sa*(100 -(math.sqrt((curr_y_scale*curr_y_scale) + (curr_x_scale*curr_x_scale))))
-        #         #print(curr_x_scale,curr_y_scale)
-        #         curr_x_scale =curr_x_scale + 1 
-        #     curr_y_scale =curr_y_scale + 1
-                
-        # self.drip_point_loc = drip_point_locs
-        # print('Max scaling was ')
-        # print(max_scale)
-        # # plt.imshow(drip_loc,interpolation='mitchell', cmap='Blues',aspect='auto',extent =[min_x,max_x,min_y,max_y] )
-        # flows  = pd.concat([self.dripTotal,self.stemTotal], ignore_index=True, axis=0)
-        # self.save_file(flows, 'flowStats','.xlsx', 'flowStatsFin' )
-        # self.save_file(method = 'dripMapPlotWStemFin' ) 
-        # log.info(f'{self.filename} drips agged')   
-        # plt.close()     
+    #     point_cutoff = np.percentile([area for _, area in flow_by_area_dict.items()],50)
+    #     drip_points = [node for node, area in flow_by_area_dict.items() if area > point_cutoff ]
 
+    #     drip_point_locs = [[node[2][0]*scale,node[2][1]*scale] for node in drip_nodes if node[0] in drip_points]
+    #     drip_point_locs_x = [pt[1] for pt in drip_point_locs]
+    #     drip_point_locs_y = [pt[0] for pt in drip_point_locs]
 
+    #     # generating the plot to be mapped
+    #     min_xy = np.min([self.extent["min"][0],self.extent["min"][1]])*scale
+    #     max_xy=  np.max([self.extent["max"][0],self.extent["max"][1]])*scale
+
+    #     # min_xy = np.min([math.floor(np.min(drip_point_locs_x)), math.floor(np.min(drip_point_locs_y))])
+    #     # max_xy=  np.max([math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))])
+
+    #     # x = np.arange(min_xy,max_xy,step=1)
+    #     # y = np.arange(min_xy,max_xy,step=1)
+    #     # # drip_loc
+    #     # x_mesh, y_mesh = np.meshgrid(x, y)
+
+    #     # def dist_to_drip(a,b):
+    #     #     distances =  distance.cdist([[a,b]], drip_point_locs)
+    #     #     min_dist  = np.min(distances)
+    #     #     return min_dist
+
+    #     # dist= np.vectorize(dist_to_drip)
+
+    #     # distance_matrix = np.zeros((x_mesh.shape[0],x_mesh.shape[0]))
+
+    #     # # distance matrix
+    #     # for a in range(x_mesh.shape[0]) :
+    #     #     for b in range(x_mesh.shape[0]):
+    #     #         distance_matrix[b][a]= dist_to_drip(a,b)
+
+    #     # fig, ax = plt.subplots()
+    #     # plt.contour(x_mesh,y_mesh,distance_matrix)
+    #     # plt.scatter(drip_point_locs_x, drip_point_locs_y)
+    #     # plt.show()
+    #     # breakpoint()
+
+    #     drip_loc = np.zeros_like(np.zeros((int(min_xy),int(size_x))))
+    #     while curr_y_scale <= abs(scale) and y_loc+curr_y_scale < size_y:
+    #         curr_x_scale = scale
+    #         while curr_x_scale <= abs(scale) and x_loc+curr_x_scale < size_x:
+    #             if abs(curr_y_scale) + abs(curr_x_scale) <= 15 and abs(curr_x_scale)<=9 and abs(curr_y_scale)<=9 and drip_loc[y_loc+curr_y_scale,x_loc+curr_x_scale]<=100:
+    #                 mult = (50 -(math.sqrt((curr_y_scale*curr_y_scale) + (curr_x_scale*curr_x_scale))))
+    #                 if max_scale < mult:
+    #                     max_scale = mult
+    #                 drip_loc[y_loc+curr_y_scale,x_loc+curr_x_scale] += node_flow_sa*(100 -(math.sqrt((curr_y_scale*curr_y_scale) + (curr_x_scale*curr_x_scale))))
+    #             curr_x_scale =curr_x_scale + 1
+    #         curr_y_scale =curr_y_scale + 1
+
+    #     self.drip_point_loc = drip_point_locs
+    #     print('Max scaling was ')
+    #     print(max_scale)
+    #     plt.imshow(drip_loc,interpolation='mitchell', cmap='Blues',aspect='auto',extent =[min_x,max_x,min_y,max_y] )
+    #     plt.show()
