@@ -1,7 +1,6 @@
 """Python setup.py for canopyHydrodynamics package"""
 from __future__ import annotations
 
-import io
 import os
 
 from setuptools import find_packages, setup
@@ -35,15 +34,11 @@ def read_requirements(path):
 setup(
     name="canhydro",
     version=read("canhydro", "VERSION"),
-    author='Collin Wischmeyer, Travis Swanton, John Van Stan',
     description="Utils for modeling canopy hydrodynamics with QSM's",
     url="https://github.com/wischmcj/canopyHydrodynamics/",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
-    author="wischmcj",
     packages=find_packages(exclude=["testopolis", ".github"]),
     install_requires=read_requirements("requirements.txt"),
-    entry_points={
-        "console_scripts": ["cylinders = cylinders.__main__:main"]
-    },
+    entry_points={"console_scripts": ["cylinders = cylinders.__main__:main"]},
 )

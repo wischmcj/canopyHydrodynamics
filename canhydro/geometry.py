@@ -52,11 +52,11 @@ def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     return sir_c
 
 
-def circumradius(points: coord_list, center:np.ndarray ) -> float:
+def circumradius(points: coord_list, center: np.ndarray == []) -> float:
     """
     Calculte the radius of the circle in which the given polygon may be inscribed
     """
-    center = center if center else circumcenter_lapack(points)
+    center = center if center != [] else circumcenter_lapack(points)
     points = np.asarray(points)
     return np.linalg.norm(points[0, :] - np.dot(circumcenter_lapack(points), points))
 
@@ -74,9 +74,11 @@ def simplices(points: coord_list) -> coord_list:
             center = circumcenter_lapack(points)
             yield simplex, circumradius(simplex_points, center), center
         except np.linalg.LinAlgError as err:
-            log.warning(f"""Error calculating simplicies,
+            log.warning(
+                f"""Error calculating simplicies,
                         input invalid (potentially coincident points)
-                         {err}""")
+                         {err}"""
+            )
 
 
 def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> float:
@@ -102,7 +104,7 @@ def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> float:
 
 
 # might eventually be updated to deal with 3d a la https://github.com/bellockk/alphashape/blob/master/alphashape/optimizealpha.py
-def concave_hull(boundary_points, alpha: int = 0, voronoi:bool =False):
+def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
     """alpha shape / concave hull
     Draws a minimal concave polygon with a concavity factor alpha"""
 
@@ -118,7 +120,7 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi:bool =False):
             return
         edges.add((i, j))
         edge_points.append(coords[[i, j]])
-    
+
     def add_center(centers, center):
         if center in centers:
             return
@@ -136,8 +138,8 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi:bool =False):
     # ia, ib, ic = indices of corner points of the triangle
     tri = simplices(coords)
     for (ia, ib, ic), _, center in tri:
-        if len(coords[0])==2:
-            #simpler logic suffices in 2d
+        if len(coords[0]) == 2:
+            # simpler logic suffices in 2d
             pa = coords[ia]
             pb = coords[ib]
             pc = coords[ic]
@@ -162,21 +164,20 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi:bool =False):
                 add_edge(edges, edge_points, coords, ic, ia)
                 add_center(centers, center)
         else:
-            #To Do - 3D version using trimesh/itertools
+            # To Do - 3D version using trimesh/itertools
             do_nothing = True
-            
 
     if voronoi:
         v_diag = MultiLineString(centers)
-
 
     m = MultiLineString(edge_points)
     triangles = list(polygonize(m))
     return unary_union(triangles), edge_points, centers
 
-def voronoi(points, centers:np.array[np.ndarray]=None):
+
+def voronoi(points, centers: np.array[np.ndarray] = None):
     """
-    Construct a voronoi diagram based on the provided centers 
+    Construct a voronoi diagram based on the provided centers
     """
     if not centers:
         coords = np.array(
@@ -185,27 +186,31 @@ def voronoi(points, centers:np.array[np.ndarray]=None):
         tri = simplices(coords)
 
     for center in centers:
-        closest_points(center,points)
+        closest_points(center, points)
     return
 
-def closest_points(point:tuple, points:np.array, num_returned:int =3 ):
+
+def closest_points(point: tuple, points: np.array, num_returned: int = 3):
     """
     Finds the closest point in the list 'points' from the input 'point'
 
     """
-    points_to_return    = []
+    points_to_return = []
     distances_to_return = []
     distances = distance.cdist([point], points)
     for i in np.arrange(num_returned):
         closest_index = distances.argmin()
         points_to_return.append(points[closest_index])
         distances_to_return.append(distances[closest_index])
-        distances = np.delete(distances,closest_index)
+        distances = np.delete(distances, closest_index)
 
-    return points_to_return[0] if num_returned ==1 else points_to_return
+    return points_to_return[0] if num_returned == 1 else points_to_return
 
 
-def furthest_point(point:tuple, points:np.array, ):
+def furthest_point(
+    point: tuple,
+    points: np.array,
+):
     """
     Finds the furthest point in the list 'points' from the input 'point'
 
@@ -220,7 +225,7 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
     'climbs the tree' itteratiely determininng the additional overlap/shade added by each percentile grouping
 
     shapely's intersection function could be used, and would be slightly more accurate. However, it is also
-    rather slow for the intersection of this many shapes 
+    rather slow for the intersection of this many shapes
     """
     if len(labels) != len(shading_poly_list):
         log.info(
@@ -259,7 +264,7 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
 def get_projection(vector: list, magnitude: list, radius: float()):
     """
     Takes in the vector (starting point), magnitude and radius that fully define a cylinder.
-    Finds the projection of the cylinder on a plane 
+    Finds the projection of the cylinder on a plane
 
     Some linear algebra/diff eq could help us find this for an arbtrary plane.
     """
@@ -430,5 +435,6 @@ def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True]):
     geoPolys.plot(ax=ax, color=colors)
     plt.show()
 
-def imshow(**args):
+
+def drip_plot(**args):
     plt.imshow(**args)

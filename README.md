@@ -1,8 +1,23 @@
-# canhydro
-Houses code relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
+# canhydro <sub>(formerly dripDropFlow)</sub>
+This repository houses a bare bones script relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
+(https://www.researchgate.net/publication/375530854)
 
-<h2>Setup:</h2>
+## Contents:
+
+The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the above linked paper how it was run and reviewed. The remaning (majority) of this repository represents code written in the proess of improving and productionalizing that code (See Upcoming Improvements)
+
+## Upcoming improvements
+The code that you see zipped here is representiitive of the ongoing work in our ***productionalizing*** branch, where you will see in progress improvements such as:
+
+  + Functionality refactored into methods
+  + Linter(s) added for formatting and best practices adherence
+  + Fully fledged logging functionality
+  + toml configuration enabled set up
+  + A pytest based testing framework
+
+
+## Setup:
 - Pre-requisites
   1.  Python version 3.9 or higher
   2.  A Virtual environment
@@ -19,55 +34,23 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
   1. set-up - https://pre-commit.com/
   2. run on all files - pre-commit run --all-files
 
-- pre-commit
-  1. set-up - https://pre-commit.com/
-  2. run on all files - pre-commit run --all-files
+## Running
+  A command line interface (CLI) is planned for this project, to allow researchers to easily point to, read in and process their lidar scans. Today, however, we have prioritized work needed to create a cahnhydro package, that would allow our code to be utilized in any python project by use of the 'pip install canhydro' command.
 
+  For now, you can get a feel for how the program works in two ways
+  1. By running the test files, which have been conveniently populated with 'breakpoints' that pause execution and allow for the invesigation of variables
+      - This is achieved through running 'pytest tests/test_collection_integration.py'
+  2. By running the interactive jupyter notebook under '.\Cylinders\cli.ipynb'. This is indeed how most of the data for the paper was generated
 
-<h2>Contents:</h2>
-
-- canhydro Directory
-
-- Data
-
-<h2>Commands:</h2>
-
-
-<h2>Approach</h2>
-
-<h2>Design Choices</h2>
-
-
-<h2>Known Issues</h2>
+## Known Issues
  - The projection algorithm is an approximation
  - e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad
 
 
- <h2>Useful scripts</h2>
- Draw all projections
-  import geopandas as geo  # only import what we need
-  import matplotlib.pyplot as plt
-  happy_path_projection.project_cylinders('XY')
-  happy_path_projection.project_cylinders('XZ')
-  happy_path_projection.project_cylinders('YZ')
-  xz_poly = [cyl.projected_data['XZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-  xy_poly = [cyl.projected_data['XY']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-  yz_poly = [cyl.projected_data['YZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-  geoPolys_xy = geo.GeoSeries(xy_poly)
-  geoPolys_xz = geo.GeoSeries(xz_poly)
-  geoPolys_yz = geo.GeoSeries(yz_poly)
-  fig, ax = plt.subplots(3)
-  geoPolys_xy.plot(ax=ax[0,0])
-  geoPolys_xy.plot(ax=ax[0])
-  geoPolys_xz.plot(ax=ax[1])
-  geoPolys_yz.plot(ax=ax[2])
 
 
-<h2>'Planned' Improvements</h2>
-  - Check area of overlap against (union area - sum area)
-    - Should be less efficient/ more accurate
 
-<h2>Wishlist</h2>
+## Wishlist</h2>
   - Optimizing the alpha value for alphashapes
       - Can be done locally for areas with different point densities
   - Smoothing cylinders to eliminate false drip points
@@ -81,8 +64,9 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
   - Local (maybe also remote) caching
   - 3d plotting
 
-<h2>Tutorials </h2>
-  <h3>Displaying, Filtering and Highlighting</h3>
+## Tutorials
+  The below code can be run at the first breakpoint in the test_collection_integration.py file
+  ### Displaying, Filtering and Highlighting
     flexible_collection.draw(plane = 'XZ')
     flexible_collection.draw(plane = 'XZ', a_lambda = lambda: cyl_id>100)
     flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100)
@@ -91,3 +75,21 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
     flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75, highlight_lambda = lambda:branch_order==2)
     flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:branch_order==2)
     flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)
+
+  ### Draw all projections
+    import geopandas as geo  # only import what we need
+    import matplotlib.pyplot as plt
+    happy_path_projection.project_cylinders('XY')
+    happy_path_projection.project_cylinders('XZ')
+    happy_path_projection.project_cylinders('YZ')
+    xz_poly = [cyl.projected_data['XZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
+    xy_poly = [cyl.projected_data['XY']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
+    yz_poly = [cyl.projected_data['YZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
+    geoPolys_xy = geo.GeoSeries(xy_poly)
+    geoPolys_xz = geo.GeoSeries(xz_poly)
+    geoPolys_yz = geo.GeoSeries(yz_poly)
+    fig, ax = plt.subplots(3)
+    geoPolys_xy.plot(ax=ax[0,0])
+    geoPolys_xy.plot(ax=ax[0])
+    geoPolys_xz.plot(ax=ax[1])
+    geoPolys_yz.plot(ax=ax[2])
