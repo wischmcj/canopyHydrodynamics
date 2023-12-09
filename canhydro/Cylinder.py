@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from canhydro.DataClasses import Projection
-from canhydro.geometry import draw_cyls, get_projection
+from canhydro.geometry import draw_cyls, get_projection, numba_get_projection
 from canhydro.global_vars import qsm_cols
 
 # from descartes import PolygonPatch
@@ -25,14 +25,14 @@ NAME = "Cylinder"
 @dataclass
 class Cylinder:  # (defaultdict):
     cyl_id: int
-    x: np.ndarray  # len 2 array
-    y: np.ndarray  # len 2 array
-    z: np.ndarray  # len 2 array
-    radius: float
-    length: float
+    x: np.ndarray[np.float32]  # len 2 array
+    y: np.ndarray[np.float32]  # len 2 array
+    z: np.ndarray[np.float32]  # len 2 array
+    radius: np.float32
+    length: np.float32
     branch_order: int
     branch_id: int
-    volume: float
+    volume: np.float32
     parent_id: int
     reverse_branch_order: int
     segment_id: int
@@ -45,13 +45,13 @@ class Cylinder:  # (defaultdict):
 
     stem_path_id = int
 
-    dx: float = 0
-    dy: float = 0
-    dz: float = 0
+    dx: np.float32 = 0
+    dy: np.float32 = 0
+    dz: np.float32 = 0
 
-    surface_area: float = 0.0
-    sa_to_vol: float = 0.0
-    slope: float = 0.0
+    surface_area: np.float32 = 0.0
+    sa_to_vol: np.float32 = 0.0
+    slope: np.float32 = 0.0
 
     is_stem: bool = False
     is_divide: bool = False
@@ -95,6 +95,20 @@ class Cylinder:  # (defaultdict):
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] - self.z[0]
+        self.vectors = {
+            "XY": [
+                np.array([self.x[0], self.y[0], self.z[0]]),
+                np.array([self.x[0], self.y[0], self.z[0]]),
+            ],
+            "XZ": [
+                np.array([self.x[0], self.z[0], self.y[0]]),
+                np.array([self.x[0], self.z[0], self.y[0]]),
+            ],
+            "YZ": [
+                np.array([self.y[0], self.z[0], self.x[0]]),
+                np.array([self.y[0], self.z[0], self.x[0]]),
+            ],
+        }
         self.surface_area = self.calc_surface_area()
         self.sa_to_vol = 0 if self.volume == 0 else self.surface_area / self.volume
         run = np.sqrt(self.dx**2 + self.dy**2)
@@ -125,6 +139,30 @@ class Cylinder:  # (defaultdict):
             vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
 
         projection = get_projection(vector, magnitude, self.radius)
+        self.projected_data[plane] = projection
+        if plane == "XY":
+            self.xy_area = self.projected_data["XY"]["area"]
+        return projection["polygon"]
+
+    def numba_get_projection(self, plane="XY"):
+        noCirPoints = 360
+        tCir = np.linspace(
+            0, 2 * np.pi, noCirPoints
+        )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
+        a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
+        b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
+
+        if plane == "XY":
+            magnitude = [self.dx, self.dy, self.dz]
+            vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
+        elif plane == "XZ":
+            magnitude = [self.dx, self.dz, self.dy]
+            vector = [np.transpose(self.x), np.transpose(self.z), np.transpose(self.y)]
+        else:
+            magnitude = [self.dy, self.dz, self.dx]
+            vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
+
+        projection = numba_get_projection(vector, magnitude, self.radius)
         self.projected_data[plane] = projection
         if plane == "XY":
             self.xy_area = self.projected_data["XY"]["area"]

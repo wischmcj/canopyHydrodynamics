@@ -4,8 +4,8 @@ from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Union
-import numpy as np
 
+import numpy as np
 from shapely.geometry import Polygon
 
 
@@ -21,15 +21,16 @@ class Projection:
 @dataclass
 class Flow:
     num_cylinders: int()
-    projected_area: float()
-    surface_area: float()
-    angle_sum: float()
-    volume: float()
-    sa_to_vol: float()
+    projected_area: np.float64()
+    surface_area: np.float64()
+    angle_sum: np.float64()
+    volume: np.float64()
+    sa_to_vol: np.float64()
     drip_node_id: int()
     drip_node_loc: tuple()
 
-coord_list = Union[list[tuple[float]], np.ndarray]
+
+coord_list = Union[list[tuple[np.float64]], np.ndarray]
 
 
 # @dataclass

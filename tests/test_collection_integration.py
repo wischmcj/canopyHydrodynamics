@@ -129,6 +129,7 @@ DIR = DIR
 
 
 @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
+# @pytest.mark.parametrize("flexible_collection", ["4_LargeCollection.csv"], indirect=True)
 def test_drip_map(flexible_collection):
     flexible_collection.find_flow_components()
     flexible_collection.calculate_flows()

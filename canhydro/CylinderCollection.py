@@ -164,6 +164,50 @@ class CylinderCollection:
             self.projections[plane] = True
             self.pSV = polys
 
+    def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
+        """Projects cylinders onto the specified plane"""
+        if plane not in ("XY", "XZ", "YZ"):
+            log.info(f"{plane}: invalid value for plane")
+        elif not force_rerun and self.projections[plane]:
+            log.info(
+                "cached projections exist, pass 'force_rerun=True to calculate new projections "
+            )
+        else:
+            polys = []
+            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+            for idx, cyl in enumerate(self.cylinders):
+                poly = cyl.numba_get_projection(plane)
+                polys.append(poly)
+                # print a progress update once every 10 thousand or so cylinders
+                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
+            # Used by other functions to know what projections have been run
+            self.projections[plane] = True
+            self.pSV = polys
+
+    def vectorized_project_cylinders(
+        self, plane: str = "XY", force_rerun: bool = False
+    ):
+        """Projects cylinders onto the specified plane"""
+        if plane not in ("XY", "XZ", "YZ"):
+            log.info(f"{plane}: invalid value for plane")
+        elif not force_rerun and self.projections[plane]:
+            log.info(
+                "cached projections exist, pass 'force_rerun=True to calculate new projections "
+            )
+        else:
+            polys = []
+            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+            starts = [cyl.vectors[plane][0] for cul in self.cylinders]
+            ends = [cyl.vectors[plane][1] for cul in self.cylinders]
+            for idx, cyl in enumerate(self.cylinders):
+                poly = cyl.numba_get_projection(plane)
+                polys.append(poly)
+                # print a progress update once every 10 thousand or so cylinders
+                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
+            # Used by other functions to know what projections have been run
+            self.projections[plane] = True
+            self.pSV = polys
+
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
         return cyl_desc
@@ -173,6 +217,8 @@ class CylinderCollection:
         plane: str = "XY",
         highlight_lambda: function = lambda: True,
         filter_lambda: function = lambda: True,
+        include_drips: bool = False,
+        include_contour: bool = False,
         **args,
     ):
         """Draws cylinders meeting given characteristics onto the specified plane"""
@@ -186,6 +232,10 @@ class CylinderCollection:
         )
         to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
         log.info(f"{len(to_draw)} cylinders matched criteria")
+        if include_drips:
+            self.drip_map()
+        if include_contour:
+            self.drip_map()
         draw_cyls(collection=to_draw, colors=matches, **args)
 
     def get_dbh(self):
@@ -245,7 +295,7 @@ class CylinderCollection:
         self,
         component=None,
         plane: str = "XY",
-        curvature_alpha: float() = 2,
+        curvature_alpha: np.float64 = 2,
         stem: bool = False,
         draw: bool = False,
     ) -> None:
@@ -335,6 +385,7 @@ class CylinderCollection:
         dists = {node: len(path) - 1 for node, path in trunk_paths.items()}
         return dists
 
+    # @profile
     def find_flow_components(self, inFlowGradeLim=-1 / 6):
         """Finding Stemflow contributing area"""
         g = self.graph
@@ -401,7 +452,7 @@ class CylinderCollection:
                     "num_cylinders": num_stem_edges,
                     "projected_area": np.sum(
                         [
-                            float(cyl.projected_data[plane]["area"])
+                            np.float64(cyl.projected_data[plane]["area"])
                             for _, _, cyl in stem_edges
                         ]
                     ),
@@ -419,7 +470,9 @@ class CylinderCollection:
         # log.info(f"summed stem edges {flow_chars}")
 
         for idx, flow in enumerate(drip_flow_components):
-            log.info(f"identifying  drip edges in component {idx}")
+            intermitent_log(
+                idx, self.no_cylinders, "identifying  drip edges in component:"
+            )
             edges = [(u, v, attr["cylinder"]) for u, v, attr in flow.edges(data=True)]
             nodes = [n for n in flow]
             # drip points are technically nodes, which are located at the start and end of edges (representing cylinders )
@@ -446,7 +499,7 @@ class CylinderCollection:
                         "num_cylinders": num_cyls,
                         "projected_area": np.sum(
                             [
-                                float(cyl.projected_data[plane]["area"])
+                                np.float64(cyl.projected_data[plane]["area"])
                                 for _, _, cyl in edges
                             ]
                         ),
@@ -498,7 +551,7 @@ class CylinderCollection:
     def find_overlap_by_percentile(
         self,
         plane: str = "XY",
-        percentiles: list[float] = [25, 50, 75],
+        percentiles: list[int] = [25, 50, 75],
         metric: str = "z",
     ):
         percentiles.sort()
@@ -547,7 +600,7 @@ class CylinderCollection:
         canopy_cover_stem = self.stem_hull.area
         canopy_boundary_stem = self.stem_hull.boundary.length
 
-        log.info("Found hull/a;pha shape stats")
+        log.info("Found hull alpha shape stats")
 
         # calculate projected areas and (therefore) overlaps
         # Unary union gives a single contiguous polygon when fed many overlapping cylinders
@@ -664,16 +717,20 @@ class CylinderCollection:
         branches drain to different locatiosn (drip points or stem)
         """
 
-    def drip_map(
-        self, a_lambda: function = lambda: True, scale: int = 1, **plot_args
-    ) -> None:
+    def get_drip_points(
+        self,
+        # metric :str = 'projected_area',
+        percentile: int = 30,
+        **args,
+    ):
         """
-        Returns a plot showing the locations of the drip points, subject
-        to input params
-
-        a_lambda: funtion to filter drip points displayed (e.g. those with projected area>10m^2 )
-        scale: how large of a boundary to draw around drip points
+        Returns the locations of the drip points.
+        Drip points are identified as the subset of drip nodes
+        with a value for the provided metric in the percentile given
         """
+        if not self.flows:
+            log.warning("flows are not defined, run identify and calculate flows")
+            return
         # excluding trunk node
         drip_nodes = [
             (f.drip_node_id, f.projected_area, f.drip_node_loc)
@@ -689,25 +746,44 @@ class CylinderCollection:
             flow_by_area_dict[node] = area
 
         point_cutoff = np.percentile(
-            [area for _, area in flow_by_area_dict.items()], 30
+            [area for _, area in flow_by_area_dict.items()], percentile
         )
         drip_points = [
             node for node, area in flow_by_area_dict.items() if area > point_cutoff
         ]
 
         drip_point_locs = [
-            [node[2][0] * scale, node[2][1] * scale]
+            [node[2][0], node[2][1], node[2][2]]
             for node in drip_nodes
             if node[0] in drip_points
         ]
-        drip_point_locs_x = [pt[1] * scale for pt in drip_point_locs]
-        drip_point_locs_y = [pt[0] * scale for pt in drip_point_locs]
-        print(drip_point_locs)
-        print(drip_point_locs_x)
-        print(drip_point_locs_y)
-        # generating the plot to be mapped
-        # size_x = (self.extent["max"][0] - self.extent["min"][0])*scale
-        # size_y = (self.extent["max"][1] - self.extent["min"][1])*scale
+        return drip_point_locs
+
+    def drip_map(
+        self, a_lambda: function = lambda: True, scale: int = 1, **args
+    ) -> None:
+        """
+        Returns a plot showing the locations of the drip points, subject
+        to input params
+
+        a_lambda: funtion to filter drip points displayed (e.g. those with projected area>10m^2 )
+        scale: how large of a boundary to draw around drip points
+        """
+        drip_point_locs = self.get_drip_points()
+        drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
+        drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
+        drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
+
+        math.floor(np.min(drip_point_locs_x))
+
+        mins = self.extent["min"]
+        maxs = self.extent["max"]
+        extents = [mins[0], maxs[0], mins[1], maxs[1]]
+        # min_xy = np.min(mins)
+        # max_xy = np.max(maxs)
+        # x_mesh, y_mesh = np.meshgrid(
+        #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
+        # )
 
         min_xy = np.min(
             [
@@ -718,77 +794,45 @@ class CylinderCollection:
         max_xy = np.max(
             [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
         )
-
-        # x =     np.linspace(min_xy,max_xy,(max_xy-min_xy)*10)
-        # y =     np.linspace(min_xy,max_xy,(max_xy-min_xy)*10)
         x_mesh, y_mesh = np.meshgrid(
             np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
         )
-        # drip_lo
-        # x_mesh, y_mesh = np.meshgrid(x, y)
 
         def dist_to_drip(a, b):
-            distances = distance.cdist([[a, b]], drip_point_locs)
+            distances = distance.cdist([[a, b]], drip_point_locs_xy)
             min_dist = np.min(distances)
-            return min_dist
-
-        # @np.vectorize
-        # def f(x,y): np.min(distance.cdist([[x,y]],drip_point_locs))
+            return math.log(1 / min_dist)
 
         distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
 
-        # distance matrix
         for a in range(x_mesh.shape[0]):
             for b in range(x_mesh.shape[0]):
-                distance_matrix[b][a] = dist_to_drip(x_mesh[a][b], y_mesh[a][b])
-        # Z=f(x_mesh,y_mesh)
+                distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
+        # breakpoint()
 
         fig, ax = plt.subplots()
-        # plt.imshow(distance_matrix)
-        plt.scatter(drip_point_locs_x, drip_point_locs_y)
-        plt.contour(x_mesh, y_mesh, distance_matrix)
+
+        ax.contourf(
+            y_mesh,
+            x_mesh,
+            distance_matrix,
+            levels=15,
+            max=0.5,
+            cmap=plt.cm.Blues,
+            extend="neither",
+            extent=extents,
+        )
+
+        ax.scatter(drip_point_locs_x, drip_point_locs_y)
+        from geopandas import GeoSeries
+
+        cyls = [
+            cyl.projected_data["XY"]["polygon"]
+            for cyl in self.cylinders
+            if cyl.cyl_id > 90
+        ]
+        geoPolys = GeoSeries(cyls)
+        geoPolys.plot(ax=ax)
         plt.show()
         breakpoint()
-        # for x in range(x):
-        #     for y in range(y):
-        #         import numpy as np
-        #         from matplotlib import pyplot as plt
-
-        #         plt.rcParams["figure.figsize"] = [7.50, 3.50]
-        #         plt.rcParams["figure.autolayout"] = True]
-
-        #         def f(a,b,h,k):
-        #             return np.si+ x + x * np.sin(x)
-
-        #         x = np.linspace(-10, 10, 100)
-
-        #         plt.plot(x, f(x), color='red')
-
-        #         plt.show()
-        #         size_multiplier = scale/2
-
-        #         y_loc =
-
-        #         drip_loc = np.zeros_like(np.zeros((int(size_x),int(size_y))))
-        #         while curr_y_scale <= abs(scale) and y_loc+curr_y_scale < size_y:
-        #             curr_x_scale = scale
-        #             while curr_x_scale <= abs(scale) and x_loc+curr_x_scale < size_x:
-        #                 if abs(curr_y_scale) + abs(curr_x_scale) <= 15 and abs(curr_x_scale)<=9 and abs(curr_y_scale)<=9 and drip_loc[y_loc+curr_y_scale,x_loc+curr_x_scale]<=100:
-        #                     mult = (50 -(math.sqrt((curr_y_scale*curr_y_scale) + (curr_x_scale*curr_x_scale))))
-        #                     if max_scale < mult:
-        #                         max_scale = mult
-        #                     drip_loc[y_loc+curr_y_scale,x_loc+curr_x_scale] += node_flow_sa*(100 -(math.sqrt((curr_y_scale*curr_y_scale) + (curr_x_scale*curr_x_scale))))
-        #                 curr_x_scale =curr_x_scale + 1
-        #             curr_y_scale =curr_y_scale + 1
-
-        self.drip_point_loc = drip_point_locs
-        print("Max scaling was ")
-        print(max_scale)
-        plt.imshow(
-            drip_loc,
-            interpolation="mitchell",
-            cmap="Blues",
-            aspect="auto",
-            extent=[min_x, max_x, min_y, max_y],
-        )
         plt.show()

@@ -7,8 +7,23 @@ import stat
 from typing import Union
 
 import numpy as np
+from numba import njit, prange
 
 from canhydro.global_vars import input_dir, log, output_dir, time_stamp
+
+
+@njit()
+def stack(list_of_array, col: bool == True):
+    """
+    numba doesnt play well with np stacks, so I ha to do it myself
+    """
+    num_in = len(list_of_array)
+    left_shape = list_of_array[0].shape[0]
+    shape = (num_in, left_shape)
+    stacked_array = np.empty(shape)
+    for j in prange(len(list_of_array)):
+        stacked_array[j] = list_of_array[j]
+    return stacked_array if not col else stacked_array.T
 
 
 def on_rm_error(func, path, exc_info):
