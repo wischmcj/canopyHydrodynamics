@@ -2,19 +2,20 @@ from __future__ import annotations
 
 from shapely import Polygon
 
-star_poly = Polygon(
-    [
-        (0.75, 0.5),
-        (1, 0),
-        (0.5, 0.25),
-        (0, 0),
-        (0.25, 0.5),
-        (0, 1),
-        (0.5, 0.75),
-        (1, 1),
-        (0.75, 0.5),
-    ]
-)
+example_coords = [(1, 2), (3, 5), (5, 7), (7, 9), (9, 11)]
+
+start_poly_coords = [
+    (0.75, 0.5),
+    (1, 0),
+    (0.5, 0.25),
+    (0, 0),
+    (0.25, 0.5),
+    (0, 1),
+    (0.5, 0.75),
+    (1, 1),
+    (0.75, 0.5),
+]
+star_poly = Polygon(start_poly_coords)
 
 small_tree_wateshed_poly = Polygon(
     [
@@ -60,6 +61,48 @@ small_tree_wateshed_poly = Polygon(
     ]
 )
 
+
+funky_squares_overlap_areas = {
+    "bottom": {
+        "sum_area": 1.0625,
+        "effective_area": 1.0,
+        "internal_overlap": 0.0625,
+        "overlap_with_previous": 1.0,
+    },
+    "mid": {
+        "sum_area": 2.0625,
+        "effective_area": 2.0,
+        "internal_overlap": 0.0625,
+        "overlap_with_previous": 2.0,
+    },
+    "top": {
+        "sum_area": 3.0625,
+        "effective_area": 2.75,
+        "internal_overlap": 0.3125,
+        "overlap_with_previous": 2.75,
+    },
+}
+
+small_tree_overlap = {
+    25: {
+        "sum_area": 0.03185684182767693,
+        "effective_area": 0.029894983741628172,
+        "internal_overlap": 0.0019618580860487587,
+        "overlap_with_previous": 0.029894983741628172,
+    },
+    50: {
+        "sum_area": 0.029130503264231784,
+        "effective_area": 0.027960517250591167,
+        "internal_overlap": 0.0011699860136406177,
+        "overlap_with_previous": 0.027960517250591167,
+    },
+    75: {
+        "sum_area": 0.029862028471880096,
+        "effective_area": 0.02854408983609465,
+        "internal_overlap": 0.0013179386357854463,
+        "overlap_with_previous": 0.028544089836094647,
+    },
+}
 
 squares_projection_overlap = {
     "bottom": {

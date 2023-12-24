@@ -98,15 +98,15 @@ class Cylinder:  # (defaultdict):
         self.vectors = {
             "XY": [
                 np.array([self.x[0], self.y[0], self.z[0]]),
-                np.array([self.x[0], self.y[0], self.z[0]]),
+                np.array([self.x[1], self.y[1], self.z[1]]),
             ],
             "XZ": [
                 np.array([self.x[0], self.z[0], self.y[0]]),
-                np.array([self.x[0], self.z[0], self.y[0]]),
+                np.array([self.x[1], self.z[1], self.y[1]]),
             ],
             "YZ": [
                 np.array([self.y[0], self.z[0], self.x[0]]),
-                np.array([self.y[0], self.z[0], self.x[0]]),
+                np.array([self.y[1], self.z[1], self.x[1]]),
             ],
         }
         self.surface_area = self.calc_surface_area()

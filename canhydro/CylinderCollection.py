@@ -17,8 +17,8 @@ from shapely.ops import unary_union
 
 from canhydro.Cylinder import Cylinder
 from canhydro.DataClasses import Flow
-from canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
-                               get_projected_overlap)
+from canhydro.geometry import concave_hull  # ,vectorized_get_projection)
+from canhydro.geometry import draw_cyls, furthest_point, get_projected_overlap
 from canhydro.global_vars import log, qsm_cols
 from canhydro.utils import intermitent_log, lam_filter, save_file
 
@@ -190,21 +190,18 @@ class CylinderCollection:
         """Projects cylinders onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
-        elif not force_rerun and self.projections[plane]:
-            log.info(
-                "cached projections exist, pass 'force_rerun=True to calculate new projections "
-            )
+        # elif not force_rerun and self.projections[plane]:
+        #     log.info(
+        #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
+        #     )
         else:
             polys = []
             log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            starts = [cyl.vectors[plane][0] for cul in self.cylinders]
-            ends = [cyl.vectors[plane][1] for cul in self.cylinders]
-            for idx, cyl in enumerate(self.cylinders):
-                poly = cyl.numba_get_projection(plane)
-                polys.append(poly)
-                # print a progress update once every 10 thousand or so cylinders
-                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
-            # Used by other functions to know what projections have been run
+            starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
+            ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
+            radii = np.array([cyl.radius for cyl in self.cylinders])
+            vectorized_get_projection(starts, ends, radii)
+
             self.projections[plane] = True
             self.pSV = polys
 
@@ -315,7 +312,7 @@ class CylinderCollection:
         ]
         boundary_points = [Point(cyl.x[1], cyl.y[1]) for cyl in endCyls]
 
-        hull, _ = concave_hull(boundary_points, curvature_alpha)
+        hull, _, _ = concave_hull(boundary_points, curvature_alpha)
         if draw:
             draw_cyls([hull])
         if stem:

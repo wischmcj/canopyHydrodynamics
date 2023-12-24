@@ -16,10 +16,9 @@ from shapely.ops import polygonize, unary_union
 
 sys.stdout = LogFile()
 
-from utils import stack
-
 from canhydro.DataClasses import coord_list
 from canhydro.global_vars import log
+from canhydro.utils import stack
 
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
@@ -36,7 +35,7 @@ def circumcenter_lapack(points: coord_list) -> np.ndarray:
         ]
     )
     b = np.hstack((np.sum(points * points, axis=1), np.ones(1)))
-    return np.linalg.solve(A, b)[:-1]
+    return np.array(np.linalg.solve(A, b)[:-1])
 
 
 def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
@@ -63,9 +62,8 @@ def circumradius(points: coord_list, center: np.ndarray == []) -> np.float32:
     """
     Calculte the radius of the circle in which the given polygon may be inscribed
     """
-    center = center if center != [] else circumcenter_lapack(points)
     points = np.asarray(points)
-    return np.linalg.norm(points[0, :] - np.dot(circumcenter_lapack(points), points))
+    return np.linalg.norm(points[0, :] - np.dot(center, points))
 
 
 def simplices(points: coord_list) -> coord_list:
@@ -78,7 +76,7 @@ def simplices(points: coord_list) -> coord_list:
     for simplex in tri.simplices:
         simplex_points = coords[simplex]
         try:
-            center = circumcenter_lapack(points)
+            center = circumcenter_lapack(simplex_points)
             yield simplex, circumradius(simplex_points, center), center
         except np.linalg.LinAlgError as err:
             log.warning(
@@ -131,9 +129,7 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
         edge_points.append(coords[[i, j]])
 
     def add_center(centers, center):
-        if center in centers:
-            return
-        centers.add(center)
+        centers.add((center[0], center[1], center[2]))
 
     coords = np.array(
         sorted(point.coords[0] for point in boundary_points if len(point.coords) > 0)
@@ -146,6 +142,7 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
     # loop over triangles:
     # ia, ib, ic = indices of corner points of the triangle
     tri = simplices(coords)
+
     for (ia, ib, ic), _, center in tri:
         if len(coords[0]) == 2:
             # simpler logic suffices in 2d
@@ -184,23 +181,21 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
     return unary_union(triangles), edge_points, centers
 
 
-def voronoi(points, centers: np.array[np.ndarray] = None):
-    """
-    Construct a voronoi diagram based on the provided centers
-    """
-    if not centers:
-        coords = np.array(
-            sorted(point.coords[0] for point in points if len(point.coords) > 0)
-        )
-        tri = simplices(coords)
+# def voronoi(points, centers: np.array[np.ndarray] = None):
+#     """
+#     Construct a voronoi diagram based on the provided centers
+#     """
+#     if not centers:
+#         coords = np.array(
+#             sorted(point.coords[0] for point in points if len(point.coords) > 0)
+#         )
+#         tri = simplices(coords)
 
-    for center in centers:
-        closest_points(center, points)
-    return
+#     for center in centers:
+#         closest_points(center, points)
+#     return
 
 
-# @profile
-# @jit(nopython=True)
 def closest_points(point: tuple, points: np.array, num_returned: int = 3):
     """
     Finds the closest point in the list 'points' from the input 'point'
@@ -209,10 +204,9 @@ def closest_points(point: tuple, points: np.array, num_returned: int = 3):
     points_to_return = []
     distances_to_return = []
     distances = distance.cdist([point], points)
-    for i in np.arrange(num_returned):
+    for i in np.arange(num_returned):
         closest_index = distances.argmin()
         points_to_return.append(points[closest_index])
-        distances_to_return.append(distances[closest_index])
         distances = np.delete(distances, closest_index)
 
     return points_to_return[0] if num_returned == 1 else points_to_return
@@ -231,8 +225,6 @@ def furthest_point(
     return points[furthest_index], distances[furthest_index]
 
 
-# @profile
-# @jit(nopython=True)
 def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
     """Takes in a list of lists of polygons, each list representing a diff percentile grouping of polygons
     'climbs the tree' itteratiely determininng the additional overlap/shade added by each percentile grouping
@@ -279,16 +271,69 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
 
 # return aV, bV, a_ortho, b_ortho
 
+# https://stackoverflow.com/questions/39822480/plotting-a-solid-cylinder-centered-on-a-plane-in-matplotlib
+# def vectorized_get_projection(starts: np.array(), ends: np.array(), radii:np.array()):
+#     # 50 or so line segments arranged in a polygon
+#     # gets us 99% accuracy in approximating the area of a circle
+#     # (.5*n*r*r)sin(2*pi/n) = area of n-gon, 2*pi*r*r = area of circle
+#     num_approximating_segments = 50
+#     magnitude = ends - starts
+#     # p0 = np.array([1, 3, 2]) starts
+#     # p1 = np.array([8, 5, 9]) ends
+#     # R = 5
+#     #vector in direction of axis
+#     # v = p1 - p0
+#     vectors = ends-starts
+#     #find magnitude of vector
+#     mags = np.apply_along_axis(np.linalg.norm, 1, vectors)
+#     #unit vectors for cyl
+#     unit_vectors = vectors/mags[:,None]
+#     anti_unit__vectors = -unit_vectors
+#     #orthogonal vectors
+#     rando = np.array([1, 0, 0])
+#     if (vectors == rando).all():
+#         rando = np.array([0, 1, 0])
+#     urando = (rando/np.linalg.norm(rando))
+#     first_ortho_vectors = np.cross(unit_vectors, urando)
+#     second_ortho_vectors = np.cross(unit_vectors, first_ortho_vectors)
 
-def vectorized_get_projection(starts: np.array(), ends: np.array()):
-    # 50 or so line segments arranged in a polygon
-    # gets us 99% accuracy in approximating the area of a circle
-    # (.5*n*r*r)sin(2*pi/n) = area of n-gon, 2*pi*r*r = area of circle
-    num_approximating_segments = 50
-    magnitude = ends - starts
+#     num_approx_segments = 50
+#     t = np.linspace(0, mags, 50)
+#     theta = np.linspace(0, 2 * np.pi, num_approx_segments)
+
+#     rect, cir = np.meshgrid(t, theta)
+#     #generate coordinates for surface
+
+#     vx = [unit_vectors]
+#     vy =
+#     vz =
+
+#     X = [end[0] + start[0] * rect + radii * np.sin(cir) * n1[0] + radii * np.cos(cir) * n2[0] ]
+#     breakpoint()
+
+#     X, Y, Z = [ends[i] + starts[i] * rect +
+#                 radii[:,None] * np.sin(cir) * first_ortho_vectors[i] +
+#                 radii[:,None] * np.cos(cir) * second_ortho_vectors[i] for i in [0, 1, 2]]
+
+#     if (v == not_v).all():
+#         not_v = np.array([0, 1, 0])
+#     #make vector perpendicular to v
+#     n1 = np.cross(v, not_v)
+#     #normalize n1
+#     n1 /= norm(n1)
+#     #make unit vector perpendicular to v and n1
+#     n2 = np.cross(v, n1)
+#     #surface ranges over t from 0 to length of axis and 0 to 2*pi
+#     t = np.linspace(0, mag, 100)
+#     theta = np.linspace(0, 2 * np.pi, 100)
+#     #use meshgrid to make 2d arrays
+#     t, theta = np.meshgrid(t, theta)
+
+#     X, Y, Z = [p0[i] + v[i] * t + R * np.sin(theta) * n1[i] + R * np.cos(theta) * n2[i] for i in [0, 1, 2]]
 
 
-def vectorized_def_cyl():
+# https://stackoverflow.com/questions/39822480/plotting-a-solid-cylinder-centered-on-a-plane-in-matplotlib
+def vectorized_def_cyl(vector, magnitude):
     dim_a = vector[0]
     dim_b = vector[1]
     dim_c = vector[2]
