@@ -5,7 +5,15 @@ import stat
 
 
 def within_range(expected, actual, err):
-    return actual >= expected - expected * err and actual <= expected + expected * err
+    if actual > 0:
+        ret_bool = (
+            actual >= expected - expected * err and actual <= expected + expected * err
+        )
+    if actual <= 0:
+        ret_bool = (
+            actual <= expected - expected * err and actual >= expected + expected * err
+        )
+    return ret_bool
 
 
 def on_rm_error(func, path, exc_info):

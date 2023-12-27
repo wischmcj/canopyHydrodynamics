@@ -22,6 +22,14 @@ from canhydro.global_vars import qsm_cols
 NAME = "Cylinder"
 
 
+def create_cyl(arr: np.array()):
+    cols = qsm_cols
+    attrs = {k: arr[v] for (k, v) in cols.items()}
+    cyl = Cylinder(**attrs)
+    cyl.create_from_list(arr, cols)
+    return cyl
+
+
 @dataclass
 class Cylinder:  # (defaultdict):
     cyl_id: int
@@ -60,30 +68,14 @@ class Cylinder:  # (defaultdict):
     # class_attrs = self.__get_class_attributes(type(self))
     # self.__init_instance(class_attrs, kwargs)
 
+    def __eq__(self, other):
+        return type(self) == type(other) and self.__repr__() == other.__repr__()
+
     def calc_surface_area(self):
         radius = self.radius
         length = self.length
         sa = 2 * np.pi * radius * (radius + length) - 2 * np.pi * radius * radius
         return sa
-
-    def weight_dict(self, plane: str = "XZ"):
-        attr_dict = {
-            "cyl_id": self.cyl_id,
-            "parent_id": self.parent_id,
-            "x": self.x,
-            "y": self.y,
-            "z": self.z,
-            "radius": self.radius,
-            "length": self.length,
-            "xy_area": self.xy_area,
-            "polygon": self.projected_data[plane]["polygon"],
-            "angle": self.angle,
-            "surface_area": self.surface_area,
-            "volume": self.volume,
-            "sa_to_vol": self.sa_to_vol,
-            "branch_order": self.branch_order,
-        }
-        return attr_dict
 
     def create_from_list(self, attrs: list, columns=qsm_cols):
         """creates a cylinder corrosponding to that defined by a given row of the qsm (attrs)"""

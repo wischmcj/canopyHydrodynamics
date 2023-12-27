@@ -15,6 +15,7 @@ from __future__ import annotations
 import pytest
 from _pytest.nodes import Item
 
+from canhydro.Cylinder import create_cyl
 from canhydro.Forester import Forester
 from canhydro.global_vars import test_input_dir
 
@@ -36,13 +37,30 @@ def basic_forest():
     return forest
 
 
-# @lru_cache(maxsize=256)
+@pytest.fixture
+def test_cyl(request):
+    """
+    Tests projection of cylinders parallel with:
+     the XY plane, Z axis the line x=y (45 deg)
+    """
+    created = create_cyl(request.param)
+    return created
+
+
+@pytest.fixture
+def basic_collection(basic_forest, request):
+    basic_forest.qsm_from_file_names(file_name=request.param)
+    flexible_collection = basic_forest.cylinder_collections[0]
+    return flexible_collection
+
+
 @pytest.fixture
 def flexible_collection(basic_forest, request):
     basic_forest.qsm_from_file_names(file_name=request.param)
     flexible_collection = basic_forest.cylinder_collections[0]
     flexible_collection.project_cylinders("XZ")
     flexible_collection.project_cylinders("XY")
+    flexible_collection.project_cylinders("YZ")
     flexible_collection.initialize_graph()
     return flexible_collection
 

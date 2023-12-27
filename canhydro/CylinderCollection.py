@@ -15,11 +15,11 @@ from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
-from canhydro.Cylinder import Cylinder
+from canhydro.Cylinder import create_cyl
 from canhydro.DataClasses import Flow
 from canhydro.geometry import concave_hull  # ,vectorized_get_projection)
 from canhydro.geometry import draw_cyls, furthest_point, get_projected_overlap
-from canhydro.global_vars import log, qsm_cols
+from canhydro.global_vars import log
 from canhydro.utils import intermitent_log, lam_filter, save_file
 
 sys.stdout = LogFile()
@@ -98,13 +98,6 @@ class CylinderCollection:
         that might be of interest"""
         return True
 
-    def create_cyl(self, arr: list):
-        cols = qsm_cols
-        attrs = {k: arr[v] for (k, v) in cols.items()}
-        cyl = Cylinder(**attrs)
-        cyl.create_from_list(arr, cols)
-        return cyl
-
     def from_csv(self, file, aggregate_cyls=True):
         """Initializes a new Cyl Collection based on the data in a QSM
         with the configured column locations"""
@@ -113,7 +106,7 @@ class CylinderCollection:
         log.info(f"Processing {str(file)}")
         # self.arr = pd.read_csv(file, header=0)
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
-        cylinders = [self.create_cyl(row) for row in self.arr]
+        cylinders = [create_cyl(row) for row in self.arr]
         self.cylinders = cylinders
 
         if aggregate_cyls:
@@ -208,6 +201,18 @@ class CylinderCollection:
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
         return cyl_desc
+
+    def __eq__(self, other):
+        if len(self.cylinders) == 0 or len(other.cylinders) == 0:
+            raise AttributeError(
+                "One or both Cylinder Collections contain no Cyliders (Did you forget to initialize?)"
+            )
+        if type(self) == type(other):
+            raise TypeError(
+                "CylinderCollections may only be compared to other cylinder collections"
+            )
+        # order matters here
+        return np.all([cyl == other[idx] for idx, cyl in enumerate(self.cylinders)])
 
     def draw(
         self,
@@ -805,7 +810,6 @@ class CylinderCollection:
         for a in range(x_mesh.shape[0]):
             for b in range(x_mesh.shape[0]):
                 distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
-        # breakpoint()
 
         fig, ax = plt.subplots()
 
@@ -823,13 +827,14 @@ class CylinderCollection:
         ax.scatter(drip_point_locs_x, drip_point_locs_y)
         from geopandas import GeoSeries
 
-        cyls = [
-            cyl.projected_data["XY"]["polygon"]
-            for cyl in self.cylinders
-            if cyl.cyl_id > 90
-        ]
-        geoPolys = GeoSeries(cyls)
-        geoPolys.plot(ax=ax)
-        plt.show()
+        filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
+        polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
         breakpoint()
+        if len(polys) > 0:
+            geoPolys = GeoSeries(polys)
+            geoPolys.plot(ax=ax)
+        else:
+            log.warning(
+                "Drip Map: No cylinders returned for lambda function: {a_lambda}"
+            )
         plt.show()
