@@ -1,6 +1,6 @@
-
 [project]
-name =  "can_hydro-toml"
+name =  "can_hydro"
+version = "0.0.1"
 authors = [
     {name = "Collin Wischmeyer", email = "cjwischmeyer@gmail.com"},
     {name = "Travis Swanson", email = "travis.swanson@gmail.com"},
@@ -8,7 +8,6 @@ authors = [
 description="Utils for modeling canopy hydrodynamics"
 readme = "README.md"
 requires-python = ">=3.9.1"
-dynamic = ["version"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
@@ -17,7 +16,6 @@ classifiers = [
 [project.optional-dependencies]
 test = [
     "pre-commit==3.3.1",
-    ""
     "pytest-cov==4.0.0",
     "pytest-runner",
     "pytest==7.3.1",
@@ -28,10 +26,6 @@ test = [
 [project.urls]
 Documentation = "https://github.com/wischmcj/canopyHydrodynamics/blob/main/README.md"
 Source = "https://github.com/wischmcj/canopyHydrodynamics/"
-
-
-[directories]
-root = "C:/Users/wisch/Documents/GitProjects/CanopyHydrodynamics/"
 
 [tool.flit.module]
 name = "can_hydro"
