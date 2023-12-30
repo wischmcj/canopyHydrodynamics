@@ -21,6 +21,7 @@ from canhydro.geometry import concave_hull  # ,vectorized_get_projection)
 from canhydro.geometry import draw_cyls, furthest_point, get_projected_overlap
 from canhydro.global_vars import log
 from canhydro.utils import intermitent_log, lam_filter, save_file
+from canhydro.global_vars import config_vars
 
 sys.stdout = LogFile()
 
@@ -85,6 +86,7 @@ class CylinderCollection:
         self.drip_loc = None
         self.drip_point_loc = None
         self.stem_flow_component = None
+        self.drip_graph = None
         self.drip_flow_components = None
         # Calculations using graph results
         self.flow_chars = {}
@@ -387,6 +389,13 @@ class CylinderCollection:
         dists = {node: len(path) - 1 for node, path in trunk_paths.items()}
         return dists
 
+    def traverse_until(self, start_node, traversed):
+        """
+        Intended to take a starting point and recursively
+        travel adjacent edges until no new edge is found or until
+        a node in the stop set is reached.
+        """
+
     # @profile
     def find_flow_components(self, inFlowGradeLim=-1 / 6):
         """Finding Stemflow contributing area"""
@@ -397,31 +406,46 @@ class CylinderCollection:
             for u, v, attr in g.edges(data=True)
             if attr["cylinder"].angle < inFlowGradeLim
         ]
-        inFlowGraph = copy.deepcopy(g)  # This could probably just be a subgraph...
-        inFlowGraph.remove_edges_from(drip_edges)
+        in_flow_graph = copy.deepcopy(g)  # This could probably just be a subgraph...
+        in_flow_graph.remove_edges_from(drip_edges)
         log.info(f"{self.file_name} found to have {len(drip_edges)} drip edges")
 
         # separating the stem flow from the drip flows and the drip flows from each other
         G_drip = copy.deepcopy(g)
         root_node = 0
         stem_flow_component = g.subgraph(
-            nx.node_connected_component(inFlowGraph, root_node)
+            nx.node_connected_component(in_flow_graph, root_node)
         ).copy()  # returns the connected component containing the root
-        G_drip.remove_edges_from(stem_flow_component.edges())
-        drip_flow_components = nx.connected_components(G_drip)
+        # G_drip.remove_edges_from(stem_flow_component.edges())
+        # drip_flow_components = nx.connected_components(G_drip)
 
+        G_drip.remove_edges_from(in_flow_graph.edges())
+        drip_flow_components = nx.connected_components(G_drip)
+        drip_edge_graphs = [g.subgraph(c).copy() for c in drip_flow_components]
+        tributaries = []
+        confluences = [max(g.nodes()) for g in out_flow_graphs]
+
+        breakpoint()
         component_graphs = [
-            g.subgraph(c).copy() for c in drip_flow_components if len(c) > 1
+            g.subgraph(c).copy()
+            for c in drip_flow_components
+            if len(c) > config_vars["min_len_drip_flow"]
         ]
+
         log.info(
             f"{self.file_name} found to have {len(component_graphs)} drip components"
         )
-
+        stem_edge_ids = [
+            max([u, v])
+            for (u, v) in stem_flow_component.edges()
+            if G_drip.degree(max([u, v])) == 0
+        ]
         for cyl in self.cylinders:
-            if cyl.cyl_id in stem_flow_component.nodes():
+            if cyl.cyl_id in stem_edge_ids:
                 cyl.is_stem = True
         self.stem_flow_component = stem_flow_component
         self.drip_flow_components = component_graphs
+        self.drip_graph = G_drip
 
     # @profile
     def calculate_flows(self, plane: str = "XY"):
@@ -429,8 +453,8 @@ class CylinderCollection:
         stem_flow_component = self.stem_flow_component
         drip_flow_components = self.drip_flow_components
         g = self.graph
-        edge_attributes = {}
         flow_chars = []
+        edge_attributes = {}
         G_return = copy.deepcopy(g)
 
         stem_edges = [
@@ -829,7 +853,7 @@ class CylinderCollection:
 
         filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
         polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
-        breakpoint()
+        # breakpoint()
         if len(polys) > 0:
             geoPolys = GeoSeries(polys)
             geoPolys.plot(ax=ax)

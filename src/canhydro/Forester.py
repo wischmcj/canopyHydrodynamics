@@ -42,10 +42,17 @@ class Forester:
     def qsm_from_file_names(self, dir=input_dir, file_name: str = None):
         if self.file_names == "":
             self.get_file_names(dir)
+        if file_name == None:
+            log.error(
+                "A file name must be provided. To scan all files in location, specify 'All'"
+            )
+            return
         collections = []
         for file_obj in self.file_names:
-            if file_name == None or file_obj.name == file_name:
+            if file_name == "All" or file_obj.name == file_name:
                 c = CylinderCollection()
                 c.from_csv(file_obj, dir)
                 collections.append(c)
+        if len(collections) == 0:
+            log.error(f"File {file_name} not found in input directory {dir}")
         self.cylinder_collections = collections

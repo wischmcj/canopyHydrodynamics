@@ -36,7 +36,7 @@ def on_rm_error(func, path, exc_info):
 def create_dir_and_file(filename) -> None:
     print(type(filename))
     os.makedirs(filename, exist_ok=True)
-    f = open(r"test\demofile2.csv", "w")
+    f = open(filename)
     f.write("Now the file has more content!")
     f.close()
 
