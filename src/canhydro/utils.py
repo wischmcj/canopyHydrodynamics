@@ -15,7 +15,7 @@ from canhydro.global_vars import input_dir, log, output_dir, time_stamp
 @njit()
 def stack(list_of_array, col: bool == True):
     """
-    numba doesnt play well with np stacks, so I ha to do it myself
+    numba doesn't play well with np stacks, so I had to do it myself
     """
     num_in = len(list_of_array)
     left_shape = list_of_array[0].shape[0]

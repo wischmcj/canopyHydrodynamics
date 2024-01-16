@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from test.expected_results_shapes import (funky_squares_overlap_areas,
+                                          squares_projection_overlap)
+from test.utils import within_range
+
 import pytest
 from shapely.geometry import Polygon
 
-import canhydro.geometry as geometry
-from tests.expected_results_shapes import (funky_squares_overlap_areas,
-                                           squares_projection_overlap)
-from tests.utils import within_range
+import src.canhydro.geometry as geometry
 
 
 def test_2D_overlap():

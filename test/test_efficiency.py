@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from line_profiler import profile
 
-from canhydro.global_vars import test_input_dir
+from src.canhydro.global_vars import test_input_dir
 
 test_input_dir = test_input_dir
 

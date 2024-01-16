@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from test.expected_results import ez_projection_vectors, ez_projection_xy_angle
+from test.utils import within_range
+
 import pytest
 from numpy import all, array
 
-from canhydro.Cylinder import Cylinder
-from tests.expected_results import (ez_projection_vectors,
-                                    ez_projection_xy_angle)
-from tests.utils import within_range
+from src.canhydro.Cylinder import Cylinder
 
 # Test Config
 accepted_err = 0.02

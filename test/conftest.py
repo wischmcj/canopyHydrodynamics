@@ -15,9 +15,9 @@ from __future__ import annotations
 import pytest
 from _pytest.nodes import Item
 
-from canhydro.Cylinder import create_cyl
-from canhydro.Forester import Forester
-from canhydro.global_vars import test_input_dir
+from src.canhydro.Cylinder import create_cyl
+from src.canhydro.Forester import Forester
+from src.canhydro.global_vars import test_input_dir
 
 
 def pytest_collection_modifyitems(items: list[Item]):

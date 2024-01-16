@@ -3,6 +3,18 @@ ci:
   autofix_commit_msg: "style: pre-commit fixes"
 
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.1.4
+    hooks:
+      # Run the Ruff linter.
+      - id: ruff
+        types_or: [ python, pyi, jupyter ]
+        args: ["--fix"]
+      # Run the Ruff formatter.
+      - id: ruff-format
+        types_or: [ python, pyi, jupyter ]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
     hooks:
@@ -16,16 +28,6 @@ repos:
       - id: mixed-line-ending
       - id: requirements-txt-fixer
       - id: trailing-whitespace
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
-    rev: v0.1.4
-    hooks:
-      # Run the Ruff linter.
-      - id: ruff
-        args: ["--fix"]
-      # Run the Ruff formatter.
-      - id: ruff-format
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0

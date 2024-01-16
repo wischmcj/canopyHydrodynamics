@@ -10,22 +10,19 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 
-from canhydro.global_vars import DIR
-from tests.expected_results import (ez_projection_cyls, ez_projection_xy,
-                                    ez_projection_xz, ez_projection_yz,
-                                    happy_path_cyls, happy_path_dbh,
-                                    happy_path_edges, happy_path_flows,
-                                    happy_path_is_stem, small_tree_dbh,
-                                    small_tree_edges, small_tree_flows,
-                                    small_tree_is_stem, ten_cyls_bo_and_len,
-                                    ten_cyls_bo_one, ten_cyls_cyls,
-                                    ten_cyls_dbh, ten_cyls_edges,
-                                    ten_cyls_flows, ten_cyls_id_one,
-                                    ten_cyls_is_stem)
-from tests.expected_results_shapes import (small_tree_overlap,
-                                           small_tree_wateshed_poly)
+from test.expected_results import (drip_on_trunk_flows, drip_on_trunk_stem_map,
+                                   ez_projection_cyls, ez_projection_xy,
+                                   ez_projection_xz, ez_projection_yz,
+                                   happy_path_cyls, happy_path_dbh,
+                                   happy_path_edges, small_tree_dbh,
+                                   small_tree_edges, ten_cyls_bo_and_len,
+                                   ten_cyls_bo_one, ten_cyls_cyls,
+                                   ten_cyls_dbh, ten_cyls_edges,
+                                   ten_cyls_id_one)
+from test.expected_results_shapes import (small_tree_overlap,
+                                          small_tree_wateshed_poly)
 
-DIR = DIR
+from src.canhydro.utils import lam_filter
 
 create_cylinders_cases = [
     # (file, expected_cylinders )
@@ -59,12 +56,24 @@ lam_filter_cases = [
 
 find_flows_cases = [
     # (file, expected_stem_map, expected_flows )
-    pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
+    # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
+    # pytest.param(
+    #     "3_HappyPathWTrunk.csv", happy_path_is_stem, happy_path_flows, id="Happy Path"
+    # ),
+    # pytest.param(
+    #     "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
+    # ),
+    # pytest.param(
+    #     "7_DripPathAdjToTrunk.csv", drip_adj_stem_map, drip_adj_flows, id="Drip Adjacent Trunk"
+    # ),
+    # pytest.param(
+    #     "8_DripPathMidBranch.csv", drip_mid_stem_map, drip_mid_flows, id="Drip Mid Branch"
+    # ),
     pytest.param(
-        "3_HappyPathWTrunk.csv", happy_path_is_stem, happy_path_flows, id="Happy Path"
-    ),
-    pytest.param(
-        "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
+        "9_DripOnTrunk.csv",
+        drip_on_trunk_stem_map,
+        drip_on_trunk_flows,
+        id="Drip Mid Branch",
     ),
 ]
 
@@ -83,16 +92,22 @@ dbh_cases = [
 ]
 
 
-# @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
-# def test_sandbox(flexible_collection, happy_path_projection):
-#     assert 1 == 1
+# @pytest.mark.parametrize("basic_collection", ["7_DripPathAdjTrunk.csv"], indirect=True)
+# @pytest.mark.parametrize("basic_collection", ["5_SmallTree.csv"], indirect=True)
+# def test_sandbox(basic_collection):
+
+#     basic_collection.initialize_graph()
+#     basic_collection.project_cylinders("XY")
+#     basic_collection.draw()
+#     breakpoint()
+# flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)
 
 
 # def test_file_names():
-#     file_path = "".join([DIR, "test\\"])
+#     file_path = "".join([DIR, "test_data\\"])
 #     file = os.path.dirname(file_path)
 #     create_dir_and_file(file)
-#     file_names = read_file_names(Path("".join([DIR, "test"])))
+#     file_names = read_file_names(Path("".join([DIR, "test_data"])))
 #     assert file_names == ["demofile2.csv"]
 #     shutil.rmtree(file, onerror=on_rm_error)
 #     print("File Names Successful")
@@ -120,29 +135,36 @@ dbh_cases = [
 #     actual_result = [cyl.cyl_id for cyl in cyls_returned]
 #     assert actual_result == expected_result
 
-# @pytest.mark.parametrize("basic_collection, expected_stem_map, expected_flows", find_flows_cases, indirect=["basic_collection"])
-# def test_find_flows(basic_collection, expected_stem_map, expected_flows):
-#     basic_collection.project_cylinders("XY")
-#     basic_collection.initialize_graph()
-#     basic_collection.find_flow_components()
-#     basic_collection.calculate_flows()
-#     actual_flows = basic_collection.flows
-#     _, actual_stem_map = lam_filter(
-#         basic_collection.cylinders, lambda: is_stem, return_all=True
-#     )
-#     assert actual_stem_map == expected_stem_map
-#     assert actual_flows == expected_flows
+
+@pytest.mark.parametrize(
+    "basic_collection, expected_stem_map, expected_flows",
+    find_flows_cases,
+    indirect=["basic_collection"],
+)
+def test_find_flows(basic_collection, expected_stem_map, expected_flows):
+    basic_collection.project_cylinders("XY")
+    basic_collection.initialize_digraph_from()
+    basic_collection.find_flow_components()
+    basic_collection.calculate_flows()
+    actual_flows = basic_collection.flows
+    _, actual_stem_map = lam_filter(
+        basic_collection.cylinders, lambda: is_stem, return_all=True
+    )
+    breakpoint()
+    assert actual_stem_map == expected_stem_map
+    assert actual_flows == expected_flows
+
 
 # @pytest.mark.parametrize("flexible_collection", ["1_TenCyls.csv"], indirect=True)
 # def test_highlight_filt_draw(flexible_collection, accepted_err=0.03):
-# flexible_collection.project_cylinders(plane="XZ")
-# flexible_collection.draw("XZ")
-# flexible_collection.draw("XZ", highlight_lambda=lambda: branch_order == 1)
-# flexible_collection.draw(
-# "XZ", highlight_lambda=lambda: branch_order == 1,
-# filter_lambda=lambda: cyl_id > 3
-# )
-# assert 1 == 1
+#     flexible_collection.project_cylinders(plane="XZ")
+#     flexible_collection.draw("XZ")
+#     flexible_collection.draw("XZ", highlight_lambda=lambda: branch_order == 1)
+#     flexible_collection.draw(
+#     "XZ", highlight_lambda=lambda: branch_order == 1,
+#     filter_lambda=lambda: cyl_id > 3
+#     )
+#     assert 1 == 1
 
 
 @pytest.mark.parametrize(
@@ -160,7 +182,7 @@ def test_drip_map(flexible_collection):
     flexible_collection.find_flow_components()
     flexible_collection.calculate_flows()
     flexible_collection.drip_map(lambda: cyl_id > 400)
-    breakpoint()
+    # breakpoint()
     # assert expected == str(actual)
 
 
@@ -180,3 +202,6 @@ def test_watershed(flexible_collection):
     actual_poly = flexible_collection.hull
     expected_poly = small_tree_wateshed_poly
     assert actual_poly == expected_poly
+
+
+d
