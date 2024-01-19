@@ -16,12 +16,12 @@ from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
-from canhydro.Cylinder import create_cyl
-from canhydro.DataClasses import Flow
-from canhydro.geometry import concave_hull  # ,vectorized_get_projection)
-from canhydro.geometry import draw_cyls, furthest_point, get_projected_overlap
-from canhydro.global_vars import config_vars, log
-from canhydro.utils import intermitent_log, lam_filter, save_file
+from src.canhydro.Cylinder import create_cyl
+from src.canhydro.DataClasses import Flow
+from src.canhydro.geometry import concave_hull   ,vectorized_get_projection
+from src.canhydro.geometry import draw_cyls, furthest_point, get_projected_overlap
+from src.canhydro.global_vars import config_vars, log
+from src.canhydro.utils import intermitent_log, lam_filter, save_file
 
 sys.stdout = LogFile()
 
@@ -64,7 +64,6 @@ class CylinderCollection:
 
         # Projection Attrs
         self.projections = {"XY": False, "XZ": False, "YZ": False}
-        self.stem_polys = {"XY": None, "XZ": None, "YZ": None}
         self.stem_path_lengths = []
         self.hull = None
         self.stem_hull = None
@@ -78,6 +77,8 @@ class CylinderCollection:
         self.digraph = None
         self.min_graph = None
         self.flows = None
+        self.divide_nodes = None
+        self.drip_nodes = None
         self.drip_points = {"x": np.nan, "y": np.nan, "z": np.nan, "flow_id": np.nan}
         self.flow_to_drip = {
             0: 1
@@ -404,84 +405,107 @@ class CylinderCollection:
         return dists
 
     def traverse_until(
-        self, graph: nx.Graph, start_node: int, to_return: list[tuple] = []
+        self, curr_node: int, on_drip_path :bool, drip_edges:list[tuple]
     ):
         """
         Intended to take a starting point and recursively
         travel adjacent edges until no new edge is found or until
         a node in the stop set is reached.
         """
-        neighbors = nx.neighbors(graph, start_node)
+        to_return = []
+        drip_graph = self.drip_graph
+        neighbors = nx.neighbors(drip_graph, curr_node)
+        for neighbor in neighbors:
+            next_path_is_drip = (curr_node,neighbor) in drip_edges
+            if on_drip_path:
+                to_return.append(self.traverse_until(neighbor,next_path_is_drip,drip_edges))
+            else:
+                if next_path_is_drip:
+                    return 
+                self.traverse_until
 
     def find_flow_components_digraph(self, inFlowGradeLim=-1 / 6):
-        g = self.graph
+        g = self.digraph
         if type(g) == nx.Graph:
             msg = "Find Flow Digraph invoked for undirected graph"
             log.error(msg)
             raise TypeError(msg)
-        root_node = 0
+        root_node = -1
 
-        drip_edges = [
-            (u, v)
-            for u, v, attr in g.edges(data=True)
-            if attr["cylinder"].angle < inFlowGradeLim
-        ]
-        in_flow_graph = copy.deepcopy(g)  # This could probably just be a subgraph...
-        in_flow_graph.remove_edges_from(drip_edges)
+        divide_nodes = [node for node in g.nodes() if g.out_degree(node) > 1 or (g.out_degree(node) == 1 and g.in_degree(node)==0) ]      
+        # divide_nodes = [node for node, in_degree in g.in_degree() if in_degree == 0]
+        # end_nodes =[node for node in divide_or_end_nodes if g.out_degree(node) == 1]
 
-        stem_flow_component = g.subgraph(g.predecessors(root_node)).copy()
+        #Includes drip nodes
+        drip_nodes = [node for node, out_degree in g.out_degree() if out_degree == 0 and node != -1]
+        # drip_nodes = [ node for node in recieving_nodes 
+        #                 if g.out_degree(node) == 0 and 
+        #                     (g.in_degree() > 1  ) ] # Note that the root node is a drip node
 
-        G_drip = copy.deepcopy(g)
-        G_drip.remove_edges_from(in_flow_graph.edges())
-        out_flow_components = nx.weakly_connected_components(G_drip)
-        drip_flow_components = []
-        for out_flow_component in out_flow_components:
-            dc_nodes = out_flow_component.nodes
-            predecessors = [g.predecessors(node) for node in dc_nodes]
-            drip_flow_nodes = chain(*predecessors)
-            drip_flow_component = g.subgraph(drip_flow_nodes).copy()
-            drip_flow_components.append(drip_flow_component)
+        
+        stem_flow_component = g.subgraph( nx.ancestors(g,root_node) | {0}).copy()
+
+        stem_cylinders = [node for node in stem_flow_component.nodes() if stem_flow_component.degree(node)>0]
+        for cyl in self.cylinders:
+            if cyl.cyl_id in stem_cylinders:
+                cyl.is_stem = True
+
+        g_drip = copy.deepcopy(g)
+        g_drip.remove_edges_from(stem_flow_component.edges())
+        # g_drip.remove_nodes_from(stem_flow_component.nodes())
+        
+        drip_divide_pairings = [(drip_node,[node for node in divide_nodes if nx.has_path(g_drip,node,drip_node)]) for drip_node in drip_nodes if drip_node != -1]
+        
+        drip_components = []
+        cyl_to_drip_node = {cyl.cyl_id:None for cyl in self.cylinders }
+        for pair  in drip_divide_pairings:
+            drip_node, source_divides = pair
+            paths = [nx.shortest_path(g_drip, div_node,drip_node) for div_node in source_divides]
+            component_nodes = chain.from_iterable(paths)
+            component_graph = g_drip.subgraph(component_nodes).copy()
+            component_cyls = [attr["cylinder"].cyl_id
+                                for _, _, attr in stem_flow_component.edges(data=True)]
+            for id in component_cyls:
+                if cyl_to_drip_node[id]:
+                    log.warning(f"Cylinder with id {id} has two or more identified to drip nodes: {self.cylinders[node].drip_node} and {drip_node}")
+                cyl_to_drip_node[id] = drip_node
+
+            drip_components.append((drip_node,g_drip.subgraph(component_nodes).copy()))
+        
+        for cyl in self.cylinders:
+            cyl.drip_node = cyl_to_drip_node[cyl.cyl_id]
 
         log.info(
-            f"{self.file_name} found to have {len(drip_flow_components)} drip components"
+            f"{self.file_name} found to have {len(drip_components)} drip components"
         )
-        stem_edge_ids = [
-            max([u, v])
-            for (u, v) in stem_flow_component.edges()
-            if G_drip.degree(max([u, v])) == 0
-        ]
-        for cyl in self.cylinders:
-            if cyl.cyl_id in stem_edge_ids:
-                cyl.is_stem = True
+
         self.stem_flow_component = stem_flow_component
-        self.drip_flow_components = drip_flow_components
-        self.drip_graph = G_drip
+        self.drip_flow_components = drip_components
+        self.drip_graph = g_drip
+        self.drip_nodes = drip_nodes
+        self.divide_nodes = divide_nodes
 
     # @profile
     def find_flow_components(self, inFlowGradeLim=-1 / 6):
         """Finding Stemflow contributing area"""
         g = self.graph
         # identify drip edges in graph
-        drip_edges = [
-            (u, v)
-            for u, v, attr in g.edges(data=True)
-            if attr["cylinder"].angle < inFlowGradeLim
-        ]
+        drip_edges = [    (u, v)    for u, v, attr in g.edges(data=True)    if attr["cylinder"].angle < inFlowGradeLim]
         in_flow_graph = copy.deepcopy(g)  # This could probably just be a subgraph...
         in_flow_graph.remove_edges_from(drip_edges)
         log.info(f"{self.file_name} found to have {len(drip_edges)} drip edges")
 
         # separating the stem flow from the drip flows and the drip flows from each other
-        G_drip = copy.deepcopy(g)
+        g_drip = copy.deepcopy(g)
         root_node = 0
         stem_flow_component = g.subgraph(
             nx.node_connected_component(in_flow_graph, root_node)
         ).copy()  # returns the connected component containing the root
-        # G_drip.remove_edges_from(stem_flow_component.edges())
-        # drip_flow_components = nx.connected_components(G_drip)
+        # g_drip.remove_edges_from(stem_flow_component.edges())
+        # drip_flow_components = nx.connected_components(g_drip)
 
-        G_drip.remove_edges_from(in_flow_graph.edges())
-        drip_flow_components = nx.connected_components(G_drip)
+        g_drip.remove_edges_from(in_flow_graph.edges())
+        drip_flow_components = nx.connected_components(g_drip)
         drip_edge_graphs = [g.subgraph(c).copy() for c in drip_flow_components]
 
         for drip_graph in drip_edge_graphs:
@@ -491,7 +515,6 @@ class CylinderCollection:
                 for node in dg_nodes
             ]
 
-        breakpoint()
         component_graphs = [
             g.subgraph(c).copy()
             for c in drip_flow_components
@@ -501,21 +524,20 @@ class CylinderCollection:
         log.info(
             f"{self.file_name} found to have {len(component_graphs)} drip components"
         )
-        stem_edge_ids = [
-            max([u, v])
-            for (u, v) in stem_flow_component.edges()
-            if G_drip.degree(max([u, v])) == 0
-        ]
+
+        stem_cylinders = [node for node in stem_flow_component.nodes() if stem_flow_component.degree(node)>0]
         for cyl in self.cylinders:
-            if cyl.cyl_id in stem_edge_ids:
+            if cyl.cyl_id in stem_cylinders:
                 cyl.is_stem = True
+
         self.stem_flow_component = stem_flow_component
         self.drip_flow_components = component_graphs
-        self.drip_graph = G_drip
+        self.drip_graph = g_drip
 
     # @profile
     def calculate_flows(self, plane: str = "XY"):
         """uses subgraphs from FindFlowComponents to aggregate flow characteristics"""
+        cyls = self.cylinders
         stem_flow_component = self.stem_flow_component
         drip_flow_components = self.drip_flow_components
         g = self.graph
@@ -534,10 +556,10 @@ class CylinderCollection:
 
         # this probably doesn't belong here but its efficient to do it now
         # is 'needed' for statistics section
-        stem_polys = [cyl.projected_data[plane]["polygon"] for _, _, cyl in stem_edges]
-        self.stem_polys[plane] = stem_polys
+        stem_cyls = [cyl for cyl in cyls if cyl.is_stem]
+        
 
-        num_stem_edges = len(stem_edges)
+        num_stem_edges = len(stem_cyls)
         flow_chars.append(
             Flow(
                 **{
@@ -545,72 +567,106 @@ class CylinderCollection:
                     "projected_area": np.sum(
                         [
                             np.float64(cyl.projected_data[plane]["area"])
-                            for _, _, cyl in stem_edges
+                            for cyl in stem_cyls
                         ]
                     ),
                     "surface_area": np.sum(
-                        [cyl.surface_area for _, _, cyl in stem_edges]
+                        [cyl.surface_area for cyl in stem_cyls]
                     ),
-                    "angle_sum": np.sum([cyl.angle for _, _, cyl in stem_edges]),
-                    "volume": np.sum([cyl.volume for _, _, cyl in stem_edges]),
-                    "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in stem_edges]),
+                    "angle_sum": np.sum([cyl.angle for cyl in stem_cyls]),
+                    "volume": np.sum([cyl.volume for cyl in stem_cyls]),
+                    "sa_to_vol": np.sum([cyl.sa_to_vol for cyl in stem_cyls]),
                     "drip_node_id": 0,
                     "drip_node_loc": (self.cylinders[0].x[0], self.cylinders[0].y[0]),
                 }
             )
-        )  # stemflow drips to the trunk
+        )  
         # log.info(f"summed stem edges {flow_chars}")
-
-        for idx, flow in enumerate(drip_flow_components):
-            intermitent_log(
-                idx, self.no_cylinders, "identifying  drip edges in component:"
-            )
-            edges = [(u, v, attr["cylinder"]) for u, v, attr in flow.edges(data=True)]
-            nodes = [n for n in flow]
-            # drip points are technically nodes, which are located at the start and end of edges (representing cylinders )
-            # the node at the start of an edge shares an id with the edge's corrosponding cylinder
-            drip_point_id = np.argmin([cyl.z[0] for _, _, cyl in edges])
-            drip_edge = edges[drip_point_id]
-            drip_node = drip_edge[0]
-            drip_node_loc = (drip_edge[2].x[0], drip_edge[2].y[0], drip_edge[2].z[0])
-
-            num_cyls = len(flow.edges())
-
-            # log.info(f"attempting to sum drip edges for component {idx}")
-            edge_attributes = {
-                (u, v): {
-                    "dripNode": drip_node,
-                    "flowType": "drip",
-                    "flowID": (idx + 1),
-                }
-                for u, v, _ in edges
-            }
+        for idx, drip_node in enumerate(self.drip_nodes):
+            #Cylinders r
+            cyl_before_drip = cyls[drip_node]
+            breakpoint()
+            drip_node_loc = (cyl_before_drip.x[0], cyl_before_drip.y[0], cyl_before_drip.z[0])
+            drip_cylinders  = [cyl for cyl in cyls if cyl.drip_node == drip_node and cyl.cyl_id !=drip_node]
+            
+            # edge_attributes = {
+            #     (u, v): {
+            #         "dripNode": drip_node,
+            #         "flowType": "drip",
+            #         "flowID": (idx + 1),
+            #     }
+            #     for u, v, _ in edges
+            # }
             flow_chars.append(
                 Flow(
                     **{
-                        "num_cylinders": num_cyls,
+                        "num_cylinders": len(drip_cylinders),
                         "projected_area": np.sum(
                             [
                                 np.float64(cyl.projected_data[plane]["area"])
-                                for _, _, cyl in edges
+                                for cyl in drip_cylinders
                             ]
                         ),
                         "surface_area": np.sum(
-                            [cyl.surface_area for _, _, cyl in edges]
+                            [cyl.surface_area for cyl in drip_cylinders]
                         ),
-                        "angle_sum": np.sum([cyl.angle for _, _, cyl in edges]),
-                        "volume": np.sum([cyl.volume for _, _, cyl in edges]),
-                        "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in edges]),
+                        "angle_sum": np.sum([cyl.angle for cyl in drip_cylinders]),
+                        "volume": np.sum([cyl.volume for cyl in drip_cylinders]),
+                        "sa_to_vol": np.sum([cyl.sa_to_vol for cyl in drip_cylinders]),
                         "drip_node_id": drip_node,
                         "drip_node_loc": drip_node_loc,
                     }
                 )
             )
+            # nx.set_edge_attributes(g, edge_attributes, "dripNode")
+
+        # for idx, flow in enumerate(drip_flow_components):
+        #     intermitent_log(
+        #         idx, self.no_cylinders, "identifying  drip edges in component:"
+        #     )
+        #     edges = [(u, v, attr["cylinder"]) for u, v, attr in flow.edges(data=True)]
+        #     nodes = [n for n in flow]
+        #     # drip points are technically nodes, which are located at the start and end of edges (representing cylinders )
+        #     # the node at the start of an edge shares an id with the edge's corrosponding cylinder
+        #     drip_point_id = np.argmin([cyl.z[0] for _, _, cyl in edges])
+        #     drip_edge = edges[drip_point_id]
+        #     drip_node = drip_edge[0]
+        #     drip_node_loc = (drip_edge[2].x[0], drip_edge[2].y[0], drip_edge[2].z[0])
+
+        #     num_cyls = len(flow.edges())
+
+        #     # log.info(f"attempting to sum drip edges for component {idx}")
+        #     edge_attributes = {
+        #         (u, v): {
+        #             "dripNode": drip_node,
+        #             "flowType": "drip",
+        #             "flowID": (idx + 1),
+        #         }
+        #         for u, v, _ in edges
+        #     }
+        #     flow_chars.append(
+        #         Flow(
+        #             **{
+        #                 "num_cylinders": num_cyls,
+        #                 "projected_area": np.sum(
+        #                     [
+        #                         np.float64(cyl.projected_data[plane]["area"])
+        #                         for _, _, cyl in edges
+        #                     ]
+        #                 ),
+        #                 "surface_area": np.sum(
+        #                     [cyl.surface_area for _, _, cyl in edges]
+        #                 ),
+        #                 "angle_sum": np.sum([cyl.angle for _, _, cyl in edges]),
+        #                 "volume": np.sum([cyl.volume for _, _, cyl in edges]),
+        #                 "sa_to_vol": np.sum([cyl.sa_to_vol for _, _, cyl in edges]),
+        #                 "drip_node_id": drip_node,
+        #                 "drip_node_loc": drip_node_loc,
+        #             }
+        #         )
+        #     )
             # log.info(f"summed drip edges in component {idx}")
-
-        self.flows = flow_chars
-
-        nx.set_edge_attributes(g, edge_attributes, "dripNode")
+        self.flows = flow_chars 
 
     def identify_stem_paths(self, axis: str):
         # Special case tree attributes
@@ -702,9 +758,10 @@ class CylinderCollection:
         projected_union_area = tot_poly.area
         sum_projected_area = np.sum([poly.area for poly in self.pSV])
 
-        union_poly_stem = unary_union(self.stem_polys[plane])
+        stem_polys = [cyl.projected_data[plane]['polygon'] for cyl in self.cylinders if cyl.is_stem]
+        union_poly_stem = unary_union(stem_polys[plane])
         projected_union_area_stem = union_poly_stem.area
-        sum_projected_area_stem = np.sum([poly.area for poly in self.stem_polys[plane]])
+        sum_projected_area_stem = np.sum([poly.area for poly in stem_polys[plane]])
 
         log.info("found projected areas")
 

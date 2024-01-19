@@ -9,7 +9,7 @@ from pathlib import Path
 import toml
 from memory_profiler import LogFile
 
-with open("user_def_config.toml") as f:
+with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
 
 # Load Dirs

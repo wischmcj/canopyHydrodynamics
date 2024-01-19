@@ -16,9 +16,9 @@ from shapely.ops import polygonize, unary_union
 
 sys.stdout = LogFile()
 
-from canhydro.DataClasses import coord_list
-from canhydro.global_vars import log
-from canhydro.utils import stack
+from src.canhydro.DataClasses import coord_list
+from src.canhydro.global_vars import log
+from src.canhydro.utils import stack
 
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
@@ -272,7 +272,8 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
 # return aV, bV, a_ortho, b_ortho
 
 # https://stackoverflow.com/questions/39822480/plotting-a-solid-cylinder-centered-on-a-plane-in-matplotlib
-# def vectorized_get_projection(starts: np.array(), ends: np.array(), radii:np.array()):
+def vectorized_get_projection(starts: np.array(), ends: np.array(), radii:np.array()):
+    return 'to do'
 #     # 50 or so line segments arranged in a polygon
 #     # gets us 99% accuracy in approximating the area of a circle
 #     # (.5*n*r*r)sin(2*pi/n) = area of n-gon, 2*pi*r*r = area of circle
@@ -332,7 +333,7 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
 #     X, Y, Z = [p0[i] + v[i] * t + R * np.sin(theta) * n1[i] + R * np.cos(theta) * n2[i] for i in [0, 1, 2]]
 
 
-# https://stackoverflow.com/questions/39822480/plotting-a-solid-cylinder-centered-on-a-plane-in-matplotlib
+#stackoverflow.com/questions/39822480/plotting-a-solid-cylinder-centered-on-a-plane-in-matplotlib
 def vectorized_def_cyl(vector, magnitude):
     dim_a = vector[0]
     dim_b = vector[1]

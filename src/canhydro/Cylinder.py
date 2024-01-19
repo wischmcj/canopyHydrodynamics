@@ -6,9 +6,9 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from canhydro.DataClasses import Projection
-from canhydro.geometry import draw_cyls, get_projection, numba_get_projection
-from canhydro.global_vars import qsm_cols
+from src.canhydro.DataClasses import Projection
+from src.canhydro.geometry import draw_cyls, get_projection, numba_get_projection
+from src.canhydro.global_vars import qsm_cols
 
 # from descartes import PolygonPatch
 # from mpl_toolkits import mplot3d
@@ -48,6 +48,7 @@ class Cylinder:  # (defaultdict):
     projected_data: dict(Projection) = field(default_factory=dict)
     flow_id: int() = None
     flow_type: str = None
+    drip_node: int() = None
     begins_at_drip_point: bool = None
     begins_at_divide_point: bool = None
 

@@ -9,7 +9,7 @@ from typing import Union
 import numpy as np
 from numba import njit, prange
 
-from canhydro.global_vars import input_dir, log, output_dir, time_stamp
+from src.canhydro.global_vars import input_dir, log, output_dir, time_stamp
 
 
 @njit()

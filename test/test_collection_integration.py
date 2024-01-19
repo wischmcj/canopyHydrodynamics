@@ -18,7 +18,10 @@ from test.expected_results import (drip_on_trunk_flows, drip_on_trunk_stem_map,
                                    small_tree_edges, ten_cyls_bo_and_len,
                                    ten_cyls_bo_one, ten_cyls_cyls,
                                    ten_cyls_dbh, ten_cyls_edges,
-                                   ten_cyls_id_one)
+                                   ten_cyls_id_one,ten_cyls_is_stem,happy_path_is_stem,
+                                   small_tree_is_stem,drip_adj_stem_map,drip_mid_stem_map,
+                                   ten_cyls_flows,happy_path_flows,
+                                   small_tree_flows,drip_adj_flows,drip_mid_flows)
 from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 
@@ -57,24 +60,24 @@ lam_filter_cases = [
 find_flows_cases = [
     # (file, expected_stem_map, expected_flows )
     # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
-    # pytest.param(
-    #     "3_HappyPathWTrunk.csv", happy_path_is_stem, happy_path_flows, id="Happy Path"
-    # ),
-    # pytest.param(
-    #     "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
-    # ),
-    # pytest.param(
-    #     "7_DripPathAdjToTrunk.csv", drip_adj_stem_map, drip_adj_flows, id="Drip Adjacent Trunk"
-    # ),
-    # pytest.param(
-    #     "8_DripPathMidBranch.csv", drip_mid_stem_map, drip_mid_flows, id="Drip Mid Branch"
-    # ),
+    pytest.param(
+        "7_DripPathAdjToTrunk.csv", drip_adj_stem_map, drip_adj_flows, id="Drip Adjacent Trunk"
+    ),
+    pytest.param(
+        "8_DripPathMidBranch.csv", drip_mid_stem_map, drip_mid_flows, id="Drip Mid Branch"
+    ),
     pytest.param(
         "9_DripOnTrunk.csv",
         drip_on_trunk_stem_map,
         drip_on_trunk_flows,
         id="Drip Mid Branch",
     ),
+    pytest.param(
+        "3_HappyPathWTrunk.csv", happy_path_is_stem, happy_path_flows, id="Happy Path"
+    ),
+    pytest.param(
+        "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
+    )
 ]
 
 create_graph_cases = [
@@ -144,7 +147,7 @@ dbh_cases = [
 def test_find_flows(basic_collection, expected_stem_map, expected_flows):
     basic_collection.project_cylinders("XY")
     basic_collection.initialize_digraph_from()
-    basic_collection.find_flow_components()
+    basic_collection.find_flow_components_digraph()
     basic_collection.calculate_flows()
     actual_flows = basic_collection.flows
     _, actual_stem_map = lam_filter(
@@ -203,5 +206,3 @@ def test_watershed(flexible_collection):
     expected_poly = small_tree_wateshed_poly
     assert actual_poly == expected_poly
 
-
-d

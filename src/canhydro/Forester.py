@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import os
 
-from canhydro.CylinderCollection import CylinderCollection
-from canhydro.global_vars import input_dir, log
+from src.canhydro.CylinderCollection import CylinderCollection
+from src.canhydro.global_vars import input_dir, log
 
 NAME = "Forester"
 

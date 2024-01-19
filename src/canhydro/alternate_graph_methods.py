@@ -73,6 +73,8 @@ class AlternativeCylCollection():
 
         projected_area = np.sum(areas)
         return projected_area
+    
+    
     def find_flow_components(self, inFlowGradeLim: float = -1 / 6, dist: int = 2):
         """Finding Stemflow contributing area"""
         g = self.graph
