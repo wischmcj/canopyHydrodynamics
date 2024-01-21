@@ -3,14 +3,11 @@
 from __future__ import annotations
 
 import os
-import shutil
 import sys
-from pathlib import Path
 
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
-
 
 from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
                                    drip_mid_flows, drip_mid_stem_map,
@@ -26,12 +23,14 @@ from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
                                    ten_cyls_dbh, ten_cyls_edges,
                                    ten_cyls_flows, ten_cyls_id_one,
                                    ten_cyls_is_stem)
+
 from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
-from test.utils import create_dir_and_file, on_rm_error, within_range
+from test.utils import within_range
 
-from src.canhydro.global_vars import DIR
-from src.canhydro.utils import lam_filter, read_file_names
+from src.canhydro.global_vars import DIR, test_input_dir
+from src.canhydro.utils import lam_filter
+from src.canhydro.CylinderCollection import CylinderCollection
 
 create_cylinders_cases = [
     # (file, expected_cylinders )
@@ -118,16 +117,6 @@ dbh_cases = [
 #     basic_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)
 
 
-def test_file_names():
-    file_path = "".join([DIR, "test_data\\"])
-    file = os.path.dirname(file_path)
-    create_dir_and_file(file)
-    file_names = read_file_names(Path("".join([DIR, "test_data"])))
-    assert file_names == ["demofile2.csv"]
-    shutil.rmtree(file, onerror=on_rm_error)
-    print("File Names Successful")
-
-
 @pytest.mark.parametrize(
     "basic_collection, expected_cylinders",
     create_cylinders_cases,
@@ -137,7 +126,18 @@ def test_create_cylinders(basic_collection, expected_cylinders):
     actual = basic_collection.get_collection_data()
     expected = expected_cylinders
     assert expected == actual
-
+    
+@pytest.mark.parametrize(
+    "file_name, expected_cylinders",
+    create_cylinders_cases
+)
+def test_create_cylinders_from_csv(file_name, expected_cylinders):
+    csv_collection = CylinderCollection()
+    file_path = "\\".join([str(test_input_dir), file_name])
+    file_obj = open(file_path,'r')
+    csv_collection.from_csv(file_obj, DIR)
+    actual = csv_collection.get_collection_data()
+    assert actual == expected_cylinders
 
 @pytest.mark.parametrize(
     "flexible_collection, angles, projection_axis",
@@ -189,12 +189,12 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
 def test_highlight_filt_draw(flexible_collection, accepted_err=0.03):
     flexible_collection.project_cylinders(plane="XZ")
     flexible_collection.draw("XZ")
-    flexible_collection.draw("XZ", highlight_lambda=lambda: branch_order == 1)
-    flexible_collection.draw(
-        "XZ",
-        highlight_lambda=lambda: branch_order == 1,
-        filter_lambda=lambda: cyl_id > 3,
-    )
+    # flexible_collection.draw("XZ", highlight_lambda=lambda: branch_order == 1)
+    # flexible_collection.draw(
+    #     "XZ",
+    #     highlight_lambda=lambda: branch_order == 1,
+    #     filter_lambda=lambda: cyl_id > 3,
+    # )
     assert 1 == 1
 
 

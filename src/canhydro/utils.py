@@ -8,12 +8,29 @@ from typing import Union
 
 import numpy as np
 from numba import njit, prange
+from numba.typed import List
 
 from src.canhydro.global_vars import input_dir, log, output_dir, time_stamp
 
 
+def stack(to_stack:list[np.array], col: bool == True):
+    """
+        A wrapper for njit stack that handles errors and allows for 
+        less strict typing 
+    """
+    list_of_array = List(to_stack)
+    try:
+        njit_stack(list_of_array,col)
+    except ValueError as err:
+        left_shape = list_of_array[0].shape[0]
+        right_shape = list_of_array[1].shape[0]
+        stack_type ='column' if col else 'row'
+        msg = f'{err}: Cannot {stack_type} stack arrays with shapes {left_shape} and {right_shape}'
+        log.error(msg)
+        raise ValueError(msg) from err
+
 @njit()
-def stack(list_of_array, col: bool == True):
+def njit_stack(list_of_array:np.array[np.array()], col: bool):
     """
     numba doesn't play well with np stacks, so I had to do it myself
     """
@@ -21,7 +38,7 @@ def stack(list_of_array, col: bool == True):
     left_shape = list_of_array[0].shape[0]
     shape = (num_in, left_shape)
     stacked_array = np.empty(shape)
-    for j in prange(len(list_of_array)):
+    for j in prange(len(list_of_array)): 
         stacked_array[j] = list_of_array[j]
     return stacked_array if not col else stacked_array.T
 
@@ -33,7 +50,7 @@ def on_rm_error(func, path, exc_info):
     os.unlink(path)
 
 
-def create_dir_and_file(filename) -> None:
+def create_dir_and_file(filename,) -> None:
     print(type(filename))
     os.makedirs(filename, exist_ok=True)
     # f = open(filename, "w+")

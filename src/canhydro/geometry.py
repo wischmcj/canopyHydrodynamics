@@ -402,7 +402,7 @@ def vectorized_def_cyl(vector, magnitude):
         if np.logical_and(delt_a == 0.0, delt_b == 0.0):
             pX = dim_a[0] + radius * a_ortho
             pY = dim_b[0] + radius * b_ortho
-            c2 = stack((pX, pY), col=True)
+            c2 = stack(np.array((pX, pY)), col=True)
             ang = 1.5708  # 90* straight up and down
         else:
             if aV[2] != 0.0:
@@ -417,7 +417,7 @@ def vectorized_def_cyl(vector, magnitude):
                 # Confounded - why does removing the first three [:,None]'s below lead to non-circular projections
                 # for XZ?
                 uov = (
-                    np.hstack((a_ortho[:, None], b_ortho[:, None], ZOrtho[:, None]))
+                    np.hstack(np.array((a_ortho[:, None], b_ortho[:, None], ZOrtho[:, None])))
                     / uovd[:, None]
                 )
                 # donot re unit-fy, you only want the horizontal component, not the
@@ -436,10 +436,10 @@ def vectorized_def_cyl(vector, magnitude):
                 #            [0 if np.isnan(y) else y for y in yaC],
                 #         ))
                 c1 = stack(
-                    (
+                    np.array((
                         np.array([0 if np.isnan(x) else x for x in xaC]),
                         np.array([0 if np.isnan(y) else y for y in yaC]),
-                    ),
+                    )),
                     col=True,
                 )
                 print(c1)
@@ -449,7 +449,7 @@ def vectorized_def_cyl(vector, magnitude):
                 #             xC,
                 #             yC,
                 #         ))
-                c2 = stack((xC, yC), col=True)
+                c2 = stack(np.array((xC, yC)), col=True)
             # calculating the rectangular portion of the projection
             # relevant for all cyls
 
@@ -478,7 +478,7 @@ def vectorized_def_cyl(vector, magnitude):
             # x3             bVp1
             # x4             BvP2
 
-            bBox = stack((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4])), True)
+            bBox = stack(np.array((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4]))), True)
 
             # breakpoint()
         # print(".")
@@ -562,7 +562,7 @@ def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
         if np.logical_and(delt_a == 0.0, delt_b == 0.0):
             pX = dim_a[0] + radius * a_ortho
             pY = dim_b[0] + radius * b_ortho
-            c2 = stack((pX, pY), col=True)
+            c2 = stack(np.array((pX, pY)), col=True)
             ang = 1.5708  # 90* straight up and down
         else:
             if aV[2] != 0.0:
@@ -609,7 +609,7 @@ def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
                 #             xC,
                 #             yC,
                 #         ))
-                c2 = stack((xC, yC), col=True)
+                c2 = stack(np.array((xC, yC)), col=True)
             # calculating the rectangular portion of the projection
             # relevant for all cyls
 
@@ -647,7 +647,7 @@ def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
             #            (x4,y4)
             #         )
             #         )
-            bBox = stack((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4])), True)
+            bBox = stack(np.array((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4]))), True)
 
             # breakpoint()
         # print(".")
