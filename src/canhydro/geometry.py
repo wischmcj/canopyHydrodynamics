@@ -515,6 +515,9 @@ def rotation_matrix(a, axis: str = "x"):
 
 # @profile
 @njit()
+
+# *************** This is broken right now since casting a list of arrays as a numpy array is not no python friendly***************
+# *****************https://stackoverflow.com/questions/53861099/creating-a-numpy-array-decorated-by-njit-from-numba
 def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
     dim_a = vector[0]
     dim_b = vector[1]
