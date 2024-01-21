@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from line_profiler import profile
+from line_profiler import profile #noqa
 
 from src.canhydro.global_vars import test_input_dir
 
@@ -55,46 +55,46 @@ test_input_dir = test_input_dir
 #     flexible_collection.calculate_flows_obj()
 
 
-@profile
-def test_small_tree_proj(small_tree, ez_projection):
-    ez_projection.numba_project_cylinders("XY")
-    small_tree.project_cylinders("XY")
-    assert 1 == 1
+# #@profile
+# def test_small_tree_proj(small_tree, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     small_tree.project_cylinders("XY")
+#     assert 1 == 1
 
 
-@profile
-def test_numba_small_tree_proj(small_tree, ez_projection):
-    ez_projection.numba_project_cylinders("XY")
-    small_tree.numba_project_cylinders("XY")
-    assert 1 == 1
+# #@profile
+# def test_numba_small_tree_proj(small_tree, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     small_tree.numba_project_cylinders("XY")
+#     assert 1 == 1
 
 
-@profile
-def test_happy_proj(happy_path_projection, ez_projection):
-    ez_projection.numba_project_cylinders("XY")
-    happy_path_projection.project_cylinders("XZ")
-    assert 1 == 1
+# #@profile
+# def test_happy_proj(happy_path_projection, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     happy_path_projection.project_cylinders("XZ")
+#     assert 1 == 1
 
 
-@profile
-def test_numba_happy_proj(happy_path_projection, ez_projection):
-    ez_projection.numba_project_cylinders("XY")
-    happy_path_projection.numba_project_cylinders("XZ")
-    assert 1 == 1
+# #@profile
+# def test_numba_happy_proj(happy_path_projection, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     happy_path_projection.numba_project_cylinders("XZ")
+#     assert 1 == 1
 
 
-@profile
-def test_large_proj(large_collection, ez_projection):
-    ez_projection.numba_project_cylinders("XY")
-    large_collection.project_cylinders("XZ")
-    assert 1 == 1
+# #@profile
+# def test_large_proj(large_collection, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     large_collection.project_cylinders("XZ")
+#     assert 1 == 1
 
 
-@profile
-def test_numba_large_proj(large_collection, ez_projection):
-    ez_projection.numba_project_cylinders("XY")
-    large_collection.numba_project_cylinders("XZ")
-    assert 1 == 1
+# #@profile
+# def test_numba_large_proj(large_collection, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     large_collection.numba_project_cylinders("XZ")
+#     assert 1 == 1
 
 
 # @pytest.mark.report_uss
@@ -102,7 +102,7 @@ def test_numba_large_proj(large_collection, ez_projection):
 # @pytest.mark.report_duration
 
 # def test_base_efficiency(large_collection):
-#     large_collection.initialize_graph()
+#     large_collection.initialize_graph_from()
 #     proj_area = large_collection.sum_over_graph()
 
 #     print(str(proj_area))

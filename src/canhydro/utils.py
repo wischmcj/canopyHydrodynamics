@@ -36,9 +36,9 @@ def on_rm_error(func, path, exc_info):
 def create_dir_and_file(filename) -> None:
     print(type(filename))
     os.makedirs(filename, exist_ok=True)
-    f = open(filename)
-    f.write("Now the file has more content!")
-    f.close()
+    # f = open(filename, "w+")
+    # f.write("Now the file has more content!")
+    # f.close()
 
 
 def del_dir(filename) -> None:
@@ -88,7 +88,7 @@ def save_file(
         to_write.append(cur_row)
 
     if fileExists:
-        with open(dir + ofname_ext) as csv_file:
+        with open(dir + ofname_ext, "w+") as csv_file:
             reader = csv.reader(csv_file)
             existing_rows = list(reader)
             if existing_rows[0] == headers:

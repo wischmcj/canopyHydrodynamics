@@ -61,7 +61,7 @@ def flexible_collection(basic_forest, request):
     flexible_collection.project_cylinders("XZ")
     flexible_collection.project_cylinders("XY")
     flexible_collection.project_cylinders("YZ")
-    flexible_collection.initialize_graph()
+    flexible_collection.initialize_digraph_from()
     return flexible_collection
 
 

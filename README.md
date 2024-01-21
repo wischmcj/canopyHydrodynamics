@@ -93,3 +93,8 @@ The code that you see zipped here is representiitive of the ongoing work in our 
     geoPolys_xy.plot(ax=ax[0])
     geoPolys_xz.plot(ax=ax[1])
     geoPolys_yz.plot(ax=ax[2])
+
+
+
+  ### Notes on the Di-graph Drip Flow algorithm
+  '9_DripOnTrunk.csv' displays the two drip issue in a simple and understandable way

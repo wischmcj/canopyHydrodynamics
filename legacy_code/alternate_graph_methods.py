@@ -1,11 +1,17 @@
-
-
 from __future__ import annotations
 
 
-class AlternativeCylCollection():
+class AlternativeCylCollection:
+    def initialize_graph(self):
+        """This function initializes edge attributes as cylinder objects."""
+        gr = nx.Graph()
+        for cyl in self.cylinders:
+            child_node = cyl.cyl_id
+            parent_node = cyl.parent_id
+            gr.add_edge(child_node, parent_node, cylinder=cyl)
+        self.graph = gr
 
-    @profile
+    # @profile
     def initialize_graph(self):
         """This function initialized edge attributes as FULL cylinder dicts"""
         gr = nx.Graph()
@@ -16,7 +22,7 @@ class AlternativeCylCollection():
             gr.add_edge(child_node, parent_node, **attr)
         self.graph = gr
 
-    @profile
+    # @profile
     def initialize_minimal_graph(self):
         """This function initialized edge attributes as cylinder objects"""
         gr = nx.Graph()
@@ -26,7 +32,7 @@ class AlternativeCylCollection():
             gr.add_edge(child_node, parent_node)
         self.min_graph = gr
 
-    @profile
+    # @profile
     def initialize_graph_from(self):
         """This function initialized edge attributes as FULL cylinder dicts"""
         gr = nx.Graph()
@@ -37,7 +43,7 @@ class AlternativeCylCollection():
         gr.add_edges_from(edges)
         self.graph = gr
 
-    @profile
+    # @profile
     def initialize_minimal_graph_from(self):
         """This function initialized edge attributes as cylinder objects"""
         gr = nx.Graph()
@@ -45,7 +51,7 @@ class AlternativeCylCollection():
         gr.add_edges_from(edges)
         self.min_graph = gr
 
-    @profile
+    # @profile
     def sum_over_graph(self):
         """This function initialized edge attributes as FULL cylinder dicts"""
         gr = self.graph
@@ -56,7 +62,8 @@ class AlternativeCylCollection():
         ]
         projected_area = np.sum(cyls)
         return projected_area
-    @profile
+
+    # @profile
     def sum_over_min_graph(self):
         """This function initialized edge attributes as FULL cylinder dicts"""
         gr = self.min_graph
@@ -73,8 +80,7 @@ class AlternativeCylCollection():
 
         projected_area = np.sum(areas)
         return projected_area
-    
-    
+
     def find_flow_components(self, inFlowGradeLim: float = -1 / 6, dist: int = 2):
         """Finding Stemflow contributing area"""
         g = self.graph
@@ -114,8 +120,6 @@ class AlternativeCylCollection():
         self.stemFlowComponent = stem_flow_component
         self.dripFlowComponents = component_graphs
         self.get_trunk_nodes()
-
-
 
     def find_flow_components_minimal(self, inFlowGradeLim=-1 / 6):
         """Finding Stemflow contributing area"""
@@ -169,6 +173,100 @@ class AlternativeCylCollection():
         # self.divide_points = []
         # self.stemPolys = []
 
+    def traverse_until(
+        self, curr_node: int, on_drip_path: bool, drip_edges: list[tuple]
+    ):
+        """
+        **No longer valid
+        Intended to take a starting point and recursively
+        travel adjacent edges until no new edge is found or until
+        a node in the stop set is reached.
+        """
+        to_return = []
+        drip_graph = self.drip_graph
+        neighbors = nx.neighbors(drip_graph, curr_node)
+        for neighbor in neighbors:
+            next_path_is_drip = (curr_node, neighbor) in drip_edges
+            if on_drip_path:
+                to_return.append(
+                    self.traverse_until(neighbor, next_path_is_drip, drip_edges)
+                )
+            else:
+                if next_path_is_drip:
+                    return
+                self.traverse_until
+
+    def find_flow_components(self, inFlowGradeLim=-1 / 6):
+        """
+        This was the original version of our flow finding algorithm. Howerver, this version of the algorithim
+        struggles with seperating drip paths from each other. As such, we since pivoted to the use of digraphs
+        """
+        """Finding Stemflow contributing area"""
+        g = self.graph
+        # identify drip edges in graph
+        drip_edges = [
+            (u, v)
+            for u, v, attr in g.edges(data=True)
+            if attr["cylinder"].angle < inFlowGradeLim
+        ]
+        in_flow_graph = copy.deepcopy(g)  # This could probably just be a subgraph...
+        in_flow_graph.remove_edges_from(drip_edges)
+        log.info(f"{self.file_name} found to have {len(drip_edges)} drip edges")
+
+        # separating the stem flow from the drip flows and the drip flows from each other
+        g_drip = copy.deepcopy(g)
+        root_node = 0
+        stem_flow_component = g.subgraph(
+            nx.node_connected_component(in_flow_graph, root_node)
+        ).copy()  # returns the connected component containing the root
+        # g_drip.remove_edges_from(stem_flow_component.edges())
+        # drip_flow_components = nx.connected_components(g_drip)
+
+        g_drip.remove_edges_from(in_flow_graph.edges())
+        drip_flow_components = nx.connected_components(g_drip)
+        drip_edge_graphs = [g.subgraph(c).copy() for c in drip_flow_components]
+
+        for drip_graph in drip_edge_graphs:
+            dg_nodes = drip_graph.nodes()
+            connected_in_flows = [
+                g.subgraph(nx.node_connected_component(in_flow_graph, node)).copy()
+                for node in dg_nodes
+            ]
+
+        component_graphs = [
+            g.subgraph(c).copy()
+            for c in drip_flow_components
+            if len(c) > config_vars["min_len_drip_flow"]
+        ]
+
+        log.info(
+            f"{self.file_name} found to have {len(component_graphs)} drip components"
+        )
+
+        stem_cylinders = [
+            node
+            for node in stem_flow_component.nodes()
+            if stem_flow_component.degree(node) > 0
+        ]
+        for cyl in self.cylinders:
+            if cyl.cyl_id in stem_cylinders:
+                cyl.is_stem = True
+
+        self.stem_flow_component = stem_flow_component
+        self.drip_flow_components = component_graphs
+        self.drip_graph = g_drip
+
+    def sum_over_graph(self):
+        """This function initialized edge attributes as FULL cylinder dicts"""
+        gr = self.graph
+        areas = [
+            attr["cylinder"].projected_data["XY"]["polygon"].area
+            for u, v, attr in gr.edges(data=True)
+            if u > 5000
+        ]
+        projected_area = np.sum(areas)
+        return projected_area
+
     def flowCost(self, graph, metric):
         # algo does not play well with floats
         if metric == "projected_area":
@@ -179,8 +277,7 @@ class AlternativeCylCollection():
         else:
             sum(attr[metric] * 10000 for u, v, attr in graph.edges(data=True)) / 10000
 
-
-    @profile
+    # @profile
     def calculate_flows(self):
         """uses subgraphs from FindFlowComponents to aggregate flow characteristics"""
         stem_flow_component = self.stemFlowComponent
@@ -242,7 +339,8 @@ class AlternativeCylCollection():
         self.flows = flow_chars
 
         nx.set_edge_attributes(g, edge_attributes, "dripNode")
-  @profile
+
+    # @profile
     def calculate_flows_min(self):
         """uses subgraphs from FindFlowComponents to aggregate flow characteristics"""
         stem_flow_component = self.stemFlowComponent
@@ -307,9 +405,10 @@ class AlternativeCylCollection():
         self.flows = flow_chars
 
         nx.set_edge_attributes(g, edge_attributes, "dripNode")
-class EfficiencyTester():
 
-    @profile
+
+class EfficiencyTester:
+    # @profile
     def min_graph_test():
         forest = Forester()
         forest.get_file_names(dir=test_input_dir)
@@ -321,7 +420,7 @@ class EfficiencyTester():
         flexible_collection.find_flow_components_minimal()
         print(proj_area)
 
-    @profile
+    # @profile
     def base_graph_test():
         forest = Forester()
         forest.get_file_names(dir=test_input_dir)
@@ -333,7 +432,7 @@ class EfficiencyTester():
         flexible_collection.find_flow_components()
         print(proj_area)
 
-    @profile
+    # @profile
     def obj_graph_test():
         forest = Forester()
         forest.get_file_names(dir=test_input_dir)

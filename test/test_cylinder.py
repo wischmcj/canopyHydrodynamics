@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from test.expected_results import ez_projection_vectors, ez_projection_xy_angle
+# from test.expected_results import ez_projection_vectors, ez_projection_xy_angle
 from test.utils import within_range
 
 import pytest
@@ -150,6 +150,15 @@ proj_cyl = Cylinder(
     is_stem=False,
     is_divide=False,
 )
+
+ez_projection_vectors = {
+    "XY": [array([1.0, 1.0, 1.0]), array([4.0, 6.0, 7.0])],
+    "XZ": [array([1.0, 1.0, 1.0]), array([4.0, 7.0, 6.0])],
+    "YZ": [array([1.0, 1.0, 1.0]), array([6.0, 7.0, 4.0])],
+}
+ez_projection_xy_angle = 0.7996
+ez_projection_xz_angle = 0.6405
+ez_projection_yz_angle = 0.3667
 
 
 @pytest.mark.parametrize(

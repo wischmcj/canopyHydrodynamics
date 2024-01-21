@@ -7,7 +7,8 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from src.canhydro.DataClasses import Projection
-from src.canhydro.geometry import draw_cyls, get_projection, numba_get_projection
+from src.canhydro.geometry import (draw_cyls, get_projection,
+                                   numba_get_projection)
 from src.canhydro.global_vars import qsm_cols
 
 # from descartes import PolygonPatch
@@ -68,6 +69,8 @@ class Cylinder:  # (defaultdict):
     # #blood for the blood god, software eng for the filter func
     # class_attrs = self.__get_class_attributes(type(self))
     # self.__init_instance(class_attrs, kwargs)
+    def __repr__(self):
+        return f"Cylinder( cyl_id={self.cyl_id}, x={self.x}, y={self.y}, z={self.z}, radius={self.radius}, length={self.length}, branch_order={self.branch_order}, branch_id={self.branch_id}, volume={self.volume}, parent_id={self.parent_id}, reverse_branch_order={self.reverse_branch_order}, segment_id={self.segment_id}"
 
     def __eq__(self, other):
         return type(self) == type(other) and self.__repr__() == other.__repr__()

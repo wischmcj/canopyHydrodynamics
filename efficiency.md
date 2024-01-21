@@ -28,12 +28,12 @@
 2799.07s call     tests/test_efficiency.py::test_min_graph_test[4_LargeCollection.csv]
 112.85s call     tests/test_efficiency.py::test_obj_graph_test[4_LargeCollection.csv]
 
-    
+
 INFO:my-logger:base_graph_test started at 16999 38382
 
 Line #    Mem usage    Increment  Occurrences   Line Contents
 =============================================================
-    44    127.4 MiB    127.4 MiB           1       @profile
+    44    127.4 MiB    127.4 MiB           1
     45                                             def base_graph_test():
     46    127.4 MiB      0.0 MiB           1           forest = Forester()
     47    127.4 MiB      0.0 MiB           1           forest.get_file_names(dir=test_input_dir)
@@ -78,5 +78,3 @@ Line #    Mem usage    Increment  Occurrences   Line Contents
     65   1252.6 MiB    222.3 MiB           1           flexible_collection.find_flow_components_object()
     66   1252.6 MiB      0.0 MiB           1           print(proj_area)
 INFO:my-logger:finished at 16999 40965
-
-
