@@ -29,7 +29,6 @@ downloads/
 eggs/
 .eggs/
 lib/
-data/
 lib64/
 parts/
 sdist/
@@ -199,3 +198,8 @@ cython_debug/
 #.idea/
 data/validation_data/StemFlowVolumes.xlsx
 data/validation_data/StemFlowVolumes.xlsx
+
+# data stuff 
+NotReadIn/
+input/
+data/validation_raw/StemFlowVolumes.xlsx
