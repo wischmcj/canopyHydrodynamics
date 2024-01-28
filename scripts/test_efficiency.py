@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from line_profiler import profile #noqa
+from line_profiler import profile  # noqa
 
 from src.canhydro.global_vars import test_input_dir
 
