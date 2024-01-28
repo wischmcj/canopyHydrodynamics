@@ -551,7 +551,9 @@ class CylinderCollection:
             log.info(f"summed drip edges in component {idx}")
         self.flows = flow_chars
 
-    def identify_stem_paths(self, axis: str):
+    def identify_stem_paths(
+        self,
+    ):
         # Special case tree attributes
         root = 0
         self.stem_paths = nx.all_simple_paths(self.g, 0, root)
