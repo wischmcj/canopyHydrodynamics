@@ -39,6 +39,10 @@ The code that you see zipped here is representiitive of the ongoing work in our 
   1. set-up - https://pre-commit.com/
   2. run on all files - pre-commit run --all-files
 
+## Packaging
+
+This project was initially packaged with Flit using the the instructions found on the offical python website: https://packaging.python.org/en/latest/tutorials/packaging-projects/.
+
 ## Running
 
   A command line interface (CLI) is planned for this project, to allow researchers to easily point to, read in and process their lidar scans. Today, however, we have prioritized work needed to create a cahnhydro package, that would allow our code to be utilized in any python project by use of the 'pip install canhydro' command.
