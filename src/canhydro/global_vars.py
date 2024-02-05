@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 import toml
-from memory_profiler import LogFile
+# from _profiler import LogFile
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
@@ -40,7 +40,7 @@ for column in config["config_vars"]:
 log_dir = DIR
 log_dir = Path("".join([log_dir, r"log\log_", str(time_stamp)]))
 
-sys.stdout = LogFile(str(log_dir))
+# sys.stdout = LogFile(str(log_dir))
 
 logging.basicConfig(
     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"

@@ -6,7 +6,6 @@ import os
 import sys
 
 # import pandas as pd
-import geopandas as geo
 import matplotlib.pyplot as plt
 
 # import numpy as np

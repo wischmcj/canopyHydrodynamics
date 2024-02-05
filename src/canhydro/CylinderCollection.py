@@ -11,7 +11,7 @@ from itertools import chain
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from memory_profiler import LogFile
+# from memory_profiler import LogFile
 from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
@@ -24,7 +24,7 @@ from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
 from src.canhydro.global_vars import config_vars, log
 from src.canhydro.utils import intermitent_log, lam_filter, save_file
 
-sys.stdout = LogFile()
+# sys.stdout = LogFile()
 
 NAME = "CylinderCollection"
 
