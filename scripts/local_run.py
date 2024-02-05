@@ -29,6 +29,7 @@ if __name__ == "__main__":
         (0.25, 0.5),
         (0.75, 0.5),
     ]
+    print("test")
     alpha_shape = alphashape.alphashape(
         points_2d, 2.0
     )  # alphashape.alphashape(points_2d, 0.)

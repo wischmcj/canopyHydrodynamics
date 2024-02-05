@@ -15,7 +15,7 @@ downloads/
 eggs/
 .eggs/
 lib/
-data/
+data/notReadIn/
 lib64/
 venv/
 parts/
