@@ -7,14 +7,14 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 from geopandas import GeoSeries
-from memory_profiler import LogFile
+# from memory_profiler import LogFile
 from numba import njit
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
 from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
 
-sys.stdout = LogFile()
+# sys.stdout = LogFile()
 
 from src.canhydro.DataClasses import coord_list
 from src.canhydro.global_vars import log
