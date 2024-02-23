@@ -124,7 +124,7 @@ def save_file(
                 writer.writerow(row)
 
 
-def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
+def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.001):
     if np.random.uniform(0, 1, 1) < freq:
         log.info(msg + str(np.round((prog / whole) * 100, decimals=1)))
         print(msg + str(np.round((prog / whole) * 100, decimals=1)))

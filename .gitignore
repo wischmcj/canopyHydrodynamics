@@ -15,7 +15,11 @@ downloads/
 eggs/
 .eggs/
 lib/
+<<<<<<< HEAD
 data/notReadIn/
+=======
+data/NotReadIn
+>>>>>>> bc18b1a (adding testing files, converting to rust work x)
 lib64/
 venv/
 parts/
