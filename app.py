@@ -1,30 +1,81 @@
 from __future__ import annotations
 
 import os
+import io
 import sys
-
+import time
 import debugpy
-debugpy.listen(("0.0.0.0", 5678))
+from random import randint
+
+from timeit import timeit
+from time import time 
+# debugpy.listen(("0.0.0.0", 5678))
 # import geopandas as geo
 # import matplotlib.pyplot as plt
 
 # import numpy as np
-
+from flask import Flask, Response, render_template
+import pytest
 from src.canhydro.Forester import Forester
 from src.canhydro.global_vars import log, test_input_dir
+from src.canhydro.benchmark_comp import compare, initialize_forester
 
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
-def initialize_forester(dir, file = None):
-    forester = Forester()
-    forester.get_file_names(dir=test_input_dir)
-    forester.qsm_from_file_names(file_name=request.param)
-    return forester
+app = Flask(__name__)
 
-if __name__ == "__main__":
-    forest = initialize_forester(test_input_dir,"5_SmallTree.csv")
+@app.route('/time/<string:file>')
+def time(file):
+    string = compare(file)
+    return  render_template('index.html', strings=[string])
+
+
+# @app.route('/timesum')
+# def local_run():
+#     string = compare()
+#     return  render_template('index.html', strings=[string])
+
+
+@app.route('/plot/<string:file>')
+def plot_png(file):
+    forest = initialize_forester(test_input_dir, file)
     tree = forest.cylinder_collections[0]
-    print("Waiting for client to attach...")
-    debugpy.wait_for_client()
-    breakpoint()
+    tree.initialize_digraph_from()
+    tree.find_flow_components()
+    # return str(len(tree.cylinders))
+    # fig = tree.draw('YZ', highlight_lambda=lambda: is_stem, filter_lambda = lambda: cyl_id>100)
+    fig = tree.draw('YZ', highlight_lambda=lambda: is_stem, filter_lambda = lambda: cyl_id>80)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/test')
+def test():
+    args_str = "test/test_collection_integration.py"
+    args = args_str.split(" ")
+    pytest.main(args)
+    return 'Tested'
+
+
+
+if __name__ == '__main__':
+    # pre_populate_cache()
+    app.run(debug=True, host='0.0.0.0')
+
+
+# if __name__ == "__main__":
+#     forest = initialize_forester(test_input_dir,"5_SmallTree.csv")
+#     tree = forest.cylinder_collections[0]
+#     print("Waiting for client to attach...4")
+#     min_number = int(input('Please enter the min number: '))
+#     max_number = int(input('Please enter the max number: '))
+#     if (max_number < min_number):
+#             print('Invalid input - shutting down...')
+#      else:
+#          print('Thanks.')
+#      debugpy.wait_for_client()
+#      time.sleep(5)

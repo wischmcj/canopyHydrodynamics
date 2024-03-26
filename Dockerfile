@@ -1,11 +1,16 @@
 
 FROM python:3.9
-# FROM ubuntu:latest
+# WORKDIR /code
+# ENV FLASK_APP app.py
+# ENV FLASK_RUN_HOST 0.0.0.0
+# # RUN apk add --no-cache gcc musl-dev linux-headers
+# COPY requirements.txt requirements.txt
 
-# RUN apt-get update && apt-get install -y \
-#     python3.10 \ 
-#     python3-pip 
+# RUN pip install --upgrade pip
+# RUN pip install --no-cache-dir -r requirements.txt 
 
+# COPY . /code
+# CMD ["flask", "run"]
 
 # FROM python:3.6-slim
 
@@ -21,6 +26,7 @@ RUN apt-get update && \
 # Authorize SSH Host
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh
+
 # See: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints
 COPY known_hosts > /root/.ssh/known_hosts
 
@@ -36,8 +42,7 @@ COPY requirements.txt requirements.txt
 
 WORKDIR /code
 
-
-# RUN  pip install --upgrade pip
+RUN  pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Remove SSH keys
