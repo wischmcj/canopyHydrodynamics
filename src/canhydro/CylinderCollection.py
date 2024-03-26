@@ -457,8 +457,8 @@ class CylinderCollection:
             for node, out_degree in g.out_degree()
             if out_degree == 0 and node != -1 and node not in trunk_nodes
         ]
-        breakpoint()
-        stem_flow_component = g.subgraph(rx.ancestors(g, root_node) | {0}).copy()
+
+        stem_flow_component = g.subgraph(nx.ancestors(g, root_node) | {0}).copy()
 
         stem_cylinders = [
             node
@@ -478,8 +478,8 @@ class CylinderCollection:
                 drip_node,
                 [node for node in divide_nodes if nx.has_path(g_drip, node, drip_node)],
             )
-                for drip_node in drip_nodes
-                if drip_node != -1
+            for drip_node in drip_nodes
+            if drip_node != -1
         ]
 
         drip_components = []

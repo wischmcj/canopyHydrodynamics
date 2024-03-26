@@ -4,8 +4,9 @@ services:
   server:
     container_name: canhydro
     build: .
-    restart: always
     ports:
-      - 5678:5678
+      - "5000:5000"
     volumes:
-      - ./src/canhydro:/code
+      - .:/code
+    environment:
+      FLASK_DEBUG: 1
