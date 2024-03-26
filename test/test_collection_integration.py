@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
-
+import pickle
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
@@ -66,6 +66,9 @@ find_flows_cases = [
     # (file, expected_stem_map, expected_flows )
     # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
     pytest.param(
+        "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
+    ),
+    pytest.param(
         "7_DripPathAdjToTrunk.csv",
         drip_adj_stem_map,
         drip_adj_flows,
@@ -85,9 +88,6 @@ find_flows_cases = [
     ),
     pytest.param(
         "3_HappyPathWTrunk.csv", happy_path_is_stem, happy_path_flows, id="Happy Path"
-    ),
-    pytest.param(
-        "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
     ),
 ]
 
@@ -117,54 +117,54 @@ dbh_cases = [
 #     basic_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)
 
 
-# @pytest.mark.parametrize(
-#     "basic_collection, expected_cylinders",
-#     create_cylinders_cases,
-#     indirect=["basic_collection"],
-# )
-# def test_create_cylinders(basic_collection, expected_cylinders):
-#     actual = basic_collection.get_collection_data()
-#     expected = expected_cylinders
-#     assert expected == actual
+@pytest.mark.parametrize(
+    "basic_collection, expected_cylinders",
+    create_cylinders_cases,
+    indirect=["basic_collection"],
+)
+def test_create_cylinders(basic_collection, expected_cylinders):
+    actual = basic_collection.get_collection_data()
+    expected = expected_cylinders
+    assert expected == actual
     
-# @pytest.mark.parametrize(
-#     "file_name, expected_cylinders",
-#     create_cylinders_cases
-# )
-# def test_create_cylinders_from_csv(file_name, expected_cylinders):
-#     csv_collection = CylinderCollection()
-#     file_path = "/".join([str(test_input_dir), file_name])
-#     file_obj = open(file_path,'r')
-#     csv_collection.from_csv(file_obj, DIR)
-#     actual = csv_collection.get_collection_data()
-#     assert actual == expected_cylinders
+@pytest.mark.parametrize(
+    "file_name, expected_cylinders",
+    create_cylinders_cases
+)
+def test_create_cylinders_from_csv(file_name, expected_cylinders):
+    csv_collection = CylinderCollection()
+    file_path = "/".join([str(test_input_dir), file_name])
+    file_obj = open(file_path,'r')
+    csv_collection.from_csv(file_obj, DIR)
+    actual = csv_collection.get_collection_data()
+    assert actual == expected_cylinders
 
-# @pytest.mark.parametrize(
-#     "flexible_collection, angles, projection_axis",
-#     ez_projection_cases,
-#     indirect=["flexible_collection"],
-# )
-# def test_project_cylinders(
-#     flexible_collection, angles, projection_axis, accepted_err=0.03
-# ):
-#     for idx, cyl in enumerate(flexible_collection.cylinders):
-#         expected_angle = angles[idx]
-#         actual_angle = cyl.projected_data[projection_axis]["angle"]
-#         if projection_axis == "XY":
-#             actual_setup_angle = cyl.angle
-#             assert within_range(expected_angle, actual_setup_angle, accepted_err)
-#         assert within_range(expected_angle, actual_angle, accepted_err)
+@pytest.mark.parametrize(
+    "flexible_collection, angles, projection_axis",
+    ez_projection_cases,
+    indirect=["flexible_collection"],
+)
+def test_project_cylinders(
+    flexible_collection, angles, projection_axis, accepted_err=0.03
+):
+    for idx, cyl in enumerate(flexible_collection.cylinders):
+        expected_angle = angles[idx]
+        actual_angle = cyl.projected_data[projection_axis]["angle"]
+        if projection_axis == "XY":
+            actual_setup_angle = cyl.angle
+            assert within_range(expected_angle, actual_setup_angle, accepted_err)
+        assert within_range(expected_angle, actual_angle, accepted_err)
 
 
-# @pytest.mark.parametrize(
-#     "basic_collection, expected_result, lam_func",
-#     lam_filter_cases,
-#     indirect=["basic_collection"],
-# )
-# def test_lam_filter(basic_collection, expected_result, lam_func):
-#     cyls_returned, _ = lam_filter(basic_collection.cylinders, lam_func)
-#     actual_result = [cyl.cyl_id for cyl in cyls_returned]
-#     assert actual_result == expected_result
+@pytest.mark.parametrize(
+    "basic_collection, expected_result, lam_func",
+    lam_filter_cases,
+    indirect=["basic_collection"],
+)
+def test_lam_filter(basic_collection, expected_result, lam_func):
+    cyls_returned, _ = lam_filter(basic_collection.cylinders, lam_func)
+    actual_result = [cyl.cyl_id for cyl in cyls_returned]
+    assert actual_result == expected_result
 
 
 @pytest.mark.parametrize(
@@ -176,7 +176,8 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
     basic_collection.project_cylinders("XY")
     basic_collection.initialize_digraph_from()
     basic_collection.find_flow_components()
-    basic_collection.calculate_flows()
+    # basic_collection.calculate_flows()
+    breakpoint()
     actual_flows = basic_collection.flows
     _, actual_stem_map = lam_filter(
         basic_collection.cylinders, lambda: is_stem, return_all=True
@@ -184,7 +185,7 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
     if actual_flows != expected_flows or actual_stem_map == expected_stem_map:
         print(actual_flows)
         print(expected_flows)
-        # assert 1==0
+        assert 1==0
     else:
         assert actual_flows == expected_flows
         assert actual_stem_map == expected_stem_map
@@ -212,13 +213,13 @@ def test_dbh(basic_collection, expected_dbh):
     assert actual_dbh == expected_dbh
 
 
-# @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
-# # @pytest.mark.parametrize("flexible_collection", ["4_LargeCollection.csv"], indirect=True)
-# def test_drip_map(flexible_collection):
-#     flexible_collection.find_flow_components()
-#     flexible_collection.calculate_flows()
-#     flexible_collection.drip_map(lambda: cyl_id > 400)
-#     breakpoint()
+@pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
+# @pytest.mark.parametrize("flexible_collection", ["4_LargeCollection.csv"], indirect=True)
+def test_drip_map(flexible_collection):
+    flexible_collection.find_flow_components()
+    flexible_collection.calculate_flows()
+    flexible_collection.drip_map(lambda: cyl_id > 400)
+    breakpoint()
 #     assert expected == str(actual)
 
 
