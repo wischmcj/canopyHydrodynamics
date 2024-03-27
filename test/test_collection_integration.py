@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
@@ -30,7 +29,11 @@ from test.utils import within_range
 
 from src.canhydro.global_vars import DIR, test_input_dir
 from src.canhydro.utils import lam_filter
-from src.canhydro.CylinderCollection import CylinderCollection
+from src.canhydro.CylinderCollection import (
+     CylinderCollection, 
+        pickle_collection, 
+        unpickle_collection
+)
 
 create_cylinders_cases = [
     # (file, expected_cylinders )

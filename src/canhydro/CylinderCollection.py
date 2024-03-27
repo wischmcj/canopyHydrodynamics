@@ -6,6 +6,8 @@ from __future__ import annotations
 import copy
 import math
 import sys
+import pickle
+import os
 from itertools import chain
 
 import matplotlib.pyplot as plt
@@ -28,6 +30,23 @@ from src.canhydro.utils import intermitent_log, lam_filter, save_file
 
 NAME = "CylinderCollection"
 
+def pickle_collection(collection:CylinderCollection):
+    file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
+    file = os.path.dirname(f'{collection.file_name}_pickle')
+    create_dir_and_file(file)
+    pickle_file = open(file_path, 'ab')
+    pickle.dump(collection, pickle_file) 
+    breakpoint()                
+    pickle_file.close()
+
+def unpickle_collection(file_name:str):
+    file_path = "".join([output_dir, "pickle\\",f'{file_name}_pickle'])
+    dbfile = open(file_path, 'rb')    
+    db = pickle.load(dbfile)
+    # for keys in db:
+    #     print(keys, '=>', db[keys])
+    breakpoint()
+    dbfile.close()
 
 # By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
 class CylinderCollection:
