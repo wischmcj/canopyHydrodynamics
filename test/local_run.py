@@ -51,7 +51,7 @@ def initialize_collection(file = "5_SmallTree"):
         print(f"Error initializing collection: {e}")
         return None
     log.info(f"successfully initialized collection")
-    pickle(basic_collection,file)
+    # pickle(basic_collection,file)
     return basic_collection
 
 def prep_for_stats(collection, case_angle, case_name):
@@ -64,7 +64,6 @@ def prep_for_stats(collection, case_angle, case_name):
         print(f"Error preping for stats: {e}")
         return None
     log.info(f"successfully prepped for stats {case_name}")
-    pickle(collection,f'_prep_{case_name}')
     return True
     
 def generate_statistics(collection, case_name):
@@ -82,7 +81,6 @@ def generate_statistics(collection, case_name):
         print(f"Error gernerating flow file : {e}")
         return None
     log.info("successfully created pickle {pickle_file}")
-    pickle(collection,f'_stats_{case_name}')
     return True
 
 def run_test_cases(file_name):
@@ -97,8 +95,10 @@ def run_test_cases(file_name):
             if preped:
                 generate_statistics(collection, case_name)
             else:
+                pickle(collection,f'_prep_{case_name}')
                 return None, f'{file_name}_{case_name}'
         log.info(f"successfully prepped for stats {case_name}")
+        pickle(collection,f'_stats_{case_name}')
         return True, f'{file_name}_{case_name}'
     else:
         return None, f'{file_name}_{case_name}'
