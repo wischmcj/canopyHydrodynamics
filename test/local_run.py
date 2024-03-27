@@ -88,6 +88,7 @@ def run_test_cases(file_name):
     # angles_to_test = [0.1, 0.05,0,-0.1,-0.16666,-0.2,-0.25,-0.3]
     angles_to_test = [0.1666,0,-0.16666,-0.3]
     collection = initialize_collection(file_name)
+    case_name = f"inital_case_name"
     if collection:
         for angle in angles_to_test:
             case_name = f"{angle}"
@@ -146,7 +147,7 @@ def sensitivity_analysis():
     # log.info(f"total time old method - {dur}")
 
 
-    # start = time()
+    start = time()
 
     with mp.Pool(3) as p:
         task_pool = [p.apply_async(run_test_cases, args=(file,)) for file in files_to_test]
