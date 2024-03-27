@@ -87,7 +87,8 @@ def generate_statistics(collection, case_name):
 
 def run_test_cases(file_name):
 
-    angles_to_test = [0.1, 0.05,0,-0.1,-0.16666,-0.2,-0.25,-0.3]
+    # angles_to_test = [0.1, 0.05,0,-0.1,-0.16666,-0.2,-0.25,-0.3]
+    angles_to_test = [0.1666,0,-0.16666,-0.3]
     collection = initialize_collection(file_name)
     if collection:
         for angle in angles_to_test:
@@ -105,13 +106,13 @@ def run_test_cases(file_name):
 
 
 def sensitivity_analysis():
-    files_to_test = ["5_SmallTree"]
-    # files_to_test = ["Secrest27-05_000000_1",
-    #                      "Secrest02-26_000000"
-    #                     ,"Secrest02-30_000000"
-    #                     ,"Secrest03-12_000000"
-    #                     ,"Secrest07-32_000000"
-    #                     ,"Secrest08-24c_000000"
+    # files_to_test = ["5_SmallTree"]
+    files_to_test = ["Secrest27-05_000000_1",
+                         "Secrest02-26_000000"
+                        ,"Secrest02-30_000000"
+                        ,"Secrest03-12_000000"
+                        ,"Secrest07-32_000000"
+                        ,"Secrest08-24c_000000"]
     #                     ,"Secrest10-02_000000"
     #                     ,"Secrest10-08_000000"
     #                     ,"Secrest11-27_000000"
