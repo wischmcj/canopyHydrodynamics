@@ -56,7 +56,7 @@ class RustyCylinderCollection(CylinderCollection):
         else:
             log.warning(
                 "Graph not initialized, run <CylinderCollection>.initialize_graph(**args)"
-            )
+            
             return list(None)
 
     def get_trunk_nodes(self) -> list[int]:

@@ -76,7 +76,7 @@ def old_flows(input):
     # 5_SmallTree
     start = time()
     input.find_flow_components()
-    input.old_calculate_flows()
+    # input.calculate_flows()
     dur = time() - start
     return dur
 

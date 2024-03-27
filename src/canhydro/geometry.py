@@ -939,6 +939,7 @@ def pool_get_projection(cyl, plane):
     max_c = np.zeros_like(delt_c)
     pSV = []
     projection = {
+        "cyl_id": cyl.cyl_id,
         "polygon": Polygon(),
         "base_vector": (0, 0, 0),
         "anti_vector": (0, 0, 0),
@@ -960,6 +961,7 @@ def pool_get_projection(cyl, plane):
                 max_c = np.max(dim_c[:])
                 ang = 0
                 projection = {
+                    "cyl_id": cyl.cyl_id,
                     "polygon": cPS,
                     "base_vector": aV,
                     "anti_vector": bV,
@@ -1072,6 +1074,7 @@ def pool_get_projection(cyl, plane):
                     slope = rise / run
                 ang = np.arctan(slope)
                 projection = {
+                    "cyl_id": cyl.cyl_id,
                     "polygon": cPS,
                     "base_vector": aV,
                     "anti_vector": bV,
@@ -1089,6 +1092,7 @@ def pool_get_projection(cyl, plane):
             cyl.projected_data[plane] = projection
             log.info("dim_a[0] is null, unable to project")
             cyl.xy_area = cyl.projected_data["XY"]["area"]
+            return projection
     except UnboundLocalError:
         log.info(
             f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"

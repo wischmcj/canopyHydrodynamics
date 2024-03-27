@@ -73,51 +73,53 @@ def read_file_names(file_path=input_dir):
 
 def save_file(
     file,
-    out_file: Union(list[dict], dict),
+    out_file,
     overwrite: bool = False,
     subdir: str = "agg",
     fileFormat=".csv",
-    method="",
+    method=""
 ):
-    dir = "/".join([str(output_dir), method, ""]).replace("/", "\\")
-    ofname = "_".join([file, method]).replace("/", "\\")
-    ofname_ext = "".join([ofname, fileFormat]).replace("/", "\\")
-    aggname = "_".join(["agg", method, fileFormat]).replace("/", "\\")
-    aggname_ext = "".join([aggname, fileFormat]).replace("/", "\\")
+    log.info(f'attempting to write file {file}')
+    dir = "/".join([str(output_dir), method, ""])#.replace("/", "\\")
+    ofname = "_".join([file, method])#.replace("/", "\\")
+    ofname_ext = "".join([ofname, fileFormat])#.replace("/", "\\")
+    aggname = "_".join(["agg", method, fileFormat])#.replace("/", "\\")
+    aggname_ext = "".join([aggname, fileFormat])#.replace("/", "\\")
     folderExists = os.path.exists(dir)
     fileExists = os.path.exists(dir + ofname_ext)
     aggExists = os.path.exists(dir + aggname_ext)
     if not folderExists:
+        log.info(f'folder doesnt exist, creating {dir}')
         os.makedirs(dir)
-
     to_write = []
     if isinstance(out_file, dict):
         out_file = [out_file]
 
     headers = list(out_file[0].keys())
+    log.info(f'file headers {headers}')
     to_write.append(headers)
-    log.info(f"{to_write}")
     for dic in out_file:
         cur_row = []
         for _, value in dic.items():
             cur_row.append(value)
         cur_row.append(time_stamp)
         to_write.append(cur_row)
-
-    if fileExists:
-        with open(dir + ofname_ext, "w+") as csv_file:
-            reader = csv.reader(csv_file)
-            existing_rows = list(reader)
-            if existing_rows[0] == headers:
-                for row in existing_rows[1:]:
-                    if row != []:
-                        to_write.append(row)
-            else:
-                log.warning(
-                    f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
-                )
+    # breakpoint()
+    # if fileExists:
+    #     with open(dir + ofname_ext, "w+") as csv_file:
+    #         reader = csv.reader(csv_file)
+    #         existing_rows = list(reader)
+    #         if existing_rows[0] == headers:
+    #             for row in existing_rows[1:]:
+    #                 if row != []:
+    #                     to_write.append(row)
+    #         else:
+    #             log.warning(
+    #                 f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
+    #             )
     if overwrite:
         log.info(f"{to_write}")
+        log.info(f"attempting to write to {dir + ofname_ext}")
         with open(dir + ofname_ext, "w") as csv_file:
             writer = csv.writer(csv_file)
             for row in to_write:
