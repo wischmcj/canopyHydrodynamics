@@ -5,7 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+data/
 # Distribution / packaging
 .Python
 build/
@@ -15,11 +15,8 @@ downloads/
 eggs/
 .eggs/
 lib/
-<<<<<<< HEAD
+canhydro_venv/
 data/notReadIn/
-=======
-data/NotReadIn
->>>>>>> bc18b1a (adding testing files, converting to rust work x)
 lib64/
 venv/
 parts/
