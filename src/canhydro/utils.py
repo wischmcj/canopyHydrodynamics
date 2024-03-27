@@ -129,8 +129,6 @@ def save_file(
     ofname_ext = "".join([ofname, fileFormat])
     folderExists = os.path.exists(dir)
     fileExists = os.path.exists(dir + ofname_ext)
-<<<<<<< HEAD
-=======
 
     # aggname = "_".join(["agg", method, fileFormat])
     # aggname_ext = "".join([aggname, fileFormat])

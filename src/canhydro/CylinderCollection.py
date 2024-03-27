@@ -47,9 +47,6 @@ with open("src/canhydro/user_def_config.toml") as f:
     in_flow_grade_lim=config['config_vars']["in_flow_grade_lim"]
 
 NAME = "CylinderCollection"
-
-
-<<<<<<< HEAD
 def pickle_collection(collection, designation: str = ""):   
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
     if designation == "": designation = collection.file_names
@@ -68,10 +65,6 @@ def unpickle_collection(file_name:str):
     dbfile.close()
     return db
 
-# By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- lidirke lambda searching
-=======
-# By inheriting the odel class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
->>>>>>> 8aeaf6b (Revert "Revert "Merge branch 'main' into ingest-validation-data"")
 class CylinderCollection:
     cylinders = dict
 
@@ -371,7 +364,7 @@ class CylinderCollection:
         trunk_paths = nx.shortest_path(trunk_contraction, target=0)
         dists = {node: len(path) - 1 for node, path in trunk_paths.items()}
         return dists
-
+    
     def find_flow_components(self):
         g = self.digraph
         if type(g) == nx.Graph:
@@ -736,7 +729,17 @@ class CylinderCollection:
         )
 
         return statistics
-
+        
+    def generate_flow_file(self, file_ext):
+        flow_dicts = [flow.__dict__ for flow in self.flows]
+        save_file(
+            self.file_name.replace(".csv", f"_flows_{file_ext}"),
+            out_file=flow_dicts,
+            subdir="flows",
+            method="flows",
+            overwrite=True
+        )
+        
     def get_drip_points(
         self,
         # metric :str = 'projected_area',
