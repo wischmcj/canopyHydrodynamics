@@ -91,6 +91,11 @@ def run_test_cases(file_name):
     case_name = f"inital_case_name"
     if collection:
         for angle in angles_to_test:
+            already_run = [("Secrest02-26_000000",0.1666),("Secrest02-30_000000", 0)
+                            ,("Secrest02-30_000000", 0.1666)
+                            ,("Secrest03-12_000000", 0.1666)]
+            if (file_name, angle) in already_run: 
+                return True, f'{file_name}_{case_name}'
             case_name = f"{angle}"
             preped = prep_for_stats(collection, angle, case_name)
             if preped:
