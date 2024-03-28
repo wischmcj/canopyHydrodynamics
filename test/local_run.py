@@ -86,14 +86,106 @@ def generate_statistics(collection, case_name):
 def run_test_cases(file_name):
 
     # angles_to_test = [0.1, 0.05,0,-0.1,-0.16666,-0.2,-0.25,-0.3]
-    angles_to_test = [0.1666,0,-0.16666,-0.3]
+    # angles_to_test = [0.1666,0,-0.16666,-0.3]
+    angles_to_test = [-1.5]
     collection = initialize_collection(file_name)
     case_name = f"inital_case_name"
     if collection:
         for angle in angles_to_test:
-            already_run = [("Secrest02-26_000000",0.1666),("Secrest02-30_000000", 0)
-                            ,("Secrest02-30_000000", 0.1666)
-                            ,("Secrest03-12_000000", 0.1666)]
+            already_run = [("Secrest02-26",-0.3),
+                    ("Secrest02-26",-0.16666),
+                    ("Secrest02-26",0),
+                    ("Secrest02-26",0.1666),
+                    ("Secrest02-30",-0.3),
+                    ("Secrest02-30",-0.16666),
+                    ("Secrest02-30",0),
+                    ("Secrest02-30",0.1666),
+                    ("Secrest03-12",-0.3),
+                    ("Secrest03-12",-0.16666),
+                    ("Secrest03-12",0),
+                    ("Secrest03-12",0.1666),
+                    ("Secrest07-32",-0.3),
+                    ("Secrest07-32",-0.16666),
+                    ("Secrest07-32",0),
+                    ("Secrest07-32",0.1666),
+                    ("Secrest08-24c",-0.3),
+                    ("Secrest08-24c",-0.16666),
+                    ("Secrest08-24c",0),
+                    ("Secrest08-24c",0.1666),
+                    ("Secrest10-02",-0.3),
+                    ("Secrest10-02",-0.16666),
+                    ("Secrest10-02",0),
+                    ("Secrest10-02",0.1666),
+                    ("Secrest10-08",-0.3),
+                    ("Secrest10-08",-0.16666),
+                    ("Secrest10-08",0),
+                    ("Secrest10-08",0.1666),
+                    ("Secrest11-27",-0.3),
+                    ("Secrest11-27",-0.16666),
+                    ("Secrest11-27",0),
+                    ("Secrest11-27",0.1666),
+                    ("Secrest14-09",-0.3),
+                    ("Secrest14-09",-0.16666),
+                    ("Secrest14-09",0),
+                    ("Secrest14-09",0.1666),
+                    ("Secrest16-3TI-CO",-0.3),
+                    ("Secrest16-3TI-CO",-0.16666),
+                    ("Secrest16-3TI-CO",0),
+                    ("Secrest16-3TI-CO",0.1666),
+                    ("Secrest16-14LI-ST",-0.3),
+                    ("Secrest16-14LI-ST",-0.16666),
+                    ("Secrest16-14LI-ST",0),
+                    ("Secrest16-14LI-ST",0.1666),
+                    ("Secrest18-13",-0.3),
+                    ("Secrest18-13",-0.16666),
+                    ("Secrest18-13",0),
+                    ("Secrest18-13",0.1666),
+                    ("Secrest23-23",-0.3),
+                    ("Secrest23-23",-0.0666),
+                    ("Secrest23-23",-0.16666),
+                    ("Secrest23-23",-0.26666),
+                    ("Secrest23-23",0),
+                    ("Secrest23-23",0.1666),
+                    ("Secrest24-03",-0.3),
+                    ("Secrest24-03",-0.0666),
+                    ("Secrest24-03",-0.16666),
+                    ("Secrest24-03",-0.26666),
+                    ("Secrest24-03",0),
+                    ("Secrest24-03",0.1666),
+                    ("Secrest24-07",0.1666),
+                    ("Secrest29-20",-0.3),
+                    ("Secrest29-20",-0.16666),
+                    ("Secrest29-20",-1),
+                    ("Secrest29-20",-2),
+                    ("Secrest29-20",0),
+                    ("Secrest29-20",0.1666),
+                    ("Secrest29-25",-0.3),
+                    ("Secrest29-25",-0.16666),
+                    ("Secrest29-25",-1),
+                    ("Secrest29-25",-2),
+                    ("Secrest29-25",0),
+                    ("Secrest29-25",0.1666),
+                    ("Secrest31-05",-0.3),
+                    ("Secrest31-05",-0.16666),
+                    ("Secrest31-05",-1),
+                    ("Secrest31-05",-2),
+                    ("Secrest31-05",0),
+                    ("Secrest31-05",0.1666),
+                    ("Secrest32-01",0.1666),
+                    ("Secrest32-03",-0.3),
+                    ("Secrest32-03",-0.16666),
+                    ("Secrest32-03",-1),
+                    ("Secrest32-03",-2),
+                    ("Secrest32-03",0),
+                    ("Secrest32-03",0.1666),
+                    ("Secrest32-06",-0.3),
+                    ("Secrest32-06",-0.16666),
+                    ("Secrest32-06",0),
+                    ("Secrest32-06",0.1666),
+                    ("Secrest32-14",-0.3),
+                    ("Secrest32-14",-0.16666),
+                    ("Secrest32-14",0),
+                    ("Secrest32-14",0.1666)]
             if (file_name, angle) in already_run: 
                 return True, f'{file_name}_{case_name}'
             case_name = f"{angle}"
@@ -113,32 +205,32 @@ def run_test_cases(file_name):
 
 def sensitivity_analysis():
     # files_to_test = ["5_SmallTree"]
-    files_to_test = ["Secrest27-05_000000_1",
+    files_to_test = ["Secrest27-05",",
                          "Secrest02-26_000000"
                         ,"Secrest02-30_000000"
                         ,"Secrest03-12_000000"
                         ,"Secrest07-32_000000"
-                        ,"Secrest08-24c_000000"]
-    #                     ,"Secrest10-02_000000"
-    #                     ,"Secrest10-08_000000"
-    #                     ,"Secrest11-27_000000"
-    #                     ,"Secrest14-09_000000"
-    #                     ,"Secrest16-3TI-CO_000000"
-    #                     ,"Secrest16-14LI-ST_000000"
-    #                     ,"Secrest18-13_000000"
-    #                     ,"Secrest23-23_000000"
-    #                     ,"Secrest24-03_000000"
-    #                     ,"Secrest24-07_000000"
-    #                     ,"Secrest26-03_000000"
-    #                     ,"Se=crest27-05_000000_1"
-    #                     ,"Secrest28-31_000000"
-    #                     ,"Secrest29-20_000000"
-    #                     ,"Secrest29-25_000000"
-    #                     ,"Secrest31-05_000000"
-    #                     ,"Secrest32-01_000000"
-    #                     ,"Secrest32-03_000000"
-    #                     ,"Secrest32-06_000000_1"
-    #                     ,"Secrest32-14_000000"]
+                        ,"Secrest08-24c_000000"
+                        ,"Secrest10-02_000000"
+                        ,"Secrest10-08_000000"
+                        ,"Secrest11-27_000000"
+                        ,"Secrest14-09_000000"
+                        ,"Secrest16-3TI-CO_000000"
+                        ,"Secrest16-14LI-ST_000000"
+                        ,"Secrest18-13_000000"
+                        ,"Secrest23-23_000000"
+                        ,"Secrest24-03_000000"
+                        ,"Secrest24-07_000000"
+                        ,"Secrest26-03_000000"
+                        ,"Secrest27-05"
+                        ,"Secrest28-31_000000"
+                        ,"Secrest29-20_000000"
+                        ,"Secrest29-25_000000"
+                        ,"Secrest31-05_000000"
+                        ,"Secrest32-01_000000"
+                        ,"Secrest32-03_000000"
+                        ,"Secrest32-06"
+                        ,"Secrest32-14_000000"]
 
     # start = time()
     # for file in files_to_test:
