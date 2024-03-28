@@ -96,6 +96,7 @@ def save_file(
         out_file = [out_file]
 
     headers = list(out_file[0].keys())
+    headers.append('file_write_timestamp')
     # log.info(f'file headers {headers}')
     to_write.append(headers)
     for dic in out_file:
