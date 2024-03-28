@@ -79,7 +79,7 @@ def save_file(
     fileFormat=".csv",
     method=""
 ):
-    log.info(f'attempting to write file {file}')
+    log.info(f'preparing to write file {file}')
     dir = "/".join([str(output_dir), method, ""])#.replace("/", "\\")
     ofname = "_".join([file, method])#.replace("/", "\\")
     ofname_ext = "".join([ofname, fileFormat])#.replace("/", "\\")
@@ -96,7 +96,7 @@ def save_file(
         out_file = [out_file]
 
     headers = list(out_file[0].keys())
-    log.info(f'file headers {headers}')
+    # log.info(f'file headers {headers}')
     to_write.append(headers)
     for dic in out_file:
         cur_row = []
@@ -118,7 +118,7 @@ def save_file(
     #                 f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
     #             )
     if overwrite:
-        log.info(f"{to_write}")
+        # log.info(f"{to_write}")
         log.info(f"attempting to write to {dir + ofname_ext}")
         with open(dir + ofname_ext, "w") as csv_file:
             writer = csv.writer(csv_file)

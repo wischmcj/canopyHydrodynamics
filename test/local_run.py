@@ -35,7 +35,7 @@ def pickle(collection, designation = ""):
     log.info(f"successfully created pickle {pickle_file}")
 
 def initialize_collection(file = "5_SmallTree"):
-    log.info(f"initializingcollection...")
+    log.info(f"initializing collection...")
     # forest = Forester()
     # forest.get_file_names(dir=test_input_dir)
     # forest.qsm_from_file_names(file_name=file)
@@ -86,16 +86,47 @@ def generate_statistics(collection, case_name):
 def run_test_cases(file_name):
 
     # angles_to_test = [0.1, 0.05,0,-0.1,-0.16666,-0.2,-0.25,-0.3]
-    angles_to_test = [0.1666,0,-0.16666,-0.3]
+    # angles_to_test = [0.1666,0,-0.16666,-0.3]
+    angles_to_test = [-0.0666,-.2666]
     collection = initialize_collection(file_name)
-    case_name = f"inital_case_name"
+    case_name = f"inital_case_n++
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ame"
     if collection:
         for angle in angles_to_test:
-            already_run = [("Secrest02-26_000000",0.1666),("Secrest02-30_000000", 0)
-                            ,("Secrest02-30_000000", 0.1666)
-                            ,("Secrest03-12_000000", 0.1666)]
-            if (file_name, angle) in already_run: 
-                return True, f'{file_name}_{case_name}'
+            already_run = [("Secrest02-26_000000",0.1666),("Secrest02-26_000000",0),
+                            ("Secrest32-14_000000",0.1666)]
+            files_run = ["Seacrest07-32_000000","Secrest08-24c_000000",
+                         "Secrest02-30_000000","Secrest03-12_000000",
+                         "Secrest32-06_000000_1"]
+            if (file_name, angle) in already_run or file_name in files_run: 
+                continue
             case_name = f"{angle}"
             preped = prep_for_stats(collection, angle, case_name)
             if preped:
@@ -103,7 +134,7 @@ def run_test_cases(file_name):
             else:
                 pickle(collection,f'_prep_{case_name}')
                 return None, f'{file_name}_{case_name}'
-        log.info(f"successfully prepped for stats {case_name}")
+        log.info(f"successfully ran test cases {case_name}")
         pickle(collection,f'_stats_{case_name}')
         return True, f'{file_name}_{case_name}'
     else:
@@ -113,12 +144,15 @@ def run_test_cases(file_name):
 
 def sensitivity_analysis():
     # files_to_test = ["5_SmallTree"]
-    files_to_test = ["Secrest27-05_000000_1",
-                         "Secrest02-26_000000"
+    files_to_test = [
+                        "Secrest32-14_000000"
+                        ,"Secrest02-26_000000"
                         ,"Secrest02-30_000000"
                         ,"Secrest03-12_000000"
                         ,"Secrest07-32_000000"
-                        ,"Secrest08-24c_000000"]
+                        ,"Secrest08-24c_000000"
+                        ,"Secrest32-06_000000_1"
+                        ]
     #                     ,"Secrest10-02_000000"
     #                     ,"Secrest10-08_000000"
     #                     ,"Secrest11-27_000000"
