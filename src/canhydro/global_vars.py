@@ -53,5 +53,4 @@ with open('src/canhydro/logging_config.yml', 'rt') as f:
 logging.basicConfig(
     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
 )
-LOGGER = logging.getLogger("my-logger")
 log = logging.getLogger("my-logger")
