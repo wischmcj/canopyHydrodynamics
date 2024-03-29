@@ -45,5 +45,4 @@ sys.stdout = LogFile(str(log_dir))
 logging.basicConfig(
     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
 )
-LOGGER = logging.getLogger("my-logger")
 log = logging.getLogger("my-logger")
