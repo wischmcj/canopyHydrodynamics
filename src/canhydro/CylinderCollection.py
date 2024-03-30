@@ -323,6 +323,8 @@ class CylinderCollection:
         curvature_alpha: np.float64 = 2,
         stem: bool = False,
         draw: bool = False,
+        save: bool = False,
+        file_ext: str = ''
     ) -> None:
         """Generates tightly fit concave_hull (alpha shape) around the passed component"""
         """Alpha determines the tightness of the fit of the shape. Too low an alpha results in multiple"""
@@ -342,7 +344,7 @@ class CylinderCollection:
 
         hull, _, _ = concave_hull(boundary_points, curvature_alpha)
         if draw:
-            draw_cyls([hull])
+            draw_cyls([hull], save, file_ext)
         if stem:
             self.stem_hull = hull
         else:
@@ -1116,4 +1118,5 @@ class CylinderCollection:
             log.warning(
                 "Drip Map: No cylinders returned for lambda function: {a_lambda}"
             )
+        breakpoint()
         plt.show()
