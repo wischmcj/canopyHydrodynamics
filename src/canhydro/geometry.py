@@ -17,7 +17,7 @@ from shapely.ops import polygonize, unary_union
 # sys.stdout = LogFile()
 
 from src.canhydro.DataClasses import coord_list
-from src.canhydro.global_vars import log
+from src.canhydro.global_vars import log, output_dir
 from src.canhydro.utils import stack
 
 
@@ -1101,13 +1101,17 @@ def pool_get_projection(cyl, plane):
             f"Erroring cyl id {cyl.cyl_id}"
         )
 
-def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True]):
+def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True], save:bool = False, file_ext:str= '', show:bool = False):
     log.info("Plotting cylinder collection")
     fig, ax = plt.subplots()
     geoPolys = GeoSeries(collection)
     colors = ["Blue" if col else "Grey" for col in colors]
     geoPolys.plot(ax=ax, color=colors)
-    plt.show()
+    if show:
+        plt.show()
+    if save:    
+        save_dir = "/".join([str(output_dir), 'draw', f"{file_ext}"])#.replace("/", "\\")
+        plt.savefig(save_dir, dpi = 3000)
     return fig
 
 
