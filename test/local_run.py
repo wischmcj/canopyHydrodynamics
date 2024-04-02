@@ -4,6 +4,7 @@ import os
 import sys
 import multiprocessing as mp
 from time import time 
+from itertools import product
 print(sys.path)
 import pytest
 
@@ -29,10 +30,10 @@ def pickle(collection, designation = ""):
     # pickle_file = pickle_collection(collection, designation)
     try: 
         pickle_file = pickle_collection(collection, designation)
+        log.info(f"successfully created pickle for file {collection.file_name}")
     except Exception as e:
-        print(f"Error pickling: {e}")
+        print(f"Error pickling file {collection.file_name}: {e}")
         return
-    log.info(f"successfully created pickle {pickle_file}")
 
 def initialize_collection(file = "5_SmallTree"):
     log.info(f"Initializing collection...{file}")
@@ -49,17 +50,20 @@ def initialize_collection(file = "5_SmallTree"):
         basic_collection.project_cylinders("XY")
     except Exception as e:
         print(f"Error initializing collection {file}: {e}")
+        print(f"Error initializing collection for file {file}: {e}")
         return None
     log.info(f"Successfully initialized  collection {file}")
     return basic_collection
 
 def prep_for_stats(collection, case_angle, case_name):
+    log.info(f"attempting to prep for stats for case {case_name}")
     log.info(f"attempting to prep for stats {case_name}")
     try: 
         collection.initialize_digraph_from(in_flow_grade_lim=case_angle)
         collection.find_flow_components()
         collection.calculate_flows()
     except Exception as e:
+        print(f"Error preping for  stats for case {case_name}: {e}")
         print(f"Error preping stats for case_name {case_name}: {e}")
         return None
     log.info(f"successfully prepped for stats {case_name}")
@@ -71,186 +75,85 @@ def generate_statistics(collection, case_name):
     try: 
         statistics = collection.statistics(file_ext = case_name)
     except Exception as e:
-        print(f"Error gernerating stats : {e}")
+        print(f"Error gernerating stats for case {case_name} : {e}")
         return None
-    log.info(f"attempting to generate flow file for file {collection.file_name}, case_name {case_name}")
+    log.info(f"attempting to generate flow file for {case_name}")
     try: 
         collection.generate_flow_file(file_ext = case_name)
     except Exception as e:
-        print(f"Error gernerating flow file : {e}")
+        print(f"Error gernerating flow file for case {case_name}: {e}")
         return None
     log.info("successfully created flow and stats files")
     return True
 
-def run_test_cases(file_name):
+def run_test_cases(cases_to_run):
     
-    ##################################TO DO:  Write Log handler/formatter for sensitivity analysis
-    
-    # angles_to_test = [0.16666,,0,-0.1,-0.16666,-0.2,-0.25,-0.3]
-    # angles_to_test = [0.1666,0,-.0666,-0.16666,-.2666,-0.3]
-    log.info(f'running test cases {file_name}')
-    angles_to_test = [0.1666,0,-.0666,-0.16666,-.2666,-1.,-1.5,-2.,-2.5, -0.3, -0.9,-0.95,.3,.36666,.4,.46666,.5,.56666]
-    collection = initialize_collection(file_name)
+    start = time()
+    collection = None
     case_name = f"inital_case_name"
-    if collection:
-        for angle in angles_to_test:
-            already_run = [("Secrest02-26_000000",-1),("Secrest02-30_000000",-1),
-("Secrest03-12_000000",-1),
-("Secrest07-32_000000",-1),
-("Secrest07-32_000000",0.1666),
-("Secrest08-24c_000000",-1),
-("Secrest10-02_000000",-0.3),
-("Secrest10-02_000000",-0.16666),
-("Secrest10-02_000000",-1),
-("Secrest10-02_000000",0),
-("Secrest10-02_000000",0.1666),
-("Secrest10-08_000000",-0.3),
-("Secrest10-08_000000",-0.16666),
-("Secrest10-08_000000",-1),
-("Secrest10-08_000000",0),
-("Secrest10-08_000000",0.1666),
-("Secrest11-27_000000",-0.3),
-("Secrest11-27_000000",-0.16666),
-("Secrest11-27_000000",-1),
-("Secrest11-27_000000",0),
-("Secrest11-27_000000",0.1666),
-("Secrest14-09_000000",-0.3),
-("Secrest14-09_000000",-0.16666),
-("Secrest14-09_000000",-1),
-("Secrest14-09_000000",0),
-("Secrest14-09_000000",0.1666),
-("Secrest16-3TI-CO_000000",-0.3),
-("Secrest16-3TI-CO_000000",-0.16666),
-("Secrest16-3TI-CO_000000",-1),
-("Secrest16-3TI-CO_000000",0),
-("Secrest16-3TI-CO_000000",0.1666),
-("Secrest16-14LI-ST_000000",-0.3),
-("Secrest16-14LI-ST_000000",-0.16666),
-("Secrest16-14LI-ST_000000",-1),
-("Secrest16-14LI-ST_000000",0),
-("Secrest16-14LI-ST_000000",0.1666),
-("Secrest18-13_000000",-0.3),
-("Secrest18-13_000000",-0.16666),
-("Secrest18-13_000000",-1),
-("Secrest18-13_000000",0),
-("Secrest18-13_000000",0.1666),
-("Secrest23-23_000000",-1),
-("Secrest24-03_000000",-1),
-("Secrest24-07_000000",-1),
-("Secrest26-03_000000",-1),
-("Secrest27-05_000000",-0.5),
-("Secrest27-05_000000",-0.6),
-("Secrest27-05_000000",-0.7),
-("Secrest27-05_000000",-0.8),
-("Secrest27-05_000000",-0.9),
-("Secrest27-05_000000",-0.95),
-("Secrest27-05_000000",-0.5666),
-("Secrest27-05_000000",-0.66666),
-("Secrest27-05_000000",-0.76666),
-("Secrest27-05_000000",-0.86666),
-("Secrest27-05_000000",-1.0),
-("Secrest27-05_000000",-1.5),
-("Secrest27-05_000000",-2.0),
-("Secrest27-05_000000",-2.5),
-("Secrest27-05_000000",0.3),
-("Secrest27-05_000000",0.4),
-("Secrest27-05_000000",0.5),
-("Secrest27-05_000000",0.36666),
-("Secrest27-05_000000",0.46666),
-("Secrest27-05_000000",0.56666),
-("Secrest29-20_000000",-0.3),
-("Secrest29-20_000000",-0.16666),
-("Secrest29-20_000000",-1),
-("Secrest29-20_000000",-2),
-("Secrest29-20_000000",0),
-("Secrest29-20_000000",0.1666),
-("Secrest29-25_000000",-0.3),
-("Secrest29-25_000000",-0.16666),
-("Secrest29-25_000000",-1),
-("Secrest29-25_000000",-2),
-("Secrest29-25_000000",0),
-("Secrest29-25_000000",0.1666),
-("Secrest31-05_000000",-0.3),
-("Secrest31-05_000000",-0.16666),
-("Secrest31-05_000000",-1),
-("Secrest31-05_000000",-2),
-("Secrest31-05_000000",0),
-("Secrest31-05_000000",0.1666),
-("Secrest32-01_000000",0.1666),
-("Secrest32-03_000000",-0.3),
-("Secrest32-03_000000",-0.16666),
-("Secrest32-03_000000",-1),
-("Secrest32-03_000000",-2),
-("Secrest32-03_000000",0),
-("Secrest32-03_000000",0.1666),
-("Secrest32-06_000000",-0.5),
-("Secrest32-06_000000",-0.6),
-("Secrest32-06_000000",-0.7),
-("Secrest32-06_000000",-0.8),
-("Secrest32-06_000000",-0.5666),
-("Secrest32-06_000000",-0.66666),
-("Secrest32-06_000000",-0.76666),
-("Secrest32-06_000000",-1),
-("Secrest32-06_000000",-0.9),
-("Secrest32-06_000000",-0.95),
-("Secrest32-06_000000",-1.5),
-("Secrest32-06_000000",-2.0),
-("Secrest32-06_000000",-2.5),
-("Secrest32-06_000000",0.3),
-("Secrest32-06_000000",0.4),
-("Secrest32-06_000000",0.5),
-("Secrest32-06_000000",0.36666),
-("Secrest32-06_000000",0.46666),
-("Secrest32-06_000000",0.56666),
-("Secrest32-14_000000",-1)]
-            if (file_name, angle) in already_run: 
-                log.info(f'Already ran test cases {file_name}:{angle}')
-                continue
-            log.info(f'Running test case{file_name}:{angle}')
-            case_name = f"{angle}"
-            preped = prep_for_stats(collection, angle, case_name)
-            if preped:
-                generate_statistics(collection, case_name)
-            else:
-                pickle(collection,f'_prep_{case_name}')
-                return None, f'{file_name}_{case_name}'
-        log.info(f"successfully completed case {case_name}")
-        # pickle(collection,f'_stats_{case_name}')
-        return True, f'{file_name}_{case_name}'
-    else:
-        return None, f'{file_name}_{case_name}'
+    for case in cases_to_run:
+        file_name, angle = case
+        if not collection:
+            collection = initialize_collection(file_name)
+            if not collection:  
+                dur = time() - start
+                return None, f'{file_name}_{case_name}', dur
+        log.info(f" Running case {file_name}_{angle}")
+        case_name = f"{angle}"
+        log.info(f"running case {file_name}_{case_name}")
+        preped = prep_for_stats(collection, angle, case_name)
+        if preped:
+            generate_statistics(collection, case_name)
+        else:
+            pickle(collection,f'_prep_{case_name}')
+            dur = time() - start
+            return None, f'{file_name}_{case_name}',dur
+        log.info(f"successfully ran case {case_name}")
+        pickle(collection,f'_stats_{case_name}')
+        collection=None
+        dur = time() - start
+        return True, f'{file_name}_{case_name}',dur
+    
 
+from data.output.run_so_far import already_run
+run_cases = already_run
 
+angles = set([tup[1] for tup in already_run])
+
+def get_cases(file_names, already_run, angles_to_tests):
+    cases = product(file_names,angles_to_tests)
+    return [case for case in cases if case not in already_run]
 
 def sensitivity_analysis():
-    # files_to_test = ["5_SmallTree"]
-    # files_to_test = ["Secrest27-05_000000","Secrest32-06_000000"]
-    files_to_test =        ["Secrest02-26_000000"
-                            ,"Secrest02-30_000000"
-                            ,"Secrest03-12_000000"
-                            ,"Secrest07-32_000000"
-                            ,"Secrest08-24c_000000"
-                            ,"Secrest10-02_000000"
-                            ,"Secrest10-08_000000"
-                            ,"Secrest11-27_000000"
-                            ,"Secrest14-09_000000"
-                            ,"Secrest16-3TI-CO_000000"
-                            ,"Secrest16-14LI-ST_000000"
-                            ,"Secrest18-13_000000"
-                            ,"Secrest23-23_000000"
-                            ,"Secrest24-03_000000"
-                            ,"Secrest24-07_000000"
-                            ,"Secrest26-03_000000"
-                            ,"Secrest27-05_000000_1"
-                            ,"Secrest27-05_000000"
-                            ,"Secrest29-20_000000"
-                            ,"Secrest29-25_000000"
+    files_to_test = ["5_SmallTree"]
+    files_to_test = [#"Secrest27-05_000000","Secrest32-06_000000"]
+                         "Secrest02-26_000000"
+                        ,"Secrest02-30_000000"
+                        ,"Secrest03-12_000000"
+                        ,"Secrest07-32_000000"
+                        ,"Secrest08-24c_000000"
+                        ,"Secrest10-02_000000"
+                        ,"Secrest10-08_000000"
+                        ,"Secrest11-27_000000"
+                        ,"Secrest14-09_000000"
+                        ,"Secrest16-3TI-CO_000000"
+                        ,"Secrest16-14LI-ST_000000"
+                        ,"Secrest18-13_000000"
+                        ,"Secrest23-23_000000"
+                        ,"Secrest24-03_000000"
+                        ,"Secrest24-07_000000"
+                        ,"Secrest26-03_000000"
+                        ,"Secrest28-31_000000"
+                        ,"Secrest29-20_000000"
+                        ,"Secrest29-25_000000"
+                        ,"Secrest31-05_000000"
                         ,"Secrest32-01_000000"
                         ,"Secrest32-03_000000"
-                        ,"Secrest32-06_000000_1"
+                        ,"Secrest32-06_000000"
                         ,"Secrest32-14_000000"]
-
-    # start = time()
+    cases_to_run = get_cases(files_to_test,run_cases,angles)
+    log.info(f'Will run {len(cases_to_run)} cases : {cases_to_run}')
+    start = time()
     # for file in files_to_test:
     #     success = run_test_cases(file)
     #     if not success:
@@ -262,20 +165,16 @@ def sensitivity_analysis():
     # log.info(f"total time old method - {dur}")
 
 
-    start = time()
-
-    with mp.Pool(5) as p:
-        task_pool = [p.apply_async(run_test_cases, args=(file,)) for file in files_to_test]
+    with mp.Pool(2) as p:
+        task_pool = [p.apply_async(run_test_cases, args=(cases_to_run,)) for file in files_to_test]
         results = [task.get() for task in task_pool]
 
-    dur = time() - start
-
-    log.info(f"total time new method - {dur}")
-    for success, case in results:
+    for success, case, dur in results:
+        log.info(f"total time running {case} - {dur}")
         if not success:
-            log.info(f"Failed run cases")
+            log.info(f"Failed run case {case}")
         else:
-            log.info(f"suceeded running cases")
+            log.info(f"suceeded running cases {case}")
 
 
 if __name__ == "__main__":
