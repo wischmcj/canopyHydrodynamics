@@ -17,7 +17,7 @@ path = os.getcwd()
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
-breakpoint()
+# breakpoint()
 if __name__ == "__main__":
     points_2d = [
         (0.0, 0.0),
@@ -33,11 +33,11 @@ if __name__ == "__main__":
     alpha_shape = alphashape.alphashape(
         points_2d, 2.0
     )  # alphashape.alphashape(points_2d, 0.)
-    breakpoint()
+    # breakpoint()
     fig, ax = plt.subplots()
     ax.scatter(*zip(*points_2d))
     #     ax.add_patch(PolygonPatch(alpha_shape))
     geopoly = geo.GeoSeries(alpha_shape)
     geopoly.plot(ax=ax) 
     plt.show()
-    breakpoint()
+    # breakpoint()

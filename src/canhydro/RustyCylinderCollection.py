@@ -56,7 +56,7 @@ class RustyCylinderCollection(CylinderCollection):
         else:
             log.warning(
                 "Graph not initialized, run <CylinderCollection>.initialize_graph(**args)"
-            
+            )
             return list(None)
 
     def get_trunk_nodes(self) -> list[int]:
@@ -74,7 +74,6 @@ class RustyCylinderCollection(CylinderCollection):
             )
             return list(None)
         
-
 
     def find_drip_component(self, idx, pair):
         drip_node, source_divides = pair

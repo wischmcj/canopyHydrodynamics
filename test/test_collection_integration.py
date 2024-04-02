@@ -208,7 +208,7 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
     _, actual_stem_map = lam_filter(
         basic_collection.cylinders, lambda: is_stem, return_all=True
     )
-    breakpoint()
+    # breakpoint()
     pickle_collection(basic_collection)
     unpickle_collection(basic_collection)
     if actual_flows != expected_flows or actual_stem_map == expected_stem_map:
@@ -269,7 +269,7 @@ def test_drip_map(flexible_collection):
     flexible_collection.find_flow_components()
     flexible_collection.calculate_flows()
     flexible_collection.drip_map(lambda: cyl_id > 400)
-    breakpoint()
+    # breakpoint()
 #     assert expected == str(actual)
 
 

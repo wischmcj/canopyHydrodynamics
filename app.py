@@ -27,4 +27,4 @@ if __name__ == "__main__":
     tree = forest.cylinder_collections[0]
     print("Waiting for client to attach...")
     debugpy.wait_for_client()
-    breakpoint()
+    # breakpoint()
