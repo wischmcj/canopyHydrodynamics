@@ -29,6 +29,7 @@ known_hosts
 
 
 # Distribution / packaging
+.github
 .Python
 build/
 develop-eggs/
@@ -38,6 +39,10 @@ eggs/
 .eggs/
 lib/
 lib64/
+
+venv/*
+canhydro_venv/*
+
 parts/
 sdist/
 var/
