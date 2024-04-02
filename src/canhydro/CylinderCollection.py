@@ -905,7 +905,6 @@ class CylinderCollection:
             stem_flow = [flow for flow in self.flows if flow.drip_node_id == 0][0]
         else:
             stem_flow = 0
-            breakpoint()
 
         total_surface_area = np.sum([cyl.surface_area for cyl in self.cylinders])
         total_volume = np.sum([cyl.volume for cyl in self.cylinders])
@@ -1118,5 +1117,4 @@ class CylinderCollection:
             log.warning(
                 "Drip Map: No cylinders returned for lambda function: {a_lambda}"
             )
-        breakpoint()
         plt.show()

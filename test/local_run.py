@@ -5,17 +5,14 @@ import sys
 import multiprocessing as mp
 from time import time 
 from itertools import product
-print(sys.path)
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 sys.path.insert(0, os.getcwd())
-print(sys.path)
+# print(sys.path)
 
-# from test.expected_results_shapes import (small_tree_overlap,
-#                                           small_tree_wateshed_poly)
-# from test.utils import within_range
 
+from data.output.run_so_far import already_run
 from src.canhydro.global_vars import DIR, test_input_dir
 from src.canhydro.utils import lam_filter
 from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
@@ -32,26 +29,25 @@ def pickle(collection, designation = ""):
         pickle_file = pickle_collection(collection, designation)
         log.info(f"successfully created pickle for file {collection.file_name}")
     except Exception as e:
-        print(f"Error pickling file {collection.file_name}: {e}")
+        log.info(f"Error pickling file {collection.file_name}: {e}")
         return
 
-def initialize_collection(file = "5_SmallTree"):
-    log.info(f"Initializing collection...{file}")
-    # forest = Forester()
-    # forest.get_file_names(dir=test_input_dir)
-    # forest.qsm_from_file_names(file_name=file)
-    # basic_collection = forest.cylinder_collections[0]
-    # basic_collection.project_cylinders("XY")
-    try:
-        forest = Forester()
-        forest.get_file_names(dir=test_input_dir)
-        forest.qsm_from_file_names(file_name=file)
-        basic_collection = forest.cylinder_collections[0]
-        basic_collection.project_cylinders("XY")
-    except Exception as e:
-        print(f"Error initializing collection for file {file}: {e}")
-        return None
-    log.info(f"Successfully initialized  collection {file}")
+def initialize_collection(file = "5_SmallTree", from_pickle = False, **kwargs):
+    if from_pickle:
+        collection = load_from_pickle(**kwargs)
+    else:
+        log.info(f"initializing collection...")
+        try:
+            forest = Forester()
+            forest.get_file_names(dir=test_input_dir)
+            forest.qsm_from_file_names(file_name=file)
+            basic_collection = forest.cylinder_collections[0]
+            basic_collection.project_cylinders("XY")
+        except Exception as e:
+            log.info(f"Error initializing collection for file {file}: {e}")
+            return None
+        log.info(f"successfully initialized collection")
+        # pickle(basic_collection,file)
     return basic_collection
 
 def prep_for_stats(collection, case_angle, case_name, calculate:bool = True):
@@ -61,7 +57,7 @@ def prep_for_stats(collection, case_angle, case_name, calculate:bool = True):
         collection.find_flow_components()
         if calculate: collection.calculate_flows()
     except Exception as e:
-        print(f"Error preping for  stats for case {case_name}: {e}")
+        log.info(f"Error preping for  stats for case {case_name}: {e}")
         return None
     log.info(f"successfully prepped for stats {case_name}")
     return True
@@ -72,31 +68,36 @@ def generate_statistics(collection, case_name):
     try: 
         statistics = collection.statistics(file_ext = case_name)
     except Exception as e:
-        print(f"Error gernerating stats for case {case_name} : {e}")
+        log.info(f"Error gernerating stats for case {case_name} : {e}")
         return None
     log.info(f"attempting to generate flow file for {case_name}")
     try: 
         collection.generate_flow_file(file_ext = case_name)
     except Exception as e:
-        print(f"Error gernerating flow file for case {case_name}: {e}")
+        log.info(f"Error gernerating flow file for case {case_name}: {e}")
         return None
     log.info("successfully created flow and stats files")
     return True
 
-def run_test_cases(cases_to_run, stats :bool = True, fig:bool = False):
+def run_test_cases(cases_to_run, stats :bool = True, fig:bool = False, from_pickle:bool =False):
 
     start = time()
     collection = None
     case_name = f"inital_case_name"
+    ret = []
     for case in cases_to_run:
         file_name, angle = case
+        case_name = f"{angle}"
         if not collection:
+            # pickle_args = { "from_pickle": from_pickle,
+            #                 'file':file_name,
+            #                 'pickle_point':'stats', 
+            #                 'angle': angle}
             collection = initialize_collection(file_name)
             if not collection:  
                 dur = time() - start
-                return None, f'{file_name}_{case_name}', dur
-        log.info(f" Running case {file_name}_{angle}")
-        case_name = f"{angle}"
+                ret.append((None, f'{file_name}_{case_name}', dur))
+                continue
         log.info(f"running case {file_name}_{case_name}")
 
         preped = prep_for_stats(collection, angle, case_name, calculate=stats)
@@ -104,51 +105,65 @@ def run_test_cases(cases_to_run, stats :bool = True, fig:bool = False):
             if preped:
                 generate_statistics(collection, case_name)
             else:
+                log.info(f'Error prepping, pickling and ending ')
                 pickle(collection,f'_prep_{case_name}')
                 dur = time() - start
-                return None, f'{file_name}_{case_name}',dur
+                ret.append((None, f'{file_name}_{case_name}', dur))
+                continue
         if fig:
-            draw_case(collection, angle, case_name)
+            draw_case(collection, angle = angle, file = file_name)
         log.info(f"successfully ran case {case_name}")
-        pickle(collection,f'_stats_{case_name}')
+        # pickle(collection,f'_stats_{case_name}')
         collection=None
         dur = time() - start
-        return True, f'{file_name}_{case_name}',dur
-    
+        ret.append((True, f'{file_name}_{case_name}', dur))
+    return ret
 
-def draw_case(file, case, pickle_point):
-    pickle_file = f'{file}_pickle__{pickle_point}_{case}'
+def load_from_pickle(file, pickle_point, angle):
+    pickle_file = f'{file}_pickle__{pickle_point}_{angle}'
+    collection = None
     try:
+        log.info(f'Loading collection for {file}, case {angle} from pickle file {pickle_file}')
         collection = unpickle_collection(pickle_file)  
         if collection: 
-            log.info(f'Collection for {file}, case {case} successfully loaded from pickle file {pickle_file}')
+            log.info(f'Collection for {file}, case {angle} successfully loaded from pickle file {pickle_file}')
     except Exception as e:
-        log.info(f'failed to load pickle for {file}, case {case}  :{e}')
+        log.info(f'failed to load pickle for {file}, case {angle}  :{e}')
+    return collection
 
+def draw_case(collection = None, file:str = '', pickle_point:str = '', angle = ''):
     try:
+        if not collection:
+            collection = load_from_pickle(file, pickle_point,angle)
+
         stem_flow_fig = collection.draw(plane = 'XZ', highlight_lambda = lambda:is_stem,
-                                        save = True, file_ext = f'{file}_{case}.png', show = False)
+                                        save = True, file_ext = f'{file}_{angle}.png', show = False)
         trunk_fig = collection.draw(plane = 'XZ', filter_lambda = lambda: is_stem, highlight_lambda = lambda:branch_order==0,
-                                        save = True, file_ext = f'{file}_{case}', show= False)
+                                        save = True, file_ext = f'{file}_{angle}', show= False)
     except Exception as e:  
-        log.info(f'failed to draw and save pickle for {file}, case {case}  :{e}')
-
-    breakpoint()
+        log.info(f'Failed to draw and save pickle for {file}, case {angle}  :{e}')
 
 
-from data.output.run_so_far import already_run
+
 run_cases = already_run
 
-angles = set([tup[1] for tup in already_run])
-
+# angles = set([tup[1] for tup in already_run])
+angles = [-.42,-.44,-.46,-.48,-.4,-.38,-.36,-.34,-.32,-.30,-.28,-.26,-.24,-.22,-.2,-.18,-.16,-.14,-.12,-.1,-.08,-.06,-.04,-.02]
+#           .4,.38,.36,.34,.32,.30,.28,.26,.24,.22,.2,.18,.16,.14,.12,.1,.08,.06,.04,.02]
+# angles = [-.8,-.88,-.86,-.84,-.82,-.80,-.78,-.76,-.74,-.72,-.7,-.68,-.66,-.64,-.62,-.6,-.58,-.56,-.54,-.52,-.5,-.48,-.46,-.44,-.42,
+#           .4,.38,.36,.34,.32,.30,.28,.26,.24,.22,.2,.18,.16,.14,.12,.1,.08,.06,.04,.02]
 def get_cases(file_names, already_run, angles_to_tests):
+    already_run = [(x,float(y)) for x,y in already_run]
     cases = product(file_names,angles_to_tests)
     return [case for case in cases if case not in already_run]
 
 def sensitivity_analysis():
-    files_to_test = ["5_SmallTree"]
-    files_to_test = ["Secrest27-05_000000","Secrest32-06_000000"]
-                        #  "Secrest02-26_000000"
+    # files_to_test = ["5_SmallTree"]
+    files_to_test = ["Secrest32-06_000000", "Secrest27-05_000000"]
+                        #  "Secrest02-26_000000"1,-.08,-.06,-.1,-.08,-.06,-.04,-.02,
+#           .4,.38,.36,.34,.32,.30,.28,.26,.24,.22,.2,.18,.16,.14,.12,.1,.08,.06,.04,.0204,-.02,
+#           .4,.38,.36,.34,.32,.30,.28,.26,.24,.22,.2,.18,.16,.14,.12,.1,.08,.06,.04,.021,-.08,-.06,-.04,-.02,
+#           .4,.38,.36,.34,.32,.30,.28,.26,.24,.22,.2,.18,.16,.14,.12,.1,.08,.06,.04,.02
                         # ,"Secrest02-30_000000"
                         # ,"Secrest03-12_000000"
                         # ,"Secrest07-32_000000"
@@ -173,42 +188,48 @@ def sensitivity_analysis():
                         # ,"Secrest32-06_000000"
                         # ,"Secrest32-14_000000"]
     cases_to_run = get_cases(files_to_test,run_cases,angles)
+    breakpoint()
     log.info(f'Will run {len(cases_to_run)} cases : {cases_to_run}')
     start = time()
-    # for file in files_to_test:
-    #     success = run_test_cases(file)
+    # breakpoint()
+    success = run_test_cases(cases_to_run, fig = True)
+    # for file, angle in cases_to_run:
+    #     success = run_test_cases(cases_to_run)
     #     if not success:
     #         log.info(f"Failed run cases")
     #     else:
     #         log.info(f"suceeded running cases")
-    # dur = time() - start
+    dur = time() - start
 
-    # log.info(f"total time old method - {dur}")
+    log.info(f"total time old method - {dur}")
 
 
-    with mp.Pool(2) as p:
-        task_pool = [p.apply_async(run_test_cases, args=(cases_to_run,)) for file in files_to_test]
-        results = [task.get() for task in task_pool]
+    # with mp.Pool(2) as p:
+    #     task_pool = [p.apply_async(run_test_cases, args=(cases_to_run,)) for file in files_to_test]
+    #     results = [task.get() for task in task_pool]
 
-    for success, case, dur in results:
-        log.info(f"total time running {case} - {dur}")
-        if not success:
-            log.info(f"Failed run case {case}")
-        else:
-            log.info(f"suceeded running cases {case}")
+    # for success, case, dur in results:
+    #     log.info(f"total time running {case} - {dur}")
+    #     if not success:
+    #         log.info(f"Failed run case {case}")
+    #     else:
+    #         log.info(f"suceeded running cases {case}")
 
 
 if __name__ == "__main__":
     # data/output/pickle/5_SmallTree_pickle__prep_-0.1
 
-    draw_from_pickle('5_SmallTree',-0.1, 'stats')
-    # sensitivity_analysis()
+    # load_from_pickle('Secrest32-06_000000', 'stats', 0.3666)
+    # load_from_pickle('Secrest32-06_000000', 'stats', 0.3666)
+    # load_from_pickle('Secrest32-06_000000_1', 'stats', -1.5)
+    # load_from_pickle('5_SmallTree_1', 'stats', 0.36666)
+    sensitivity_analysis()       
     
     
     # forest = Forester()
     # forest.get_file_names(dir=test_input_dir)
     # forest.qsm_from_file_names(file_name="5_SmallTree")
-    # basic_collection = forest.cylinder_collections[0]
+    # basic_collection = forest.cylinder_collections[0]or cyl in collection.cylinders: rint(cyl.angle>=-1.5) if cyl.cyl_id in collection.trunk_nodes print(cyl.cyl_id
 
     # forest_old = Forester()
     # forest_old.get_file_names(dir=test_input_dir)
