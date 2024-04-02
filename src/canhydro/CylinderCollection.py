@@ -33,7 +33,7 @@ NAME = "CylinderCollection"
 
 def pickle_collection(collection, designation: str = ""):
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
-    file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
+    file_path ="".join(['/mnt/c/Users/wisch/OneDrive/Desktop/Research/canopyHydrodynamics/data/output/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
     directory = os.path.dirname(file_path)
     create_dir_and_file(directory)
     pickle_file = open(file_path, 'ab')
@@ -42,7 +42,7 @@ def pickle_collection(collection, designation: str = ""):
     return pickle_file
 
 def unpickle_collection(file_name:str):
-    file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', file_name])
+    file_path ="".join(['/mnt/c/Users/wisch/OneDrive/Desktop/Research/canopyHydrodynamics/data/output/pickle/', file_name])
     dbfile = open(file_path, 'rb')    
     db = pickle.load(dbfile)
     dbfile.close()

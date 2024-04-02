@@ -118,7 +118,7 @@ def save_file(
     #                 f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
     #             )
     if overwrite:
-        log.info(f"{to_write}")
+        # log.info(f"{to_write}")
         log.info(f"attempting to write to {dir + ofname_ext}")
         with open(dir + ofname_ext, "w") as csv_file:
             writer = csv.writer(csv_file)

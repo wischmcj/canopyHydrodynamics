@@ -5,8 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
-data/
 # Distribution / packaging
+.github
 .Python
 build/
 develop-eggs/
@@ -17,7 +17,8 @@ eggs/
 lib/
 data/
 lib64/
-venv/
+venv/*
+canhydro_venv/*
 parts/
 sdist/
 var/
