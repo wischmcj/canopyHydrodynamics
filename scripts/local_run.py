@@ -3,11 +3,17 @@ from __future__ import annotations
 import os
 import toml
 import sys
-import multiprocessing as mp
-from time import time 
-from itertools import product
-import gc
-import pytest
+
+# import pandas as pd
+import geopandas as geo
+import matplotlib.pyplot as plt
+
+# import numpy as np
+
+from canhydro.Forester import Forester
+from canhydro.global_vars import log, test_input_dir
+# # from memory_profiler import profile
+path = os.getcwd()
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 sys.path.insert(0, os.getcwd())
@@ -663,6 +669,7 @@ def draw_for_paper():
 
 
 # breakpoint()
+
 if __name__ == "__main__":
     # data/output/pickle/5_SmallTree_pickle__prep_-0.1
 
