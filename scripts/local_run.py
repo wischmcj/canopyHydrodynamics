@@ -10,14 +10,15 @@ import matplotlib.pyplot as plt
 
 # import numpy as np
 
-# from canhydro.Forester import Forester
-# from canhydro.global_vars import log, test_input_dir
+from canhydro.Forester import Forester
+from canhydro.global_vars import log, test_input_dir
 # # from memory_profiler import profile
 path = os.getcwd()
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 # breakpoint()
+
 if __name__ == "__main__":
     points_2d = [
         (0.0, 0.0),
