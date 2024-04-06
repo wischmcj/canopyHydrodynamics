@@ -7,26 +7,9 @@ formatters:
         format: "%(asctime)s.%(msecs)03d | %(message)s"
         datefmt: "%H:%M:%S"
 
-    # standard:
-    #     (): prefect.logging.formatters.PrefectFormatter
-    #     format: "%(asctime)s.%(msecs)03d | %(levelname)-7s | %(name)s - %(message)s"
-    #     flow_run_fmt: "%(asctime)s.%(msecs)03d | %(levelname)-7s | Flow run %(flow_run_name)r - %(message)s"
-    #     task_run_fmt: "%(asctime)s.%(msecs)03d | %(levelname)-7s | Task run %(task_run_name)r - %(message)s"
-    #     datefmt: "%H:%M:%S"
-
     comprehensive:
         format: "%(asctime)s.%(msecs)03d |%(threadName)-12s | %(levelname)-7s | %(filename)s:%(lineno)s - %(funcName)20s() | %(name)s - %(message)s"
         datefmt: "%Y.%m.%d %H:%M:%S"
-
-    # json:
-    #     class: prefect.logging.formatters.JsonFormatter
-    #     format: "default"
-
-# filters:
-    # Define any custom filters to drops records containing
-    # sensitive information
-    # my_filter:
-        # class: your_module.FilterClass
 
 handlers:
 
@@ -65,10 +48,11 @@ handlers:
         class: logging.StreamHandler
         formatter: comprehensive
 
-    # file:
-    #     level: 1
-    #     class: logging.FileHandler
-    #     formatter: debug
+    file:
+        level: 1
+        class: logging.FileHandler
+        filename: ./log/canhydro.log
+        formatter: comprehensive
 
 loggers:
 
@@ -79,8 +63,9 @@ loggers:
 
     my-logger:
         level: INFO
-        handlers: [comprehensive]
+        handlers: [comprehensive, file]
         propagate: yes
+
     # prefect:
     #     level: "${PREFECT_LOGGING_LEVEL}"
 
