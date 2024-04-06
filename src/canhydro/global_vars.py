@@ -5,6 +5,7 @@ import logging
 import sys
 import time
 from pathlib import Path
+from datetime import datetime   
 
 import toml
 from memory_profiler import LogFile
@@ -40,9 +41,8 @@ for column in config["config_vars"]:
 log_dir = DIR
 # log_dir = Path("".join([log_dir, "/log/log_/", str(time_stamp)]))
 # log_dir = Path("".join([log_dir, "/log/log_/"]))
-log_dir = Path(f"/mnt/c/Users/wisch/OneDrive/Desktop/Research/canopyHydrodynamics/log/log_{str(time_stamp)}")
+log_dir = Path(f"/code/code/canopyHydrodynamics/log/log_{str(time_stamp)}")
 
-sys.stdout = LogFile(str(log_dir))
 
 with open('src/canhydro/logging_config.yml', 'rt') as f:
     config = yaml.safe_load(f.read())
