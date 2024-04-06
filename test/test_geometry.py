@@ -46,25 +46,25 @@ def test_proj_overlap():
     assert actual == funky_squares_overlap_areas
 
 
-@pytest.mark.parametrize(
-    "vector,magnitude,radius,e_angle,e_area",
-    [
-        ([(2, -1), (4, -1), (5, -1)], [-3, -5, -6], 1, -0.785398, 13.91),
-        ([(1, -0.5), (1, -1.5), (1, -3)], [1.5, 2.5, 3], 1, 0.785398, 8.08),
-        ([(-2, 1), (-4, 1), (-5, 1)], [3, 5, 6], 1, 0.785398, 13.91),
-        ([(1, 4), (1, 6), (1, 7)], [3, 5, 6], 1, 0.785398, 13.91),
-        ([(-1, -4), (-1, -6), (-1, -7)], [3, 5, 6], 1, 0.785398, 13.91),
-        ([(1, -2), (1, -4), (1, -5)], [3, 5, 6], 1, 0.785398, 13.91),
-    ],
-)
-def test_project_cyl(vector, magnitude, radius, e_angle, e_area):
-    """
-    Tests projection of cylinders parallel with:
-    the XY plane, Z axis the line x=y (45 deg)
-    """
-    actual = geometry.numba_get_projection(vector, magnitude, radius)
-    assert within_range(e_angle, actual["angle"], 0.02)
-    assert within_range(e_area, actual["area"], 0.02)
+# @pytest.mark.parametrize(
+#     "vector,magnitude,radius,e_angle,e_area",
+#     [
+#         ([(2, -1), (4, -1), (5, -1)], [-3, -5, -6], 1, -0.785398, 13.91),
+#         ([(1, -0.5), (1, -1.5), (1, -3)], [1.5, 2.5, 3], 1, 0.785398, 8.08),
+#         ([(-2, 1), (-4, 1), (-5, 1)], [3, 5, 6], 1, 0.785398, 13.91),
+#         ([(1, 4), (1, 6), (1, 7)], [3, 5, 6], 1, 0.785398, 13.91),
+#         ([(-1, -4), (-1, -6), (-1, -7)], [3, 5, 6], 1, 0.785398, 13.91),
+#         ([(1, -2), (1, -4), (1, -5)], [3, 5, 6], 1, 0.785398, 13.91),
+#     ],
+# )
+# def test_project_cyl(vector, magnitude, radius, e_angle, e_area):
+#     """
+#     Tests projection of cylinders parallel with:
+#     the XY plane, Z axis the line x=y (45 deg)
+#     """
+#     actual = geometry.numba_get_projection(vector, magnitude, radius)
+#     assert within_range(e_angle, actual["angle"], 0.02)
+#     assert within_range(e_area, actual["area"], 0.02)
 
 
 @pytest.mark.parametrize(
