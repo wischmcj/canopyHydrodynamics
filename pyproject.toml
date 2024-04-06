@@ -4,8 +4,9 @@ version = "0.0.1"
 authors = [
     {name = "Collin Wischmeyer", email = "cjwischmeyer@gmail.com"},
     {name = "Travis Swanson", email = "travis.swanson@gmail.com"},
+    {name = "John Van Stan", email = "j.vanstan@csuohio.edu"},
 ]
-description="Utils for modeling canopy hydrodynamics"
+description="Utilities for Modeling Canopy Hydrodynamics"
 readme = "README.md"
 requires-python = ">=3.9.1"
 classifiers = [
