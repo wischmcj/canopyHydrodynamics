@@ -2,8 +2,8 @@ geopandas==0.14.4
 line_profiler==4.1.2
 matplotlib==3.8.2
 memory_profiler==0.61.0
-networkx==3.2.1
 numpy==1.26.4
+networkx==3.3
 open3d==0.17.0
 pytest==8.2.0
 open3d==0.18.0
