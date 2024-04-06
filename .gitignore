@@ -21,6 +21,7 @@ data/validation_data/*
 data/output/draw/*
 data/output/aggregated/*
 test/imgs/*
+
 # C extensions
 *.so
 #networking
