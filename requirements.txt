@@ -1,6 +1,6 @@
 geopandas==0.14.4
 line_profiler==4.1.2
-matplotlib==3.8.2
+matplotlib==3.8.4
 memory_profiler==0.61.0
 numpy==1.26.4
 networkx==3.3
