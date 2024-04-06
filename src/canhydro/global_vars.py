@@ -41,6 +41,7 @@ config_vars = {}
 for column in config["config_vars"]:
     config_vars[column] = config["config_vars"][column]
 
+#logging configuration
 log_dir = DIR
 # log_dir = Path("".join([log_dir, "/log/log_/", str(time_stamp)]))
 # log_dir = Path("".join([log_dir, "/log/log_/"]))
