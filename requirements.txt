@@ -2,7 +2,7 @@ geopandas==0.12.2
 geopandas==0.14.1
 line_profiler==4.1.2
 matplotlib==3.5.1
-matplotlib==3.8.2
+matplotlib==3.8.4
 memory_profiler==0.61.0
 networkx==2.6.3
 networkx==3.2.1
