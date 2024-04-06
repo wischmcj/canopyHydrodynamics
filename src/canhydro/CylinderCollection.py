@@ -1,6 +1,3 @@
-"""These constitute our way of 'copying' the QSMs"""
-
-
 from __future__ import annotations
 
 import multiprocessing as mp
@@ -29,7 +26,6 @@ from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
 from src.canhydro.global_vars import config_vars, log, output_dir
 from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file
 # sys.stdout = LogFile()
-
 NAME = "CylinderCollection"
 
 
@@ -92,8 +88,8 @@ class CylinderCollection:
         self.stem_hull = None
 
         # Special case tree attributes
-        self.stem_paths = [[]]  # Cyl collection?
-        self.trunk = []  # Collection of cylinders? id list?
+        self.stem_paths = [[]]  
+        self.trunk = [] 
 
         # Graph and Attributes
         self.graph = None
@@ -148,7 +144,6 @@ class CylinderCollection:
         self.file = file
         self.file_name = file.name
         log.info(f"Processing {str(file)}")
-        # self.arr = pd.read_csv(file, header=0)
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
         cylinders = [create_cyl(row) for row in self.arr]
         self.cylinders = cylinders
@@ -214,47 +209,6 @@ class CylinderCollection:
                 task_pool = [p.apply_async(pool_get_projection, args=(cyl, plane,)) for cyl in self.cylinders]
                 polys = [task.get() for task in task_pool]
             
-            self.projections[plane] = True
-            self.pSV = polys
-
-    def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        elif not force_rerun and self.projections[plane]:
-            log.info(
-                "cached projections exist, pass 'force_rerun=True to calculate new projections "
-            )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            for idx, cyl in enumerate(self.cylinders):
-                poly = cyl.numba_get_projection(plane)
-                polys.append(poly)
-                # print a progress update once every 10 thousand or so cylinders
-                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
-            # Used by other functions to know what projections have been run
-            self.projections[plane] = True
-            self.pSV = polys
-
-    def vectorized_project_cylinders(
-        self, plane: str = "XY", force_rerun: bool = False
-    ):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        # elif not force_rerun and self.projections[plane]:
-        #     log.info(
-        #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
-        #     )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
-            ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
-            radii = np.array([cyl.radius for cyl in self.cylinders])
-            vectorized_get_projection(starts, ends, radii)
-
             self.projections[plane] = True
             self.pSV = polys
 
@@ -776,17 +730,6 @@ class CylinderCollection:
             # self.cylinders[cylinders.is_stem]
 
 
-            # edge_attributes = {
-            #     (u, v): {
-            #         "dripNode": drip_node,
-            #         "flowType": "drip",
-            #         "flowID": (idx + 1),
-            #     }
-            #     for u, v, _ in edges
-            # }
-
-
-            # [bool_[cyl for cyl in drip_cylinders]]
             flow_chars.append(
 
                 Flow(
@@ -884,10 +827,6 @@ class CylinderCollection:
             )
         dbh = self.get_dbh()
 
-        #     endNodePoly = [self._pSV[n-1] for n in g.nodes if g.degree(n)==1 and n!= 0]
-        #     centroids = [x.point_on_surface() for x in endNodePoly]
-        #     tot_hull, edge_points = concave_hull(centroids,2.2)
-        #     totHullGeo =geo.GeoSeries(tot_hull)
         canopy_cover = self.hull.area
         canopy_boundary = self.hull.boundary.length
 
@@ -921,8 +860,6 @@ class CylinderCollection:
         overlap_dict = self.find_overlap_by_percentile(percentiles=[25, 50, 75])
 
         tot_poly = unary_union(self.pSV)
-        projected_area_w_o_overlap = tot_poly.area
-        projected_area_w_overlap = np.sum([poly.area for poly in self.pSV])
 
         min_x = self.extent["min"][0]
         max_x = self.extent["max"][0]

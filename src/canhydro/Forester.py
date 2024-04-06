@@ -1,7 +1,3 @@
-"""The workhorse class, leverages the others to get results"""
-
-# import matplotlib.pyplot as plt
-# from matplotlib.pyplot import cm
 from __future__ import annotations
 
 import os
@@ -10,10 +6,6 @@ from src.canhydro.CylinderCollection import CylinderCollection
 from src.canhydro.global_vars import input_dir, log
 
 NAME = "Forester"
-
-
-# Class(es) intended to be the workhorse(s) that manages our objects
-
 
 class CollectionManager:
     def __get__(self, obj, objtype):
@@ -30,8 +22,6 @@ class Forester:
         self.cylinder_collections = []
 
     def get_file_names(self, dir=input_dir):
-        #     os.chdir(''.join([vars.DIR,'input']))
-        #     fullPath = Path(''.join([vars.DIR,'input']))
         log.info(f"Searching {dir} for files")
         paths = sorted(dir.iterdir(), key=os.path.getmtime)
         self.file_names = paths
