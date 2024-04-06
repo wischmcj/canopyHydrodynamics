@@ -808,26 +808,30 @@ class CylinderCollection:
         # x_mesh, y_mesh = np.meshgrid(
         #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
         # )
+        if interpolate:
+            min_xy = np.min(
+                [
+                    math.floor(np.min(drip_point_locs_x)),
+                    math.floor(np.min(drip_point_locs_y)),
+                ]
+            )
+            max_xy = np.max(
+                [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
+            )
+            x_mesh, y_mesh = np.meshgrid(
+                np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
+            )
 
-        min_xy = np.min(
-            [
-                math.floor(np.min(drip_point_locs_x)),
-                math.floor(np.min(drip_point_locs_y)),
-            ]
-        )
-        max_xy = np.max(
-            [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
-        )
-        x_mesh, y_mesh = np.meshgrid(
-            np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
-        )
+            def dist_to_drip(a, b):
+                distances = distance.cdist([[a, b]], drip_point_locs_xy)
+                min_dist = np.min(distances)
+                return math.log(1 / min_dist)
 
-        def dist_to_drip(a, b):
-            distances = distance.cdist([[a, b]], drip_point_locs_xy)
-            min_dist = np.min(distances)
-            return math.log(1 / min_dist)
+            distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
 
-        distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
+            for a in range(x_mesh.shape[0]):
+                for b in range(x_mesh.shape[0]):
+                    distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
 
         for a in range(x_mesh.shape[0]):
             for b in range(x_mesh.shape[0]):
