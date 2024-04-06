@@ -3,6 +3,19 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#Outputdata
+
+data/notReadIn/
+data/test/*
+data/output/statistics/*
+data/output/flows/*
+data/output/pickle/*
+data/validation_raw/*
+data/test/*
+data/validation_data/*
+data/output/draw/*
+data/output/aggregated/*
+
 # C extensions
 *.so
 # Distribution / packaging
@@ -17,8 +30,6 @@ eggs/
 lib/
 data/
 lib64/
-venv/*
-canhydro_venv/*
 parts/
 sdist/
 var/
@@ -129,7 +140,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-/data
+venv/*
+canhydro_venv/*
 .env
 .venv
 env/
