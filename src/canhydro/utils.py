@@ -106,16 +106,16 @@ def save_file(
         to_write.append(cur_row)
     # breakpoint()
     # if fileExists:
-    #     with open(dir + ofname_ext, "w+") as csv_file:
+    #     with open(dir + ofname_ext) as csv_file:
     #         reader = csv.reader(csv_file)
-    #         existing_rows = list(reader)
+    #         existing_rows = [x for x in reader]
     #         if existing_rows[0] == headers:
     #             for row in existing_rows[1:]:
     #                 if row != []:
     #                     to_write.append(row)
     #         else:
     #             log.warning(
-    #                 f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
+    #                 f"Existing {ofname_ext} file has different headers, to overwrite pass overwrite =true"
     #             )
     if overwrite:
         # log.info(f"{to_write}")

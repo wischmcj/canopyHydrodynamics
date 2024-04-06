@@ -52,7 +52,7 @@ Source = "https://github.com/wischmcj/canopyHydrodynamics/"
 
 
 [directories]
-root = "/mnt/c/Users/wisch/OneDrive/Desktop/Research/canopyHydrodynamics/"
+root = "/code/code/canopyHydrodynamics/"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
