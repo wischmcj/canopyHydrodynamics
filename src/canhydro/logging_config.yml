@@ -48,11 +48,11 @@ handlers:
         class: logging.StreamHandler
         formatter: comprehensive
 
-    file:
-        level: 1
-        class: logging.FileHandler
-        filename: ./log/canhydro.log
-        formatter: comprehensive
+    # file:
+    #     level: 1
+    #     class: logging.FileHandler
+    #     filename: ./log/canhydro.log
+    #     formatter: comprehensive
 
 loggers:
 
@@ -63,7 +63,7 @@ loggers:
 
     my-logger:
         level: INFO
-        handlers: [comprehensive, file]
+        handlers: [comprehensive]
         propagate: yes
 
     # prefect:

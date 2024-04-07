@@ -169,8 +169,13 @@ run_cases = already_run
 # angles = [0.8,0.88,0.86,0.84,0.82,0.80,0.78,0.76,0.74,0.72,0.7,0.68,0.66,0.64,0.,0.6,0.58,0.56,0.54,0.52,0.5]
 # angles = [.08,-1.02,1.02,-1.18,-1.26,-1.32,1.18,1.26,1.32]
 # angles = [0.94, 0.62, 0.30, 0.22, -0.1, -0.24, -0.64, -0.72, -0.88]
-angles = [0.96, 1.1, 1.42, 1.26, 1.18, 1.34, 1.5, 1.02, 0.88, 0.8, 0.0, -0.24, -0.32, -0.4, -0.08, -0.48, -0.56, -0.64, -0.72, -0.8,
-           -0.88, 0.16, -0.16, -0.96, 0.72, 0.64, -1.1, 0.08, 0.56, 0.48, -1.5, 0.4, -1.18, -1.26, 0.32, -1.34, 0.24, -1.42, -1.02]
+angles = [1.9,1.82,1.74,1.66,1.58, 1.5, 1.42, 1.34, 
+            1.26, 1.18, 1.1, 1.02, 0.96, 0.88, 0.8, 
+            0.72, 0.64, 0.56, 0.48, 0.4, 0.32, 0.24, 0.16,
+            0.08, 0, -0.08, -0.16, -0.24, -0.32, -0.4, -0.48, 
+            -0.56, -0.64, -0.72, -0.8, -0.88, -0.96, -1.02, 
+            -1.1, -1.18, -1.26, -1.34, -1.42, -1.5, -1.58,
+            -1.66,-1.74,-1.82,-1.9]
 
 def get_cases(file_names, already_run, angles_to_tests):
     already_run = [(x,float(y)) for x,y in already_run]
@@ -203,6 +208,7 @@ def sensitivity_analysis():
                         # ,"Secrest24-07_000000"
                         # ,"Secrest26-03_000000"
                         # ,"Secrest28-31_000000"
+#running on tower                        
                         # ,"Secrest29-20_000000"
                         # ,"Secrest29-25_000000"
                         # ,"Secrest31-05_000000"
@@ -210,10 +216,13 @@ def sensitivity_analysis():
                         # ,"Secrest32-03_000000"
                         # ,"Secrest32-06_000000"
                         # ,"Secrest32-14_000000"]
+
+
+        
     cases_to_run = get_cases(files_to_test,run_cases,angles)
     # log.info(f'Will run {len(cases_to_run)} cases : {cases_to_run}')
     start = time()
-    # # breakpoint()
+    # breakpoint()
     success = run_test_cases(cases_to_run, fig = False)
     # for file, angle in cases_to_run:
     #     success = run_test_cases(cases_to_run)
@@ -263,6 +272,7 @@ if __name__ == "__main__":
     # forest = Forester()
     # forest.get_file_names(dir=test_input_dir)
     # forest.qsm_from_file_names(file_name="5_SmallTree")
+    # forest.qsm_from_file_names(file_name="Secrest03-12_000000")
     # basic_collection = forest.cylinder_collections[0]
 
 
@@ -271,8 +281,11 @@ if __name__ == "__main__":
     # forest_old.qsm_from_file_names(file_name="5_SmallTree.csv")
     # basic_collection_old = forest_old.cylinder_collections[0]
 
+    # basic_collection.project_cylinders("XZ")
     # basic_collection.project_cylinders("XY")
 
+    # basic_collection.draw(save=False, show=True)
+    # breakpoint()
     # angles = [ (cyl.cyl_id,cyl.angle) for cyl in basic_collection.cylinders]
     # new_angles = [ (cyl.cyl_id,cyl.angle) for cyl in basic_collection.cylinders]
     # for idx, angle in angles:
