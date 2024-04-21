@@ -796,19 +796,19 @@ class CylinderCollection:
         drip_point_locs = self.get_drip_points()
         drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
         drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
-        drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
-
-        math.floor(np.min(drip_point_locs_x))
-
-        mins = self.extent["min"]
-        maxs = self.extent["max"]
-        extents = [mins[0], maxs[0], mins[1], maxs[1]]
         # min_xy = np.min(mins)
         # max_xy = np.max(maxs)
         # x_mesh, y_mesh = np.meshgrid(
         #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
         # )
         if interpolate:
+            drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
+
+            math.floor(np.min(drip_point_locs_x))
+
+            mins = self.extent["min"]
+            maxs = self.extent["max"]
+            extents = [mins[0], maxs[0], mins[1], maxs[1]]
             min_xy = np.min(
                 [
                     math.floor(np.min(drip_point_locs_x)),

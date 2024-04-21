@@ -697,7 +697,7 @@ def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True],
     if show:
         plt.show()
     if save:    
-        save_dir = "/".join([str(output_dir), 'draw', f"{file_ext}"])#.replace("/", "\\")
+        save_dir = "/".join([str(output_dir), 'draw', f"{file_ext.replace('.','')}"])#.replace("/", "\\")
         plt.savefig(save_dir, dpi = 3000)
     return fig
 
