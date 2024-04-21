@@ -9,3 +9,6 @@ services:
       - 5678:5678
     volumes:
       - ./src/canhydro:/code
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+

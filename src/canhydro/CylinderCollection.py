@@ -33,8 +33,9 @@ from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_di
 NAME = "CylinderCollection"
 
 
-def pickle_collection(collection, designation: str = ""):
+def pickle_collection(collection, designation: str = ""):   
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
+    if designation == "": designation = collection.file_names
     file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
     directory = os.path.dirname(file_path)
     create_dir_and_file(directory)
@@ -281,9 +282,10 @@ class CylinderCollection:
         filter_lambda: function = lambda: True,
         include_drips: bool = False,
         include_contour: bool = False,
+        include_alpha_shape:bool = False ,
+        stem = False,
         **args,
     ):
-
         """Draws cylinders meeting given characteristics onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
@@ -299,6 +301,10 @@ class CylinderCollection:
             self.drip_map()
         if include_contour:
             self.drip_map()
+        # if include_alpha_shape:
+        #     self.drip_map()
+        # if stem:
+        #     self.drip_map()
         fig =draw_cyls(collection=to_draw, colors=matches, **args)
         return fig
 
@@ -371,7 +377,7 @@ class CylinderCollection:
 
         hull, _, _ = concave_hull(boundary_points, curvature_alpha)
         if draw:
-            draw_cyls([hull], save, file_ext)
+            draw_cyls([hull], save = save, file_ext = file_ext)
         if stem:
             self.stem_hull = hull
         else:
@@ -493,7 +499,7 @@ class CylinderCollection:
 
     # def get_trunk_nodes_new(self) -> list[int]:
     #     g = self.digraph
-    #     if self.trunk_nodes:
+    #     if self.trunk_nodes:a
     #         return self.trunk_nodes
     #     elif len(g.nodes) > 0:
     #         trunk_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 0)
@@ -881,6 +887,8 @@ class CylinderCollection:
                 self.calculate_flows(plane=plane)
             self.watershed_boundary(
                 component=self.stem_flow_component, plane=plane, stem=True
+                # ,save = True, draw=True
+                ,file_ext = file_ext + '_stem_hull' 
             )
         dbh = self.get_dbh()
 
@@ -1086,19 +1094,19 @@ class CylinderCollection:
         drip_point_locs = self.get_drip_points()
         drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
         drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
-        drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
-
-        math.floor(np.min(drip_point_locs_x))
-
-        mins = self.extent["min"]
-        maxs = self.extent["max"]
-        extents = [mins[0], maxs[0], mins[1], maxs[1]]
         # min_xy = np.min(mins)
         # max_xy = np.max(maxs)
         # x_mesh, y_mesh = np.meshgrid(
         #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
         # )
         if interpolate:
+            drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
+
+            math.floor(np.min(drip_point_locs_x))
+
+            mins = self.extent["min"]
+            maxs = self.extent["max"]
+            extents = [mins[0], maxs[0], mins[1], maxs[1]]
             min_xy = np.min(
                 [
                     math.floor(np.min(drip_point_locs_x)),

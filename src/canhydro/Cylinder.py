@@ -23,7 +23,7 @@ from src.canhydro.global_vars import qsm_cols
 NAME = "Cylinder"
 
 
-def create_cyl(arr: np.array()):
+def create_cyl(arr: np.array):
     cols = qsm_cols
     attrs = {k: arr[v] for (k, v) in cols.items()}
     cyl = Cylinder(**attrs)
