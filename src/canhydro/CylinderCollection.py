@@ -225,6 +225,8 @@ class CylinderCollection:
         filter_lambda: function = lambda: True,
         include_drips: bool = False,
         include_contour: bool = False,
+        include_alpha_shape:bool = False ,
+        stem = False,
         **args,
     ):
         """Draws cylinders meeting given characteristics onto the specified plane"""
@@ -242,7 +244,8 @@ class CylinderCollection:
             self.drip_map()
         if include_contour:
             self.drip_map()
-        draw_cyls(collection=to_draw, colors=matches, **args)
+        fig =draw_cyls(collection=to_draw, colors=matches, **args)
+        return fig
 
     def get_dbh(self):
         """a real trainwreck of a function to find dbh"""
@@ -323,7 +326,7 @@ class CylinderCollection:
 
         hull, _, _ = concave_hull(boundary_points, curvature_alpha)
         if draw:
-            draw_cyls([hull])
+            draw_cyls([hull], save = save, file_ext = file_ext)
         if stem:
             self.stem_hull = hull
         else:
@@ -619,6 +622,8 @@ class CylinderCollection:
                 self.calculate_flows(plane=plane)
             self.watershed_boundary(
                 component=self.stem_flow_component, plane=plane, stem=True
+                # ,save = True, draw=True
+                ,file_ext = file_ext + '_stem_hull' 
             )
 
         #     endNodePoly = [self._pSV[n-1] for n in g.nodes if g.degree(n)==1 and n!= 0]
@@ -802,13 +807,6 @@ class CylinderCollection:
         drip_point_locs = self.get_drip_points()
         drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
         drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
-        drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
-
-        math.floor(np.min(drip_point_locs_x))
-
-        mins = self.extent["min"]
-        maxs = self.extent["max"]
-        extents = [mins[0], maxs[0], mins[1], maxs[1]]
         # min_xy = np.min(mins)
         # max_xy = np.max(maxs)
         # x_mesh, y_mesh = np.meshgrid(
