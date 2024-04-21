@@ -111,7 +111,7 @@ def run_test_cases(cases_to_run, stats :bool = True, fig:bool = False, from_pick
                 generate_statistics(collection, case_name)
             else:
                 log.info(f'Error prepping, pickling and ending ')
-                pickle(collection,f'_prep_{case_name}')
+                # pickle(collection,f'_prep_{case_name}')
                 dur = time() - start
                 ret.append((None, f'{file_name}_{case_name}', dur))
                 continue
@@ -193,15 +193,17 @@ run_cases = already_run
 # ,0.24,0.28,0.32,0.36,0.4,0.44,0.48,0.52,0.56,0.6,0.64,0.68,0.72,0.76,0.8,0.84,0.88
 # ,0.92,0.96,1,1.04,1.08,1.12,1.16,1.2,1.24,1.28,1.32,1.36,1.4,1.44,1.48,1.52]
 
-angles = [-.56, -.66, -.74, -0.82,-0.96, 0.96,0.16, -1.02,-1.1,-1.18,-1.26,-1.34,-1.42,-1.5, 1.02,1.1,1.18,1.26,1.34,1.42,1.5]
+# angles = [-.56, -.66, -.74, -0.82,-0.96, 0.96,0.16, -1.02,-1.1,-1.18,-1.26,-1.34,-1.42,-1.5, 1.02,1.1,1.18,1.26,1.34,1.42,1.5]
+angles = [0.04]
 
 def get_cases(file_names, already_run, angles_to_tests):
     already_run = [(x,float(y)) for x,y in already_run]
     cases = product(file_names,angles_to_tests)
     return [case for case in cases if case not in already_run]
-
+ 
 def sensitivity_analysis():
-    files_to_test = ["Secrest27-05_000000","Secrest32-06_000000"]
+    files_to_test = ["Secrest27-05_000000"]
+    # "Secrest27-05_000000",
     # files_to_test =["Secrest03-12_000000"
     #                     ,"Secrest07-32_000000"
     #                     ,"Secrest08-24c_000000"]
@@ -234,10 +236,11 @@ def sensitivity_analysis():
                         # ,"Secrest32-03_000000"
                         # ,"Secrest32-06_000000"
                         # ,"Secrest32-14_000000"]
-    cases_to_run = get_cases(files_to_test,run_cases,angles)
-    breakpoint()
-    # log.info(f'Will run {len(cases_to_run)} cases : {cases_to_run}')
-    # success = run_test_cases(cases_to_run, fig = True)
+    # cases_to_run = get_cases(files_to_test,run_cases,angles)
+    cases_to_run = [("Secrest27-05_000000",0.04)]
+    # breakpoint()
+    log.info(f'Will run {len(cases_to_run)} cases : {cases_to_run}')
+    success = run_test_cases(cases_to_run, fig = True)
     # for file, angle in cases_to_run:
     #     success = run_test_cases(cases_to_run)
     #     if not success:
@@ -246,9 +249,9 @@ def sensitivity_analysis():
     #         log.info(f"suceeded running cases")
 
 
-    with mp.Pool(4) as p:
-        task_pool = [p.apply_async(run_test_case, args=(case,)) for case in cases_to_run]
-        results = [task.get() for task in task_pool]
+    # with mp.Pool(4) as p:
+    #     task_pool = [p.apply_async(run_test_case, args=(case,)) for case in cases_to_run]
+    #     results = [task.get() for task in task_pool]
 
     # for success, case, dur in results:
     #     log.info(f"total time running {case} - {dur}")
