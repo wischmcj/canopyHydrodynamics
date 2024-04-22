@@ -23,5 +23,19 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+
+*/scripts*
+*/test*
+*/output*
+*/log*
+*/local_data*
+*/legacy_code*
+*/venv*
+*/.pytest_cache*
+*/.coverage
+*.devcontainer
+# *known_hosts
+
 LICENSE
 README.md
+

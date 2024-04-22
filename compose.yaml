@@ -7,7 +7,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./src/canhydro:/code
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
+      - .:/code
+      - .:/docker_output
+    environment:
+      FLASK_DEBUG: 1
