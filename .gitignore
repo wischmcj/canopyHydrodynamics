@@ -15,11 +15,6 @@ downloads/
 eggs/
 .eggs/
 lib/
-<<<<<<< HEAD
-data/notReadIn/
-=======
-data/NotReadIn
->>>>>>> bc18b1a (adding testing files, converting to rust work x)
 lib64/
 venv/
 parts/
@@ -93,6 +88,18 @@ log*
 # IPython
 profile_default/
 ipython_config.py
+
+#data
+data/notReadIn/ 
+data/output/* 
+data/validation_data*
+data/test/*
+data/output/* 
+data/validation* 
+# data/test* 
+
+#networking
+*known_hosts
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
