@@ -99,6 +99,9 @@ log*
 # Jupyter Notebook
 .ipynb_checkpoints
 
+#networking
+known_hosts
+
 # IPython
 profile_default/
 ipython_config.py
