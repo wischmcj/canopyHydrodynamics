@@ -6,7 +6,7 @@ import os
 import sys
 
 # import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 # import numpy as np
 
@@ -30,14 +30,14 @@ if __name__ == "__main__":
         (0.75, 0.5),
     ]
     print("test")
-    alpha_shape = alphashape.alphashape(
-        points_2d, 2.0
-    )  # alphashape.alphashape(points_2d, 0.)
-    breakpoint()
-    fig, ax = plt.subplots()
-    ax.scatter(*zip(*points_2d))
-    #     ax.add_patch(PolygonPatch(alpha_shape))
-    geopoly = geo.GeoSeries(alpha_shape)
-    geopoly.plot(ax=ax) 
-    plt.show()
-    breakpoint()
+    # alpha_shape = alphashape.alphashape(
+    #     points_2d, 2.0
+    # )  # alphashape.alphashape(points_2d, 0.)
+    # breakpoint()
+    # fig, ax = plt.subplots()
+    # ax.scatter(*zip(*points_2d))
+    # #     ax.add_patch(PolygonPatch(alpha_shape))
+    # geopoly = geo.GeoSeries(alpha_shape)
+    # geopoly.plot(ax=ax) 
+    # plt.show()
+    # breakpoint()

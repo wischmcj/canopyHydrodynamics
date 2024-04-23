@@ -22,6 +22,8 @@ from src.canhydro.benchmark_comp import compare, initialize_forester
 
 # from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 # from matplotlib.figure import Figure
+import os
+import paramiko
 
 
 
@@ -35,11 +37,32 @@ def time(file):
     return  render_template('index.html', strings=[string])
 
 
-@app.route('/hello/<string:file>')
-def hello(file):
-    print('Hello')
-    return  render_template('index.html', strings=[string])
+@app.route('/copyOver/<string:file>')
+def copyOver(file):
+    ssh = paramiko.SSHClient() 
+    print('def client')
+    ssh.load_host_keys(os.path.expanduser(os.path.join("~", ".ssh", "known_hosts")))
+    print('load_keys')
+    ssh.connect('192.168.0.105', username='penguaman', password='Gamma@13')
+    
+    print('connect')
+    sftp = ssh.open_sftp()
+    print('open')
+    try:
+        sftp.put(f'./data/{file}', '/code/code/data_from_server/')
+    except Exception as e:
+        print(f'Unable to put {file}: {e}' )
+    print('put')
+    sftp.close()
+    print('sftp closed')
+    ssh.close()
+    print('ssh closed')
+    return  'sftp successful'
 
+
+@app.route('/hello')
+def hello():
+    return 'Hello, World!'
 
 # @app.route('/timesum')
 # def local_run():
