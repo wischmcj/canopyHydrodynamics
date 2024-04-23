@@ -2,11 +2,10 @@
 from __future__ import annotations
 
 import math
-import sys
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
-from geopandas import GeoSeries
+# from geopandas import GeoSeries
 # from memory_profiler import LogFile
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
@@ -17,7 +16,9 @@ from shapely.ops import polygonize, unary_union
 
 from src.canhydro.DataClasses import coord_list
 from src.canhydro.global_vars import log
-# from src.canhydro.utils import stack
+from src.canhydro.import_options import _try_import
+has_custom_stack = _try_import('stack','src.canhydro.utils')
+has_njit = _try_import('njit','numba')
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
     """
@@ -722,5 +723,5 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
         return overlap_dict
 
 
-def drip_plot(**args):
-    plt.imshow(**args)
+# def drip_plot(**args):
+#     plt.imshow(**args)

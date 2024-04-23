@@ -7,25 +7,36 @@ import pickle
 import os
 
 from itertools import chain
-
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
-from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
 from src.canhydro.Cylinder import create_cyl
 from src.canhydro.DataClasses import Flow
-from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
-                                   get_projected_overlap)
+from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point)
 from src.canhydro.global_vars import config_vars, log
 from src.canhydro.utils import intermitent_log, lam_filter, save_file
 
-# from memory_profiler import LogFile
+from src.canhydro.global_vars import config_vars, log
+from src.canhydro.utils import intermitent_log, lam_filter, save_file
 
-# sys.stdout = LogFile()
+from src.canhydro.import_options import _try_import
+
+#Optional imports 
+has_pyplot = _try_import('pyplot', 'matplotlib')                                   
+has_mem_prof = _try_import('LogFile', 'memory_profiler')
+has_GeoSeries = _try_import('GeoSeries', 'geopandas')
+has_scipy_dist_proj = _try_import('distance', 'scipy.spatial')
+
+has_proj_overlap = _try_import('get_projected_overlap', 'src.canhydro.geometry')
+has_pool_proj = _try_import('pool_get_projection', 'src.canhydro.geometry')
+has_vectorized_proj = _try_import('vectorized_get_projection', 'src.canhydro.geometry')
+
+if has_mem_prof:
+    import sys
+    sys.stdout = LogFile()
 
 NAME = "CylinderCollection"
 
@@ -178,6 +189,7 @@ class CylinderCollection:
             # Used by other functions to know what projections have been run
             self.projections[plane] = True
             self.pSV = polys
+            log.info(f"Projection into {plane} axis complete for file {self.file_name}")
 
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
@@ -1014,7 +1026,7 @@ class CylinderCollection:
         # min_xy = np.min(mins)
         # max_xy = np.max(maxs)
         # x_mesh, y_mesh = np.meshgrid(
-        #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
+        #     np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
         # )
         if interpolate:
             drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
