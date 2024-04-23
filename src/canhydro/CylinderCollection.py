@@ -1,33 +1,42 @@
 from __future__ import annotations
 
 import copy
-import math
-import sys
 from itertools import chain
-
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
-from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
 from src.canhydro.Cylinder import create_cyl
 from src.canhydro.DataClasses import Flow
-from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
-                                   get_projected_overlap)
+from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point)
 from src.canhydro.global_vars import config_vars, log
 from src.canhydro.utils import intermitent_log, lam_filter, save_file
 
-# from memory_profiler import LogFile
+from src.canhydro.global_vars import config_vars, log
+from src.canhydro.utils import intermitent_log, lam_filter, save_file
 
-# sys.stdout = LogFile()
+from src.canhydro.import_options import _try_import
+
+#Optional imports 
+has_pyplot = _try_import('pyplot', 'matplotlib')                                   
+has_mem_prof = _try_import('LogFile', 'memory_profiler')
+has_GeoSeries = _try_import('GeoSeries', 'geopandas')
+has_scipy_dist_proj = _try_import('distance', 'scipy.spatial')
+
+has_proj_overlap = _try_import('get_projected_overlap', 'src.canhydro.geometry')
+has_pool_proj = _try_import('pool_get_projection', 'src.canhydro.geometry')
+has_vectorized_proj = _try_import('vectorized_get_projection', 'src.canhydro.geometry')
+
+if has_mem_prof:
+    import sys
+    sys.stdout = LogFile()
 
 NAME = "CylinderCollection"
 
 
-# By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
+# By inheriting the odel class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
 class CylinderCollection:
     cylinders = dict
 
@@ -157,6 +166,7 @@ class CylinderCollection:
             # Used by other functions to know what projections have been run
             self.projections[plane] = True
             self.pSV = polys
+            log.info(f"Projection into {plane} axis complete for file {self.file_name}")
 
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
@@ -743,70 +753,70 @@ class CylinderCollection:
         a_lambda: function to filter drip points displayed (e.g. those with projected area>10m^2 )
         scale: how large of a boundary to draw around drip points
         """
-        drip_point_locs = self.get_drip_points()
-        drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
-        drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
-        drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
+        # drip_point_locs = self.get_drip_points()
+        # drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
+        # drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
+        # drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
 
-        math.floor(np.min(drip_point_locs_x))
+        # math.floor(np.min(drip_point_locs_x))
 
-        mins = self.extent["min"]
-        maxs = self.extent["max"]
-        extents = [mins[0], maxs[0], mins[1], maxs[1]]
-        # min_xy = np.min(mins)
-        # max_xy = np.max(maxs)
+        # mins = self.extent["min"]
+        # maxs = self.extent["max"]
+        # extents = [mins[0], maxs[0], mins[1], maxs[1]]
+        # # min_xy = np.min(mins)
+        # # max_xy = np.max(maxs)
+        # # x_mesh, y_mesh = np.meshgrid(
+        # #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
+        # # )
+
+        # min_xy = np.min(
+        #     [
+        #         math.floor(np.min(drip_point_locs_x)),
+        #         math.floor(np.min(drip_point_locs_y)),
+        #     ]
+        # )
+        # max_xy = np.max(
+        #     [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
+        # )
         # x_mesh, y_mesh = np.meshgrid(
-        #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
+        #     np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
         # )
 
-        min_xy = np.min(
-            [
-                math.floor(np.min(drip_point_locs_x)),
-                math.floor(np.min(drip_point_locs_y)),
-            ]
-        )
-        max_xy = np.max(
-            [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
-        )
-        x_mesh, y_mesh = np.meshgrid(
-            np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
-        )
+        # def dist_to_drip(a, b):
+        #     distances = distance.cdist([[a, b]], drip_point_locs_xy)
+        #     min_dist = np.min(distances)
+        #     return math.log(1 / min_dist)
 
-        def dist_to_drip(a, b):
-            distances = distance.cdist([[a, b]], drip_point_locs_xy)
-            min_dist = np.min(distances)
-            return math.log(1 / min_dist)
+        # distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
 
-        distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
+        # for a in range(x_mesh.shape[0]):
+        #     for b in range(x_mesh.shape[0]):
+        #         distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
 
-        for a in range(x_mesh.shape[0]):
-            for b in range(x_mesh.shape[0]):
-                distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
+        # fig, ax = plt.subplots()
 
-        fig, ax = plt.subplots()
+        # ax.contourf(
+        #     y_mesh,
+        #     x_mesh,
+        #     distance_matrix,
+        #     levels=15,
+        #     max=0.5,
+        #     cmap=plt.cm.Blues,
+        #     extend="neither",
+        #     extent=extents,
+        # )
 
-        ax.contourf(
-            y_mesh,
-            x_mesh,
-            distance_matrix,
-            levels=15,
-            max=0.5,
-            cmap=plt.cm.Blues,
-            extend="neither",
-            extent=extents,
-        )
+        # ax.scatter(drip_point_locs_x, drip_point_locs_y)
 
-        ax.scatter(drip_point_locs_x, drip_point_locs_y)
-        from geopandas import GeoSeries
-
-        filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
-        polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
-        # breakpoint()
-        if len(polys) > 0:
-            geoPolys = GeoSeries(polys)
-            geoPolys.plot(ax=ax)
-        else:
-            log.warning(
-                "Drip Map: No cylinders returned for lambda function: {a_lambda}"
-            )
-        plt.show()
+        # filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
+        # polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
+        # # breakpoint()
+        # if len(polys) > 0:
+        #     geoPolys = GeoSeries(polys)
+        #     geoPolys.plot(ax=ax)
+        # else:
+        #     log.warning(
+        #         "Drip Map: No cylinders returned for lambda function: {a_lambda}"
+        #     )
+        # plt.show()
+        print('Drip map called')

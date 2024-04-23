@@ -10,6 +10,9 @@ from src.canhydro.DataClasses import Projection
 from src.canhydro.geometry import (draw_cyls, get_projection)
 from src.canhydro.global_vars import qsm_cols
 from src.canhydro.global_vars import log
+from src.canhydro.import_options import _try_import
+
+has_numba_proj = _try_import('numba_get_projection', 'src.canhydro.geometry')
 
 NAME = "Cylinder"
 
@@ -125,6 +128,27 @@ class Cylinder:
             self.xy_area = self.projected_data["XY"]["area"]
         return projection["polygon"]
 
+    def numba_get_projection(self, plane="XY"):
+        if has_numba_proj:
+            if plane == "XY":
+                magnitude = [self.dx, self.dy, self.dz]
+                vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
+            elif plane == "XZ":
+                magnitude = [self.dx, self.dz, self.dy]
+                vector = [np.transpose(self.x), np.transpose(self.z), np.transpose(self.y)]
+            else:
+                magnitude = [self.dy, self.dz, self.dx]
+                vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
+
+            projection = numba_get_projection(vector, magnitude, self.radius)
+            self.projected_data[plane] = projection
+            if plane == "XY":
+                self.xy_area = self.projected_data["XY"]["area"]
+            return projection["polygon"]
+        else:
+            log.error("Numba not installed, using slower projection method")
+            return self.get_projection(plane)
+    
     def draw(self, plane: str = "XY"):
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly])
