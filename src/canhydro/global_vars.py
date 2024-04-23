@@ -42,8 +42,12 @@ log_dir = Path("".join([log_dir, r"log\log_", str(time_stamp)]))
 
 # sys.stdout = LogFile(str(log_dir))
 
-logging.basicConfig(
-    filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
-)
+# with open('src/canhydro/logging_config.yml', 'rt') as f:
+#     config = yaml.safe_load(f.read())
+#     logging.config.dictConfig(config)
+
+# logging.basicConfig(
+#     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
+# )
 LOGGER = logging.getLogger("my-logger")
 log = logging.getLogger("my-logger")

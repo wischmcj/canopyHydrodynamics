@@ -4,17 +4,17 @@
 from __future__ import annotations
 
 import copy
-import math
-import sys
 import pickle
 import os
 from itertools import chain
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+# from geopandas import GeoSeries
 import networkx as nx
+# import rustworkx as rx
 import numpy as np
 # from memory_profiler import LogFile
-from scipy.spatial import distance
+# from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
@@ -180,46 +180,46 @@ class CylinderCollection:
             self.projections[plane] = True
             self.pSV = polys
 
-    def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        elif not force_rerun and self.projections[plane]:
-            log.info(
-                "cached projections exist, pass 'force_rerun=True to calculate new projections "
-            )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            for idx, cyl in enumerate(self.cylinders):
-                poly = cyl.numba_get_projection(plane)
-                polys.append(poly)
-                # print a progress update once every 10 thousand or so cylinders
-                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
-            # Used by other functions to know what projections have been run
-            self.projections[plane] = True
-            self.pSV = polys
+    # def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
+    #     """Projects cylinders onto the specified plane"""
+    #     if plane not in ("XY", "XZ", "YZ"):
+    #         log.info(f"{plane}: invalid value for plane")
+    #     elif not force_rerun and self.projections[plane]:
+    #         log.info(
+    #             "cached projections exist, pass 'force_rerun=True to calculate new projections "
+    #         )
+    #     else:
+    #         polys = []
+    #         log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+    #         for idx, cyl in enumerate(self.cylinders):
+    #             poly = cyl.numba_get_projection(plane)
+    #             polys.append(poly)
+    #             # print a progress update once every 10 thousand or so cylinders
+    #             intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
+    #         # Used by other functions to know what projections have been run
+    #         self.projections[plane] = True
+    #         self.pSV = polys
 
-    def vectorized_project_cylinders(
-        self, plane: str = "XY", force_rerun: bool = False
-    ):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        # elif not force_rerun and self.projections[plane]:
-        #     log.info(
-        #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
-        #     )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
-            ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
-            radii = np.array([cyl.radius for cyl in self.cylinders])
-            vectorized_get_projection(starts, ends, radii)
+    # def vectorized_project_cylinders(
+    #     self, plane: str = "XY", force_rerun: bool = False
+    # ):
+    #     """Projects cylinders onto the specified plane"""
+    #     if plane not in ("XY", "XZ", "YZ"):
+    #         log.info(f"{plane}: invalid value for plane")
+    #     # elif not force_rerun and self.projections[plane]:
+    #     #     log.info(
+    #     #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
+    #     #     )
+    #     else:
+    #         polys = []
+    #         log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+    #         starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
+    #         ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
+    #         radii = np.array([cyl.radius for cyl in self.cylinders])
+    #         vectorized_get_projection(starts, ends, radii)
 
-            self.projections[plane] = True
-            self.pSV = polys
+    #         self.projections[plane] = True
+    #         self.pSV = polys
 
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
@@ -823,63 +823,70 @@ class CylinderCollection:
         a_lambda: function to filter drip points displayed (e.g. those with projected area>10m^2 )
         scale: how large of a boundary to draw around drip points
         """
-        drip_point_locs = self.get_drip_points()
-        drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
-        drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
-        # min_xy = np.min(mins)
-        # max_xy = np.max(maxs)
+        # drip_point_locs = self.get_drip_points()
+        # drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
+        # drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
+        # drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
+
+        # math.floor(np.min(drip_point_locs_x))
+
+        # mins = self.extent["min"]
+        # maxs = self.extent["max"]
+        # extents = [mins[0], maxs[0], mins[1], maxs[1]]
+        # # min_xy = np.min(mins)
+        # # max_xy = np.max(maxs)
+        # # x_mesh, y_mesh = np.meshgrid(
+        # #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
+        # # )
+
+        # min_xy = np.min(
+        #     [
+        #         math.floor(np.min(drip_point_locs_x)),
+        #         math.floor(np.min(drip_point_locs_y)),
+        #     ]
+        # )
+        # max_xy = np.max(
+        #     [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
+        # )
         # x_mesh, y_mesh = np.meshgrid(
-        #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
+        #     np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
         # )
 
-        min_xy = np.min(
-            [
-                math.floor(np.min(drip_point_locs_x)),
-                math.floor(np.min(drip_point_locs_y)),
-            ]
-        )
-        max_xy = np.max(
-            [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
-        )
-        x_mesh, y_mesh = np.meshgrid(
-            np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
-        )
+        # def dist_to_drip(a, b):
+        #     distances = distance.cdist([[a, b]], drip_point_locs_xy)
+        #     min_dist = np.min(distances)
+        #     return math.log(1 / min_dist)
 
-        def dist_to_drip(a, b):
-            distances = distance.cdist([[a, b]], drip_point_locs_xy)
-            min_dist = np.min(distances)
-            return math.log(1 / min_dist)
+        # distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
 
-        distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
+        # for a in range(x_mesh.shape[0]):
+        #     for b in range(x_mesh.shape[0]):
+        #         distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
 
-        for a in range(x_mesh.shape[0]):
-            for b in range(x_mesh.shape[0]):
-                distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
+        # fig, ax = plt.subplots()
 
-        fig, ax = plt.subplots()
+        # ax.contourf(
+        #     y_mesh,
+        #     x_mesh,
+        #     distance_matrix,
+        #     levels=15,
+        #     max=0.5,
+        #     cmap=plt.cm.Blues,
+        #     extend="neither",
+        #     extent=extents,
+        # )
 
-        ax.contourf(
-            y_mesh,
-            x_mesh,
-            distance_matrix,
-            levels=15,
-            max=0.5,
-            cmap=plt.cm.Blues,
-            extend="neither",
-            extent=extents,
-        )
+        # ax.scatter(drip_point_locs_x, drip_point_locs_y)
 
-        ax.scatter(drip_point_locs_x, drip_point_locs_y)
-        from geopandas import GeoSeries
-
-        filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
-        polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
-        # breakpoint()
-        if len(polys) > 0:
-            geoPolys = GeoSeries(polys)
-            geoPolys.plot(ax=ax)
-        else:
-            log.warning(
-                "Drip Map: No cylinders returned for lambda function: {a_lambda}"
-            )
-        plt.show()
+        # filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
+        # polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
+        # # breakpoint()
+        # if len(polys) > 0:
+        #     geoPolys = GeoSeries(polys)
+        #     geoPolys.plot(ax=ax)
+        # else:
+        #     log.warning(
+        #         "Drip Map: No cylinders returned for lambda function: {a_lambda}"
+        #     )
+        # plt.show()
+        print('Drip map called')

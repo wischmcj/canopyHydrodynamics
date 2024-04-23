@@ -113,3 +113,6 @@ def compare(file = '5_Small_Collection', old = old_flows, new = new_flows):
                 {new_line.join(['',''])} New average time is {new_time / iterations:.2f} seconds
 
                 {new_line.join(['',''])} Thats a {old_time / new_time:.2f} times speedup"""
+
+if __name__ == "__main__":
+    print('run')

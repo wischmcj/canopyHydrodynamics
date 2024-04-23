@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from src.canhydro.DataClasses import Projection
-from src.canhydro.geometry import (draw_cyls, get_projection,
-                                   numba_get_projection)
+from src.canhydro.geometry import (draw_cyls, get_projection)
+                                #    numba_get_projection)
 from src.canhydro.global_vars import qsm_cols
 
 # from descartes import PolygonPatch
@@ -140,29 +140,23 @@ class Cylinder:  # (defaultdict):
             self.xy_area = self.projected_data["XY"]["area"]
         return projection["polygon"]
 
-    def numba_get_projection(self, plane="XY"):
-        noCirPoints = 360
-        tCir = np.linspace(
-            0, 2 * np.pi, noCirPoints
-        )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
-        a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
-        b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
+    # def numba_get_projection(self, plane="XY"):
+    #     if plane == "XY":
+    #         magnitude = [self.dx, self.dy, self.dz]
+    #         vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
+    #     elif plane == "XZ":
+    #         magnitude = [self.dx, self.dz, self.dy]
+    #         vector = [np.transpose(self.x), np.transpose(self.z), np.transpose(self.y)]
+    #     else:
+    #         magnitude = [self.dy, self.dz, self.dx]
+    #         vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
 
-        if plane == "XY":
-            magnitude = [self.dx, self.dy, self.dz]
-            vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
-        elif plane == "XZ":
-            magnitude = [self.dx, self.dz, self.dy]
-            vector = [np.transpose(self.x), np.transpose(self.z), np.transpose(self.y)]
-        else:
-            magnitude = [self.dy, self.dz, self.dx]
-            vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
-
-        projection = numba_get_projection(vector, magnitude, self.radius)
-        self.projected_data[plane] = projection
-        if plane == "XY":
-            self.xy_area = self.projected_data["XY"]["area"]
-        return projection["polygon"]
+    #     projection = numba_get_projection(vector, magnitude, self.radius)
+    #     self.projected_data[plane] = projection
+    #     if plane == "XY":
+    #         self.xy_area = self.projected_data["XY"]["area"]
+    #     return projection["polygon"]
+    
 
     def draw(self, plane: str = "XY"):
         poly = self.projected_data[plane]["polygon"]
