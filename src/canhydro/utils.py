@@ -117,11 +117,14 @@ def save_file(
                     f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
                 )
     if overwrite:
-        log.info(f"{to_write}")
-        with open(dir + ofname_ext, "w") as csv_file:
+        # log.info(f"{to_write}")
+        file = dir + ofname_ext
+        log.info(f"attempting to write to {file}")
+        with open(file, "w") as csv_file:
             writer = csv.writer(csv_file)
             for row in to_write:
                 writer.writerow(row)
+    return file
 
 
 def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):

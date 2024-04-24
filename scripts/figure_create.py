@@ -1,11 +1,15 @@
 
 import pickle
 import math
-import matplotlib.pyplot as plt
 import numpy as np
 from geopandas import GeoSeries
 import pandas as pd
 from src.canhydro.global_vars import config_vars, log, output_dir
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError as e:
+    log.error(f'Error importing matplotlib: {e}')
 
 def retain_quantile(df, field, percentile):
     percentile_val = df[field].quantile(percentile)

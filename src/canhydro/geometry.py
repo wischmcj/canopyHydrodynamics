@@ -2,10 +2,7 @@
 from __future__ import annotations
 
 import math
-
-# import matplotlib.pyplot as plt
 import numpy as np
-# from geopandas import GeoSeries
 # from memory_profiler import LogFile
 # from numba import njit
 from scipy.linalg import lu_factor, lu_solve
@@ -16,9 +13,11 @@ from shapely.ops import polygonize, unary_union
 # sys.stdout = LogFile()
 
 from src.canhydro.DataClasses import coord_list
-from src.canhydro.global_vars import log
+from src.canhydro.global_vars import log, output_dir
 # from src.canhydro.utils import stack
 
+# import matplotlib.pyplot as plt
+# from geopandas import GeoSeries 
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
     """
@@ -895,12 +894,19 @@ def get_projection(vector: list, magnitude: list, radius: float()):
 def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True], 
               save:bool = False, file_ext:str= '', show:bool = False):
     log.info("Plotting cylinder collection")
-    # fig, ax = plt.subplots()
-    # geoPolys = GeoSeries(collection)
-    # colors = ["Blue" if col else "Grey" for col in colors]
-    # geoPolys.plot(ax=ax, color=colors)
-    # plt.show()
-    # return fig
+
+    fig, ax = plt.subplots()
+    geoPolys = GeoSeries(collection)
+    
+    colors = ["Blue" if col else "Grey" for col in colors]
+    geoPolys.plot(ax=ax, color=colors)
+    if show:
+        plt.show()
+    if save:    
+        save_dir = "/".join([str(output_dir), 'draw', f"{file_ext.replace('.','')}"])#.replace("/", "\\")
+        plt.savefig(save_dir, dpi = 3000)
+    return fig
+
 
 def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
     """Takes in a list of lists of polygons, each list representing a diff percentile grouping of polygons
