@@ -12,12 +12,13 @@ import os
 
 from itertools import chain
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+# from geopandas import GeoSeries
 import networkx as nx
-import rustworkx as rx
+# import rustworkx as rx
 import numpy as np
 # from memory_profiler import LogFile
-from scipy.spatial import distance
+# from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
@@ -25,9 +26,10 @@ from src.canhydro.Cylinder import create_cyl
 from src.canhydro.DataClasses import Flow
 from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
                                    get_projected_overlap,
-                                   vectorized_get_projection, pool_get_projection)
-from src.canhydro.global_vars import config_vars, log, output_dir
-from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file
+                                    pool_get_projection)
+# vectorized_get_projection
+from src.canhydro.global_vars import config_vars, log, output_dir, output_dir
+from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file, create_dir_and_file
 # sys.stdout = LogFile()
 
 NAME = "CylinderCollection"
@@ -218,46 +220,46 @@ class CylinderCollection:
             self.projections[plane] = True
             self.pSV = polys
 
-    def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        elif not force_rerun and self.projections[plane]:
-            log.info(
-                "cached projections exist, pass 'force_rerun=True to calculate new projections "
-            )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            for idx, cyl in enumerate(self.cylinders):
-                poly = cyl.numba_get_projection(plane)
-                polys.append(poly)
-                # print a progress update once every 10 thousand or so cylinders
-                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
-            # Used by other functions to know what projections have been run
-            self.projections[plane] = True
-            self.pSV = polys
+    # def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
+    #     """Projects cylinders onto the specified plane"""
+    #     if plane not in ("XY", "XZ", "YZ"):
+    #         log.info(f"{plane}: invalid value for plane")
+    #     elif not force_rerun and self.projections[plane]:
+    #         log.info(
+    #             "cached projections exist, pass 'force_rerun=True to calculate new projections "
+    #         )
+    #     else:
+    #         polys = []
+    #         log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+    #         for idx, cyl in enumerate(self.cylinders):
+    #             poly = cyl.numba_get_projection(plane)
+    #             polys.append(poly)
+    #             # print a progress update once every 10 thousand or so cylinders
+    #             intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
+    #         # Used by other functions to know what projections have been run
+    #         self.projections[plane] = True
+    #         self.pSV = polys
 
-    def vectorized_project_cylinders(
-        self, plane: str = "XY", force_rerun: bool = False
-    ):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        # elif not force_rerun and self.projections[plane]:
-        #     log.info(
-        #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
-        #     )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
-            ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
-            radii = np.array([cyl.radius for cyl in self.cylinders])
-            vectorized_get_projection(starts, ends, radii)
+    # def vectorized_project_cylinders(
+    #     self, plane: str = "XY", force_rerun: bool = False
+    # ):
+    #     """Projects cylinders onto the specified plane"""
+    #     if plane not in ("XY", "XZ", "YZ"):
+    #         log.info(f"{plane}: invalid value for plane")
+    #     # elif not force_rerun and self.projections[plane]:
+    #     #     log.info(
+    #     #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
+    #     #     )
+    #     else:
+    #         polys = []
+    #         log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+    #         starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
+    #         ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
+    #         radii = np.array([cyl.radius for cyl in self.cylinders])
+    #         vectorized_get_projection(starts, ends, radii)
 
-            self.projections[plane] = True
-            self.pSV = polys
+    #         self.projections[plane] = True
+    #         self.pSV = polys
 
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
@@ -687,8 +689,8 @@ class CylinderCollection:
                 drip_node,
                 [node for node in divide_nodes if nx.has_path(g_drip, node, drip_node)],
             )
-                for drip_node in drip_nodes
-                if drip_node != -1
+            for drip_node in drip_nodes
+            if drip_node != -1
         ]
 
         drip_components = []

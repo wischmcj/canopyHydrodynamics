@@ -4,11 +4,13 @@ services:
   server:
     container_name: canhydro
     build: .
-    restart: always
     ports:
-      - 5678:5678
+      - "5000:5000"
     volumes:
-      - ./src/canhydro:/code
+      - .:/code
+      - .:/docker_output
+    environment:
+      FLASK_DEBUG: 1
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

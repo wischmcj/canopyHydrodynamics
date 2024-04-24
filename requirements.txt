@@ -1,12 +1,12 @@
 
-geopandas
+# geopandas
 flask
 # line_profiler==4.1.2
-matplotlib==3.8.2
+# matplotlib==3.8.2
 # memory_profiler==0.61.0
 networkx==3.2.1
-rustworkx
-numba==0.58.1
+# rustworkx
+# numba==0.58.1
 numpy==1.26.3
 # open3d==0.17.0
 pytest==7.4.3
@@ -17,3 +17,4 @@ debugpy
 pyyaml
 rich
 # timeit
+paramiko

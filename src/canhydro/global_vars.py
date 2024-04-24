@@ -46,9 +46,9 @@ log_dir = DIR
 log_dir = Path(f"/code/code/canopyHydrodynamics/log/log_{str(time_stamp)}")
 
 
-with open('src/canhydro/logging_config.yml', 'rt') as f:
-    config = yaml.safe_load(f.read())
-    logging.config.dictConfig(config)
+# with open('src/canhydro/logging_config.yml', 'rt') as f:
+#     config = yaml.safe_load(f.read())
+#     logging.config.dictConfig(config)
 
 # logging.basicConfig(
 #     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
