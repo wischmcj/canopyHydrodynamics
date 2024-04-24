@@ -112,6 +112,7 @@ data/validation_data*
 data/test/*
 data/output/* 
 data/validation* 
+data/docker_data*
 # data/test* 
 
 #networking

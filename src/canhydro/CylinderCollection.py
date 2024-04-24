@@ -12,8 +12,6 @@ import os
 
 from itertools import chain
 
-# import matplotlib.pyplot as plt
-# from geopandas import GeoSeries
 import networkx as nx
 # import rustworkx as rx
 import numpy as np
@@ -32,13 +30,16 @@ from src.canhydro.global_vars import config_vars, log, output_dir, output_dir
 from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file, create_dir_and_file
 # sys.stdout = LogFile()
 
+# import matplotlib.pyplot as plt
+
 NAME = "CylinderCollection"
 
 
 def pickle_collection(collection, designation: str = ""):   
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
-    if designation == "": designation = collection.file_names
-    file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
+    if designation == "": designation = collection.file_name
+    out_dir = output_dir.__str__()
+    file_path ="".join([f'{out_dir}/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
     directory = os.path.dirname(file_path)
     create_dir_and_file(directory)
     pickle_file = open(file_path, 'ab')
@@ -47,7 +48,8 @@ def pickle_collection(collection, designation: str = ""):
     return pickle_file
 
 def unpickle_collection(file_name:str):
-    file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', file_name])
+    out_dir = output_dir.__str__()
+    file_path ="".join([f'{out_dir}/pickle/', file_name])
     dbfile = open(file_path, 'rb')    
     db = pickle.load(dbfile)
     dbfile.close()
@@ -1002,7 +1004,7 @@ class CylinderCollection:
             "order_gr_four_angle_std": np.std([cyl.angle for cyl in order_four_cyls]),
             "file_name": self.file_name + plane,
         }
-        save_file(
+        stat_file = save_file(
             self.file_name.replace(".csv", f"_{file_ext}"),
             out_file=statistics,
             subdir="statistics",
@@ -1010,17 +1012,18 @@ class CylinderCollection:
             overwrite=True
         )
 
-        return statistics
+        return stat_file
     
     def generate_flow_file(self, file_ext):
         flow_dicts = [flow.__dict__ for flow in self.flows]
-        save_file(
+        flow_file = save_file(
             self.file_name.replace(".csv", f"_flows_{file_ext}"),
             out_file=flow_dicts,
             subdir="flows",
             method="flows",
             overwrite=True
         )
+        return flow_file
 
     def describe(self, metric: str, a_lambda: function = lambda: True, **args) -> dict:
         """
@@ -1101,65 +1104,70 @@ class CylinderCollection:
         # x_mesh, y_mesh = np.meshgrid(
         #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
         # )
-        if interpolate:
-            drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
+        # try:
+        # fig, ax = plt.subplots()
+        # from geopandas import GeoSeries 
+        # except Exception as e:
+        #     log.warning(f"drip map not drawn: {e}")
+        #     return
+        
+        # if interpolate:
+        #     drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
 
-            math.floor(np.min(drip_point_locs_x))
+        #     math.floor(np.min(drip_point_locs_x))
 
-            mins = self.extent["min"]
-            maxs = self.extent["max"]
-            extents = [mins[0], maxs[0], mins[1], maxs[1]]
-            min_xy = np.min(
-                [
-                    math.floor(np.min(drip_point_locs_x)),
-                    math.floor(np.min(drip_point_locs_y)),
-                ]
-            )
-            max_xy = np.max(
-                [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
-            )
-            x_mesh, y_mesh = np.meshgrid(
-                np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
-            )
+        #     mins = self.extent["min"]
+        #     maxs = self.extent["max"]
+        #     extents = [mins[0], maxs[0], mins[1], maxs[1]]
+        #     min_xy = np.min(
+        #         [
+        #             math.floor(np.min(drip_point_locs_x)),
+        #             math.floor(np.min(drip_point_locs_y)),
+        #         ]
+        #     )
+        #     max_xy = np.max(
+        #         [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
+        #     )
+        #     x_mesh, y_mesh = np.meshgrid(
+        #         np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
+        #     )
 
-            def dist_to_drip(a, b):
-                distances = distance.cdist([[a, b]], drip_point_locs_xy)
-                min_dist = np.min(distances)
-                return math.log(1 / min_dist)
+        #     def dist_to_drip(a, b):
+        #         distances = distance.cdist([[a, b]], drip_point_locs_xy)
+        #         min_dist = np.min(distances)
+        #         return math.log(1 / min_dist)
 
-            distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
+        #     distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
 
-            for a in range(x_mesh.shape[0]):
-                for b in range(x_mesh.shape[0]):
-                    distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
+        #     for a in range(x_mesh.shape[0]):
+        #         for b in range(x_mesh.shape[0]):
+        #             distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
 
-            fig, ax = plt.subplots()
 
-            ax.contourf(
-                y_mesh,
-                x_mesh,
-                distance_matrix,
-                levels=15,
-                max=0.5,
-                cmap=plt.cm.Blues,
-                extend="neither",
-                extent=extents,
-            )
+        #     ax.contourf(
+        #         y_mesh,
+        #         x_mesh,
+        #         distance_matrix,
+        #         levels=15,
+        #         max=0.5,
+        #         cmap=plt.cm.Blues,
+        #         extend="neither",
+        #         extent=extents,
+        #     )
             
-        ax.scatter(drip_point_locs_x, drip_point_locs_y)
-        from geopandas import GeoSeries
+        # ax.scatter(drip_point_locs_x, drip_point_locs_y)
 
-        filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
-        polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
-        # breakpoint()
-        save_dir = "/".join([str(output_dir), 'draw_drip_map', f"{file_ext}"])#.replace("/", "\\")
+        # filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
+        # polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
+        # # breakpoint()
+        # save_dir = "/".join([str(output_dir), 'draw_drip_map', f"{file_ext}"])#.replace("/", "\\")
         # plt.show()
         # plt.savefig(save_dir, dpi = 3000)
-        if len(polys) > 0:
-            geoPolys = GeoSeries(polys)
-            geoPolys.plot(ax=ax)
-        else:
-            log.warning(
-                "Drip Map: No cylinders returned for lambda function: {a_lambda}"
-            )
-        plt.show()
+        # if len(polys) > 0:
+        #     geoPolys = GeoSeries(polys)
+        #     geoPolys.plot(ax=ax)
+        # else:
+        #     log.warning(
+        #         "Drip Map: No cylinders returned for lambda function: {a_lambda}"
+        #     )
+        # plt.show()
