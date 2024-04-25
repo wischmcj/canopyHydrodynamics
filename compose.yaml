@@ -8,6 +8,5 @@ services:
       - "5000:5000"
     volumes:
       - .:/code
-      - .:/docker_output
     environment:
       FLASK_DEBUG: 1

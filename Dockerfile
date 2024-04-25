@@ -30,12 +30,13 @@ WORKDIR /code
 ENV FLASK_APP app.py
 ENV FLASK_RUN_HOST 0.0.0.0
 ENV RUN_ENVIRONMENT docker
+
 # RUN apk add --no-cache gcc musl-dev linux-headers
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt 
 
 # Remove SSH keys
-# RUN rm -rf /root/.ssh/
+RUN rm -rf /root/.ssh/
 
 # Add the rest of the files
 # ADD . .
