@@ -6,7 +6,7 @@ networkx==3.2.1
 numba==0.59.1
 numpy==1.26.4
 open3d==0.17.0
-pytest==7.4.3
+pytest==8.2.0
 scipy==1.11.4
 Shapely==2.0.2
 toml==0.10.2
