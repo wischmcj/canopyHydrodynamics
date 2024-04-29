@@ -24,7 +24,6 @@ test/imgs/*
 # C extensions
 *.so
 # Distribution / packaging
-.github
 .Python
 build/
 develop-eggs/
