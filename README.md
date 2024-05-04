@@ -7,7 +7,7 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
 
 The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the above linked paper how it was run and reviewed. The remaning (majority) of this repository represents code written in the proess of improving and productionalizing that code (See Upcoming Improvements)
 
-## Upcoming improvements
+## Improvements since publication of preprint
 
 The code that you see zipped here is representiitive of the ongoing work in our ***productionalizing*** branch, where you will see in progress improvements such as:
 
