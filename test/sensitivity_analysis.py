@@ -21,7 +21,7 @@ from src.canhydro.CylinderCollection import (
 from src.canhydro.Forester import Forester
 
 from src.canhydro.global_vars import log
-from scripts.sftp_utils import sftp
+import scripts.sftp_utils as sftp
 
 
 def try_pickle_collection(collection, designation = ""):
@@ -69,14 +69,14 @@ def generate_statistics(collection, case_name):
     # statistics = collection.statistics(file_ext = case_name)
     try: 
         stat_file = collection.statistics(file_ext = case_name)
-        send_file_to_pputer(stat_file)
+        sftp_results(stat_file)
     except Exception as e:
         log.info(f"Error gernerating stats for case {case_name} : {e}")
         return None
     log.info(f"attempting to generate flow file for {case_name}")
     try: 
         flow_file = collection.generate_flow_file(file_ext = case_name)
-        send_file_to_pputer(flow_file)
+        sftp_results(flow_file)
     except Exception as e:
         log.info(f"Error gernerating flow file for case {case_name}: {e}")
         return None
@@ -164,19 +164,17 @@ def alpha_shape(collection = None, file:str = '', pickle_point:str = '', angle =
     except Exception as e:  
         log.info(f'Failed to draw and save pickle for {file}, case {angle}  :{e}')
 
-
-
 run_cases = already_run
 
-angles = [ 0.96, 0.88,
-         0.8, 0.72, 0.64, 0.56, 0.48, 0.4, 0.32, 0.24, 0.16,
-           0.08, 0, -0.08, -0.16, -0.24, -0.32, -0.4, -0.48,
-           -0.56, -0.64, -0.72, -0.8, -0.88, -0.96, -1.02,
+angles = [ 0.96, 0.88]
+        #  0.8, 0.72, 0.64, 0.56, 0.48, 0.4, 0.32, 0.24, 0.16,
+        #    0.08, 0, -0.08, -0.16, -0.24, -0.32, -0.4, -0.48,
+        #    -0.56, -0.64, -0.72, -0.8, -0.88, -0.96, -1.02,
 
-            2.04,1.96,1.86, 1.8,1.72,1.66, 1.64, 1.58, 1.5, 1.42, 1.34,
-           1.26, 1.18, 1.1, 1.02,
-           -1.1, -1.18, -1.26, -1.34, -1.42, -1.5, -1.58
-           ,-1.66,-1.64,-1.72,-1.8,-1.88,-1.96,-2.04]
+        #     2.04,1.96,1.86, 1.8,1.72,1.66, 1.64, 1.58, 1.5, 1.42, 1.34,
+        #    1.26, 1.18, 1.1, 1.02,
+        #    -1.1, -1.18, -1.26, -1.34, -1.42, -1.5, -1.58
+        #    ,-1.66,-1.64,-1.72,-1.8,-1.88,-1.96,-2.04]
 
 def get_cases(file_names, already_run, angles_to_tests):
     already_run = [(x,float(y)) for x,y in already_run]
@@ -184,27 +182,32 @@ def get_cases(file_names, already_run, angles_to_tests):
     return [case for case in cases if case not in already_run]
 
 
-def send_file_to_pputer(file,parent_folder= ''):
+def sftp_results(file,parent_folder= '',dest_ip = '192.168.0.94' ):
     log.info(f' file w/ name {file} sent for sftp')
-    qualified_name = f'{parent_folder}/{file}' if parent_folder else file
+    qualified_name = f'./{parent_folder}/{file}' if parent_folder else file
     try:
-        sftp(qualified_name, get = False)
+        sftp.put(qualified_name,dest_ip = dest_ip)
     except Exception as e:
-        log.info(f'difficulty sharing file {qualified_name}')
+        log.info(f'Unable to put file {qualified_name}: {e}')
 
 
 def sensitivity_analysis():
     files_to_test = ["5_SmallTree"] 
     # files_to_test  = ["Secrest02-26_000000"
     #                 ,"Secrest18-13_000000"
-    #                 ,"Secrest10-08_000000"
+    # files_to_test  = ["Secrest10-08_000000",
+    #                   "Secrest16-14LI-ST_000000"]
 
-    #                 ,"Secrest16-14LI-ST_000000"
-    #                 ,"Secrest11-27_000000"
+    #          saur
+    # "Secrest02-26_000000"
     #                 ,"Secrest14-09_000000"
-    #                 ,"Secrest23-23_000000"
     #                 ,"Secrest24-03_000000"
-    #                 ,"Secrest11-27_000000"]
+    #                 ,"Secrest26-03_000000"
+
+    #pi 
+    # "Secrest11-27_000000"
+    #                 ,"Secrest18-13_000000"
+    #"Secrest23-23_000000"
                         
 
             #run or running ontowr 

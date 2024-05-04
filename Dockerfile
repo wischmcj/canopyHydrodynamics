@@ -43,4 +43,5 @@ RUN rm -rf /root/.ssh/
 
 COPY / /code
 
-CMD ["flask", "run"]
+# CMD ["flask", "run"]
+CMD ["python3", "./test/sensitivity_analysis.py"]
