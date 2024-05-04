@@ -117,13 +117,6 @@ class Cylinder:  # (defaultdict):
         # log.info(str(self.__repr__()))
 
     def get_projection(self, plane="XY"):
-        noCirPoints = 360
-        tCir = np.linspace(
-            0, 2 * np.pi, noCirPoints
-        )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
-        a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
-        b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
-
         if plane == "XY":
             magnitude = [self.dx, self.dy, self.dz]
             vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
@@ -141,13 +134,6 @@ class Cylinder:  # (defaultdict):
         return projection["polygon"]
 
     def numba_get_projection(self, plane="XY"):
-        noCirPoints = 360
-        tCir = np.linspace(
-            0, 2 * np.pi, noCirPoints
-        )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
-        a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
-        b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
-
         if plane == "XY":
             magnitude = [self.dx, self.dy, self.dz]
             vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
@@ -163,6 +149,7 @@ class Cylinder:  # (defaultdict):
         if plane == "XY":
             self.xy_area = self.projected_data["XY"]["area"]
         return projection["polygon"]
+    
 
     def draw(self, plane: str = "XY"):
         poly = self.projected_data[plane]["polygon"]

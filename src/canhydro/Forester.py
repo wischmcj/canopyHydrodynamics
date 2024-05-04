@@ -49,7 +49,7 @@ class Forester:
             return
         collections = []
         for file_obj in self.file_names:
-            if file_name == "All" or file_obj.name == file_name:
+            if file_name == "All" or file_name in file_obj.name:
                 c = CylinderCollection()
                 c.from_csv(file_obj, dir)
                 collections.append(c)
