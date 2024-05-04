@@ -4,18 +4,19 @@ from src.canhydro.global_vars import log, output_dir, data_dir
 
 
 def put_file(file, sftp):
-    if '/data/output/' not in file:
-        start_loc = f'./data/output/{file}'
+    log.info(f'trying to sftp {file}')
+    if './data/output/' not in file:
+        start_loc = f'./{file}'
     else:
         start_loc = f'./{file}'
-    # end_loc = f'/home/wischmcj/Desktop/canopyHydrodynamics/data/output/{file}'
-    end_loc = f'/code/code/canopyHydrodynamics/data/output/{file}'
+    end_loc = f'/home/wischmcj/Desktop/canopyHydrodynamics/{file}'
+    # end_loc = f'/code/code/canopyHydrodynamics/data//{file}'
     log.info(f'sftp locs: {start_loc}, {end_loc} ')
     try:
-        put_result =sftp.put(start_loc,end_loc)
-        msg = f'sftp put result:{put_result}'
+        sftp.put(start_loc,end_loc)
+        msg = f'sftp put success'
     except FileNotFoundError as e:
-        msg = f'Error getting file: {e}'
+        msg = f'Error putting file {file}: {e}'
         log.info(msg)
     return msg
 
@@ -29,18 +30,18 @@ def get_file(file, sftp):
         end_loc = f'./{file}'
     log.info(f'sftp locs: {start_loc}, {end_loc} ')
     try:
-        get_result = sftp.get(start_loc,end_loc)
+        sftp.get(start_loc,end_loc)
+        msg = f'sftp get success'
     except FileNotFoundError as e:
-        log.info('Error getting file: {e}')
-    msg = f'sftp get result:{get_result}'
+        log.info(f'Error getting file: {e}')
     return msg
 
-def sftp(file, get=False, host = '192.168.0.105' ):
+def sftp(file, get=False, dest_ip = '192.168.0.94' ):
     ssh = paramiko.SSHClient() 
     log.info('def client')
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     # ssh.connect(host, username='penguaman', password='')
-    ssh.connect(host, username='wischmcj',password='')
+    ssh.connect(dest_ip, username='wischmcj',password='Gamma@13')
     log.info('connected')
     sftp = ssh.open_sftp()
     log.info('sftp open')
@@ -51,3 +52,8 @@ def sftp(file, get=False, host = '192.168.0.105' ):
     log.info(msg)
     return msg
     
+def get(*args, **kwargs):
+    return sftp(*args, **kwargs, get = True)
+
+def put(*args, **kwargs):
+    return sftp(*args, **kwargs, get = False)
