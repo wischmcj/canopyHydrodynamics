@@ -159,6 +159,8 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+*known_hosts
+
 # Environments
 venv/*
 canhydro_venv/*
