@@ -133,7 +133,7 @@ def test_create_cylinders(basic_collection, expected_cylinders):
 )
 def test_create_cylinders_from_csv(file_name, expected_cylinders):
     csv_collection = CylinderCollection()
-    file_path = "\\".join([str(test_input_dir), file_name])
+    file_path = "/".join([str(test_input_dir), file_name])
     file_obj = open(file_path,'r')
     csv_collection.from_csv(file_obj, DIR)
     actual = csv_collection.get_collection_data()
