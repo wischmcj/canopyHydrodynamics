@@ -41,7 +41,7 @@ def sftp(file, get=False, dest_ip = '192.168.0.94' ):
     log.info('def client')
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     # ssh.connect(host, username='penguaman', password='')
-    ssh.connect(dest_ip, username='wischmcj',password='Gamma@13')
+    ssh.connect(dest_ip, username='wischmcj',password='')
     log.info('connected')
     sftp = ssh.open_sftp()
     log.info('sftp open')
