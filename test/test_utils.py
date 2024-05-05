@@ -23,10 +23,10 @@ stack_test_cases = [
 ]
 
 def test_file_funcs():
-    file_path = "".join([DIR, "test_data\\"])
+    file_path = "".join([DIR, "test_data/"])
     file = os.path.dirname(file_path)
     create_dir_and_file(file)
-    f = open("test_data\\demofile2.csv", "w")
+    f = open("test_data/demofile2.csv", "w")
     f.write("Now the file has more content!")
     f.close()
     file_names = read_file_names(Path("".join([DIR, "test_data"])))

@@ -16,9 +16,8 @@ from shapely.ops import polygonize, unary_union
 # sys.stdout = LogFile()
 
 from src.canhydro.DataClasses import coord_list
-from src.canhydro.global_vars import log, output_dir
-from src.canhydro.utils import stack
-
+from src.canhydro.global_vars import log
+# from src.canhydro.utils import stack
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
     """

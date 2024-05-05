@@ -25,7 +25,7 @@ from src.canhydro.utils import intermitent_log, lam_filter, save_file
 
 # from memory_profiler import LogFile
 
-sys.stdout = LogFile()
+# sys.stdout = LogFile()
 
 NAME = "CylinderCollection"
 

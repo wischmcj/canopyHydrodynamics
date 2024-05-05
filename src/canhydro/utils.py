@@ -44,12 +44,11 @@ def save_file(
     fileFormat=".csv",
     method=""
 ):
-    log.info(f'attempting to write file {file}')
-    dir = "/".join([str(output_dir), method, ""])#.replace("/", "\\")
-    ofname = "_".join([file, method])#.replace("/", "\\")
-    ofname_ext = "".join([ofname, fileFormat])#.replace("/", "\\")
-    aggname = "_".join(["agg", method, fileFormat])#.replace("/", "\\")
-    aggname_ext = "".join([aggname, fileFormat])#.replace("/", "\\")
+    dir = "/".join([str(output_dir), method, ""])
+    ofname = "_".join([file, method])
+    ofname_ext = "".join([ofname, fileFormat])
+    aggname = "_".join(["agg", method, fileFormat])
+    aggname_ext = "".join([aggname, fileFormat])
     folderExists = os.path.exists(dir)
     fileExists = os.path.exists(dir + ofname_ext)
     aggExists = os.path.exists(dir + aggname_ext)

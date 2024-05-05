@@ -20,13 +20,13 @@ data_dir = DIR
 data_dir = Path("".join([data_dir, "data/"]))
 
 input_dir = DIR
-input_dir = Path("".join([input_dir, "data", "/input/"]))
+input_dir = Path("".join([input_dir, "data", "/input"]))
 
 output_dir = DIR
-output_dir = Path("".join([output_dir, "data", "/output/"]))
+output_dir = Path("".join([output_dir, "data", "/output"]))
 
 test_input_dir = DIR
-test_input_dir = Path("".join([test_input_dir, "data", "/test/"]))
+test_input_dir = Path("".join([test_input_dir, "data", "/test"]))
 
 # Current datetime
 current_GMT = time.gmtime()
@@ -43,6 +43,7 @@ for column in config["config_vars"]:
 
 #logging configuration
 log_dir = DIR
+<<<<<<< HEAD
 # log_dir = Path("".join([log_dir, "/log/log_/", str(time_stamp)]))
 # log_dir = Path("".join([log_dir, "/log/log_/"]))
 log_dir = Path(f"./log/log_{str(time_stamp)}")
@@ -55,6 +56,16 @@ with open('./src/canhydro/logging_config.yml', 'rt') as f:
 logging.basicConfig(
     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
 )
+=======
+log_dir = Path("".join([log_dir, r"log/log_", str(time_stamp),'.log']))
+
+# sys.stdout = LogFile(str(log_dir))
+
+# logging.basicConfig(
+#     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
+# )
+LOGGER = logging.getLogger("my-logger")
+>>>>>>> 6624400 (un-ignroing test case files. updating tests and file paths to run on linux. Commenting out mem prof)
 log = logging.getLogger("my-logger")
 
 

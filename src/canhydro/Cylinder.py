@@ -9,7 +9,7 @@ import numpy as np
 from src.canhydro.DataClasses import Projection
 from src.canhydro.geometry import (draw_cyls, get_projection)
 from src.canhydro.global_vars import qsm_cols
-from src.canhydro.global_vars import logger
+from src.canhydro.global_vars import log
 
 NAME = "Cylinder"
 
@@ -101,7 +101,7 @@ class Cylinder:
             else np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
         )
         self.xy_area = 0
-        logger.debug(str(self.__repr__()))
+        log.debug(str(self.__repr__()))
 
     def get_projection(self, plane="XY"):
         noCirPoints = 360
