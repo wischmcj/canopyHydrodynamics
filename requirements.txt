@@ -1,4 +1,4 @@
-geopandas==0.12.2
+geopandas==0.14.4
 geopandas==0.14.4
 line_profiler==4.1.2
 matplotlib==3.5.1
