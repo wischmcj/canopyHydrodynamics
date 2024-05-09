@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import calendar
 import logging
-import sys
+import yaml
 import time
 from pathlib import Path
 from datetime import datetime   
@@ -61,9 +61,9 @@ log_dir = Path("".join([log_dir, r"log/log_", str(time_stamp),'.log']))
 
 # sys.stdout = LogFile(str(log_dir))
 
-# with open('src/canhydro/logging_config.yml', 'rt') as f:
-#     config = yaml.safe_load(f.read())
-#     logging.config.dictConfig(config)
+with open('src/canhydro/logging_config.yml', 'rt') as f:
+    config = yaml.safe_load(f.read())
+    logging.config.dictConfig(config)
 
 # logging.basicConfig(
 #     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"

@@ -283,7 +283,7 @@ def test_collection_overlap(flexible_collection):
 
 @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
 def test_watershed(flexible_collection):
-    flexible_collection.initialize_graph_from()
+    flexible_collection.initialize_digraph_from()
     flexible_collection.project_cylinders("XY")
     flexible_collection.watershed_boundary(flexible_collection.graph)
     actual_poly = flexible_collection.hull

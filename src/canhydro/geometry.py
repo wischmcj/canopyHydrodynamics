@@ -3,27 +3,37 @@ from __future__ import annotations
 
 import math
 
-# import matplotlib.pyplot as plt
+
 import numpy as np
-# from geopandas import GeoSeries
-# from memory_profiler import LogFile
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
 from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
 
-# sys.stdout = LogFile()
-
 from src.canhydro.DataClasses import coord_list
 from src.canhydro.global_vars import log
 from src.canhydro.import_options import _try_import
-has_custom_stack = _try_import('stack','src.canhydro.utils')
-has_njit = _try_import('njit','numba')
+
+# from src.canhydro.utils import stack
+
+
+if has_geopandas := _try_import('geopandas'):
+    from geopandas import GeoSeries
+
+if has_mem_profiler := _try_import('memory_profiler'):
+    from memory_profiler import LogFile
+    import sys
+    sys.stdout = LogFile()
+
+if has_matplotlib := _try_import('matplotlib'):
+    import matplotlib.pyplot as plt
+
+
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
     """
-    Calculate the circumcenter of a set of points relative to simplex
-    https://en.wikipedia.org/wiki/Polarization_identity
+        Calculate the circumcenter of a set of points relative to simplex
+        https://en.wikipedia.org/wiki/Polarization_identity
     """
     points = np.asarray(points)
     rows, _ = points.shape
@@ -40,11 +50,12 @@ def circumcenter_lapack(points: coord_list) -> np.ndarray:
 def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     """
     Calculate the circumcenter of a set of points relative to simplex
-    Theoretically less efficient than LAPACK (O(n^3) + O(n^2) v. O(n^2)) when a given set of equations (e.g. set of points, A )
+    Theoretically less efficient than LAPACK (O(n^3) + O(n^2) v. O(n^2)) 
+        when a given set of equations (e.g. set of points, A )
         only needs to be solved for a single vector (e.g b)
     """
     points = np.asarray(points)
-    rows, columns = points.shape
+    rows, _ = points.shape
     A = np.bmat(
         obj=[
             [2 * np.dot(points, points.T), np.ones((rows, 1))],
@@ -87,7 +98,8 @@ def simplices(points: coord_list) -> coord_list:
 
 def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> np.float32:
     """
-    Finds the minimal alpha shape for the given coord list that still contains the given polygon
+        Finds the minimal alpha shape for the given 
+        coord list that still contains the given polygon
     """
     upper = (
         10  # annectotally seems to be plenty high to ensure a discontinuous alpha shape
@@ -108,10 +120,13 @@ def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> np.float3
 
 
 # @profile
-# might eventually be updated to deal with 3d a la https://github.com/bellockk/alphashape/blob/master/alphashape/optimizealpha.py
+# might eventually be updated to deal 
+# with 3d a la https://github.com/bellockk/alphashape/blob/master/alphashape/optimizealpha.py
 def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
     """alpha shape / concave hull
-    Draws a minimal concave polygon with a concavity factor alpha"""
+        Draws a minimal concave polygon with a concavity factor alpha
+        see: trunk_lean
+    """
 
     if len(boundary_points) < 4:
         # When you have a triangle, there is no sense in computing an alpha
@@ -132,7 +147,8 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
     coords = np.array(
         sorted(point.coords[0] for point in boundary_points if len(point.coords) > 0)
     )
-    # Minimal set of triangles with points in set
+
+    # Find minimal set of triangles with points in set
 
     edges = set()
     centers = set()
@@ -172,12 +188,12 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
             do_nothing = True
 
     if voronoi:
+        #voronoi diagram
         v_diag = MultiLineString(centers)
 
     m = MultiLineString(edge_points)
     triangles = list(polygonize(m))
     return unary_union(triangles), edge_points, centers
-
 
 # def voronoi(points, centers: np.array[np.ndarray] = None):
 #     """
@@ -197,10 +213,8 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
 def closest_points(point: tuple, points: np.array, num_returned: int = 3):
     """
     Finds the closest point in the list 'points' from the input 'point'
-
     """
     points_to_return = []
-    distances_to_return = []
     distances = distance.cdist([point], points)
     for i in np.arange(num_returned):
         closest_index = distances.argmin()
@@ -216,7 +230,6 @@ def furthest_point(
 ):
     """
     Finds the furthest point in the list 'points' from the input 'point'
-
     """
     distances = distance.cdist([point], points)
     furthest_index = distances.argmax()
@@ -224,11 +237,19 @@ def furthest_point(
 
 
 def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
-    """Takes in a list of lists of polygons, each list representing a diff percentile grouping of polygons
-    'climbs the tree' itteratiely determininng the additional overlap/shade added by each percentile grouping
+    """Takes in a list of lists of polygons, w/
+         each list representing a diff percentile 
+         grouping of polygons (e.g. grp1:(0%-25%), grp2:(25%, 50%)...)
+    
+        Think of this function as calculating the shade cast
+            by the upper parts of the tree on the lower parts 
+            of the tree. Proceeds from lowest percentile to highest, 
+            determininng the additional overlap/shade added by 
+            the cylinders (e.g. the branches ) each percentile grouping
 
-    shapely's intersection function could be used, and would be slightly more accurate. However, it is also
-    rather slow for the intersection of this many shapes
+        shapely's intersection function could be used, and 
+            would be slightly more accurate. However, it is also
+            rather slow for the intersection of this many shapes
     """
     if len(labels) != len(shading_poly_list):
         log.info(
@@ -240,7 +261,6 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
         overlap_dict = {}
         shaded_polys = []
         for idx, shader_polys in enumerate(shading_poly_list):
-            print(idx)
             shader_union_poly = unary_union(shader_polys)
             shader_sum = np.sum([poly.area for poly in shader_polys])
             shaded_union = unary_union(shaded_polys)
@@ -265,7 +285,8 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
 
 def rotation_matrix(a, axis: str = "x"):
     """
-    Returns a translation matrix for rotation a degrees around the given a
+    Returns a translation matrix for rotation 'a' degrees 
+        around the given axis
     """
     rm = np.zeros((3, 3))
     if axis == "x":
@@ -282,7 +303,6 @@ def rotation_matrix(a, axis: str = "x"):
         )
 
     return rm
-
 
 def get_projection(vector: list, magnitude: list, radius: float()):
     """
@@ -670,7 +690,7 @@ def pool_get_projection(cyl, plane):
 def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True], 
               save:bool = False, file_ext:str= '', show:bool = False):
     log.info("Plotting cylinder collection")
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     geoPolys = GeoSeries(collection)
     colors = ["Blue" if col else "Grey" for col in colors]
     geoPolys.plot(ax=ax, color=colors)
