@@ -1,10 +1,9 @@
-from types import ModuleType
 
-def _try_import(name, src):
-    try:
-        name = None
-        import_statment = f'from src import name'
-        eval(import_statment)
-        return True 
-    except ImportError:
+
+from importlib.util import find_spec
+
+def _try_import(package_name):
+    if find_spec(package_name):
+        return True
+    else:
         return False

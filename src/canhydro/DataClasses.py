@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from collections import defaultdict
-from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 from shapely.geometry import Polygon
