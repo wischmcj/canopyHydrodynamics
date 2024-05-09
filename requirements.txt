@@ -7,6 +7,7 @@ networkx==3.3
 open3d==0.17.0
 pytest==8.2.0
 open3d==0.18.0
+numba==0.58.1
 pytest==7.4.3
 scipy==1.13.0
 Shapely==2.0.2
