@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import calendar
 import logging
-import sys
+import yaml
 import time
 from pathlib import Path
 
@@ -16,13 +16,13 @@ with open("src/canhydro/user_def_config.toml") as f:
 DIR = config["directories"]["root"]
 
 input_dir = DIR
-input_dir = Path("".join([input_dir, "data", "\\input"]))
+input_dir = Path("".join([input_dir, "data", "/input"]))
 
 output_dir = DIR
-output_dir = Path("".join([output_dir, "data", "\\output"]))
+output_dir = Path("".join([output_dir, "data", "/output"]))
 
 test_input_dir = DIR
-test_input_dir = Path("".join([test_input_dir, "data", "\\test"]))
+test_input_dir = Path("".join([test_input_dir, "data", "/test"]))
 
 # Current datetime
 current_GMT = time.gmtime()
@@ -39,12 +39,16 @@ for column in config["config_vars"]:
 
 #logging configuration
 log_dir = DIR
-log_dir = Path("".join([log_dir, r"log\log_", str(time_stamp)]))
+log_dir = Path("".join([log_dir, r"log/log_", str(time_stamp),'.log']))
 
-sys.stdout = LogFile(str(log_dir))
+# sys.stdout = LogFile(str(log_dir))
 
-logging.basicConfig(
-    filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
-)
+with open('src/canhydro/logging_config.yml', 'rt') as f:
+    config = yaml.safe_load(f.read())
+    logging.config.dictConfig(config)
+
+# logging.basicConfig(
+#     filename=log_dir, filemode="w", level=logging.INFO, encoding="utf-8"
+# )
 LOGGER = logging.getLogger("my-logger")
 log = logging.getLogger("my-logger")

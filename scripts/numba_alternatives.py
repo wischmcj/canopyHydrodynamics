@@ -2,10 +2,16 @@
 
 import numpy as np
 # from src.canhydro.geometry import numba_get_projection
-from numba import njit
+
+from src.canhydro.CylinderCollection import CylinderCollection
+from src.canhydro.Cylinder import Cylinder
+
+from src.canhydro.utils import intermitent_log
+
 
 from numba import njit, prange
 from numba.typed import List
+
 
 
 def stack(to_stack:list[np.array], col: bool = True):
@@ -38,8 +44,6 @@ def njit_stack(list_of_array:np.array[np.array()], col: bool):
     return stacked_array if not col else stacked_array.T
 
 # geometry 
-
-
 
 # @profile
 @njit()
@@ -197,13 +201,11 @@ def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
     #         f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
     #     )
 
-
+@njit()
 def numba_get_projection(vector: list, magnitude: list, radius: np.float32):
     """
     Takes in the vector (starting point), magnitude and radius that fully define a cylinder.
     Finds the projection of the cylinder on a plane
-
-    Some linear algebra/diff eq could help us find this for an arbtrary plane.
     """
     projection = {
         "polygon": Polygon(),
@@ -246,50 +248,66 @@ def numba_get_projection(vector: list, magnitude: list, radius: np.float32):
     return projection
 
 # Cylinder Collection 
+class NumbaCylinderCollection(CylinderCollection):
 
-def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
-    """Projects cylinders onto the specified plane"""
-    if plane not in ("XY", "XZ", "YZ"):
-        log.info(f"{plane}: invalid value for plane")
-    elif not force_rerun and self.projections[plane]:
-        log.info(
-            "cached projections exist, pass 'force_rerun=True to calculate new projections "
-        )
-    else:
-        polys = []
-        log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-        for idx, cyl in enumerate(self.cylinders):
-            poly = cyl.numba_get_projection(plane)
-            polys.append(poly)
-            # print a progress update once every 10 thousand or so cylinders
-            intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
-        # Used by other functions to know what projections have been run
-        self.projections[plane] = True
-        self.pSV = polys
+    def __init__(self, **kwargs):
+        super().__iniit__(**kwargs)    
+
+    def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
+        """
+        This a wrapper to the workhorse function:
+        numba_get_projection. Numba is a tool that compiles 
+        python code into machine code, which can be much faster.
+        
+        This function is still under development, however, and
+        appears to have minimal/no advantage over the 
+        non-numba version
+        """
+        if plane not in ("XY", "XZ", "YZ"):
+            log.info(f"{plane}: invalid value for plane")
+        elif not force_rerun and self.projections[plane]:
+            log.info(
+                "cached pro     jections exist, pass 'force_rerun=True to calculate new projections "
+            )
+        else:
+            polys = []
+            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+            for idx, cyl in enumerate(self.cylinders):
+                poly = cyl.numba_get_projection(plane)
+                polys.append(poly)
+                # print a progress update once every 10 thousand or so cylinders
+                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
+            # Used by other functions to know what projections have been run
+            self.projections[plane] = True
+            self.pSV = polys
 
 #Cylinder 
+class NumbaCylinder(Cylinder):
 
-def numba_get_projection(self, plane="XY"):
-    noCirPoints = 360
-    tCir = np.linspace(
-        0, 2 * np.pi, noCirPoints
-    )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
-    a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
-    b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
-    if plane == "XY":
-        magnitude = [self.dx, self.dy, self.dz]
-        vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
-    elif plane == "XZ":
-        magnitude = [self.dx, self.dz, self.dy]
-        vector = [np.transpose(self.x), np.transpose(self.z), np.transpose(self.y)]
-    else:
-        magnitude = [self.dy, self.dz, self.dx]
-        vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
-    projection = numba_get_projection(vector, magnitude, self.radius)
-    self.projected_data[plane] = projection
-    if plane == "XY":
-        self.xy_area = self.projected_data["XY"]["area"]
-    return projection["polygon"]
+    def __init__(self, **kwargs):
+        super().__iniit__(**kwargs)    
+
+    def numba_get_projection(self, plane="XY"):
+        noCirPoints = 360
+        tCir = np.linspace(
+            0, 2 * np.pi, noCirPoints
+        )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
+        a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
+        b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
+        if plane == "XY":
+            magnitude = [self.dx, self.dy, self.dz]
+            vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
+        elif plane == "XZ":
+            magnitude = [self.dx, self.dz, self.dy]
+            vector = [np.transpose(self.x), np.transpose(self.z), np.transpose(self.y)]
+        else:
+            magnitude = [self.dy, self.dz, self.dx]
+            vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
+        projection = numba_get_projection(vector, magnitude, self.radius)
+        self.projected_data[plane] = projection
+        if plane == "XY":
+            self.xy_area = self.projected_data["XY"]["area"]
+        return projection["polygon"]
 
 
 #efficiency_test

@@ -133,7 +133,7 @@ def test_create_cylinders(basic_collection, expected_cylinders):
 )
 def test_create_cylinders_from_csv(file_name, expected_cylinders):
     csv_collection = CylinderCollection()
-    file_path = "\\".join([str(test_input_dir), file_name])
+    file_path = "/".join([str(test_input_dir), file_name])
     file_obj = open(file_path,'r')
     csv_collection.from_csv(file_obj, DIR)
     actual = csv_collection.get_collection_data()
@@ -227,7 +227,7 @@ def test_collection_overlap(flexible_collection):
 
 @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
 def test_watershed(flexible_collection):
-    flexible_collection.initialize_graph_from()
+    flexible_collection.initialize_digraph_from()
     flexible_collection.project_cylinders("XY")
     flexible_collection.watershed_boundary(flexible_collection.graph)
     actual_poly = flexible_collection.hull

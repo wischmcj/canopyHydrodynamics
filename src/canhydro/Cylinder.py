@@ -9,7 +9,8 @@ import numpy as np
 from src.canhydro.DataClasses import Projection
 from src.canhydro.geometry import (draw_cyls, get_projection)
 from src.canhydro.global_vars import qsm_cols
-from src.canhydro.global_vars import logger
+from src.canhydro.global_vars import log
+
 
 NAME = "Cylinder"
 
@@ -101,7 +102,7 @@ class Cylinder:
             else np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
         )
         self.xy_area = 0
-        logger.debug(str(self.__repr__()))
+        log.debug(str(self.__repr__()))
 
     def get_projection(self, plane="XY"):
         noCirPoints = 360
@@ -124,11 +125,7 @@ class Cylinder:
         if plane == "XY":
             self.xy_area = self.projected_data["XY"]["area"]
         return projection["polygon"]
-
+    
     def draw(self, plane: str = "XY"):
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly])
-
-    def get_flow_data():
-        """Returns the flow ID and flow characteristics of the flow the cyl is contained in"""
-        print("Get flow data not written")
