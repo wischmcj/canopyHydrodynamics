@@ -6,7 +6,7 @@ networkx==3.2.1
 rustworkx
 numba==0.58.1
 numpy==1.26.4
-pytest==7.4.3
+pytest==8.2.0
 scipy==1.12.0
 Shapely==2.0.2
 toml==0.10.2
