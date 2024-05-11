@@ -2,7 +2,7 @@
 geopandas
 flask
 matplotlib==3.8.4
-networkx==3.2.1
+networkx==3.3
 rustworkx
 numba==0.58.1
 numpy==1.26.4
