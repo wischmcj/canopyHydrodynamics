@@ -1,6 +1,6 @@
 import __future__
 import paramiko
-from src.canhydro.global_vars import log, output_dir, data_dir
+from src.canhydro.global_vars import log
 
 
 def put_file(file, sftp):
@@ -51,9 +51,20 @@ def sftp(file, get=False, dest_ip = '192.168.0.94' ):
         msg = put_file(file, sftp)
     log.info(msg)
     return msg
+
+
+def sftp_many(files,**kwargs):
+    for f in files:
+        try:
+            sftp(f, **kwargs)
+        except Exception as e:
+            print(f'Error sftp-ing {f}: {e}')
     
 def get(*args, **kwargs):
     return sftp(*args, **kwargs, get = True)
 
 def put(*args, **kwargs):
     return sftp(*args, **kwargs, get = False)
+
+# if __name__ == '__main__':
+#     sftp('data/test/', dest_ip='192.168.0.216')
