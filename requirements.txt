@@ -6,7 +6,7 @@ numba==0.58.1
 numpy==1.26.4
 scipy==1.13.0
 pytest==8.2.0
-Shapely==2.0.2
+Shapely==2.0.4
 toml==0.10.2
 debugpy
 pyyaml
