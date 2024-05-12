@@ -1,4 +1,4 @@
-name: Runs pytest on integration tests
+name: Pytest Core Functionality
 
 
 on: [push]
