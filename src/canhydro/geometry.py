@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import math
-
+import logging
 
 import numpy as np
 from scipy.linalg import lu_factor, lu_solve
@@ -11,10 +11,10 @@ from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
 
 from src.canhydro.DataClasses import coord_list
-from src.canhydro.global_vars import log
 from src.canhydro.import_options import _try_import
 
 # from src.canhydro.utils import stack
+log = logging.getLogger("model")
 
 
 if has_geopandas := _try_import('geopandas'):
