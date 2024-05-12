@@ -1,4 +1,4 @@
-name: Converts ipynb to py for diffing
+name: Convert ipynb to py 
 
 on: [push]
 

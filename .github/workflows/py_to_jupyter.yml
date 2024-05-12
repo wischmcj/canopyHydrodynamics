@@ -1,4 +1,4 @@
-name: Converts py to ipynb for dev work
+name: onver py to ipynb
 
 on: [create]
 
