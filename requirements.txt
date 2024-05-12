@@ -3,11 +3,11 @@ line_profiler==4.1.2
 matplotlib==3.8.2
 memory_profiler==0.61.0
 networkx==3.2.1
-numpy==1.21.6
+numba==0.59.1
+numpy==1.26.4
 open3d==0.17.0
 pytest==7.4.3
 scipy==1.11.4
-numba
 Shapely==2.0.2
 toml==0.10.2
 jupytext==1.14.1
