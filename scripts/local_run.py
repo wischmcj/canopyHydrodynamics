@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import toml
 import sys
 import multiprocessing as mp
 from time import time 
@@ -15,14 +16,18 @@ sys.path.insert(0, os.getcwd())
 
 from shapely.ops import unary_union
 from data.output.run_so_far import already_run
-from src.canhydro.global_vars import DIR, test_input_dir
 from src.canhydro.utils import lam_filter
 from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
 from src.canhydro.Forester import Forester
 from test.utils import within_range
 
-from src.canhydro.global_vars import config_vars, log, output_dir
+import logging 
 
+log = logging.getLogger('script')
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
 
 def try_pickle_collection(collection, designation = ""):
     log.info(f"attempting to pickle for file {collection.file_name}, des {designation}")

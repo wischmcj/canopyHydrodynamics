@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
-
+import toml
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
@@ -28,9 +28,14 @@ from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
-from src.canhydro.global_vars import DIR, test_input_dir
 from src.canhydro.utils import lam_filter
 from src.canhydro.CylinderCollection import CylinderCollection
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
+    DIR = config["directories"]['root_dir']
 
 create_cylinders_cases = [
     # (file, expected_cylinders )

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+import toml
 import copy
 from itertools import chain
 
@@ -13,12 +15,10 @@ from src.canhydro.DataClasses import Flow
 from src.canhydro.geometry import (concave_hull, draw_cyls, 
                                     furthest_point,
                                     get_projected_overlap)
-from src.canhydro.global_vars import config_vars, log
 from src.canhydro.utils import intermitent_log, lam_filter, save_file
 from src.canhydro.import_options import _try_import
 
 #Optional imports    
-
 if has_geopandas := _try_import('geopandas'):
     from geopandas import GeoSeries
 
@@ -32,6 +32,14 @@ if has_matplotlib := _try_import('matplotlib'):
 
 if has_spatial := _try_import('scipy.spatial'):
     from scipy.spatial import distance
+
+
+log = logging.getLogger("model")
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    in_flow_grade_lim=config['config_vars']["in_flow_grade_lim"]
 
 NAME = "CylinderCollection"
 
@@ -281,7 +289,7 @@ class CylinderCollection:
             self.hull = hull
 
     def initialize_digraph_from(
-        self, in_flow_grade_lim=config_vars["in_flow_grade_lim"]
+        self, in_flow_grade_lim=in_flow_grade_lim
     ):
         """This function creates a directed graph and its undirected counterpart.
         Initializes edge attributes as cylinder objects"""
