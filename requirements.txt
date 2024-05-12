@@ -7,7 +7,7 @@ numpy==1.22.1
 open3d==0.17.0
 pytest==7.4.3
 scipy==1.11.4
-numba==1.21.6
+numba==1.22
 Shapely==2.0.2
 toml==0.10.2
 jupytext==1.14.1
