@@ -1,4 +1,4 @@
-name: Python package
+name: Converts ipynb to py for diffing
 
 on: [push]
 
@@ -16,8 +16,8 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install jupytext
     - name: Convert ipynb to py for storage and diffing
       run:
         jupytext --set-formats ipynb,py:validation_dev_work/validation_data.ipynb
-        jupytext --to ipynb validation_dev_work/jupytxt_validation_data.py
+        jupytext --to ipynb validation_dev_work/validation_data.py
