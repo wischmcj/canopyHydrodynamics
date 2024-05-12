@@ -15,6 +15,10 @@ data/test/*
 data/validation_data/*
 data/output/draw/*
 data/output/aggregated/*
+data/docker_data/*
+
+#
+known_hosts
 
 # C extensions
 *.so
