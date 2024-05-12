@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#data
+data/*
+
+#Docker
+known_hosts
+
 # C extensions
 *.so
 
