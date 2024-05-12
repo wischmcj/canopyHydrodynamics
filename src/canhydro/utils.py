@@ -102,7 +102,6 @@ def save_file(
     file: str,
     out_file: Union[dict, list[dict]],
     overwrite: bool = False,
-    subdir: str = "agg",
     fileFormat=".csv",
     method=""
 ):
@@ -154,28 +153,27 @@ def save_file(
             cur_row.append(value)
         cur_row.append(time_stamp)
         to_write.append(cur_row)
-    # breakpoint()
-    # if fileExists:
-    #     with open(dir + ofname_ext) as csv_file:
-    #         reader = csv.reader(csv_file)
-    #         existing_rows = [x for x in reader]
-    #         if existing_rows[0] == headers:
-    #             for row in existing_rows[1:]:
-    #                 if row != []:
-    #                     to_write.append(row)
-    #         else:
-    #             log.warning(
-    #                 f"Existing {ofname_ext} file has different headers, to overwrite pass overwrite =true"
-    #             )
-    if overwrite:
-        # log.info(f"{to_write}")
-        file = dir + ofname_ext
-        log.info(f"attempting to write to {file}")
-        with open(file, "w") as csv_file:
-            writer = csv.writer(csv_file)
-            for row in to_write:
-                writer.writerow(row)
-    return file
+
+    if fileExists and not overwrite:
+        # Reading existing data into to_write in
+        #  order to append new data
+        with open(dir + ofname_ext, "w+") as csv_file:
+            reader = csv.reader(csv_file)
+            existing_rows = list(reader)
+            if existing_rows[0] == headers:
+                for row in existing_rows[1:]:
+                    if row != []:
+                        to_write.append(row)
+            else:
+                log.warning(
+                    f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
+                )
+    log.info(f"{to_write}")
+    with open(dir + ofname_ext, "w") as csv_file:
+        writer = csv.writer(csv_file)
+        for row in to_write:
+            writer.writerow(row)
+
 # other utils
 
 def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
