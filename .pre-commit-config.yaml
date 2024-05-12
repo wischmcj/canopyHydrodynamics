@@ -28,6 +28,12 @@ repos:
       - id: mixed-line-ending
       - id: requirements-txt-fixer
       - id: trailing-whitespace
+  
+  - repo: https://github.com/mwouts/jupytext
+    rev: v1.14.7  # CURRENT_TAG/COMMIT_HASH
+    hooks:
+    - id: jupytext
+      args: [--sync]
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
