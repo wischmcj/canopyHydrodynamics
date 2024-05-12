@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import shutil
+import toml
 import os
 from pathlib import Path
 
 import pytest 
 from numpy import array as arr, all
 from src.canhydro.utils import create_dir_and_file, read_file_names, on_rm_error, stack, njit_stack
-from src.canhydro.global_vars import DIR
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    DIR = config["directories"]['root_dir']
 
 njit_stack_test_cases = [
     pytest.param(arr([arr([1,2,3]),arr([4,5,6])]),False ,arr([[1., 2., 3.],[4., 5., 6.]]), id = "3x3 row stack"),

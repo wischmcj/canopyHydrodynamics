@@ -2,14 +2,26 @@
 
 from __future__ import annotations
 
+import toml
+import logging
 from dataclasses import dataclass, field
 
 import numpy as np
 
 from src.canhydro.DataClasses import Projection
 from src.canhydro.geometry import (draw_cyls, get_projection)
-from src.canhydro.global_vars import qsm_cols
-from src.canhydro.global_vars import log
+
+log = logging.getLogger('model')
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    
+# QSM column order
+qsm_cols = {}
+for column in config["qsm"]:
+    qsm_cols[column] = config["qsm"][column]
+
+
 
 
 NAME = "Cylinder"
