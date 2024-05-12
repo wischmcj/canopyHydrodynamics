@@ -19,5 +19,4 @@ jobs:
         pip install jupytext
     - name: Convert ipynb to py for storage and diffing
       run:
-        jupytext --set-formats ipynb,py:validation_dev_work/validation_data.ipynb
-        jupytext --to ipynb validation_dev_work/validation_data.py
+        jupytext --set-formats ipynb,py:percent validation_dev_work/validation_data.ipynb
