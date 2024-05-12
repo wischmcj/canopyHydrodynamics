@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
-
+import toml
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
@@ -28,9 +28,14 @@ from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
-from src.canhydro.global_vars import DIR, test_input_dir
 from src.canhydro.utils import lam_filter
 from src.canhydro.CylinderCollection import CylinderCollection
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
+    DIR = config["directories"]['root_dir']
 
 create_cylinders_cases = [
     # (file, expected_cylinders )
@@ -133,7 +138,7 @@ def test_create_cylinders(basic_collection, expected_cylinders):
 )
 def test_create_cylinders_from_csv(file_name, expected_cylinders):
     csv_collection = CylinderCollection()
-    file_path = "\\".join([str(test_input_dir), file_name])
+    file_path = "/".join([str(test_input_dir), file_name])
     file_obj = open(file_path,'r')
     csv_collection.from_csv(file_obj, DIR)
     actual = csv_collection.get_collection_data()
@@ -227,7 +232,7 @@ def test_collection_overlap(flexible_collection):
 
 @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
 def test_watershed(flexible_collection):
-    flexible_collection.initialize_graph_from()
+    flexible_collection.initialize_digraph_from()
     flexible_collection.project_cylinders("XY")
     flexible_collection.watershed_boundary(flexible_collection.graph)
     actual_poly = flexible_collection.hull
