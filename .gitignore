@@ -4,9 +4,10 @@ __pycache__/
 *$py.class
 
 #data
-data/*
-data/output/*
 input/
+data/*
+data/statistics*
+
 
 #Docker
 known_hosts

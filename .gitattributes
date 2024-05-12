@@ -1,1 +1,2 @@
-*.ipynb linguist-language=Python
+# Automatically collapses diffs for jupyter notebooks in git diffs
+*.ipynb linguist-generated=true
