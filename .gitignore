@@ -5,9 +5,10 @@ __pycache__/
 
 #Outputdata
 #data
-data/*
-data/output/*
 input/
+data/*
+data/statistics*
+
 
 data/notReadIn/
 data/test/*

@@ -17,6 +17,9 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         pip install jupytext
-    - name: Convert ipynb to py for storage and diffing
+    - name: Link ipynb file to a py file (https://jupytext.readthedocs.io/en/latest/using-cli.html)
       run:
-        jupytext --set-formats ipynb,py:percent validation_dev_work/validation_data.ipynb
+        jupytext --set-formats ipynb,py:percent legacy_code/code_prototype.ipynb
+    - name: Lint (fix formatting of) new .py files with black
+      run:
+        jupytext --sync notebook.ipynb
