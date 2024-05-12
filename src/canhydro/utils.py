@@ -1,22 +1,38 @@
 from __future__ import annotations
 
 import csv
+import calendar
 import os
 import shutil
 import stat
-
+import logging
+import toml
+import time 
+from typing import Union
+from pathlib import Path
 
 import numpy as np
 
-from src.canhydro.global_vars import input_dir, log, output_dir, time_stamp
 from src.canhydro.import_options import _try_import
 
- 
 has_numba = _try_import('numba')
 if has_numba:
     from numba import njit, prange
     from numba.typed import List
 
+log = logging.getLogger("model")
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    input_dir = Path(config["directories"]['input_dir'])
+    output_dir = Path(config["directories"]['output_dir'])
+    
+ 
+current_GMT = time.gmtime()
+time_stamp = str(calendar.timegm(current_GMT))
+
+
+# Data munging utils
 
 def stack(to_stack:list[np.array], col: bool = True):
     """
@@ -58,9 +74,9 @@ if has_numba:
         return stacked_array if not col else stacked_array.T
 
 
+# File system utils
+
 def on_rm_error(path):
-    # path contains the path of the file that couldn't be removed
-    # let's just assume that it's read-only and unlink it.
     os.chmod(path, stat.S_IWRITE)
     os.unlink(path)
 
@@ -83,22 +99,37 @@ def read_file_names(file_path=input_dir):
 
 
 def save_file(
-    file,
-    out_file,
+    file: str,
+    out_file: Union[dict, list[dict]],
     overwrite: bool = False,
-    subdir: str = "agg",
-    fileFormat=".csv",
-    method="",
+    fileFormat: str = ".csv",
+    method: str ="",
 ):
+    """
+        A somewhat overly complex file saving function.
+        If file exists and overwrite = false, it will append to the file
+        
+        Args:
+            file: str
+                The name of the file to write to
+            out_file: Union[dict, list[dict]]
+                The data to write to the file
+            overwrite: bool
+                Whether or not to overwrite the file if it exists
+            fileFormat: str 
+                The file format to save the file as ()
+            method: str
+        Note: 
+            'agg*' variables intended to support future 
+                updates - adding additional write to an 
+                append only file for better history tracking
+    """
     dir = "/".join([str(output_dir), method, ""])
     ofname = "_".join([file, method])
     ofname_ext = "".join([ofname, fileFormat])
     folderExists = os.path.exists(dir)
     fileExists = os.path.exists(dir + ofname_ext)
 
-    #Leaving the below in as a reminder 
-    # to add 'append to aggregate file' 
-    # functionality back in 
     # aggname = "_".join(["agg", method, fileFormat])
     # aggname_ext = "".join([aggname, fileFormat])
     # aggExists = os.path.exists(dir + aggname_ext)#
@@ -113,6 +144,8 @@ def save_file(
     headers = list(out_file[0].keys())
     to_write.append(headers)
     log.info(f"{to_write}")
+    # adding each dict in out_file to a 
+    #   single to_write list[list]
     for dic in out_file:
         cur_row = []
         for _, value in dic.items():
@@ -120,7 +153,9 @@ def save_file(
         cur_row.append(time_stamp)
         to_write.append(cur_row)
 
-    if fileExists:
+    if fileExists and not overwrite:
+        # Reading existing data into to_write in
+        #  order to append new data
         with open(dir + ofname_ext, "w+") as csv_file:
             reader = csv.reader(csv_file)
             existing_rows = list(reader)
@@ -132,13 +167,13 @@ def save_file(
                 log.warning(
                     f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
                 )
-    if overwrite:
-        log.info(f"{to_write}")
-        with open(dir + ofname_ext, "w") as csv_file:
-            writer = csv.writer(csv_file)
-            for row in to_write:
-                writer.writerow(row)
+    log.info(f"{to_write}")
+    with open(dir + ofname_ext, "w") as csv_file:
+        writer = csv.writer(csv_file)
+        for row in to_write:
+            writer.writerow(row)
 
+# other utils
 
 def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
     if np.random.uniform(0, 1, 1) < freq:
