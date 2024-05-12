@@ -19,4 +19,4 @@ jobs:
         pip install jupytext
     - name: Convert py to ipynb for dev work
       run:
-        jupytext --to ipynb validation_dev_work/validation_data.py
+        jupytext --to ipynb legacy_code/code_prototype.py
