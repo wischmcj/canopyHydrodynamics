@@ -13,11 +13,19 @@ In VSCode, Code Coverage is recorded in config.xml. Delete this file to reset re
 from __future__ import annotations
 
 import pytest
+import toml
 from _pytest.nodes import Item
+from pathlib import Path
 
 from src.canhydro.Cylinder import create_cyl
 from src.canhydro.Forester import Forester
-from src.canhydro.global_vars import test_input_dir
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = Path(config["directories"]['test_input_dir'])
+
+
+test_input_dir =Path("./data/test/")
 
 
 def pytest_collection_modifyitems(items: list[Item]):

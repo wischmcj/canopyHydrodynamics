@@ -1,12 +1,13 @@
 """This is a sample python file for testing functions from the source code."""
 
 from __future__ import annotations
+import toml
 
 from line_profiler import profile  # noqa
 
-from src.canhydro.global_vars import test_input_dir
-
-test_input_dir = test_input_dir
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
 
 
 # @pytest.mark.parametrize(

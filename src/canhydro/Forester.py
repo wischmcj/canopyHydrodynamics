@@ -1,19 +1,20 @@
 from __future__ import annotations
 
+import logging
+import toml
 import os
+from pathlib import Path
 
 from src.canhydro.CylinderCollection import CylinderCollection
-from src.canhydro.global_vars import input_dir, log
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    input_dir = Path(config["directories"]['input_dir'])
+
+log = logging.getLogger('model')
+
 
 NAME = "Forester"
-
-class CollectionManager:
-    def __get__(self, obj, objtype):
-        if obj is None:
-            return Forester(objtype)
-        else:
-            raise AttributeError(f"Forester isn't accessible via {objtype} instances")
-
 
 class Forester:
     def __init__(self, file_names="", directory=input_dir) -> None:
