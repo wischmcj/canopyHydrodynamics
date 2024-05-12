@@ -22,4 +22,4 @@ jobs:
         jupytext --set-formats ipynb,py:percent legacy_code/code_prototype.ipynb
     - name: Lint (fix formatting of) new .py files with black
       run:
-        jupytext --sync code_prototype.ipynb
+        jupytext --sync legacy_code/code_prototype.ipynb
