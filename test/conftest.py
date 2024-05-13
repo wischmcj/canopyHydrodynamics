@@ -30,6 +30,7 @@ with open("src/canhydro/user_def_config.toml") as f:
 
 test_input_dir =Path("./data/test/")
 
+
 def pytest_collection_modifyitems(items: list[Item]):
     for item in items:
         if "spark" in item.nodeid:
