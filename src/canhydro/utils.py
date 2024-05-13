@@ -102,8 +102,8 @@ def save_file(
     file: str,
     out_file: Union[dict, list[dict]],
     overwrite: bool = False,
-    fileFormat=".csv",
-    method=""
+    fileFormat: str = ".csv",
+    method: str ="",
 ):
     """
         A somewhat overly complex file saving function.
@@ -129,6 +129,16 @@ def save_file(
     ofname_ext = "".join([ofname, fileFormat])
     folderExists = os.path.exists(dir)
     fileExists = os.path.exists(dir + ofname_ext)
+<<<<<<< HEAD
+=======
+
+    # aggname = "_".join(["agg", method, fileFormat])
+    # aggname_ext = "".join([aggname, fileFormat])
+    # aggExists = os.path.exists(dir + aggname_ext)#
+
+    if not folderExists:
+        os.makedirs(dir)
+>>>>>>> 8aeaf6b (Revert "Revert "Merge branch 'main' into ingest-validation-data"")
 
     # aggname = "_".join(["agg", method, fileFormat])
     # aggname_ext = "".join([aggname, fileFormat])

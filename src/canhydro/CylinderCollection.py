@@ -49,6 +49,7 @@ with open("src/canhydro/user_def_config.toml") as f:
 NAME = "CylinderCollection"
 
 
+<<<<<<< HEAD
 def pickle_collection(collection, designation: str = ""):   
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
     if designation == "": designation = collection.file_names
@@ -68,6 +69,9 @@ def unpickle_collection(file_name:str):
     return db
 
 # By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- lidirke lambda searching
+=======
+# By inheriting the odel class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
+>>>>>>> 8aeaf6b (Revert "Revert "Merge branch 'main' into ingest-validation-data"")
 class CylinderCollection:
     cylinders = dict
 

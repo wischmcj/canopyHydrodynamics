@@ -42,6 +42,12 @@ with open("src/canhydro/user_def_config.toml") as f:
     test_input_dir = config["directories"]['test_input_dir']
     DIR = config["directories"]['root_dir']
 
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
+    DIR = config["directories"]['root_dir']
+
 create_cylinders_cases = [
     # (file, expected_cylinders )
     pytest.param("1_TenCyls.csv", ten_cyls_cyls, id="Ten Cyls"),
