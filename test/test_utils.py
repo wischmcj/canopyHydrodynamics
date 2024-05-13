@@ -1,18 +1,13 @@
 from __future__ import annotations
 
 import shutil
-import toml
 import os
 from pathlib import Path
 
 import pytest 
 from numpy import array as arr, all
 from src.canhydro.utils import create_dir_and_file, read_file_names, on_rm_error, stack, njit_stack
-
-
-with open("src/canhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    DIR = config["directories"]['root_dir']
+from src.canhydro.global_vars import DIR
 
 njit_stack_test_cases = [
     pytest.param(arr([arr([1,2,3]),arr([4,5,6])]),False ,arr([[1., 2., 3.],[4., 5., 6.]]), id = "3x3 row stack"),
@@ -28,10 +23,10 @@ stack_test_cases = [
 ]
 
 def test_file_funcs():
-    file_path = "".join([DIR, "test_data/"])
+    file_path = "".join([DIR, "test_data\\"])
     file = os.path.dirname(file_path)
     create_dir_and_file(file)
-    f = open("test_data/demofile2.csv", "w")
+    f = open("test_data\\demofile2.csv", "w")
     f.write("Now the file has more content!")
     f.close()
     file_names = read_file_names(Path("".join([DIR, "test_data"])))
