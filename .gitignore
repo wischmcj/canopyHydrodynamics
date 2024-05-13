@@ -84,7 +84,7 @@ docs/_build/
 target/
 
 #logging
-log*
+*.log
 
 #ruff
 .ruff_cache
