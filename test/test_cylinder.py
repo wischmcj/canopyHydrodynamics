@@ -187,12 +187,18 @@ def test_project_cylinder(proj_cyl):
     assert within_range(expected, actual, accepted_err)
 
 
-# @pytest.mark.parametrize("proj_cyl", [proj_cyl])
-# def test_project_cylinder_numba(proj_cyl):
-#     proj_cyl.numba_get_projection("XY")
-#     actual = proj_cyl.projected_data["XY"]["angle"]
-#     expected = ez_projection_xy_angle
-#     assert within_range(expected, actual, accepted_err)
+@pytest.mark.parametrize("proj_cyl", [proj_cyl])
+def test_project_cylinder_numba(proj_cyl):
+    proj_cyl.numba_get_projection("XY")
+    actual = proj_cyl.projected_data["XY"]["angle"]
+    expected = ez_projection_xy_angle
+    assert within_range(expected, actual, accepted_err)
+
+
+# @pytest.mark.parametrize("flexible_collection", ["2_EZ_projection.csv"], indirect=True)
+# def test_project_cylinders(flexible_collection, accepted_err=0.03):
+#     breakpoint()
+
 
 @pytest.mark.parametrize("test_cyl", [(proj_cyl_list)], indirect=["test_cyl"])
 def test_create_cyl_angle(test_cyl):

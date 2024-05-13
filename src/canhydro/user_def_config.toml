@@ -52,10 +52,7 @@ Source = "https://github.com/wischmcj/canopyHydrodynamics/"
 
 
 [directories]
-root_dir = "./"
-input_dir = "./data/input/"
-output_dir = "./data/output_dir/"
-test_input_dir = "./data/test/"
+root = "C:/Users/wisch/Documents/GitProjects/CanopyHydrodynamics/"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
