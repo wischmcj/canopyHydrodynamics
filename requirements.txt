@@ -1,5 +1,6 @@
-<<<<<<< HEAD
+geopandas
 flask
+matplotlib==3.8.4
 networkx==3.3
 matplotlib==3.8.4
 rustworkx
@@ -15,19 +16,7 @@ rich
 jupytext==1.14.1
 
 # optional
-=======
-geopandas==0.14.1
->>>>>>> ab569e7 (Revert "Merge branch 'main' into ingest-validation-data")
-line_profiler==4.1.2
-memory_profiler==0.61.0
-networkx==3.2.1
-numpy==1.26.4
-open3d==0.17.0
-scipy==1.11.4
-# optional
-numba==0.59.1
-matplotlib==3.8.2
-pytest==7.4.3
-Shapely==2.0.2
-toml==0.10.2
-jupytext==1.14.1
+# line_profiler==4.1.2
+# memory_profiler==0.61.0
+# open3d==0.17.0
+# timeit
