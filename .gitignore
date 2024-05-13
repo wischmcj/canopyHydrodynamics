@@ -23,6 +23,11 @@ data/output/aggregated/*
 test/imgs/*
 # C extensions
 *.so
+#data 
+data/*
+
+known_hosts
+
 # Distribution / packaging
 .Python
 build/
