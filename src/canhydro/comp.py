@@ -79,3 +79,80 @@ def old_find_flow_components(self, inFlowGradeLim=-1 / 6):
         self.divide_nodes = divide_nodes
         self.drip_nodes = drip_nodes
         self.cyl_to_drip_node = cyl_to_drip_node
+
+
+def compare_functions():
+     
+    # forest = Forester()
+    # forest.get_file_names(dir=test_input_dir)
+    # forest.qsm_from_file_names(file_name="Secrest32-06_000000")
+    # basic_collection = forest.cylinder_collections[0]
+    # basic_collection.project_cylinders("XY")
+    # basic_collection.initialize_digraph_from(in_flow_grade_lim=-0.3)
+    # basic_collection.find_flow_components()
+    # basic_collection.calculate_flows()
+    # breakpoint()
+    # pickle_collection(basic_collection,basic_collection.file_name)
+
+    
+    # forest_old = Forester()
+    # forest_old.get_file_names(dir=test_input_dir)
+    # forest_old.qsm_from_file_names(file_name="5_SmallTree.csv")
+    # basic_collection_old = forest_old.cylinder_collections[0]
+
+    # angles = [ (cyl.cyl_id,cyl.angle) for cyl in basic_collection.cylinders]
+    # new_angles = [ (cyl.cyl_id,cyl.angle) for cyl in basic_collection.cylinders]
+    # for idx, angle in angles:
+    #     new_angle = [angle for cyl, angle in new_angles if cyl == idx][0]
+    #     try:
+    #         assert within_range(angle, new_angle, .03)
+    #     except Exception as e:    
+    #         print("Failure in projection {e}")
+    #         breakpoint()
+            #here 
+    # breakpoint()
+
+    # basic_collection_old.initialize_digraph_from()
+
+    # # nodes = [n for n in basic_collection_old.digraph.nodes()]
+    # # # edges_new = [ edge for edge in basic_collection.digraph.nodes()]
+    # # for node in nodes:
+    # #     neighbors = basic_collection_old.digraph.edges(node)
+    # #     new_neighbors = basic_collection.digraph.edges(node)
+    # #     try:
+    # #        assert [x for x in new_neighbors] == [y for y in neighbors]
+    # #     except Exception as e:    
+    # #         print("edges no equal {e}")
+    # #         breakpoint()
+    #         #here 
+
+    # # breakpoint()
+    # print("edges equal")
+
+
+    # # breakpoint()
+    # breakpoint()
+    # accepted_err = .01
+   
+    # #there
+
+
+    # basic_collection.initialize_digraph_from_new()
+    # basic_collection_old.initialize_digraph_from()
+
+    # breakpoint()
+
+    # basic_collection.find_flow_components_new()
+    # basic_collection_old.old_find_flow_components()
+    # breakpoint()
+    
+    # print(basic_collection.drip_summary())
+    # print(basic_collection_old.drip_summary())
+
+
+    # basic_collection.calculate_flows()
+    # actual_flows = basic_collection.flows
+    # _, actual_stem_map = lam_filter(
+    #     basic_collection.cylinders, lambda: is_stem, return_all=True
+    # )
+    return None

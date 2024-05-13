@@ -1,14 +1,13 @@
 """The workhorse class, leverages the others to get results"""
 
-# import matplotlib.pyplot as plt
-# from matplotlib.pyplot import cm
 from __future__ import annotations
 
 import os
+import pickle
 
 from src.canhydro.CylinderCollection import CylinderCollection
-from src.canhydro.global_vars import input_dir, log
-
+from src.canhydro.global_vars import input_dir, log, output_dir
+from src.canhydro.utils import create_dir_and_file
 NAME = "Forester"
 
 

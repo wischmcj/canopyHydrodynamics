@@ -12,12 +12,11 @@ import os
 
 from itertools import chain
 
-import matplotlib.pyplot as plt
 import networkx as nx
-import rustworkx as rx
+# import rustworkx as rx
 import numpy as np
 # from memory_profiler import LogFile
-from scipy.spatial import distance
+# from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
@@ -25,17 +24,22 @@ from src.canhydro.Cylinder import create_cyl
 from src.canhydro.DataClasses import Flow
 from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
                                    get_projected_overlap,
-                                   vectorized_get_projection, pool_get_projection)
-from src.canhydro.global_vars import config_vars, log, output_dir
-from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file
+                                    pool_get_projection)
+# vectorized_get_projection
+from src.canhydro.global_vars import config_vars, log, output_dir, output_dir
+from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file, create_dir_and_file
 # sys.stdout = LogFile()
+
+# import matplotlib.pyplot as plt
 
 NAME = "CylinderCollection"
 
 
-def pickle_collection(collection, designation: str = ""):
+def pickle_collection(collection, designation: str = ""):   
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
-    file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
+    if designation == "": designation = collection.file_name
+    out_dir = output_dir.__str__()
+    file_path ="".join([f'{out_dir}/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
     directory = os.path.dirname(file_path)
     create_dir_and_file(directory)
     pickle_file = open(file_path, 'ab')
@@ -44,7 +48,8 @@ def pickle_collection(collection, designation: str = ""):
     return pickle_file
 
 def unpickle_collection(file_name:str):
-    file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', file_name])
+    out_dir = output_dir.__str__()
+    file_path ="".join([f'{out_dir}/pickle/', file_name])
     dbfile = open(file_path, 'rb')    
     db = pickle.load(dbfile)
     dbfile.close()
@@ -217,46 +222,46 @@ class CylinderCollection:
             self.projections[plane] = True
             self.pSV = polys
 
-    def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        elif not force_rerun and self.projections[plane]:
-            log.info(
-                "cached projections exist, pass 'force_rerun=True to calculate new projections "
-            )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            for idx, cyl in enumerate(self.cylinders):
-                poly = cyl.numba_get_projection(plane)
-                polys.append(poly)
-                # print a progress update once every 10 thousand or so cylinders
-                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
-            # Used by other functions to know what projections have been run
-            self.projections[plane] = True
-            self.pSV = polys
+    # def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
+    #     """Projects cylinders onto the specified plane"""
+    #     if plane not in ("XY", "XZ", "YZ"):
+    #         log.info(f"{plane}: invalid value for plane")
+    #     elif not force_rerun and self.projections[plane]:
+    #         log.info(
+    #             "cached projections exist, pass 'force_rerun=True to calculate new projections "
+    #         )
+    #     else:
+    #         polys = []
+    #         log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+    #         for idx, cyl in enumerate(self.cylinders):
+    #             poly = cyl.numba_get_projection(plane)
+    #             polys.append(poly)
+    #             # print a progress update once every 10 thousand or so cylinders
+    #             intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
+    #         # Used by other functions to know what projections have been run
+    #         self.projections[plane] = True
+    #         self.pSV = polys
 
-    def vectorized_project_cylinders(
-        self, plane: str = "XY", force_rerun: bool = False
-    ):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        # elif not force_rerun and self.projections[plane]:
-        #     log.info(
-        #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
-        #     )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
-            ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
-            radii = np.array([cyl.radius for cyl in self.cylinders])
-            vectorized_get_projection(starts, ends, radii)
+    # def vectorized_project_cylinders(
+    #     self, plane: str = "XY", force_rerun: bool = False
+    # ):
+    #     """Projects cylinders onto the specified plane"""
+    #     if plane not in ("XY", "XZ", "YZ"):
+    #         log.info(f"{plane}: invalid value for plane")
+    #     # elif not force_rerun and self.projections[plane]:
+    #     #     log.info(
+    #     #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
+    #     #     )
+    #     else:
+    #         polys = []
+    #         log.info(f"Projection into {plane} axis begun for file {self.file_name}")
+    #         starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
+    #         ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
+    #         radii = np.array([cyl.radius for cyl in self.cylinders])
+    #         vectorized_get_projection(starts, ends, radii)
 
-            self.projections[plane] = True
-            self.pSV = polys
+    #         self.projections[plane] = True
+    #         self.pSV = polys
 
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
@@ -281,9 +286,10 @@ class CylinderCollection:
         filter_lambda: function = lambda: True,
         include_drips: bool = False,
         include_contour: bool = False,
+        include_alpha_shape:bool = False ,
+        stem = False,
         **args,
     ):
-
         """Draws cylinders meeting given characteristics onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
@@ -299,6 +305,10 @@ class CylinderCollection:
             self.drip_map()
         if include_contour:
             self.drip_map()
+        # if include_alpha_shape:
+        #     self.drip_map()
+        # if stem:
+        #     self.drip_map()
         fig =draw_cyls(collection=to_draw, colors=matches, **args)
         return fig
 
@@ -371,7 +381,7 @@ class CylinderCollection:
 
         hull, _, _ = concave_hull(boundary_points, curvature_alpha)
         if draw:
-            draw_cyls([hull], save, file_ext)
+            draw_cyls([hull], save = save, file_ext = file_ext)
         if stem:
             self.stem_hull = hull
         else:
@@ -493,7 +503,7 @@ class CylinderCollection:
 
     # def get_trunk_nodes_new(self) -> list[int]:
     #     g = self.digraph
-    #     if self.trunk_nodes:
+    #     if self.trunk_nodes:a
     #         return self.trunk_nodes
     #     elif len(g.nodes) > 0:
     #         trunk_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 0)
@@ -681,8 +691,8 @@ class CylinderCollection:
                 drip_node,
                 [node for node in divide_nodes if nx.has_path(g_drip, node, drip_node)],
             )
-                for drip_node in drip_nodes
-                if drip_node != -1
+            for drip_node in drip_nodes
+            if drip_node != -1
         ]
 
         drip_components = []
@@ -881,6 +891,8 @@ class CylinderCollection:
                 self.calculate_flows(plane=plane)
             self.watershed_boundary(
                 component=self.stem_flow_component, plane=plane, stem=True
+                # ,save = True, draw=True
+                ,file_ext = file_ext + '_stem_hull' 
             )
         dbh = self.get_dbh()
 
@@ -992,7 +1004,7 @@ class CylinderCollection:
             "order_gr_four_angle_std": np.std([cyl.angle for cyl in order_four_cyls]),
             "file_name": self.file_name + plane,
         }
-        save_file(
+        stat_file = save_file(
             self.file_name.replace(".csv", f"_{file_ext}"),
             out_file=statistics,
             subdir="statistics",
@@ -1000,17 +1012,18 @@ class CylinderCollection:
             overwrite=True
         )
 
-        return statistics
+        return stat_file
     
     def generate_flow_file(self, file_ext):
         flow_dicts = [flow.__dict__ for flow in self.flows]
-        save_file(
+        flow_file = save_file(
             self.file_name.replace(".csv", f"_flows_{file_ext}"),
             out_file=flow_dicts,
             subdir="flows",
             method="flows",
             overwrite=True
         )
+        return flow_file
 
     def describe(self, metric: str, a_lambda: function = lambda: True, **args) -> dict:
         """
@@ -1086,70 +1099,75 @@ class CylinderCollection:
         drip_point_locs = self.get_drip_points()
         drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
         drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
-        drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
-
-        math.floor(np.min(drip_point_locs_x))
-
-        mins = self.extent["min"]
-        maxs = self.extent["max"]
-        extents = [mins[0], maxs[0], mins[1], maxs[1]]
         # min_xy = np.min(mins)
         # max_xy = np.max(maxs)
         # x_mesh, y_mesh = np.meshgrid(
         #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
         # )
-        if interpolate:
-            min_xy = np.min(
-                [
-                    math.floor(np.min(drip_point_locs_x)),
-                    math.floor(np.min(drip_point_locs_y)),
-                ]
-            )
-            max_xy = np.max(
-                [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
-            )
-            x_mesh, y_mesh = np.meshgrid(
-                np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
-            )
+        # try:
+        # fig, ax = plt.subplots()
+        # from geopandas import GeoSeries 
+        # except Exception as e:
+        #     log.warning(f"drip map not drawn: {e}")
+        #     return
+        
+        # if interpolate:
+        #     drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
 
-            def dist_to_drip(a, b):
-                distances = distance.cdist([[a, b]], drip_point_locs_xy)
-                min_dist = np.min(distances)
-                return math.log(1 / min_dist)
+        #     math.floor(np.min(drip_point_locs_x))
 
-            distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
+        #     mins = self.extent["min"]
+        #     maxs = self.extent["max"]
+        #     extents = [mins[0], maxs[0], mins[1], maxs[1]]
+        #     min_xy = np.min(
+        #         [
+        #             math.floor(np.min(drip_point_locs_x)),
+        #             math.floor(np.min(drip_point_locs_y)),
+        #         ]
+        #     )
+        #     max_xy = np.max(
+        #         [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
+        #     )
+        #     x_mesh, y_mesh = np.meshgrid(
+        #         np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
+        #     )
 
-            for a in range(x_mesh.shape[0]):
-                for b in range(x_mesh.shape[0]):
-                    distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
+        #     def dist_to_drip(a, b):
+        #         distances = distance.cdist([[a, b]], drip_point_locs_xy)
+        #         min_dist = np.min(distances)
+        #         return math.log(1 / min_dist)
 
-            fig, ax = plt.subplots()
+        #     distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
 
-            ax.contourf(
-                y_mesh,
-                x_mesh,
-                distance_matrix,
-                levels=15,
-                max=0.5,
-                cmap=plt.cm.Blues,
-                extend="neither",
-                extent=extents,
-            )
+        #     for a in range(x_mesh.shape[0]):
+        #         for b in range(x_mesh.shape[0]):
+        #             distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
+
+
+        #     ax.contourf(
+        #         y_mesh,
+        #         x_mesh,
+        #         distance_matrix,
+        #         levels=15,
+        #         max=0.5,
+        #         cmap=plt.cm.Blues,
+        #         extend="neither",
+        #         extent=extents,
+        #     )
             
-        ax.scatter(drip_point_locs_x, drip_point_locs_y)
-        from geopandas import GeoSeries
+        # ax.scatter(drip_point_locs_x, drip_point_locs_y)
 
-        filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
-        polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
-        # breakpoint()
-        save_dir = "/".join([str(output_dir), 'draw_drip_map', f"{file_ext}"])#.replace("/", "\\")
+        # filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
+        # polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
+        # # breakpoint()
+        # save_dir = "/".join([str(output_dir), 'draw_drip_map', f"{file_ext}"])#.replace("/", "\\")
         # plt.show()
         # plt.savefig(save_dir, dpi = 3000)
-        if len(polys) > 0:
-            geoPolys = GeoSeries(polys)
-            geoPolys.plot(ax=ax)
-        else:
-            log.warning(
-                "Drip Map: No cylinders returned for lambda function: {a_lambda}"
-            )
-        plt.show()
+        # if len(polys) > 0:
+        #     geoPolys = GeoSeries(polys)
+        #     geoPolys.plot(ax=ax)
+        # else:
+        #     log.warning(
+        #         "Drip Map: No cylinders returned for lambda function: {a_lambda}"
+        #     )
+        # plt.show()

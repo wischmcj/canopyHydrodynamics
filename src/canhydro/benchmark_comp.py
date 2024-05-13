@@ -6,6 +6,8 @@ from .Cylinder import create_cyl
 from .global_vars import test_input_dir , log
 import numpy as np
 
+from timeit import timeit
+
 def initialize_forester(dir, file = None):
     forester = Forester()
     forester.get_file_names(dir=test_input_dir)
@@ -88,8 +90,7 @@ def new_flows(input):
     return dur
 
 
-def test(file, func, iterations :int):
-    total_time = 0
+def test(file, func):
     forest = initialize_forester(test_input_dir,file)
     log.info(f'Initializing for function {func.__name__}')
     tree = forest.cylinder_collections[0]
@@ -97,16 +98,14 @@ def test(file, func, iterations :int):
     # tree.find_flow_components()
     tree.project_cylinders()
     log.info(f'Starting Testing for function {func.__name__}')
-    for i in range(iterations):
-        total_time += func(tree)
-        log.info(f'Itr {i} for {func.__name__} complete')
-    return total_time
+    func(tree)
+    log.info(f'Itr {i} for {func.__name__} complete')
 
 
 def compare(file = '5_Small_Collection', old = old_flows, new = new_flows):
     iterations = 1
-    new_time = test(file, new,iterations)
-    old_time = test(file, old,iterations)
+    new_time = timeit('test(file, new)',number =1)
+    old_time = timeit('test(file, old)',number =1)
 
     new_line ='\n'
     return  f"""Old average time is {old_time / iterations:.2f} seconds 
@@ -114,3 +113,6 @@ def compare(file = '5_Small_Collection', old = old_flows, new = new_flows):
                 {new_line.join(['',''])} New average time is {new_time / iterations:.2f} seconds
 
                 {new_line.join(['',''])} Thats a {old_time / new_time:.2f} times speedup"""
+
+if __name__ == "__main__":
+    print('run')

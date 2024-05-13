@@ -52,7 +52,11 @@ Source = "https://github.com/wischmcj/canopyHydrodynamics/"
 
 
 [directories]
-root = "/code/code/canopyHydrodynamics/"
+root = ""
+
+[home_server]
+host = ''
+
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
