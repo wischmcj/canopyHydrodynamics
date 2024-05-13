@@ -1,7 +1,3 @@
-"""The workhorse class, leverages the others to get results"""
-
-# import matplotlib.pyplot as plt
-# from matplotlib.pyplot import cm
 from __future__ import annotations
 
 import logging
@@ -20,18 +16,6 @@ log = logging.getLogger('model')
 
 NAME = "Forester"
 
-
-# Class(es) intended to be the workhorse(s) that manages our objects
-
-
-class CollectionManager:
-    def __get__(self, obj, objtype):
-        if obj is None:
-            return Forester(objtype)
-        else:
-            raise AttributeError(f"Forester isn't accessible via {objtype} instances")
-
-
 class Forester:
     def __init__(self, file_names="", directory=input_dir) -> None:
         self.file_names = file_names
@@ -39,8 +23,6 @@ class Forester:
         self.cylinder_collections = []
 
     def get_file_names(self, dir=input_dir):
-        #     os.chdir(''.join([vars.DIR,'input']))
-        #     fullPath = Path(''.join([vars.DIR,'input']))
         log.info(f"Searching {dir} for files")
         paths = sorted(dir.iterdir(), key=os.path.getmtime)
         self.file_names = paths

@@ -27,7 +27,7 @@ for column in config["qsm"]:
 NAME = "Cylinder"
 
 
-def create_cyl(arr: np.array()):
+def create_cyl(arr: np.array):
     cols = qsm_cols
     attrs = {k: arr[v] for (k, v) in cols.items()}
     cyl = Cylinder(**attrs)
@@ -36,11 +36,11 @@ def create_cyl(arr: np.array()):
 
 
 @dataclass
-class Cylinder:  # (defaultdict):
+class Cylinder:
     cyl_id: int
-    x: np.ndarray[np.float32]  # len 2 array
-    y: np.ndarray[np.float32]  # len 2 array
-    z: np.ndarray[np.float32]  # len 2 array
+    x: np.ndarray[np.float32]
+    y: np.ndarray[np.float32]
+    z: np.ndarray[np.float32]
     radius: np.float32
     length: np.float32
     branch_order: int
@@ -121,8 +121,6 @@ class Cylinder:  # (defaultdict):
         tCir = np.linspace(
             0, 2 * np.pi, noCirPoints
         )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
-        a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
-        b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
 
         if plane == "XY":
             magnitude = [self.dx, self.dy, self.dz]

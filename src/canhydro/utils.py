@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import csv
+import calendar
 import os
 import shutil
 import stat
+import logging
+import toml
+import time 
 from typing import Union
+from pathlib import Path
 
 import numpy as np
 
@@ -68,10 +73,9 @@ if has_numba:
             stacked_array[j] = list_of_array[j]
         return stacked_array if not col else stacked_array.T
 
+# File system utils
 
-def on_rm_error(func, path, exc_info):
-    # path contains the path of the file that couldn't be removed
-    # let's just assume that it's read-only and unlink it.
+def on_rm_error(path):
     os.chmod(path, stat.S_IWRITE)
     os.unlink(path)
 
@@ -94,8 +98,8 @@ def read_file_names(file_path=input_dir):
 
 
 def save_file(
-    file,
-    out_file: Union(list[dict], dict),
+    file: str,
+    out_file: Union[dict, list[dict]],
     overwrite: bool = False,
     fileFormat: str = ".csv",
     method: str ="",
@@ -139,6 +143,8 @@ def save_file(
     headers = list(out_file[0].keys())
     to_write.append(headers)
     log.info(f"{to_write}")
+    # adding each dict in out_file to a 
+    #   single to_write list[list]
     for dic in out_file:
         cur_row = []
         for _, value in dic.items():
@@ -146,7 +152,9 @@ def save_file(
         cur_row.append(time_stamp)
         to_write.append(cur_row)
 
-    if fileExists:
+    if fileExists and not overwrite:
+        # Reading existing data into to_write in
+        #  order to append new data
         with open(dir + ofname_ext, "w+") as csv_file:
             reader = csv.reader(csv_file)
             existing_rows = list(reader)
@@ -158,13 +166,13 @@ def save_file(
                 log.warning(
                     f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
                 )
-    if overwrite:
-        log.info(f"{to_write}")
-        with open(dir + ofname_ext, "w") as csv_file:
-            writer = csv.writer(csv_file)
-            for row in to_write:
-                writer.writerow(row)
+    log.info(f"{to_write}")
+    with open(dir + ofname_ext, "w") as csv_file:
+        writer = csv.writer(csv_file)
+        for row in to_write:
+            writer.writerow(row)
 
+# other utils
 
 def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
     if np.random.uniform(0, 1, 1) < freq:

@@ -28,7 +28,6 @@ from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
-from src.canhydro.global_vars import DIR, test_input_dir
 from src.canhydro.utils import lam_filter
 from src.canhydro.CylinderCollection import CylinderCollection
 
