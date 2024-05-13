@@ -6,6 +6,15 @@ __pycache__/
 # C extensions
 *.so
 
+#data 
+
+data/output/*
+data/test/Secrest*
+data/docker_data*
+data/validation*
+
+
+
 # Distribution / packaging
 .Python
 build/
@@ -125,6 +134,8 @@ celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
+
+*known_hosts
 
 # Environments
 .env

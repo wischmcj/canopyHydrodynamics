@@ -1,51 +1,82 @@
 from __future__ import annotations
 
 import csv
+import calendar
 import os
 import shutil
 import stat
+import logging
+import toml
+import time 
 from typing import Union
+from pathlib import Path
 
 import numpy as np
-from numba import njit, prange
-from numba.typed import List
 
-from src.canhydro.global_vars import input_dir, log, output_dir, time_stamp
+from src.canhydro.import_options import _try_import
+
+has_numba = _try_import('numba')
+if has_numba:
+    from numba import njit, prange
+    from numba.typed import List
+
+log = logging.getLogger("model")
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    input_dir = Path(config["directories"]['input_dir'])
+    output_dir = Path(config["directories"]['output_dir'])
+    
+ 
+current_GMT = time.gmtime()
+time_stamp = str(calendar.timegm(current_GMT))
 
 
-def stack(to_stack:list[np.array], col: bool == True):
+# Data munging utils
+
+def stack(to_stack:list[np.array], col: bool = True):
     """
         A wrapper for njit stack that handles errors and allows for 
         less strict typing 
     """
-    list_of_array = List(to_stack)
-    try:
-        njit_stack(list_of_array,col)
-    except ValueError as err:
-        left_shape = list_of_array[0].shape[0]
-        right_shape = list_of_array[1].shape[0]
-        stack_type ='column' if col else 'row'
-        msg = f'{err}: Cannot {stack_type} stack arrays with shapes {left_shape} and {right_shape}'
-        log.error(msg)
-        raise ValueError(msg) from err
+    if not has_numba:
+        non_njit_stack(to_stack, col)
+    else:
+        list_of_array = List(to_stack)
+        try:
+            njit_stack(list_of_array,col)
+        except ValueError as err:
+            non_njit_stack(to_stack, col)
 
-@njit()
-def njit_stack(list_of_array:np.array[np.array()], col: bool):
-    """
-    numba doesn't play well with np stacks, so I had to do it myself
-    """
+
+def non_njit_stack(to_stack:list[np.array], col: bool = True):
+    list_of_array = list(to_stack)
     num_in = len(list_of_array)
     left_shape = list_of_array[0].shape[0]
     shape = (num_in, left_shape)
     stacked_array = np.empty(shape)
-    for j in prange(len(list_of_array)): 
-        stacked_array[j] = list_of_array[j]
+    for idx, _ in enumerate(list_of_array): 
+        stacked_array[idx] = list_of_array[idx]
     return stacked_array if not col else stacked_array.T
 
+if has_numba:
+    @njit()
+    def njit_stack(list_of_array:np.array[np.array()], col: bool):
+        """
+        numba doesn't play well with np stacks, so I had to do it myself
+        """
+        num_in = len(list_of_array)
+        left_shape = list_of_array[0].shape[0]
+        shape = (num_in, left_shape)
+        stacked_array = np.empty(shape)
+        for j in prange(len(list_of_array)): 
+            stacked_array[j] = list_of_array[j]
+        return stacked_array if not col else stacked_array.T
 
-def on_rm_error(func, path, exc_info):
-    # path contains the path of the file that couldn't be removed
-    # let's just assume that it's read-only and unlink it.
+
+# File system utils
+
+def on_rm_error(path):
     os.chmod(path, stat.S_IWRITE)
     os.unlink(path)
 
@@ -53,9 +84,6 @@ def on_rm_error(func, path, exc_info):
 def create_dir_and_file(filename,) -> None:
     print(type(filename))
     os.makedirs(filename, exist_ok=True)
-    # f = open(filename, "w+")
-    # f.write("Now the file has more content!")
-    # f.close()
 
 
 def del_dir(filename) -> None:
@@ -66,27 +94,46 @@ def read_file_names(file_path=input_dir):
     """Reads in filenames to list"""
     paths = sorted(file_path.iterdir(), key=os.path.getmtime)
     fileNames = [f.name for f in paths if f.suffix == ".csv"]
-    print(paths)
-    print(fileNames)
+    log.info(f'fileNames found in {file_path} on read: {fileNames}')
     return fileNames
 
 
 def save_file(
-    file,
-    out_file: Union(list[dict], dict),
+    file: str,
+    out_file: Union[dict, list[dict]],
     overwrite: bool = False,
-    subdir: str = "agg",
-    fileFormat=".csv",
-    method="",
+    fileFormat: str = ".csv",
+    method: str ="",
 ):
-    dir = "/".join([str(output_dir), method, ""]).replace("/", "\\")
-    ofname = "_".join([file, method]).replace("/", "\\")
-    ofname_ext = "".join([ofname, fileFormat]).replace("/", "\\")
-    aggname = "_".join(["agg", method, fileFormat]).replace("/", "\\")
-    aggname_ext = "".join([aggname, fileFormat]).replace("/", "\\")
+    """
+        A somewhat overly complex file saving function.
+        If file exists and overwrite = false, it will append to the file
+        
+        Args:
+            file: str
+                The name of the file to write to
+            out_file: Union[dict, list[dict]]
+                The data to write to the file
+            overwrite: bool
+                Whether or not to overwrite the file if it exists
+            fileFormat: str 
+                The file format to save the file as ()
+            method: str
+        Note: 
+            'agg*' variables intended to support future 
+                updates - adding additional write to an 
+                append only file for better history tracking
+    """
+    dir = "/".join([str(output_dir), method, ""])
+    ofname = "_".join([file, method])
+    ofname_ext = "".join([ofname, fileFormat])
     folderExists = os.path.exists(dir)
     fileExists = os.path.exists(dir + ofname_ext)
-    aggExists = os.path.exists(dir + aggname_ext)
+
+    # aggname = "_".join(["agg", method, fileFormat])
+    # aggname_ext = "".join([aggname, fileFormat])
+    # aggExists = os.path.exists(dir + aggname_ext)#
+
     if not folderExists:
         os.makedirs(dir)
 
@@ -97,6 +144,8 @@ def save_file(
     headers = list(out_file[0].keys())
     to_write.append(headers)
     log.info(f"{to_write}")
+    # adding each dict in out_file to a 
+    #   single to_write list[list]
     for dic in out_file:
         cur_row = []
         for _, value in dic.items():
@@ -104,7 +153,9 @@ def save_file(
         cur_row.append(time_stamp)
         to_write.append(cur_row)
 
-    if fileExists:
+    if fileExists and not overwrite:
+        # Reading existing data into to_write in
+        #  order to append new data
         with open(dir + ofname_ext, "w+") as csv_file:
             reader = csv.reader(csv_file)
             existing_rows = list(reader)
@@ -116,13 +167,13 @@ def save_file(
                 log.warning(
                     f"Existing { ofname_ext} file has different headers, to overwrite pass ovewrite =true"
                 )
-    if overwrite:
-        log.info(f"{to_write}")
-        with open(dir + ofname_ext, "w") as csv_file:
-            writer = csv.writer(csv_file)
-            for row in to_write:
-                writer.writerow(row)
+    log.info(f"{to_write}")
+    with open(dir + ofname_ext, "w") as csv_file:
+        writer = csv.writer(csv_file)
+        for row in to_write:
+            writer.writerow(row)
 
+# other utils
 
 def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
     if np.random.uniform(0, 1, 1) < freq:
@@ -131,7 +182,18 @@ def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
 
 
 def lam_filter(objects, a_lambda: function, return_all: bool = False):
-    """Takes in a lambda that filters on cylinder attrs"""
+    """
+        Takes in a lambda that filters on cylinder attrs
+        returns a list of cylinders for which that
+        lambda func returns true
+        i.e. lam_filter(cylinders, lambda: diameter > 0.5)
+                -returns all cylinders with diameter > 0.5
+
+        return_all: bool 
+            - if true, returns all cylinders along with 
+                a boolean array of the same length w/ the 
+                results of the lambda function passed
+    """
     if a_lambda.__code__.co_name != "<lambda>":
         raise ValueError("a lambda required")
     if return_all:

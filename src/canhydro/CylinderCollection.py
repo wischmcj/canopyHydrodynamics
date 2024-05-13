@@ -1,42 +1,56 @@
-"""These constitute our way of 'copying' the QSMs"""
-
-
 from __future__ import annotations
 
+import logging
+import toml
 import copy
-import math
-import sys
 from itertools import chain
 
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from memory_profiler import LogFile
-from scipy.spatial import distance
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
 from src.canhydro.Cylinder import create_cyl
 from src.canhydro.DataClasses import Flow
-from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
-                                   get_projected_overlap,
-                                   vectorized_get_projection)
-from src.canhydro.global_vars import config_vars, log
+from src.canhydro.geometry import (concave_hull, draw_cyls, 
+                                    furthest_point,
+                                    get_projected_overlap)
 from src.canhydro.utils import intermitent_log, lam_filter, save_file
+from src.canhydro.import_options import _try_import
 
-sys.stdout = LogFile()
+#Optional imports    
+if has_geopandas := _try_import('geopandas'):
+    from geopandas import GeoSeries
+
+if has_mem_profiler := _try_import('memory_profiler'):
+    from memory_profiler import LogFile
+    import sys
+    sys.stdout = LogFile()
+
+if has_matplotlib := _try_import('matplotlib'):
+    import matplotlib.pyplot as plt
+
+if has_spatial := _try_import('scipy.spatial'):
+    from scipy.spatial import distance
+
+
+log = logging.getLogger("model")
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    in_flow_grade_lim=config['config_vars']["in_flow_grade_lim"]
 
 NAME = "CylinderCollection"
 
 
-# By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
+# By inheriting the odel class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
 class CylinderCollection:
     cylinders = dict
 
     # initialize our object level variables for cylinder objects
     def __init__(self) -> None:
         self.file = ""
-        # self.collection = CylinderList()
         # Aggregate values from file
         self.surface_area = np.nan
         self.file_name = ""
@@ -44,14 +58,11 @@ class CylinderCollection:
         self.avg_sa_to_vol = np.nan
         self.max_branch_order = np.nan
         self.max_reverse_branch_order = np.nan
-        self.canopy_scope = np.nan  # desc of canopy
         self.extent = {
             "min": [np.nan, np.nan, np.nan],
             "max": [np.nan, np.nan, np.nan],
         }
         # to populate with x,y,z mins and maxs
-        self.aggregate_angle = np.nan
-        self.descriptive_vectors = np.nan  # Average, median, mode vectors
         self.treeQualities = {
             "total_psa": None,
             "tot_hull_area": None,
@@ -65,25 +76,24 @@ class CylinderCollection:
 
         # Projection Attrs
         self.projections = {"XY": False, "XZ": False, "YZ": False}
-        self.stem_path_lengths = []
         self.hull = None
         self.stem_hull = None
 
         # Special case tree attributes
-        self.stem_paths = [[]]  # Cyl collection?
-        self.trunk = []  # Collection of cylinders? id list?
+        self.stem_paths = [[]]  
+        self.trunk = [] 
 
         # Graph and Attributes
         self.graph = None
         self.digraph = None
-        self.min_graph = None
         self.flows = None
         self.divide_nodes = None
         self.drip_nodes = None
         self.cyl_to_drip = None
         self.drip_points = {"x": np.nan, "y": np.nan, "z": np.nan, "flow_id": np.nan}
         self.flow_to_drip = {
-            0: 1
+            0: 1 #allows us to bootstrap stemflow 
+                    # (cyl 1 drains to 0, so its child cyl 2 drains to 0, etc)
         }  # A dictionary of flow ids with values equal to their drip node ids
         self.trunk_nodes = []
         self.drip_point_loc = None
@@ -92,15 +102,7 @@ class CylinderCollection:
         self.drip_flow_components = None
         # Calculations using graph results
         self.flow_chars = {}
-        self.divide_points = []
-        self.stemPolys = []
-        self.compGraphs = []
         self.trunk_lean = None
-
-    def aggregate_characteristics(self):
-        """Calculates the summations, averages etc. of cylinder characterictics
-        that might be of interest"""
-        return True
 
     def from_csv(self, file, aggregate_cyls=True):
         """Initializes a new Cyl Collection based on the data in a QSM
@@ -108,7 +110,6 @@ class CylinderCollection:
         self.file = file
         self.file_name = file.name
         log.info(f"Processing {str(file)}")
-        # self.arr = pd.read_csv(file, header=0)
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
         cylinders = [create_cyl(row) for row in self.arr]
         self.cylinders = cylinders
@@ -136,8 +137,6 @@ class CylinderCollection:
                 "max": [max_x, max_y, max_z],
             }
 
-        self.descriptive_vectors = np.nan  # Average, median, mode vectors
-
         self.theta = np.nan
         log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
 
@@ -160,47 +159,7 @@ class CylinderCollection:
             # Used by other functions to know what projections have been run
             self.projections[plane] = True
             self.pSV = polys
-
-    def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        elif not force_rerun and self.projections[plane]:
-            log.info(
-                "cached projections exist, pass 'force_rerun=True to calculate new projections "
-            )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            for idx, cyl in enumerate(self.cylinders):
-                poly = cyl.numba_get_projection(plane)
-                polys.append(poly)
-                # print a progress update once every 10 thousand or so cylinders
-                intermitent_log(idx, self.no_cylinders, "Cylinder projection: ")
-            # Used by other functions to know what projections have been run
-            self.projections[plane] = True
-            self.pSV = polys
-
-    def vectorized_project_cylinders(
-        self, plane: str = "XY", force_rerun: bool = False
-    ):
-        """Projects cylinders onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
-            log.info(f"{plane}: invalid value for plane")
-        # elif not force_rerun and self.projections[plane]:
-        #     log.info(
-        #         "cached projections exist, pass 'force_rerun=True to calculate new projections "
-        #     )
-        else:
-            polys = []
-            log.info(f"Projection into {plane} axis begun for file {self.file_name}")
-            starts = np.array([cyl.vectors[plane][0] for cyl in self.cylinders])
-            ends = np.array([cyl.vectors[plane][1] for cyl in self.cylinders])
-            radii = np.array([cyl.radius for cyl in self.cylinders])
-            vectorized_get_projection(starts, ends, radii)
-
-            self.projections[plane] = True
-            self.pSV = polys
+            log.info(f"Projection into {plane} axis complete for file {self.file_name}")
 
     def get_collection_data(self):
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
@@ -329,18 +288,8 @@ class CylinderCollection:
         else:
             self.hull = hull
 
-    def initialize_graph_from(self):
-        """This function creates an undirected_graph and initializes edge attributes as cylinder objects"""
-        gr = nx.Graph()
-        edges = (
-            (int(cyl.cyl_id), int(cyl.parent_id), {"cylinder": cyl})
-            for cyl in self.cylinders
-        )
-        gr.add_edges_from(edges)
-        self.graph = gr
-
     def initialize_digraph_from(
-        self, in_flow_grade_lim=config_vars["in_flow_grade_lim"]
+        self, in_flow_grade_lim=in_flow_grade_lim
     ):
         """This function creates a directed graph and its undirected counterpart.
         Initializes edge attributes as cylinder objects"""
@@ -382,12 +331,12 @@ class CylinderCollection:
         """
         trunk_nodes = self.get_trunk_nodes()
 
-        trunk_contraction, titans = self.contracted_nodes(trunk_nodes, 0, self.graph)
+        trunk_contraction, _ = self.contracted_nodes(trunk_nodes, 0, self.graph)
         trunk_paths = nx.shortest_path(trunk_contraction, target=0)
         dists = {node: len(path) - 1 for node, path in trunk_paths.items()}
         return dists
 
-    def find_flow_components(self, inFlowGradeLim=-1 / 6):
+    def find_flow_components(self):
         g = self.digraph
         if type(g) == nx.Graph:
             msg = "Find Flow Digraph invoked for undirected graph"
@@ -445,10 +394,8 @@ class CylinderCollection:
                 attr["cylinder"].cyl_id
                 for _, _, attr in component_graph.edges(data=True)
             ]
-            for id in component_cyls:
-                # if cyl_to_drip_node[id]:
-                # log.warning(f"Cylinder with id {id} has two or more identified to drip nodes: {cyl_to_drip_node[id]} and {drip_node}")
-                cyl_to_drip_node[id].append(drip_node)
+            for idx in component_cyls:
+                cyl_to_drip_node[idx].append(drip_node)
 
             drip_components.append((drip_node, g_drip.subgraph(component_nodes).copy()))
 
@@ -518,14 +465,6 @@ class CylinderCollection:
                 if cyl.drip_node == drip_node and cyl.cyl_id != drip_node
             ]
 
-            # edge_attributes = {
-            #     (u, v): {
-            #         "dripNode": drip_node,
-            #         "flowType": "drip",
-            #         "flowID": (idx + 1),
-            #     }
-            #     for u, v, _ in edges
-            # }
             flow_chars.append(
                 Flow(
                     **{
@@ -621,10 +560,6 @@ class CylinderCollection:
                 component=self.stem_flow_component, plane=plane, stem=True
             )
 
-        #     endNodePoly = [self._pSV[n-1] for n in g.nodes if g.degree(n)==1 and n!= 0]
-        #     centroids = [x.point_on_surface() for x in endNodePoly]
-        #     tot_hull, edge_points = concave_hull(centroids,2.2)
-        #     totHullGeo =geo.GeoSeries(tot_hull)
         canopy_cover = self.hull.area
         canopy_boundary = self.hull.boundary.length
 
@@ -656,8 +591,6 @@ class CylinderCollection:
         #
         overlap_dict = self.find_overlap_by_percentile(percentiles=[25, 50, 75])
         tot_poly = unary_union(self.pSV)
-        projected_area_w_o_overlap = tot_poly.area
-        projected_area_w_overlap = np.sum([poly.area for poly in self.pSV])
 
         min_x = self.extent["min"][0]
         max_x = self.extent["max"][0]
@@ -730,28 +663,10 @@ class CylinderCollection:
 
         return statistics
 
-    def describe(self, metric: str, a_lambda: function = lambda: True, **args) -> dict:
-        """
-        Takes in a metric of the tree and a filter and returns summary stats
-        for the given input metric
-        Potentially outputs a histogram if requested?
-        """
-        return {True}
-
-    def compare(
-        metric: str,
-        a_lambda: function = lambda: True,
-        b_lambda: function = lambda: True,
-    ):
-        """
-        Compares the two lists of metrics defined by the two input functions
-        """
-
     def get_drip_points(
         self,
         # metric :str = 'projected_area',
-        percentile: int = 30,
-        **args,
+        percentile: int = 30
     ):
         """
         Returns the locations of the drip points.
@@ -838,31 +753,35 @@ class CylinderCollection:
         for a in range(x_mesh.shape[0]):
             for b in range(x_mesh.shape[0]):
                 distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
+        
+        if has_matplotlib:
+            _, ax = plt.subplots()
 
-        fig, ax = plt.subplots()
+            ax.contourf(
+                y_mesh,
+                x_mesh,
+                distance_matrix,
+                levels=15,
+                max=0.5,
+                cmap=plt.cm.Blues,
+                extend="neither",
+                extent=extents,
+            )
 
-        ax.contourf(
-            y_mesh,
-            x_mesh,
-            distance_matrix,
-            levels=15,
-            max=0.5,
-            cmap=plt.cm.Blues,
-            extend="neither",
-            extent=extents,
-        )
+            ax.scatter(drip_point_locs_x, drip_point_locs_y)
 
-        ax.scatter(drip_point_locs_x, drip_point_locs_y)
-        from geopandas import GeoSeries
-
-        filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
-        polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
-        # breakpoint()
-        if len(polys) > 0:
-            geoPolys = GeoSeries(polys)
-            geoPolys.plot(ax=ax)
+            filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
+            polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
+            
+            if len(polys) > 0:
+                geoPolys = GeoSeries(polys)
+                geoPolys.plot(ax=ax)
+            else:
+                log.warning(
+                    "Drip Map: No cylinders returned for lambda function: {a_lambda}"
+                )
         else:
             log.warning(
-                "Drip Map: No cylinders returned for lambda function: {a_lambda}"
+                "Unable to draw drip map as module matplotlib.pyplot is not available"
             )
-        plt.show()
+        return distance_matrix
