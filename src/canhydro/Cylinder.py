@@ -36,11 +36,11 @@ def create_cyl(arr: np.array()):
 
 
 @dataclass
-class Cylinder:
+class Cylinder:  # (defaultdict):
     cyl_id: int
-    x: np.ndarray[np.float32]
-    y: np.ndarray[np.float32]
-    z: np.ndarray[np.float32]
+    x: np.ndarray[np.float32]  # len 2 array
+    y: np.ndarray[np.float32]  # len 2 array
+    z: np.ndarray[np.float32]  # len 2 array
     radius: np.float32
     length: np.float32
     branch_order: int

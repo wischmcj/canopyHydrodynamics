@@ -16,7 +16,7 @@ classifiers = [
 [project.optional-dependencies]
 test = [
     "pre-commit==3.7.0",
- "pytest-cov==4.0.0",
+    "pytest-cov==4.0.0",
     "pytest-runner",
     "pytest==7.3.1",
     "pytest-github-actions-annotate-failures",
