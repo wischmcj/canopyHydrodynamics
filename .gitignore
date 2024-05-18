@@ -185,3 +185,6 @@ cython_debug/
 data/validation_data/StemFlowVolumes.xlsx
 data/validation_data/StemFlowVolumes.xlsx
 scripts/plotting_scratch.ipynb
+data/temp_rebase files/CylinderCollection.py
+data/temp_rebase files/RustyCylinderCollection.py
+data/temp_rebase files/test_collection_integration.py
