@@ -2,32 +2,28 @@
 
 from __future__ import annotations
 
-import toml
-import logging
 from dataclasses import dataclass, field
 
 import numpy as np
 
 from src.canhydro.DataClasses import Projection
-from src.canhydro.geometry import (draw_cyls, get_projection)
+from src.canhydro.geometry import (draw_cyls, get_projection,
+                                   numba_get_projection)
+from src.canhydro.global_vars import qsm_cols
 
-log = logging.getLogger('model')
-
-with open("src/canhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    
-# QSM column order
-qsm_cols = {}
-for column in config["qsm"]:
-    qsm_cols[column] = config["qsm"][column]
+# from descartes import PolygonPatch
+# from mpl_toolkits import mplot3d
 
 
-
-
+# import time
+# import copy
+# import math
+# import openpyxl
+# import geopandas as geo
 NAME = "Cylinder"
 
 
-def create_cyl(arr: np.array):
+def create_cyl(arr: np.array()):
     cols = qsm_cols
     attrs = {k: arr[v] for (k, v) in cols.items()}
     cyl = Cylinder(**attrs)
@@ -36,11 +32,11 @@ def create_cyl(arr: np.array):
 
 
 @dataclass
-class Cylinder:
+class Cylinder:  # (defaultdict):
     cyl_id: int
-    x: np.ndarray[np.float32]
-    y: np.ndarray[np.float32]
-    z: np.ndarray[np.float32]
+    x: np.ndarray[np.float32]  # len 2 array
+    y: np.ndarray[np.float32]  # len 2 array
+    z: np.ndarray[np.float32]  # len 2 array
     radius: np.float32
     length: np.float32
     branch_order: int
@@ -70,6 +66,9 @@ class Cylinder:
     is_stem: bool = False
     is_divide: bool = False
 
+    # #blood for the blood god, software eng for the filter func
+    # class_attrs = self.__get_class_attributes(type(self))
+    # self.__init_instance(class_attrs, kwargs)
     def __repr__(self):
         return f"Cylinder( cyl_id={self.cyl_id}, x={self.x}, y={self.y}, z={self.z}, radius={self.radius}, length={self.length}, branch_order={self.branch_order}, branch_id={self.branch_id}, volume={self.volume}, parent_id={self.parent_id}, reverse_branch_order={self.reverse_branch_order}, segment_id={self.segment_id}"
 
@@ -87,7 +86,8 @@ class Cylinder:
 
         extract = (
             lambda attr: attrs[columns[attr]]
-        )  
+        )  # pulls a column from the qsm row (attrs) corrosponding to the input attribute
+
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] - self.z[0]
@@ -114,13 +114,15 @@ class Cylinder:
             else np.arctan(self.dz / np.sqrt(self.dx**2 + self.dy**2))
         )
         self.xy_area = 0
-        log.debug(str(self.__repr__()))
+        # log.info(str(self.__repr__()))
 
     def get_projection(self, plane="XY"):
         noCirPoints = 360
         tCir = np.linspace(
             0, 2 * np.pi, noCirPoints
         )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
+        a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
+        b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
 
         if plane == "XY":
             magnitude = [self.dx, self.dy, self.dz]
@@ -137,7 +139,35 @@ class Cylinder:
         if plane == "XY":
             self.xy_area = self.projected_data["XY"]["area"]
         return projection["polygon"]
-    
+
+    def numba_get_projection(self, plane="XY"):
+        noCirPoints = 360
+        tCir = np.linspace(
+            0, 2 * np.pi, noCirPoints
+        )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
+        a_ortho = np.cos(tCir)  # x coordinates of the points on a circle
+        b_ortho = np.sin(tCir)  # y coordinates of the points on a circle
+
+        if plane == "XY":
+            magnitude = [self.dx, self.dy, self.dz]
+            vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
+        elif plane == "XZ":
+            magnitude = [self.dx, self.dz, self.dy]
+            vector = [np.transpose(self.x), np.transpose(self.z), np.transpose(self.y)]
+        else:
+            magnitude = [self.dy, self.dz, self.dx]
+            vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
+
+        projection = numba_get_projection(vector, magnitude, self.radius)
+        self.projected_data[plane] = projection
+        if plane == "XY":
+            self.xy_area = self.projected_data["XY"]["area"]
+        return projection["polygon"]
+
     def draw(self, plane: str = "XY"):
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly])
+
+    def get_flow_data():
+        """Returns the flow ID and flow characteristics of the flow the cyl is contained in"""
+        print("Get flow data not written")
