@@ -44,7 +44,7 @@ with open("src/canhydro/user_def_config.toml") as f:
 NAME = "CylinderCollection"
 
 
-# By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
+# By inheriting the odel class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
 class CylinderCollection:
     cylinders = dict
 
@@ -289,7 +289,7 @@ class CylinderCollection:
             self.hull = hull
 
     def initialize_digraph_from(
-        self, in_flow_grade_lim=config_vars["in_flow_grade_lim"]
+        self, in_flow_grade_lim=in_flow_grade_lim
     ):
         """This function creates a directed graph and its undirected counterpart.
         Initializes edge attributes as cylinder objects"""
@@ -591,8 +591,6 @@ class CylinderCollection:
         #
         overlap_dict = self.find_overlap_by_percentile(percentiles=[25, 50, 75])
         tot_poly = unary_union(self.pSV)
-        projected_area_w_o_overlap = tot_poly.area
-        projected_area_w_overlap = np.sum([poly.area for poly in self.pSV])
 
         min_x = self.extent["min"][0]
         max_x = self.extent["max"][0]
@@ -668,8 +666,7 @@ class CylinderCollection:
     def get_drip_points(
         self,
         # metric :str = 'projected_area',
-        percentile: int = 30,
-        **args,
+        percentile: int = 30
     ):
         """
         Returns the locations of the drip points.

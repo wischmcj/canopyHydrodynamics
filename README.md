@@ -1,9 +1,7 @@
 # canhydro <sub>(formerly dripDropFlow)</sub>
->>>>>>> ab569e7 (Revert "Merge branch 'main' into ingest-validation-data")
+
 This repository houses a bare bones script relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 
-This repository houses the python code relating to the below paper, and will recieve periodic updates as our research progresses.
->>>>>>> 8aeaf6b (Revert "Revert "Merge branch 'main' into ingest-validation-data"")
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 (https://www.researchgate.net/publication/375530854)
 
@@ -37,6 +35,11 @@ The code that you see zipped here is representiitive of the ongoing work in our 
      2. Install pre-commit - pre-commit install
 
 ## Known Issues
+
+- The projection algorithm is an approximation
+  - e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad
+- Cylinders occasionally have more than one possible drip point. Our algorithm chooses just one of theses and lists that as the drip node
+  - Note that these possible drip nodes more often than not fall very close together
 
 ## Wishlist</h2>
   - Optimizing the alpha value for alphashapes

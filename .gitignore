@@ -12,7 +12,6 @@ data/test/Secrest*
 data/docker_data*
 data/validation*
 
-known_hosts
 # Distribution / packaging
 .Python
 build/

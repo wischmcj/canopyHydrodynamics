@@ -72,7 +72,6 @@ if has_numba:
         for j in prange(len(list_of_array)): 
             stacked_array[j] = list_of_array[j]
         return stacked_array if not col else stacked_array.T
-
 # File system utils
 
 def on_rm_error(path):
