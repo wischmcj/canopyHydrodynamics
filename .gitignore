@@ -7,12 +7,10 @@ __pycache__/
 *.so
 
 #data 
-
 data/output/*
 data/test/Secrest*
 data/docker_data*
 data/validation*
-
 
 # Distribution / packaging
 .Python
@@ -137,6 +135,7 @@ celerybeat.pid
 *known_hosts
 
 # Environments
+/data
 .env
 .venv
 env/

@@ -17,8 +17,18 @@ import toml
 from _pytest.nodes import Item
 from pathlib import Path
 
+from _pytest.nodes import Item
+from pathlib import Path
+
 from src.canhydro.Cylinder import create_cyl
 from src.canhydro.Forester import Forester
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = Path(config["directories"]['test_input_dir'])
+
+
+test_input_dir =Path("./data/test/")
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)

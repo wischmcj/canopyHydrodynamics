@@ -3,16 +3,19 @@ geopandas
 flask
 matplotlib==3.8.4
 networkx==3.3
+matplotlib==3.8.4
 rustworkx
 numba==0.59.1
 numpy==1.26.4
+scipy==1.13.0
 pytest==8.2.0
-scipy==1.12.0
+rustworkx
 Shapely==2.0.4
 toml==0.10.2
 debugpy
 pyyaml
 rich
+jupytext==1.14.1
 
 # optional
 line_profiler==4.1.2
