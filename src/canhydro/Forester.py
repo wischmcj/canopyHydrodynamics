@@ -24,6 +24,7 @@ class Forester:
 
     def get_file_names(self, dir=input_dir):
         log.info(f"Searching {dir} for files")
+        dir = Path(dir)
         paths = sorted(dir.iterdir(), key=os.path.getmtime)
         self.file_names = paths
         file_names = [f.name for f in paths if f.suffix == ".csv"]
@@ -40,10 +41,14 @@ class Forester:
             return
         collections = []
         for file_obj in self.file_names:
+            if '.csv' not in file_name:
+                file_name = file_name + '.csv'
             if file_name == "All" or file_obj.name == file_name:
                 c = CylinderCollection()
                 c.from_csv(file_obj, dir)
                 collections.append(c)
         if len(collections) == 0:
-            log.error(f"File {file_name} not found in input directory {dir}")
+            msg = f"File {file_name} not found in input directory {dir}"
+            log.error(msg)
+            raise FileNotFoundError(msg)
         self.cylinder_collections = collections

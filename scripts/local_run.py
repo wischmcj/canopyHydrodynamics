@@ -229,7 +229,6 @@ def sensitivity_analysis():
     cases_to_run = get_cases(files_to_test,run_cases,angles)
     log.info(f'Will run {len(cases_to_run)} cases : {cases_to_run}')
     start = time()
-    breakpoint()
     success = run_test_cases(cases_to_run, fig = False)
     # for file, angle in cases_to_run:
     #     success = run_test_cases(cases_to_run)
@@ -251,341 +250,6 @@ def sensitivity_analysis():
     #         log.info(f"Failed run case {case}")
     #     else:
     #         log.info(f"suceeded running cases {case}")
-import pickle
-import math
-import matplotlib.pyplot as plt
-import numpy as np
-from geopandas import GeoSeries
-import pandas as pd
-import matplotlib.colors as colors
-
-def retain_quantile(df, field, percentile):
-    percentile_val = df[field].quantile(percentile)
-    # print(f'percentile_val = {percentile_val} found for {field}, percentile {percentile}')
-    return df[df[field] >= percentile_val]
-
-def return_quantile(df, field, percentile):
-    percentile_val = df[field].quantile(percentile)
-    # print(f'percentile_val = {percentile_val} found for {field}, percentile {percentile}')
-    return df[df[field] >= percentile_val][field]
-
-def plot_drip_points(collection, percentile):
-    scale = 1
-    flows = pd.DataFrame([flow.__dict__ for flow in collection.flows])
-    flows = flows[flows['drip_node_id']!=0]
-    drip_points  = retain_quantile(flows, 'projected_area', percentile)
-    drip_point_locs_x = [pt[0] * scale for pt in drip_points['drip_node_loc']]
-    drip_point_locs_y = [pt[1] * scale for pt in drip_points['drip_node_loc']]
-    drip_point_size = [pt for pt in drip_points['projected_area']]
-    drip_node = [pt for pt in drip_points['drip_node_id']]
-    return drip_point_locs_x,drip_point_locs_y,drip_point_size
-
-def draw_for_paper():
-    import matplotlib.pyplot as plt
-    class nlcmap(object):
-        def __init__(self, cmap, levels):
-            self.cmap = cmapr
-            self.N = cmap.N
-            self.monochrome = self.cmap.monochrome
-            self.levels = np.asarray(levels, dtype='float64')
-            self._x = self.levels
-            self.levmax = self.levels.max()
-            self.transformed_levels = np.linspace(0.0, self.levmax,
-                len(self.levels))
-
-        def __call__(self, xi, alpha=1.0, **kw):
-            yi = np.interp(xi, self._x, self.transformed_levels)
-            return self.cmap(yi / self.levmax, alpha)
-    
-    
-    # import numpy as np
-    # import matplotlib.pyplot as plt
-
-    # x = y = np.linspace(1, 10, 10)
-
-    # t1mean, t2mean = 2, 9
-    # sigma1, sigma2 = .3, .01
-    # t1 = np.random.normal(t1mean, sigma1, 10)
-    # t2 = np.random.normal(t2mean, sigma2, 10)
-
-    class nlcmap(object):
-        def __init__(self, cmap, levels):
-            self.cmap = cmap
-            self.N = cmap.N
-            self.monochrome = self.cmap.monochrome
-            self.levels = np.asarray(levels, dtype='float64')
-            self._x = self.levels
-            self.levmax = self.levels.max()
-            self.transformed_levels = np.linspace(0.0, self.levmax,
-                len(self.levels))
-
-        def __call__(self, xi, alpha=1.0, **kw):
-            yi = np.interp(xi, self._x, self.transformed_levels)
-            return self.cmap(yi / self.levmax, alpha)
-
-    # tmax = max(t1.max(), t2.max())
-    # #the choice of the levels depends on the data:
-    # levels = np.concatenate((
-    #     [0, tmax],
-    #     np.linspace(t1mean - 4 * sigma1, t1mean + 4 * sigma1, 5),
-    #     np.linspace(t2mean - 4 * sigma2, t2mean + 4 * sigma2, 5),
-    #     ))
-
-    # levels = levels[levels <= tmax]
-    # levels.sort()
-    # # breakpoint()
-
-    # cmap_nonlin = nlcmap(plt.cm.jet, levels)
-
-    # fig, (ax1, ax2) = plt.subplots(1, 2)
-
-    # ax1.scatter(x, y, edgecolors=cmap_nonlin(t1), s=15, linewidths=4)
-    # ax2.scatter(x, y, edgecolors=cmap_nonlin(t2), s=15, linewidths=4)
-
-    # fig.subplots_adjust(left=.25)
-    # cbar_ax = fig.add_axes([0.10, 0.15, 0.05, 0.7])
-
-    # #for the colorbar we map the original colormap, not the nonlinear one:
-    # sm = plt.cm.ScalarMappable(cmap=plt.cm.jet, 
-    #                 norm=plt.Normalize(vmin=0, vmax=tmax))
-    # sm._A = []
-    # plt.show()
-
-
-    # breakpoint()
-    files = [ 
-        # ('/code/code/canopyHydrodynamics/data/output/pickle/Secrest32-06_000000_pickle__stats_-0.36','32-06_low_drip_points_36')
-               # #  ('/code/code/canopyHydrodynamics/data/output/pickle/Secrest32-06_000000_pickle__stats_0.04','32-06_high_drip_points_04')
-               # #  ('/code/code/canopyHydrodynamics/data/output/pickle/Secrest32-06_000000_pickle__stats_-0.14','32-06_mid_drip_points_14')
-               ('/code/code/canopyHydrodynamics/data/output/pickle/Secrest27-05_000000_pickle__stats_-0.34','27-05_low_end_drip_points_34'),
-            #    ('/code/code/canopyHydrodynamics/data/output/pickle/Secrest27-05_000000_pickle__stats_0.04.pickle','27-05_high_end_drip_points_04'),
-            #    ('/code/code/canopyHydrodynamics/data/output/pickle/Secrest27-05_000000_pickle__stats_-0.14.pickle','27-05_mi_drip_points_0014')
-                ]
-    # db_files = [(open(file_i[0],'rb'),file_i[0]) for file_i in files]
-    for file_i in files:
-        col = open(file_i[0],'rb')
-        file = file_i[1]
-    # #         open('/code/code/canopyHydrodynamics/data/output/pickle/Secrest32-06_000000_pickle__stats_-0.36', 'rb')]
-    # # file = '32-06_low_drip_points_36'
-    # #         open('/code/code/canopyHydrodynamics/data/output/pickle/Secrest32-06_000000_pickle__stats_0.04', 'rb')]
-    # # file = '32-06_high_drip_points_04'
-    # #         open('/code/code/canopyHydrodynamics/data/output/pickle/Secrest32-06_000000_pickle__stats_-0.14', 'rb')]
-    # # file = '32-06_mid_drip_points_14
-
-    #     open('/code/code/canopyHydrodynamics/data/output/pickle/Secrest27-05_000000_pickle__stats_-0.34', 'rb')]
-    # file = '27-05_low_end_drip_points_34'
-    # # pick_file = 'Secrest27-05_000000'
-    # # pik_designation = 'stats_-0.34'
-    # #   open('/code/code/canopyHydrodynamics/data/output/pickle/Secrest27-05_000000_pickle__stats_0.04.pickle', 'rb')]
-    # # file = '27-05_high_end_drip_points_04'
-    # #     open('/code/code/canopyHydrodynamics/data/output/pickle/Secrest27-05_000000_pickle__stats_-0.14.pickle', 'rb')]
-    # # file = '27-05_mi_drip_points_14'
-    
-
-        # collections = [pickle.load(db_file[0]) for db_file in db_files]
-        collections = [pickle.load(col)]
-    # collections[0].project_cylinders('XZ')
-    # pickle_collection(collections[0],designation=pik_designation)
-    # breakpoint()
-
-        flow_info = [plot_drip_points(col, .98) for col in collections]
-        drip_info = [x for x in flow_info]
-        # breakpoint()
-        # max_drip = 0
-        # for x,y,drip_point_size in drip_info:
-        #     potential_max_drip = np.max(drip_point_size)
-        #     if potential_max_drip>max_drip: 
-        #         max_drip = potential_max_drip
-    #32-06
-    #10.613
-    #19.25299317980633
-    #28.45471360468393
-
-    #27-05
-    #6.603
-    #6.603
-    #6.603
-        ghost_tree = True
-        only_hulls = False
-        figs_to_draw = any([ghost_tree, only_hulls])
-
-        if figs_to_draw:
-            for idx, graph_data in enumerate(drip_info):
-                x,y,drip_point_size = graph_data
-                if '32' in file:
-                    x_trans = 9
-                    y_trans = 4
-                    x_lim = [0,14]
-                    y_lim = [0,13]
-
-                    # x.append(-20)
-                    # y.append(-20)
-                    # drip_point_size.append(28.4547)
-
-                if '27' in file:
-                    x_trans = 2
-                    y_trans = 8
-                    x_lim = [0,12]
-                    y_lim = [0,11]
-                    # x.append(-20)
-                    # y.append(-20)
-                    
-                    # drip_point_size.append(6.603)
-                    
-                col = collections[idx]
-                polys = unary_union([cyl.projected_data['XY']['polygon'] for cyl in col.cylinders])
-                stem_hull = col.stem_hull
-                geopolys = GeoSeries(polys)
-                geohull = GeoSeries(stem_hull)
-                tot_geoHull = GeoSeries(col.hull)
-
-                # fig, ax = plt.subplots()
-                # ext = 'stem_highlight_xz'
-                # try:
-                #     polys = [cyl.projected_data['XZ']['polygon'] for cyl in col.cylinders]
-                #     geopolys = GeoSeries(polys)
-                #     colors = ["Blue" if cyl.is_stem else "Grey" for cyl in col.cylinders]
-                #     geopolys_trans = geopolys.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-                #     geopolys_trans.plot(ax=ax, color=colors)
-                #     ax.set_xlim(x_lim)
-                #     ax.set_ylim(y_lim)
-                #     plt.show()
-                #     # plt.savefig(f'/code/code/canopyHydrodynamics/data/output/draw/{file}_{ext}.svg')
-                #     plt.savefig(f'/media/penguaman/Healthy/BranchHighlight/branchHighlight/{file}_{ext}.svg')
-                # except KeyError as e:
-                #     log.error(f'error getting XZ projected data {e}')
-                #             #   trying to run project_cylinders {e}')
-                #     col.project_cylinders('XZ')
-                #     polys = [cyl.projected_data['XZ']['polygon'] for cyl in col.cylinders]
-                
-
-                
-                # fig, ax = plt.subplots()
-                # ext = 'stem_highlight_xy'
-                # polys = [cyl.projected_data['XY']['polygon'] for cyl in col.cylinders]
-                # geopolys = GeoSeries(polys)
-                # colors = ["Blue" if cyl.is_stem else "Grey" for cyl in col.cylinders]
-                # geopolys_trans = geopolys.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-                # geopolys_trans.plot(ax=ax, color=colors)
-                # ax.set_xlim(x_lim)
-                # ax.set_ylim(y_lim)
-                # plt.savefig(f'/media/penguaman/Healthy/BranchHighlight/branchHighlight/{file}_{ext}.svg')
-
-                # plt.show()
-
-
-                
-                # t1mean, t2mean = np.mean(drip_info), 9
-                # sigma1, sigma2 = .3, .01
-                # tmax = np.max(drip_info)
-                # #the choice of the levels depends on the data:
-                # levels = np.concatenate((
-                #     [0, tmax],
-                #     np.linspace(t1mean - 4 * sigma1, t1mean + 4 * sigma1, 5),
-                #     np.linspace(t2mean - 4 * sigma2, t2mean + 4 * sigma2, 5),
-                #     ))
-
-                # levels = levels[levels <= tmax]
-                # levels.sort()
-
-                # cmap_nonlin = nlcmap(plt.cm.jet, levels)
-
-
-                t1mean = np.mean(drip_info)
-                sigma1 = np.std(drip_info)
-                t1 = np.random.normal(t1mean, sigma1, 10)
-
-                tmax = np.max(drip_info)
-                #the choice of the levels depends on the data:
-                levels = np.concatenate((
-                    [0, tmax],
-                    np.linspace(t1mean - 4 * sigma1, t1mean + 4 * sigma1, 5),
-                    ))
-
-                levels = levels[levels <= tmax]
-                levels.sort()
-
-                cmap_nonlin = nlcmap(plt.cm.jet, levels)
-
-                # if ghost_tree:
-                fig, ax = plt.subplots()
-                ext = 'ghost_tree_cbar'        
-                # geopolys_trans = geopolys.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-                geohull_trans = geohull.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-
-               
-                geohull_trans.plot(ax=ax, color='darkgrey', alpha = 0.5)
-
-                # geopolys_trans.plot(ax=ax, color='lightgrey', alpha = 0.7)
-                CS = ax.scatter([x_val+x_trans for x_val in x], 
-                                [y_val+y_trans for y_val in y], 
-                                edgecolors=cmap_nonlin(drip_info),
-                                 s=15, linewidths=4
-                                # c = [x if x > .1  else .1 for x in drip_point_size], 
-                                # cmap = 'Greys', edgecolors='slategray'
-                                )
-                cbar = plt.colorbar(CS)
-                ax.set_xlim(x_lim)
-                ax.set_ylim(y_lim)
-                plt.show()
-                breakpoint()
-                # norm=colors.LogNorm(vmin=np.min(drip_point_size), vmax=np.min(drip_point_size)),
-                # plt.savefig(f'/media/penguaman/Healthy/BranchHighlight/dripsWithTrees/{file}_{ext}.svg')
-
-                # fig, ax = plt.subplots()
-                # ext = 'two_hulls'
-                # tot_geoHull = GeoSeries(col.hull)
-                # tot_geoHull_trans = tot_geoHull.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-                # geohull_trans = geohull.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-                # tot_geoHull_trans.plot(ax=ax, color='darkgrey', alpha = 0.3)
-                # geohull_trans.plot(ax=ax, color='darkgrey', alpha = 0.3)
-                # ax.scatter([x_val+x_trans for x_val in x], [y_val+y_trans for y_val in y], facecolors='none', edgecolors='slategray', s=[x*5 for x in drip_point_size] )
-                # ax.set_xlim(x_lim)
-                # ax.set_ylim(y_lim)
-                # plt.savefig(f'/media/penguaman/Healthy/BranchHighlight/dripsWithHulls/{file}_{ext}.svg')
-                # plt.show()
-
-            
-                # fig, ax = plt.subplots()
-                # ext = 'stem_hull'
-                # geohull_trans = geohull.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-                # geohull_trans.plot(ax=ax, color='darkgrey', alpha = 0.3)
-                # ax.scatter([x_val+x_trans for x_val in x], [y_val+y_trans for y_val in y], facecolors='none', edgecolors='slategray', s=[x*5 for x in drip_point_size] )
-                # ax.set_xlim(x_lim)
-                # ax.set_ylim(y_lim)
-                # plt.savefig(f'/media/penguaman/Healthy/BranchHighlight/dripsWithHulls/{file}_{ext}.svg')
-                # plt.show()
-
-                # if only_hulls:
-                #     fig, ax = plt.subplots()
-                #     ext = 'only_hulls'
-                #     tot_geoHull = GeoSeries(col.hull)
-                #     tot_geoHull_trans = tot_geoHull.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-                #     geohull_trans = geohull.translate( xoff=x_trans, yoff=y_trans, zoff=0.0)
-                #     tot_geoHull_trans.plot(ax=ax, color='darkgrey', alpha = 0.3)
-                #     geohull_trans.plot(ax=ax, color='darkgrey', alpha = 0.3)
-                #     ax.set_xlim(x_lim)
-                #     ax.set_ylim(y_lim)
-                #     plt.savefig(f'/media/penguaman/Healthy/BranchHighlight/hulls/{file}_{ext}.svg')
-                #     plt.show()
-
-        # except Exception as e:
-        #     print(e)
-            # plt.show()
-
-    # filename='32_med_hull_dark'
-    # plt.savefig('./data/output/draw/{filename}.png')
-    # plt.savefig(f'/home/penguaman/Desktop/sensitivityAnalysis/Hulls/{filename}.png')
-    # breakpoint()
-
-
-    # fig, ax = plt.subplots()
-
-    # geopolys.plot(ax=ax,color='lightgray',alpha=0.5)
-    # geohull.plot(ax=ax, color='darkgray',alpha=0.6)
-
-
-
 
     # forest = Forester()
     # forest.get_file_names(dir=test_input_dir)
@@ -595,7 +259,7 @@ def draw_for_paper():
     # basic_collection.initialize_digraph_from(in_flow_grade_lim=-0.3)
     # basic_collection.find_flow_components()
     # basic_collection.calculate_flows()
-    # breakpoint()
+    
     # pickle_collection(basic_collection,basic_collection.file_name)
 
     
@@ -612,9 +276,9 @@ def draw_for_paper():
     #         assert within_range(angle, new_angle, .03)
     #     except Exception as e:    
     #         print("Failure in projection {e}")
-    #         breakpoint()
+
             #here 
-    # breakpoint()
+    
 
     # basic_collection_old.initialize_digraph_from()
 
@@ -627,15 +291,15 @@ def draw_for_paper():
     # #        assert [x for x in new_neighbors] == [y for y in neighbors]
     # #     except Exception as e:    
     # #         print("edges no equal {e}")
-    # #         breakpoint()
+
     #         #here 
 
-    # # breakpoint()
+    # 
     # print("edges equal")
 
 
-    # # breakpoint()
-    # breakpoint()
+    # 
+    
     # accepted_err = .01
    
     # #there
@@ -644,11 +308,11 @@ def draw_for_paper():
     # basic_collection.initialize_digraph_from_new()
     # basic_collection_old.initialize_digraph_from()
 
-    # breakpoint()
+    
 
     # basic_collection.find_flow_components_new()
     # basic_collection_old.old_find_flow_components()
-    # breakpoint()
+    
     
     # print(basic_collection.drip_summary())
     # print(basic_collection_old.drip_summary())

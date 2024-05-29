@@ -252,11 +252,11 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
             rather slow for the intersection of this many shapes
     """
     if len(labels) != len(shading_poly_list):
-        log.info(
+        log.debug(
             f"Not enough labels; expected {len(shading_poly_list)} got {len(labels)}"
         )
     elif len(set(labels)) != len(labels):
-        log.info("Labels must be distinct")
+        log.debug("Labels must be distinct")
     else:
         overlap_dict = {}
         shaded_polys = []
@@ -425,7 +425,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                         c1 = Polygon(c1c)
                         c2 = Polygon(c2c)
                     except Exception as e:
-                        log.info(
+                        log.debug(
                             f"Error creating circular portions of the projections {e}"
                         )
 
@@ -444,7 +444,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                     bBox = Polygon(bBoxc)
                     partsPS = [c1, bBox, c2]
                 except:
-                    log.info(
+                    log.debug(
                         f"Error creating rectangular portion of the projection: vectors:{vector} magnitudes:{magnitude}"
                     )
                 try:
@@ -454,7 +454,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                         # cPSc = Polygon(coord_list)
                 except:
                     print(np.any(np.isnan(xaC)))
-                    log.info("Error unioning projection polygons ")
+                    log.debug("Error unioning projection polygons ")
                 # get angle away from plane projected on to
                 run = math.sqrt(delt_b**2 + delt_a**2)
                 rise = delt_c
@@ -472,10 +472,10 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                 }
                 return projection
         else:
-            log.info("dim_a[0] is null, unable to project")
+            log.debug("dim_a[0] is null, unable to project")
         return projection
     except UnboundLocalError:
-        log.info(
+        log.debug(
             f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
         )
 
@@ -621,7 +621,7 @@ def pool_get_projection(cyl, plane):
                         c1 = Polygon(c1c)
                         c2 = Polygon(c2c)
                     except Exception as e:
-                        log.info(
+                        log.debug(
                             f"Error creating circular portions of the projections {e}"
                         )
 
@@ -640,7 +640,7 @@ def pool_get_projection(cyl, plane):
                     bBox = Polygon(bBoxc)
                     partsPS = [c1, bBox, c2]
                 except:
-                    log.info(
+                    log.debug(
                         f"Error creating rectangular portion of the projection: vectors:{vector} magnitudes:{magnitude}"
                     )
                 try:
@@ -650,7 +650,7 @@ def pool_get_projection(cyl, plane):
                         # cPSc = Polygon(coord_list)
                 except:
                     print(np.any(np.isnan(xaC)))
-                    log.info("Error unioning projection polygons ")
+                    log.debug("Error unioning projection polygons ")
                 # get angle away from plane projected on to
                 run = math.sqrt(delt_b**2 + delt_a**2)
                 rise = delt_c
@@ -676,14 +676,14 @@ def pool_get_projection(cyl, plane):
 
         else:
             cyl.projected_data[plane] = projection
-            log.info("dim_a[0] is null, unable to project")
+            log.debug("dim_a[0] is null, unable to project")
             cyl.xy_area = cyl.projected_data["XY"]["area"]
             return projection
     except UnboundLocalError:
-        log.info(
+        log.debug(
             f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
         ) 
-        log.info(
+        log.error(
             f"Erroring cyl id {cyl.cyl_id}"
         )
 
@@ -745,6 +745,3 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
 
 def drip_plot(**args):
     plt.imshow(**args)
-=======
-    plt.show()
->>>>>>> main

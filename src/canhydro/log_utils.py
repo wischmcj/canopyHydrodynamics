@@ -1,4 +1,5 @@
-import logging 
+import logging
+import logging.config
 import yaml
 from rich.console import Console
 from rich.highlighter import Highlighter
@@ -6,7 +7,7 @@ from rich.theme import Theme
 from typing import Union
 
 
-with open('./src/canhydro/logging_config.yml', 'rt') as f:
+with open('src/canhydro/logging_config.yml', 'rt') as f:
     config = yaml.safe_load(f.read())
     logging.config.dictConfig(config)
 

@@ -323,6 +323,7 @@ class CylinderCollection:
         """This function creates a directed graph and its undirected counterpart.
         Initializes edge attributes as cylinder objects"""
         gr = nx.DiGraph()
+        trunk_nodes, _ = lam_filter(self.cylinders, lambda: branch_order == 0)
         edges = (
             (
                 (int(cyl.cyl_id), int(cyl.parent_id), {"cylinder": cyl})
@@ -434,6 +435,7 @@ class CylinderCollection:
         log.info(
             f"{self.file_name} found to have {len(drip_components)} drip components"
         )
+        print('reached_End of find flows')
 
         self.stem_flow_component = stem_flow_component
         self.drip_flow_components = drip_components
@@ -453,29 +455,6 @@ class CylinderCollection:
 
         # this probably doesn't belong here but its efficient to do it now
         # is 'needed' for statistics section
-        stem_cyls = [cyl for cyl in cyls if cyl.is_stem]
-
-        num_stem_edges = len(stem_cyls)
-        flow_chars.append(
-            Flow(
-                **{
-                    "num_cylinders": num_stem_edges,
-                    "projected_area": np.sum(
-                        [
-                            np.float64(cyl.projected_data[plane]["area"])
-                            for cyl in stem_cyls
-                        ]
-                    ),
-                    "surface_area": np.sum([cyl.surface_area for cyl in stem_cyls]),
-                    "angle_sum": np.sum([cyl.angle for cyl in stem_cyls]),
-                    "volume": np.sum([cyl.volume for cyl in stem_cyls]),
-                    "sa_to_vol": np.sum([cyl.sa_to_vol for cyl in stem_cyls]),
-                    "drip_node_id": 0,
-                    "drip_node_loc": (self.cylinders[0].x[0], self.cylinders[0].y[0]),
-                }
-            )
-        )
-        cyls = self.cylinders
         np_flow_chars = [None]*(len(self.drip_nodes) +1)    
 
         def numpy_flow_chars(lambda_filter:function, drip_cyl, index:int):
@@ -498,8 +477,10 @@ class CylinderCollection:
                                     (drip_cyl.x[0], drip_cyl.y[0], drip_cyl.z[0]))
 
         numpy_flow_chars(lambda_filter=lambda x: x.is_stem, drip_cyl=self.cylinders[0], index =0 )
-        
+        log.info(f'np flow chars {np_flow_chars}')
+        log.info(f' flow chars {flow_chars}')
         flow_chars.append(np_flow_chars[0])
+        log.info(f' togetha {flow_chars}')
         # log.info(f"summed stem edges {flow_chars}")
         for idx, drip_node in enumerate(self.drip_nodes):
             cyl_before_drip = [cyl for cyl in cyls if cyl.cyl_id == drip_node]

@@ -9,7 +9,6 @@ formatters:
         datefmt: "%Y.%m.%d %H:%M:%S"
 
 handlers:
-
     console:
         level: 0
         class: log_utils.ConsoleHandler
@@ -38,16 +37,16 @@ loggers:
 
     script:
         level: DEBUG
-        handlers: [file, console]
+        handlers: [file]
         propagate: no
 
     model:
         level: DEBUG
-        handlers: [file, console]
+        handlers: [file]
         propagate: yes
 
 root:
     # By default, we display warning level logs from any library in the console
     # to match Python's default behavior while formatting logs nicely
     level: WARNING
-    handlers: [debug]
+    handlers: [console]

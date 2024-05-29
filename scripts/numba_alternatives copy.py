@@ -184,7 +184,6 @@ def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
             #         )
             bBox = stack(np.array((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4]))), True)
 
-            # breakpoint()
         # print(".")
         # print(typeof(bBox))
         # print(".")
