@@ -3,31 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-#Outputdata
-#data
-input/
-data/*
-data/statistics*
-
-
-data/notReadIn/
-data/test/*
-data/output/statistics/*
-data/output/flows/*
-data/output/pickle/*
-data/validation_raw/*
-data/test/*
-data/validation_data/*
-data/output/draw/*
-data/output/aggregated/*
-test/imgs/*
-
 # C extensions
 *.so
-#networking
-known_hosts
-
-
 
 #data 
 data/output/*
@@ -36,7 +13,6 @@ data/docker_data*
 data/validation*
 
 # Distribution / packaging
-.github
 .Python
 build/
 develop-eggs/
@@ -46,10 +22,7 @@ eggs/
 .eggs/
 lib/
 lib64/
-
-venv/*
-canhydro_venv/*
-
+venv/
 parts/
 sdist/
 var/
@@ -118,25 +91,9 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-#networking
-known_hosts
-
 # IPython
 profile_default/
 ipython_config.py
-
-#data
-data/notReadIn/ 
-data/output/* 
-data/validation_data*
-data/test/*
-data/output/* 
-data/validation* 
-data/docker_data*
-# data/test* 
-
-#networking
-*known_hosts
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
@@ -178,12 +135,8 @@ celerybeat.pid
 *known_hosts
 
 # Environments
-<<<<<<< HEAD
-venv/*
-canhydro_venv/*
-=======
+.envrc
 /data
->>>>>>> main
 .env
 .venv
 env/

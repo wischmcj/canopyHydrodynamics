@@ -1,4 +1,4 @@
-from __future__ import annotations
+rom __future__ import annotations
 
 import csv
 import calendar
@@ -72,8 +72,6 @@ if has_numba:
         for j in prange(len(list_of_array)): 
             stacked_array[j] = list_of_array[j]
         return stacked_array if not col else stacked_array.T
-
-
 # File system utils
 
 def on_rm_error(path):
@@ -136,21 +134,12 @@ def save_file(
 
     if not folderExists:
         os.makedirs(dir)
->>>>>>> 8aeaf6b (Revert "Revert "Merge branch 'main' into ingest-validation-data"")
 
-    # aggname = "_".join(["agg", method, fileFormat])
-    # aggname_ext = "".join([aggname, fileFormat])
-    # aggExists = os.path.exists(dir + aggname_ext)#
-
-    if not folderExists:
-        log.info(f'folder doesnt exist, creating {dir}')
-        os.makedirs(dir)
     to_write = []
     if isinstance(out_file, dict):
         out_file = [out_file]
 
     headers = list(out_file[0].keys())
-    log.info(f'file headers {headers}')
     to_write.append(headers)
     log.info(f"{to_write}")
     # adding each dict in out_file to a 
