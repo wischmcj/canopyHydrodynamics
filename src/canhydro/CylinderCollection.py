@@ -49,7 +49,7 @@ with open("src/canhydro/user_def_config.toml") as f:
 NAME = "CylinderCollection"
 def pickle_collection(collection, designation: str = ""):   
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
-    if designation == "": designation = collection.file_names
+    if designation == "": designation = collection.file_name
     file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
     directory = os.path.dirname(file_path)
     create_dir_and_file(directory)
