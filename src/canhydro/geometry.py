@@ -699,7 +699,6 @@ def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True],
     if save:    
         save_dir = "/".join([str(output_dir), 'draw', f"{file_ext.replace('.','')}"])#.replace("/", "\\")
         plt.savefig(save_dir, dpi = 3000)
-    return fig
 
 
 def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:

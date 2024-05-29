@@ -20,8 +20,9 @@ from src.canhydro.DataClasses import Flow
 from src.canhydro.geometry import (concave_hull, draw_cyls, 
                                     furthest_point,
                                     get_projected_overlap)
-from src.canhydro.utils import intermitent_log, lam_filter, save_file
+from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file
 from src.canhydro.import_options import _try_import
+
 
 #Optional imports    
 if has_geopandas := _try_import('geopandas'):
