@@ -42,6 +42,46 @@ with open("src/canhydro/user_def_config.toml") as f:
 #     flexible_collection.find_flow_components_object()
 #     flexible_collection.calculate_flows_obj()
 
+# #@profile
+# def test_small_tree_proj(small_tree, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     small_tree.project_cylinders("XY")
+#     assert 1 == 1
+
+
+# #@profile
+# def test_numba_small_tree_proj(small_tree, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     small_tree.numba_project_cylinders("XY")
+#     assert 1 == 1
+
+
+# #@profile
+# def test_happy_proj(happy_path_projection, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     happy_path_projection.project_cylinders("XZ")
+#     assert 1 == 1
+
+
+# #@profile
+# def test_numba_happy_proj(happy_path_projection, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     happy_path_projection.numba_project_cylinders("XZ")
+#     assert 1 == 1
+
+
+# #@profile
+# def test_large_proj(large_collection, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     large_collection.project_cylinders("XZ")
+#     assert 1 == 1
+
+
+# #@profile
+# def test_numba_large_proj(large_collection, ez_projection):
+#     ez_projection.numba_project_cylinders("XY")
+#     large_collection.numba_project_cylinders("XZ")
+#     assert 1 == 1
 
 # @pytest.mark.parametrize(
 #     "flexible_collection", ["4_LargeCollection.csv"], indirect=True

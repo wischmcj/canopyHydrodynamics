@@ -745,3 +745,6 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
 
 def drip_plot(**args):
     plt.imshow(**args)
+=======
+    plt.show()
+>>>>>>> main
