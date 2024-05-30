@@ -32,7 +32,7 @@ loggers:
 
     script:
         level: DEBUG
-        handlers: [file,console]
+        handlers: [file, console]
         propagate: no
 
     model:
@@ -44,4 +44,3 @@ root:
     # By default, we display warning level logs from any library in the console
     # to match Python's default behavior while formatting logs nicely
     level: DEBUG
-    handlers: [console]
