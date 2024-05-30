@@ -50,17 +50,20 @@ with open("src/canhydro/user_def_config.toml") as f:
 NAME = "CylinderCollection"
 def pickle_collection(collection, designation: str = ""):   
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
-    if designation == "": designation = collection.file_name
-    file_path ="".join([output_dir, 'pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
+    if designation == "": designation = '.pickle'
+    file_path ="".join([output_dir, 'pickle/', f'{collection.file_name.replace(".csv","")}',f'{designation}'])
     directory = os.path.dirname(file_path)
     create_dir_and_file(directory)
     pickle_file = open(file_path, 'ab')
     pickle.dump(collection, pickle_file) 
     pickle_file.close()
-    return pickle_file
+    return file_path
 
 def unpickle_collection(file_name:str):
-    file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', file_name])
+    if 'pickle/' in file_name:
+        file_path = file_name
+    else:
+        file_path = "".join([output_dir, 'pickle/', file_name])
     dbfile = open(file_path, 'rb')    
     db = pickle.load(dbfile)
     dbfile.close()
