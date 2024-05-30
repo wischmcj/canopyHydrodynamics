@@ -20,8 +20,7 @@ from src.canhydro.DataClasses import Flow
 from src.canhydro.geometry import (concave_hull, draw_cyls, 
                                     furthest_point,
                                     get_projected_overlap)
-from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file
-from src.canhydro.import_options import _try_import
+from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file, _try_import
 
 
 #Optional imports    
@@ -46,12 +45,13 @@ log = logging.getLogger("model")
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
     in_flow_grade_lim=config['config_vars']["in_flow_grade_lim"]
+    output_dir = config['directories']["output_dir"]
 
 NAME = "CylinderCollection"
 def pickle_collection(collection, designation: str = ""):   
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
     if designation == "": designation = collection.file_name
-    file_path ="".join(['/code/code/canopyHydrodynamics/data/output/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
+    file_path ="".join([output_dir, 'pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
     directory = os.path.dirname(file_path)
     create_dir_and_file(directory)
     pickle_file = open(file_path, 'ab')

@@ -11,7 +11,7 @@ from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
 
 from src.canhydro.DataClasses import coord_list
-from src.canhydro.import_options import _try_import
+from src.canhydro.utils import _try_import
 
 # from src.canhydro.utils import stack
 log = logging.getLogger("model")

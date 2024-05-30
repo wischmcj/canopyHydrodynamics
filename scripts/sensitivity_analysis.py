@@ -17,10 +17,10 @@ sys.path.insert(0, os.getcwd())
 from shapely.ops import unary_union
 from data.output.run_so_far import already_run
 from src.canhydro.utils import lam_filter
-import src.canhydro.log_utils 
 from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
 from src.canhydro.Forester import Forester
 from test.utils import within_range
+import src.log_utils
 
 import logging 
 
@@ -333,14 +333,16 @@ def sensitivity_analysis():
     # )
 
 
+print(f'starting')
 if __name__ == "__main__":
     # data/output/pickle/5_SmallTree_pickle__prep_-0.1
 
+    log = logging.getLogger("model")
     # load_from_pickle('Secrest32-06_000000', 'stats', 0.3666)
     # load_from_pickle('Secrest32-06_000000', 'stats', 0.3666)
     # load_from_pickle('Secrest32-06_000000_1', 'stats', -1.5)
     # load_from_pickle('5_SmallTree_1', 'stats', 0.36666)
-    print(f'starting')
+    log.info(f'starting')
     # sensitivity_analysis()   
 
     forest = Forester()
@@ -352,3 +354,5 @@ if __name__ == "__main__":
     collection.find_flow_components()
     print(f'finished_find_flow_components')
     collection.calculate_flows()
+
+    pickle_collection(collection)
