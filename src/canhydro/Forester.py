@@ -1,26 +1,20 @@
-"""The workhorse class, leverages the others to get results"""
-
 from __future__ import annotations
 
+import logging
+import toml
 import os
-import pickle
+from pathlib import Path
 
 from src.canhydro.CylinderCollection import CylinderCollection
-from src.canhydro.global_vars import input_dir, log, output_dir
-from src.canhydro.utils import create_dir_and_file
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    input_dir = Path(config["directories"]['input_dir'])
+
+log = logging.getLogger('model')
+
+
 NAME = "Forester"
-
-
-# Class(es) intended to be the workhorse(s) that manages our objects
-
-
-class CollectionManager:
-    def __get__(self, obj, objtype):
-        if obj is None:
-            return Forester(objtype)
-        else:
-            raise AttributeError(f"Forester isn't accessible via {objtype} instances")
-
 
 class Forester:
     def __init__(self, file_names="", directory=input_dir) -> None:
@@ -29,9 +23,8 @@ class Forester:
         self.cylinder_collections = []
 
     def get_file_names(self, dir=input_dir):
-        #     os.chdir(''.join([vars.DIR,'input']))
-        #     fullPath = Path(''.join([vars.DIR,'input']))
         log.info(f"Searching {dir} for files")
+        dir = Path(dir)
         paths = sorted(dir.iterdir(), key=os.path.getmtime)
         self.file_names = paths
         file_names = [f.name for f in paths if f.suffix == ".csv"]
@@ -48,10 +41,14 @@ class Forester:
             return
         collections = []
         for file_obj in self.file_names:
+            if '.csv' not in file_name:
+                file_name = file_name + '.csv'
             if file_name == "All" or file_obj.name == file_name:
                 c = CylinderCollection()
                 c.from_csv(file_obj, dir)
                 collections.append(c)
         if len(collections) == 0:
-            log.error(f"File {file_name} not found in input directory {dir}")
+            msg = f"File {file_name} not found in input directory {dir}"
+            log.error(msg)
+            raise FileNotFoundError(msg)
         self.cylinder_collections = collections

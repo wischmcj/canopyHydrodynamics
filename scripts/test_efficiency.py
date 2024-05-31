@@ -1,12 +1,13 @@
 """This is a sample python file for testing functions from the source code."""
 
 from __future__ import annotations
+import toml
 
 from line_profiler import profile  # noqa
 
-from src.canhydro.global_vars import test_input_dir
-
-test_input_dir = test_input_dir
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
 
 
 # @pytest.mark.parametrize(
@@ -40,20 +41,6 @@ test_input_dir = test_input_dir
 #     proj_area = flexible_collection.sum_over_object_graph()
 #     flexible_collection.find_flow_components_object()
 #     flexible_collection.calculate_flows_obj()
-
-
-# @pytest.mark.parametrize(
-#     "flexible_collection", ["4_LargeCollection.csv"], indirect=True
-# )
-# # @pytest.mark.parametrize(
-# #     "flexible_collection", ["3_HappyPathWTrunk.csv"], indirect=True
-# # )
-# def test_obj_graph_test(flexible_collection):
-#     flexible_collection.initialize_object_graph_from()
-#     proj_area = flexible_collection.sum_over_object_graph()
-#     flexible_collection.find_flow_components_object()
-#     flexible_collection.calculate_flows_obj()
-
 
 # #@profile
 # def test_small_tree_proj(small_tree, ez_projection):
@@ -96,6 +83,17 @@ test_input_dir = test_input_dir
 #     large_collection.numba_project_cylinders("XZ")
 #     assert 1 == 1
 
+# @pytest.mark.parametrize(
+#     "flexible_collection", ["4_LargeCollection.csv"], indirect=True
+# )
+# # @pytest.mark.parametrize(
+# #     "flexible_collection", ["3_HappyPathWTrunk.csv"], indirect=True
+# # )
+# def test_obj_graph_test(flexible_collection):
+#     flexible_collection.initialize_object_graph_from()
+#     proj_area = flexible_collection.sum_over_object_graph()
+#     flexible_collection.find_flow_components_object()
+#     flexible_collection.calculate_flows_obj()
 
 # @pytest.mark.report_uss
 # @pytest.mark.report_tracemalloc

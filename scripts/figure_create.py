@@ -1,15 +1,11 @@
 
 import pickle
 import math
+import matplotlib.pyplot as plt
 import numpy as np
 from geopandas import GeoSeries
 import pandas as pd
 from src.canhydro.global_vars import config_vars, log, output_dir
-
-try:
-    import matplotlib.pyplot as plt
-except ImportError as e:
-    log.error(f'Error importing matplotlib: {e}')
 
 def retain_quantile(df, field, percentile):
     percentile_val = df[field].quantile(percentile)
@@ -73,15 +69,13 @@ if __name__ == "__main__":
     collections = [pickle.load(db_file) for db_file in db_files]
     # collections[0].project_cylinders('XZ')
     # pickle_collection(collections[0],designation=pik_designation)
-    # breakpoint()
 
     drip_info= [plot_drip_points(col, .98) for col in collections]
     # max_drip = 0
     # for x,y,drip_point_size in drip_info:
     #     potential_max_drip = np.max(drip_point_size)
     #     if potential_max_drip>max_drip: 
-    #         max_drip = potential_max_drip
-    # breakpoint()
+    #         max_drip = potential_max_drip\
     #32-06
     #10.613
     #19.25299317980633

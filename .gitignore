@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+#data 
+data/output/*
+data/test/Secrest*
+data/docker_data*
+data/validation*
+
 # Distribution / packaging
 .Python
 build/
@@ -15,7 +21,6 @@ downloads/
 eggs/
 .eggs/
 lib/
-data/
 lib64/
 venv/
 parts/
@@ -78,7 +83,7 @@ docs/_build/
 target/
 
 #logging
-log*
+*.log
 
 #ruff
 .ruff_cache
@@ -143,7 +148,10 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+*known_hosts
+
 # Environments
+.envrc
 .env
 .venv
 env/

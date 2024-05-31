@@ -1,21 +1,10 @@
-# from __future__ import annotations
-
 from __future__ import annotations
 
 import os
 import sys
 
-# import pandas as pd
-# import matplotlib.pyplot as plt
-
-# import numpy as np
-
-# from canhydro.Forester import Forester
-# from canhydro.global_vars import log, test_input_dir
-# from memory_profiler import profile
-
-
 sys.path.insert(0, os.path.dirname(os.getcwd()))
+sys.path.insert(0, os.getcwd())
 
 if __name__ == "__main__":
     points_2d = [
