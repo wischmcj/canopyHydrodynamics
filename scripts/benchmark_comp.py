@@ -1,9 +1,9 @@
 
 from time import time 
 
-from .Forester import Forester
-from .Cylinder import create_cyl
-from .global_vars import test_input_dir , log
+from ..src.canhydro.Forester import Forester
+from ..src.canhydro.Cylinder import create_cyl
+from ..src.canhydro.global_vars import test_input_dir , log
 import numpy as np
 
 from timeit import timeit

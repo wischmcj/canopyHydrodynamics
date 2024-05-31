@@ -19,8 +19,8 @@ from flask import Flask, render_template
 
 # from src.canhydro.Forester import Forester
 # from src.canhydro.global_vars import log, test_input_dir
-from src.canhydro.benchmark_comp import compare, initialize_forester
-from src.canhydro.benchmark_comp import compare, initialize_forester
+from scripts.benchmark_comp import compare, initialize_forester
+from scripts.benchmark_comp import compare, initialize_forester
 from test.sensitivity_analysis import sensitivity_analysis
 from src.canhydro.global_vars import log, output_dir, data_dir
 from scripts.sftp_utils import sftp
