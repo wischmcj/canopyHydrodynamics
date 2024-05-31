@@ -43,7 +43,7 @@ def vectorized_get_projection(starts: np.array(), ends: np.array(), radii:np.arr
 #     vz =
 
 #     X = [end[0] + start[0] * rect + radii * np.sin(cir) * n1[0] + radii * np.cos(cir) * n2[0] ]
-#     breakpoint()
+
 
 #     X, Y, Z = [ends[i] + starts[i] * rect +
 #                 radii[:,None] * np.sin(cir) * first_ortho_vectors[i] +
@@ -213,7 +213,6 @@ def vectorized_def_cyl(vector, magnitude):
 
             bBox = stack(np.array((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4]))), True)
 
-            # breakpoint()
         # print(".")
         # print(typeof(bBox))
         # print(".")

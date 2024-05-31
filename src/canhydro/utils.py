@@ -10,15 +10,9 @@ import toml
 import time 
 from typing import Union
 from pathlib import Path
+from importlib.util import find_spec
 
 import numpy as np
-
-from src.canhydro.import_options import _try_import
-
-has_numba = _try_import('numba')
-if has_numba:
-    from numba import njit, prange
-    from numba.typed import List
 
 log = logging.getLogger("model")
 
@@ -26,10 +20,23 @@ with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
     input_dir = Path(config["directories"]['input_dir'])
     output_dir = Path(config["directories"]['output_dir'])
-    
- 
+
 current_GMT = time.gmtime()
 time_stamp = str(calendar.timegm(current_GMT))
+
+def _try_import(package_name):
+    if find_spec(package_name):
+        return True
+    else:
+        return False
+
+has_numba = _try_import('numba')
+if has_numba:
+    from numba import njit, prange
+    from numba.typed import List
+
+    
+
 
 
 # Data munging utils

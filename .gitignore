@@ -135,7 +135,7 @@ celerybeat.pid
 *known_hosts
 
 # Environments
-/data
+.envrc
 .env
 .venv
 env/

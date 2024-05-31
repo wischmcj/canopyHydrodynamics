@@ -1,7 +1,5 @@
-# canhydro <sub>(formerly dripDropFlow)</sub>
-
+# canhydro
 This repository houses a bare bones script relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
-
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 (https://www.researchgate.net/publication/375530854)
 
@@ -26,11 +24,12 @@ The code that you see zipped here is representiitive of the ongoing work in our 
 
   1. Python version 3.9 or higher
   2. A Virtual environment
-     - python -m venv ~\Venvs\CanopyHydroEnv
+     - python -m venv 
   3. Activate venv with 
-      -  ~\Venvs\CanopyHydroEnv\Scripts\activate.ps1 (PowerShell)
+      - source venv/bin/activate (zsh, terminal)
+      - source venv\Scripts\activate.ps1 (PowerShell)
   4. Install requirements 
-      - pip install -r requirements_dev.txt
+      - pip install -r requirements_dev.txt 
   5. Enabling Pre-commit lining
      2. Install pre-commit - pre-commit install
 
@@ -84,27 +83,3 @@ The code that you see zipped here is representiitive of the ongoing work in our 
     geoPolys_xy.plot(ax=ax[0])
     geoPolys_xz.plot(ax=ax[1])
     geoPolys_yz.plot(ax=ax[2])
-
-
-# canhydro
-This repository houses a bare bones script relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
-A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
-(https://www.researchgate.net/publication/375530854)
-
-## Contents:
-
-The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the above linked paper how it was run and reviewed. The remaning (majority) of this repository represents code written in the proess of improving and productionalizing that code (See Upcoming Improvements)
-
-## Upcoming improvements
-The code that you see zipped here is representiitive of the ongoing work in our ***productionalizing*** branch, where you will see in progress improvements such as:
-
-  + Functionality refactored into methods
-  + Linter(s) added for formatting and best practices adherence 
-  + Fully fledged logging functionality
-  + toml configuration enabled set up
-  + A pytest based testing framework
-+ Functionality refactored into methods
-+ Linter(s) added for formatting and best practices adherence
-+ Fully fledged logging functionality
-+ toml configuration enabled set up
-+ A pytest based testing framework
