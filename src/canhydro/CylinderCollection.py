@@ -11,6 +11,7 @@ import os
 from itertools import chain
 
 import networkx as nx
+# import rustworkx as rx
 import numpy as np
 from shapely.geometry import Point
 from shapely.ops import unary_union
@@ -705,7 +706,7 @@ class CylinderCollection:
             "order_gr_four_angle_std": np.std([cyl.angle for cyl in order_four_cyls]),
             "file_name": self.file_name + plane,
         }
-        save_file(
+        stat_file = save_file(
             self.file_name.replace(".csv", f"_{file_ext}"),
             out_file=statistics,
             subdir="statistics",
@@ -713,18 +714,19 @@ class CylinderCollection:
             overwrite=True
         )
 
-        return statistics
-        
+        return stat_file
+    
     def generate_flow_file(self, file_ext):
         flow_dicts = [flow.__dict__ for flow in self.flows]
-        save_file(
+        flow_file = save_file(
             self.file_name.replace(".csv", f"_flows_{file_ext}"),
             out_file=flow_dicts,
             subdir="flows",
             method="flows",
             overwrite=True
         )
-        
+        return flow_file
+
     def get_drip_points(
         self,
         # metric :str = 'projected_area',

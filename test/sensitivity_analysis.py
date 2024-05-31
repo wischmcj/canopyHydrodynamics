@@ -1,33 +1,25 @@
 from __future__ import annotations
 
 import os
-import toml
 import sys
-import multiprocessing as mp
+
 from time import time 
 from itertools import product
-import gc
-import pytest
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 sys.path.insert(0, os.getcwd())
-# print(sys.path)
-
 
 from shapely.ops import unary_union
 from data.output.run_so_far import already_run
-from src.canhydro.utils import lam_filter
-from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
+from src.canhydro.global_vars import DIR, test_input_dir
+from src.canhydro.CylinderCollection import (
+    pickle_collection, unpickle_collection
+)
 from src.canhydro.Forester import Forester
-from test.utils import within_range
 
-import logging 
+from src.canhydro.global_vars import log
+import scripts.sftp_utils as sftp
 
-log = logging.getLogger('script')
-
-with open("src/canhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
 
 def try_pickle_collection(collection, designation = ""):
     log.info(f"attempting to pickle for file {collection.file_name}, des {designation}")
@@ -58,7 +50,6 @@ def initialize_collection(file = "5_SmallTree", from_pickle = False, **kwargs):
     return basic_collection
 
 def prep_for_stats(collection, case_angle, case_name, calculate:bool = True):
-    log.info(f"attempting to prep for stats for case {case_name}")
     log.info(f"attempting to prep for stats {case_name}")
     try: 
         collection.initialize_digraph_from(in_flow_grade_lim=case_angle)
@@ -73,14 +64,16 @@ def prep_for_stats(collection, case_angle, case_name, calculate:bool = True):
 def generate_statistics(collection, case_name):
     log.info(f"attempting to generate stats for file {collection.file_name}, case_name {case_name}")
     # statistics = collection.statistics(file_ext = case_name)
-    # try: 
-    statistics = collection.statistics(file_ext = case_name)
-    # except Exception as e:
-    #     log.info(f"Error gernerating stats for case {case_name} : {e}")
-    #     return None
+    try: 
+        stat_file = collection.statistics(file_ext = case_name)
+        sftp_results(stat_file)
+    except Exception as e:
+        log.info(f"Error gernerating stats for case {case_name} : {e}")
+        return None
     log.info(f"attempting to generate flow file for {case_name}")
     try: 
-        collection.generate_flow_file(file_ext = case_name)
+        flow_file = collection.generate_flow_file(file_ext = case_name)
+        sftp_results(flow_file)
     except Exception as e:
         log.info(f"Error gernerating flow file for case {case_name}: {e}")
         return None
@@ -107,7 +100,7 @@ def run_test_cases(cases_to_run, stats :bool = True, fig:bool = False, from_pick
         preped = prep_for_stats(collection, angle, case_name, calculate=stats)
         if stats:
             if preped:
-                generate_statistics(collection, f'{case_name}')
+                stat_file = generate_statistics(collection, f'{case_name}')
             else:
                 log.info(f'Error prepping, pickling and ending ')
                 # try_pickle_collection(collection,f'_prep_{case_name}')
@@ -136,6 +129,7 @@ def load_from_pickle(file, pickle_point, angle):
         log.info(f'failed to load pickle for {file}, case {angle}  :{e}')
     return collection
 
+
 def draw_case(collection = None, file:str = '', pickle_point:str = '', angle = ''):
     try:
         if not collection:
@@ -145,6 +139,7 @@ def draw_case(collection = None, file:str = '', pickle_point:str = '', angle = '
                                         save = True, file_ext = f'{file}_{angle}_XZ.png', show = False)
         stemflow_and_trunk_fig = collection.draw(plane = 'XZ', filter_lambda = lambda: is_stem, highlight_lambda = lambda:branch_order==0,
                                         save = True, file_ext = f'{file}_{angle}_XZ.png', show= False)
+        log.info(f'Draw commented out {file}, case {angle} ')
     except Exception as e:  
         log.info(f'Failed to draw and save pickle for {file}, case {angle}  :{e}')
 
@@ -166,20 +161,28 @@ def alpha_shape(collection = None, file:str = '', pickle_point:str = '', angle =
     except Exception as e:  
         log.info(f'Failed to draw and save pickle for {file}, case {angle}  :{e}')
 
-
-
 run_cases = already_run
 
-angles = [ 0.96, 0.88,
-         0.8, 0.72, 0.64, 0.56, 0.48, 0.4, 0.32, 0.24, 0.16,
-           0.08, 0, -0.08, -0.16, -0.24, -0.32, -0.4, -0.48,
-           -0.56, -0.64, -0.72, -0.8, -0.88, -0.96, -1.02,
+# angles = [ 0.96, 0.88
+#          0.8, 0.72, 0.64, 0.56, 0.48, 0.4, 0.32, 0.24, 0.16,
+#            0.08, 0, -0.08, -0.16, -0.24, -0.32, -0.4, -0.48,
+#            -0.56, -0.64, -0.72, -0.8, -0.88, -0.96, -1.02,
 
-            2.04,1.96,1.86, 1.8,1.72,1.66, 1.64, 1.58, 1.5, 1.42, 1.34,
-           1.26, 1.18, 1.1, 1.02,
-           -1.1, -1.18, -1.26, -1.34, -1.42, -1.5, -1.58
-           ,-1.66,-1.64,-1.72,-1.8,-1.88,-1.96,-2.04]
+#             2.04,1.96,1.86, 1.8,1.72,1.66, 1.64, 1.58, 1.5, 1.42, 1.34,
+#            1.26, 1.18, 1.1, 1.02,
+#            -1.1, -1.18, -1.26, -1.34, -1.42, -1.5, -1.58
+#            ,-1.66,-1.64,-1.72,-1.8,-1.88,-1.96,-2.04]
 
+# angles = [-1.52,-1.48,-1.44,-1.4,-1.36,-1.32,-1.28,-1.24,-1.2,-1.16,-1.12,-1.08,-1.04,-1]
+angles = [ -0.96,-0.92,-0.88,-0.84,-0.8,-0.76,-0.72,-0.68,-0.64,-0.6,-0.56,-0.52,-0.48,-0.44,-0.4,
+# angles = [
+-0.36,-0.32,-0.28,-0.24,-0.2,-0.16,-0.12,-0.08,-0.04,0,0.04,0.08,0.12,0.16,0.2,
+# angles = [
+0.24,0.28,0.32,0.36,0.4,0.44,0.48,0.52,0.56,0.6,0.64,0.68,0.72,0.76,0.8,0.84,0.88,
+# angles = [
+0.92,0.96,1,1.04,1.08,1.12,1.16,1.2,1.24,1.28,1.32,1.36,1.4,1.44,1.48,1.52]
+
+# angles = [ -0.96,-0.92,-0.88,-0.84,-0.8,-0.76,-0.72,-0.68,-0.64,-0.6,-0.56,-0.52,-0.48,-0.44,-0.4]
 
 
 def get_cases(file_names, already_run, angles_to_tests):
@@ -187,34 +190,37 @@ def get_cases(file_names, already_run, angles_to_tests):
     cases = product(file_names,angles_to_tests)
     return [case for case in cases if case not in already_run]
 
+
+def sftp_results(file,parent_folder= '',dest_ip = '192.168.0.94' ):
+    log.info(f' file w/ name {file} sent for sftp')
+    qualified_name = f'./{parent_folder}/{file}' if parent_folder else file
+    try:
+        sftp.put(qualified_name,dest_ip = dest_ip)
+    except Exception as e:
+        log.info(f'Unable to put file {qualified_name}: {e}')
+
+
 def sensitivity_analysis():
-    # files_to_test = ["5_SmallTree"] 
-    # angles = [.96,.16,.9]
-    # files_to_test = [ "Secrest27-05_000000",
-    #                  "Secrest32-06_000000"]
-                    # ["Secrest02-30_000000"
-                    #     ,"Secrest03-12_000000"
-                    #     ,"Secrest07-32_000000"
-                    #     ,"Secrest08-24c_000000"
-                    #     ,"Secrest10-02_000000"]
-    # , "Secrest27-05_000000","Secrest03-12_000000"
-                    #     ,"Secrest07-32_000000"]
-                        #  "Secrest02-26_000000"
-    files_to_test =   ["5_SmallTree"] 
-    # [
-    #                     "Secrest10-08_000000"
-    #                     ,"Secrest11-27_000000"
-    #                     ,"Secrest14-09_000000"
-    #                     ,"Secrest16-3TI-CO_000000"
-    #                     ,"Secrest16-14LI-ST_000000"]
-                        # ,"Secrest18-13_000000"
-                        # ,"Secrest23-23_000000"
-                        # ,"Secrest24-03_000000"
-                        # ,"Secrest24-07_000000"
-                        # ,"Secrest26-03_000000"
+    files_to_test = ["Secrest07-32_000000"] 
+    # files_to_test  = ["Secrest02-26_000000"
+    #                 ,"Secrest18-13_000000"
+    # files_to_test  = ["Secrest10-08_000000",
+    #                   "Secrest16-14LI-ST_000000"]
+
+    #          saur
+    #                  "Secrest02-26_000000"
+    #                 ,"Secrest14-09_000000"
+    #                 ,"Secrest24-03_000000"
+    #                 ,"Secrest26-03_000000"
+
+    #pi 
+    # "Secrest11-27_000000"
+    # ,"Secrest18-13_000000"
+    #,"Secrest23-23_000000"
                         
 
             #run or running ontowr 
+                    # ,"Secrest27-05_000000"
                         # ,"Secrest26-03_000000"
                         # ,"Secrest28-31_000000"
                         # ,"Secrest29-20_000000"
@@ -224,12 +230,41 @@ def sensitivity_analysis():
                         # ,"Secrest32-03_000000"
                         # ,"Secrest32-06_000000"
                         # ,"Secrest32-14_000000"]
+                        # ,"Secrest24-07_000000"
+                    #       ["Secrest02-30_000000"
+                    #     ,"Secrest03-12_000000"
+                    #     ,"Secrest07-32_000000"
+                    #     ,"Secrest08-24c_000000"
+                    #     ,"Secrest10-02_000000"]
+    #                     ,"Secrest16-3TI-CO_000000"
 
-
+    files_to_test=[          'Secrest02-26_000000.csv', 
+                'Secrest14-09_000000.csv', 
+                'Secrest24-03_000000.csv', 
+                'Secrest27-05_000000.csv', 
+                'Secrest26-03_000000.csv', 
+                'Secrest28-31_000000.csv', 
+                'Secrest29-20_000000.csv', 
+                'Secrest29-25_000000.csv', 
+                'Secrest31-05_000000.csv', 
+                # 'Secrest32-01_000000.csv', 
+                'Secrest32-03_000000.csv', 
+                'Secrest32-06_000000.csv', 
+                'Secrest32-14_000000.csv', 
+                'Secrest24-07_000000.csv', 
+                'Secrest02-30_000000.csv', 
+                'Secrest03-12_000000.csv', 
+                # 'Secrest07-32_000000.csv', 
+                'Secrest08-24c_000000.csv', 
+                'Secrest10-02_000000.csv', 
+                'Secrest16-3TI-CO_000000.csv', 
+                'Secrest11-27_000000.csv', 
+                'Secrest18-13_000000.csv', 
+                'Secrest23-23_000000.csv']
     cases_to_run = get_cases(files_to_test,run_cases,angles)
     log.info(f'Will run {len(cases_to_run)} cases : {cases_to_run}')
-    start = time()
     success = run_test_cases(cases_to_run, fig = False)
+    return success
     # for file, angle in cases_to_run:
     #     success = run_test_cases(cases_to_run)
     #     if not success:
@@ -251,88 +286,42 @@ def sensitivity_analysis():
     #     else:
     #         log.info(f"suceeded running cases {case}")
 
-    # forest = Forester()
-    # forest.get_file_names(dir=test_input_dir)
-    # forest.qsm_from_file_names(file_name="Secrest32-06_000000")
-    # basic_collection = forest.cylinder_collections[0]
-    # basic_collection.project_cylinders("XY")
-    # basic_collection.initialize_digraph_from(in_flow_grade_lim=-0.3)
-    # basic_collection.find_flow_components()
-    # basic_collection.calculate_flows()
-    
-    # pickle_collection(basic_collection,basic_collection.file_name)
-
-    
-    # forest_old = Forester()
-    # forest_old.get_file_names(dir=test_input_dir)
-    # forest_old.qsm_from_file_names(file_name="5_SmallTree.csv")
-    # basic_collection_old = forest_old.cylinder_collections[0]
-
-    # angles = [ (cyl.cyl_id,cyl.angle) for cyl in basic_collection.cylinders]
-    # new_angles = [ (cyl.cyl_id,cyl.angle) for cyl in basic_collection.cylinders]
-    # for idx, angle in angles:
-    #     new_angle = [angle for cyl, angle in new_angles if cyl == idx][0]
-    #     try:
-    #         assert within_range(angle, new_angle, .03)
-    #     except Exception as e:    
-    #         print("Failure in projection {e}")
-
-            #here 
-    
-
-    # basic_collection_old.initialize_digraph_from()
-
-    # # nodes = [n for n in basic_collection_old.digraph.nodes()]
-    # # # edges_new = [ edge for edge in basic_collection.digraph.nodes()]
-    # # for node in nodes:
-    # #     neighbors = basic_collection_old.digraph.edges(node)
-    # #     new_neighbors = basic_collection.digraph.edges(node)
-    # #     try:
-    # #        assert [x for x in new_neighbors] == [y for y in neighbors]
-    # #     except Exception as e:    
-    # #         print("edges no equal {e}")
-
-    #         #here 
-
-    # 
-    # print("edges equal")
-
-
-    # 
-    
-    # accepted_err = .01
-   
-    # #there
-
-
-    # basic_collection.initialize_digraph_from_new()
-    # basic_collection_old.initialize_digraph_from()
-
-    
-
-    # basic_collection.find_flow_components_new()
-    # basic_collection_old.old_find_flow_components()
-    
-    
-    # print(basic_collection.drip_summary())
-    # print(basic_collection_old.drip_summary())
-
-
-    # basic_collection.calculate_flows()
-    # actual_flows = basic_collection.flows
-    # _, actual_stem_map = lam_filter(
-    #     basic_collection.cylinders, lambda: is_stem, return_all=True
-    # )
-
-
-
 if __name__ == "__main__":
+    # files = [           "Secrest02-26_000000.csv"
+    #                     ,"Secrest14-09_000000.csv"
+    #                     ,"Secrest24-03_000000.csv"
+    #                     ,"Secrest26-03_000000.csv"
+    #                     ,"Secrest27-05_000000.csv"
+    #                     ,"Secrest26-03_000000.csv"
+    #                     ,"Secrest28-31_000000.csv"
+    #                     ,"Secrest29-20_000000.csv"
+    #                     ,"Secrest29-25_000000.csv"
+    #                     ,"Secrest31-05_000000.csv"
+    #                     ,"Secrest32-01_000000.csv"
+    #                     ,"Secrest32-03_000000.csv"
+    #                     ,"Secrest32-06_000000.csv"
+    #                     ,"Secrest32-14_000000.csv"
+    #                     ,"Secrest24-07_000000.csv"
+    #                     ,"Secrest02-30_000000.csv"
+    #                     ,"Secrest03-12_000000.csv"
+    #                     ,"Secrest07-32_000000.csv"
+    #                     ,"Secrest08-24c_000000.csv"
+    #                     ,"Secrest10-02_000000.csv"
+    #                     ,"Secrest16-3TI-CO_000000.csv"
+    #                     ,"Secrest11-27_000000.csv"
+    #                     ,"Secrest18-13_000000.csv"
+    #                     ,"Secrest23-23_000000.csv"]
+    # for file in files:
+    #     try:
+    #         sftp.sftp(f'data/test/{file}', dest_ip='192.168.0.157')
+    #     except Exception as e:
+    #         log.info(f'Error sftp file {file}: {e}')    
     # data/output/pickle/5_SmallTree_pickle__prep_-0.1
 
     # load_from_pickle('Secrest32-06_000000', 'stats', 0.3666)
     # load_from_pickle('Secrest32-06_000000', 'stats', 0.3666)
     # load_from_pickle('Secrest32-06_000000_1', 'stats', -1.5)
-    # load_from_pickle('5_SmallTree_1', 'stats', 0.36666)
+    # load_from_pickle('5_SmallTree_1','stats', 0.36666)
     sensitivity_analysis()       
     # draw_for_paper()
     # run_test_cases([('5_SmallTree',-0.16666),

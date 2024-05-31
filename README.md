@@ -33,6 +33,25 @@ The code that you see zipped here is representiitive of the ongoing work in our 
   5. Enabling Pre-commit lining
      2. Install pre-commit - pre-commit install
 
+## Packaging
+
+This project was initially packaged with Flit using the the instructions found on the offical python website: https://packaging.python.org/en/latest/tutorials/packaging-projects/.
+
+## Running
+
+  A command line interface (CLI) is planned for this project, to allow researchers to easily point to, read in and process their lidar scans. Today, however, we have prioritized work needed to create a cahnhydro package, that would allow our code to be utilized in any python project by use of the 'pip install canhydro' command.
+
+  For now, you can get a feel for how the program works in two ways
+
+1. By running the test files, which have been conveniently populated with 'breakpoints' that pause execution and allow for the invesigation of variables
+   - This is achieved through running 'pytest tests/test_collection_integration.py'
+2. By running the interactive jupyter notebook under '.\Cylinders\cli.ipynb'. This is indeed how most of the data for the paper was generated
+
+## Important Commands
+
+- The projection algorithm is an approximation
+- e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad
+
 ## Known Issues
 
 - The projection algorithm is an approximation
@@ -40,7 +59,7 @@ The code that you see zipped here is representiitive of the ongoing work in our 
 - Cylinders occasionally have more than one possible drip point. Our algorithm chooses just one of theses and lists that as the drip node
   - Note that these possible drip nodes more often than not fall very close together
 
-## Wishlist</h2>
+## Wishlist
   - Optimizing the alpha value for alphashapes
       - Can be done locally for areas with different point densities
   - Smoothing cylinders to eliminate false drip points

@@ -91,9 +91,25 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+#networking
+known_hosts
+
 # IPython
 profile_default/
 ipython_config.py
+
+#data
+data/notReadIn/ 
+data/output/* 
+data/validation_data*
+data/test/*
+data/output/* 
+data/validation* 
+data/docker_data*
+# data/test* 
+
+#networking
+*known_hosts
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
@@ -174,3 +190,9 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+data/validation_data/StemFlowVolumes.xlsx
+data/validation_data/StemFlowVolumes.xlsx
+scripts/plotting_scratch.ipynb
+data/temp_rebase files/CylinderCollection.py
+data/temp_rebase files/RustyCylinderCollection.py
+data/temp_rebase files/test_collection_integration.py
