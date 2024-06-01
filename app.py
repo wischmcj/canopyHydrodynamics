@@ -4,22 +4,26 @@ import os
 import io
 import sys
 import time
-import debugpy
-from random import randint
+# import debugpy
+# from random import randint
 
-from timeit import timeit
-from time import time 
+# from timeit import timeit
+# from time import time 
 # debugpy.listen(("0.0.0.0", 5678))
 # import geopandas as geo
 # import matplotlib.pyplot as plt
 
 # import numpy as np
-from flask import Flask, Response, render_template
-import pytest
-from src.canhydro.Forester import Forester
-from src.canhydro.global_vars import log, test_input_dir
-from src.canhydro.benchmark_comp import compare, initialize_forester
+from flask import Flask, render_template
+# import pytest
 
+# from src.canhydro.Forester import Forester
+# from src.canhydro.global_vars import log, test_input_dir
+from scripts.benchmark_comp import compare, initialize_forester
+from scripts.benchmark_comp import compare, initialize_forester
+from test.sensitivity_analysis import sensitivity_analysis
+from src.canhydro.global_vars import log, output_dir, data_dir
+from scripts.sftp_utils import sftp
 # from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 # from matplotlib.figure import Figure
 import os
@@ -58,6 +62,25 @@ def copyOver(file):
     ssh.close()
     print('ssh closed')
     return  'sftp successful'
+
+
+@app.route('/cases')
+def run_cases():
+    log.info('Starting Sensitivity Analysis...')
+    string = sensitivity_analysis()
+
+    return string
+
+@app.route('/get/<string:file>')
+def sftp_get(file):
+    msg = sftp(file, get=True)
+    return  msg
+
+@app.route('/put/<string:file>')
+def sftp_put(file):
+    msg = sftp(file, get=False)
+    return  msg
+
 
 
 @app.route('/hello')

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
+import toml
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
@@ -27,13 +28,32 @@ from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
-from src.canhydro.global_vars import DIR, test_input_dir
 from src.canhydro.utils import lam_filter
-from src.canhydro.CylinderCollection import (
-     CylinderCollection, 
-        pickle_collection, 
-        unpickle_collection
-)
+from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
+    DIR = config["directories"]['root_dir']
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
+    DIR = config["directories"]['root_dir']
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
+    DIR = config["directories"]['root_dir']
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]['test_input_dir']
+    DIR = config["directories"]['root_dir']
 
 create_cylinders_cases = [
     # (file, expected_cylinders )
@@ -91,6 +111,32 @@ find_flows_cases = [
     ),
     pytest.param(
         "3_HappyPathWTrunk.csv", happy_path_is_stem, happy_path_flows, id="Happy Path"
+    ),
+]
+
+
+pickle_cases = [
+    # (file, expected_stem_map, expected_flows )
+    # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
+    pytest.param(
+        "5_SmallTree.csv", 
+        id="Small Tree"
+    ),
+    pytest.param(
+        "7_DripPathAdjToTrunk.csv",
+        id="Drip Adjacent Trunk"
+    ),
+    pytest.param(
+        "8_DripPathMidBranch.csv",
+        id="Drip Mid Branch"
+    ),
+    pytest.param(
+        "9_DripOnTrunk.csv",
+        id="Drip On Trunk"
+    ),
+    pytest.param(
+        "3_HappyPathWTrunk.csv",
+        id="Happy Path"
     ),
 ]
 
@@ -192,6 +238,49 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
     else:
         assert actual_flows == expected_flows
         assert actual_stem_map == expected_stem_map
+#****Only not passing due to differences in float arithmetic
+#       Manually confirmed to pass
+# @pytest.mark.parametrize(
+#     "basic_collection, expected_stem_map, expected_flows",
+#     find_flows_cases,
+#     indirect=["basic_collection"],
+# )
+# def test_find_flows(basic_collection, expected_stem_map, expected_flows):
+#     basic_collection.project_cylinders("XY")
+#     basic_collection.initialize_digraph_from()
+#     basic_collection.find_flow_components()
+#     basic_collection.calculate_flows()
+#     actual_flows = basic_collection.flows
+#     _, actual_stem_map = lam_filter(
+#         basic_collection.cylinders, lambda: is_stem, return_all=True
+#     )
+#     print(actual_flows)
+#     print(expected_flows)
+#     assert actual_flows == expected_flows
+#     assert actual_stem_map == expected_stem_map
+
+
+
+# @pytest.mark.parametrize(
+#     "basic_collection, expected_stem_map, expected_flows",
+#     find_flows_cases,
+#     indirect=["basic_collection"],
+# )
+# def test_pickle(basic_collection, expected_stem_map, expected_flows):
+#     basic_collection.project_cylinders("XY")
+#     basic_collection.initialize_digraph_from()
+#     basic_collection.find_flow_components()
+#     pickle_file = pickle_collection(basic_collection)
+#     unpickled_collection = unpickle_collection(pickle_file)
+
+#     actual_flows = unpickled_collection.flows
+#     _, actual_stem_map = lam_filter(
+#         unpickled_collection.cylinders, lambda: is_stem, return_all=True
+#     )
+#     print(actual_flows)
+#     print(expected_flows)
+#     assert actual_flows == expected_flows
+#     assert actual_stem_map == expected_stem_map
 
 
 # @pytest.mark.parametrize("flexible_collection", ["1_TenCyls.csv"], indirect=True)

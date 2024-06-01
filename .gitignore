@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+#data 
+data/output/*
+data/test/Secrest*
+data/docker_data*
+data/validation*
+
 # Distribution / packaging
 .Python
 build/
@@ -77,13 +83,16 @@ docs/_build/
 target/
 
 #logging
-log*
+*.log
 
 #ruff
 .ruff_cache
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+#networking
+known_hosts
 
 # IPython
 profile_default/
@@ -95,8 +104,8 @@ data/output/*
 data/validation_data*
 data/test/*
 data/output/* 
-data/validation*
-data/docker_data/* 
+data/validation* 
+data/docker_data*
 # data/test* 
 
 #networking
@@ -139,7 +148,10 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+*known_hosts
+
 # Environments
+.envrc
 .env
 .venv
 env/
@@ -180,3 +192,7 @@ cython_debug/
 #.idea/
 data/validation_data/StemFlowVolumes.xlsx
 data/validation_data/StemFlowVolumes.xlsx
+scripts/plotting_scratch.ipynb
+data/temp_rebase files/CylinderCollection.py
+data/temp_rebase files/RustyCylinderCollection.py
+data/temp_rebase files/test_collection_integration.py
