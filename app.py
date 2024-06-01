@@ -59,10 +59,27 @@ def sftp_put(file):
     return  msg
 
 
+@app.route('/copyOver/<string:file>')
+def copyOver(file):
+    ssh = paramiko.SSHClient() 
+    print('def client')
+    ssh.load_host_keys(os.path.expanduser(os.path.join("~", ".ssh", "known_hosts")))
+    print('load_keys')
+    ssh.connect('192.168.0.105', username='penguaman', password='Gamma@13')
 
-@app.route('/hello')
-def hello():
-    return 'Hello, World!'
+    print('connect')
+    sftp = ssh.open_sftp()
+    print('open')
+    try:
+        sftp.put(f'./data/{file}', '/code/code/data_from_server/')
+    except Exception as e:
+        print(f'Unable to put {file}: {e}' )
+    print('put')
+    sftp.close()
+    print('sftp closed')
+    ssh.close()
+    print('ssh closed')
+    return  'sftp successful'
 
 # @app.route('/timesum')
 # def local_run():
