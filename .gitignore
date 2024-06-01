@@ -101,7 +101,6 @@ ipython_config.py
 #data
 data/notReadIn/ 
 data/output/* 
-data/validation_data*
 data/test/*
 data/output/* 
 data/validation* 
