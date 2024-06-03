@@ -1266,7 +1266,7 @@ ten_cyls_flows = [
         volume=0.327783,
         sa_to_vol=100.98563451833446,
         drip_node_id=0,
-        drip_node_loc=(0.076822, -3.386935),
+        drip_node_loc=(0.076822, -3.386935, -0.595933)
     )
 ]
 
@@ -1279,7 +1279,7 @@ happy_path_flows = [
         volume=0.5217939999999999,
         sa_to_vol=10791.467322627153,
         drip_node_id=0,
-        drip_node_loc=(0.076822, -3.386935),
+        drip_node_loc=(0.076822, -3.386935, -0.595933),
     ),
     Flow(
         num_cylinders=2,
@@ -2089,7 +2089,7 @@ drip_adj_flows = [
         volume=0.521757,
         sa_to_vol=4664.192277179154,
         drip_node_id=0,
-        drip_node_loc=(0.076822, -3.386935),
+        drip_node_loc=(0.076822, -3.386935, -0.595933),
     ),
     Flow(
         num_cylinders=9,
