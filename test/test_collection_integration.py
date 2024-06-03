@@ -215,50 +215,55 @@ def test_lam_filter(basic_collection, expected_result, lam_func):
     actual_result = [cyl.cyl_id for cyl in cyls_returned]
     assert actual_result == expected_result
 
+@pytest.mark.parametrize(
+    "basic_collection, expected_stem_map, expected_flows",
+    find_flows_cases,
+    indirect=["basic_collection"],
+)
+def test_find_flows(basic_collection, expected_stem_map, expected_flows):
+    basic_collection.project_cylinders("XY")
+    basic_collection.initialize_digraph_from()
+    basic_collection.find_flow_components()
+    basic_collection.calculate_flows()
+    actual_flows = basic_collection.flows
+    _, actual_stem_map = lam_filter(
+        basic_collection.cylinders, lambda: is_stem, return_all=True
+    )
+    print(actual_flows)
+    print(expected_flows)
+    try:
+        assert actual_flows == expected_flows
+        assert actual_stem_map == expected_stem_map
+    except AssertionError as e:
+        breakpoint()
+        raise e
 
-#****Only not passing due to differences in float arithmetic
-#       Manually confirmed to pass
-# @pytest.mark.parametrize(
-#     "basic_collection, expected_stem_map, expected_flows",
-#     find_flows_cases,
-#     indirect=["basic_collection"],
-# )
-# def test_find_flows(basic_collection, expected_stem_map, expected_flows):
-#     basic_collection.project_cylinders("XY")
-#     basic_collection.initialize_digraph_from()
-#     basic_collection.find_flow_components()
-#     basic_collection.calculate_flows()
-#     actual_flows = basic_collection.flows
-#     _, actual_stem_map = lam_filter(
-#         basic_collection.cylinders, lambda: is_stem, return_all=True
-#     )
-#     print(actual_flows)
-#     print(expected_flows)
-#     assert actual_flows == expected_flows
-#     assert actual_stem_map == expected_stem_map
 
+@pytest.mark.parametrize(
+    "basic_collection, expected_stem_map, expected_flows",
+    find_flows_cases,
+    indirect=["basic_collection"],
+)
+def test_pickle(basic_collection, expected_stem_map, expected_flows):
+    basic_collection.project_cylinders("XY")
+    basic_collection.initialize_digraph_from()
+    basic_collection.find_flow_components()
+    basic_collection.calculate_flows()
+    try:
+        pickle_file = pickle_collection(basic_collection)
+        unpickled_collection = unpickle_collection(pickle_file)
 
-
-# @pytest.mark.parametrize(
-#     "basic_collection, expected_stem_map, expected_flows",
-#     find_flows_cases,
-#     indirect=["basic_collection"],
-# )
-# def test_pickle(basic_collection, expected_stem_map, expected_flows):
-#     basic_collection.project_cylinders("XY")
-#     basic_collection.initialize_digraph_from()
-#     basic_collection.find_flow_components()
-#     pickle_file = pickle_collection(basic_collection)
-#     unpickled_collection = unpickle_collection(pickle_file)
-
-#     actual_flows = unpickled_collection.flows
-#     _, actual_stem_map = lam_filter(
-#         unpickled_collection.cylinders, lambda: is_stem, return_all=True
-#     )
-#     print(actual_flows)
-#     print(expected_flows)
-#     assert actual_flows == expected_flows
-#     assert actual_stem_map == expected_stem_map
+        actual_flows = unpickled_collection.flows
+        _, actual_stem_map = lam_filter(
+            unpickled_collection.cylinders, lambda: is_stem, return_all=True
+        )
+        print(actual_flows)
+        print(expected_flows)
+        assert actual_flows == expected_flows
+        assert actual_stem_map == expected_stem_map
+    except Exception as e:
+        breakpoint()
+        raise e
 
 
 @pytest.mark.parametrize("flexible_collection", ["1_TenCyls.csv"], indirect=True)
