@@ -76,6 +76,9 @@ class Cylinder:
     def __eq__(self, other):
         return type(self) == type(other) and self.__repr__() == other.__repr__()
 
+    def __getitem__(self,key):
+        return self.__dict__[key]
+
     def calc_surface_area(self):
         radius = self.radius
         length = self.length

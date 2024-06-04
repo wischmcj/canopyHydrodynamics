@@ -160,3 +160,8 @@ ignore_errors = true
 
 [tool.coverage.html]
 directory = "coverage_html_report"
+
+
+[output_statistics]
+flow_cols = ["num_cylinders","projected_area","surface_area","angle_sum","volume","sa_to_vol","drip_node_id","drip_node_loc",'timestamp']
+stats_cols = ["total_psa","psa_w_overlap","stem_psa","stem_psa_w_overlap","tot_surface_area","stem_surface_area","tot_hull_area","tot_hull_boundary","stem_hull_area","stem_hull_boundary","num_drip_points","max_bo","topQuarterTotPsa","topHalfTotPsa","topThreeQuarterTotPsa","TotalShade","top_quarter_shade","top_half_shade","top_three_quarter_shade","DBH","volume","X_max","Y_max","Z_max","X_min","Y_min","Z_min","Order_zero_angle_avg","Order_zero_angle_std","Order_one_angle_avg","Order_one_angle_std","Order_two_angle_avg","Order_two_angle_std","Order_three_angle_avg","Order_three_angle_std","order_gr_four_angle_avg","order_gr_four_angle_std","file_name","timestamp"]

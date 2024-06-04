@@ -44,7 +44,29 @@ with open("src/canhydro/user_def_config.toml") as f:
 NAME = "CylinderCollection"
 
 
-# By inheriting the odel class, lambda cyl : cyl.branch_order = br CC gains managed functionality- like lambda searching
+def pickle_collection(collection, designation: str = ""):   
+    # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
+    if designation == "": designation = collection.file_name
+    out_dir = output_dir.__str__()
+    file_path ="".join([f'{out_dir}/pickle/', f'{collection.file_name.replace(".csv","")}_pickle_{designation}'])
+    directory = os.path.dirname(file_path)
+    create_dir_and_file(directory)
+    with open(file_path, 'ab') as pickle_file:
+        pickle.dump(collection, pickle_file)
+    return pickle_file
+
+def unpickle_collection(file_name:str, is_full_path:bool = False):
+    out_dir = output_dir.__str__()
+    if is_full_path:
+        file_path = file_name
+    else:
+        file_path ="".join([f'{out_dir}/pickle/', file_name])
+    dbfile = open(file_path, 'rb')    
+    db = pickle.load(dbfile)
+    dbfile.close()
+    return db
+
+# By inheriting the Model class, lambda cyl : cyl.branch_order = br CC gains managed functionality- lidirke lambda searching
 class CylinderCollection:
     cylinders = dict
 
@@ -662,6 +684,64 @@ class CylinderCollection:
         )
 
         return statistics
+    
+    def stem_map(self, file_ext):
+        stem_map = lam_filter(  self.cylinders, lambda: is_stem, return_all=True )
+        map = [dict({idx:val for idx,val in enumerate(stem_map)})]
+        stem_file = save_file(
+            self.file_name.replace(".csv", f"_stem_{file_ext}"),
+            out_file=map,
+            subdir="flows",
+            method="flows",
+            overwrite=True
+        )
+
+    def generate_flow_file(self, file_ext):
+        flow_dicts = [flow.__dict__ for flow in self.flows]
+        flow_file = save_file(
+            self.file_name.replace(".csv", f"_flows_{file_ext}"),
+            out_file=flow_dicts,
+            subdir="flows",
+            method="flows",
+            overwrite=True
+        )
+        return flow_file
+
+    def get_data_by_cyl(self,
+                        attrs:list[str],
+                        folder:str = 'startistics', 
+                        file_ext:str = ''):
+        return_data= []
+        for cyl in self.cylinders:
+            attrs_dict = {attr: getattr(cyl, attr) for attr in attrs}
+            return_data.append(attrs_dict)
+            
+        stat_file = save_file(
+            self.file_name.replace(".csv", f"_{file_ext}"),
+            out_file=return_data,
+            subdir=folder,
+            method="cyl_data",
+            overwrite=True
+        )
+
+
+
+    def describe(self, metric: str, a_lambda: function = lambda: True, **args) -> dict:
+        """
+        Takes in a metric of the tree and a filter and returns summary stats
+        for the given input metric
+        Potentially outputs a histogram if requested?
+        """
+        return {True}
+
+    def compare(
+        metric: str,
+        a_lambda: function = lambda: True,
+        b_lambda: function = lambda: True,
+    ):
+        """
+        Compares the two lists of metrics defined by the two input functions
+        """
 
     def get_drip_points(
         self,
