@@ -31,11 +31,23 @@ class Flow:
         return (np.round(self.num_cylinders, decimals=1) == np.round(flow.num_cylinders, decimals=1)
                 and np.round(self.projected_area, decimals=3)   == np.round(flow.projected_area, decimals=3)
                 and np.round(self.surface_area  , decimals=3)       == np.round(flow.surface_area, decimals=3)
-                and np.round(self.angle_sum     , decimals=3)       == np.round(flow.angle_sum, decimals=3)
+               and np.round(self.angle_sum     , decimals=3)       == np.round(flow.angle_sum, decimals=3)
                 and np.round(self.volume        , decimals=3)       == np.round(flow.volume, decimals=3)
-                and np.round(self.sa_to_vol     , decimals=3)       == np.round(flow.sa_to_vol, decimals=3))
+                and np.round(self.sa_to_vol     , decimals=3)       == np.round(flow.sa_to_vol, decimals=3)
+                and np.round(self.drip_node_id   , decimals=0)       == np.round(flow.drip_node_id, decimals=0))
 
 
+    def add_cyls(self,cylinders: list[Cylinder]):
+        for cylinder in cylinders:
+            add_cyl(cylinder)
+
+    def add_cyl(self,cylinder):
+        self.num_cylinders += 1
+        self.projected_area += cylinder.projected_area
+        self.surface_area += cylinder.surface_area
+        self.angle_sum += cylinder.angle_sum
+        self.volume += cylinder.volume
+        self.sa_to_vol = self.surface_area/self.volume
 
 coord_list = Union[list[tuple[np.float64]], np.ndarray]
 

@@ -34,6 +34,23 @@ def create_cyl(arr: np.array):
     cyl.create_from_list(arr, cols)
     return cyl
 
+def create_empty_cyl():
+    cols = qsm_cols
+    attrs = {'cyl_id': -1
+                ,'x': 0
+                ,'y': 0
+                ,'z': 0
+                ,'radius': 0
+                ,'length': 0
+                ,'branch_order': 0
+                ,'branch_id': 0
+                ,'volume': 0
+                ,'parent_id': -1
+                ,'reverse_branch_order': 0
+                ,'segment_id': 0}
+    cyl = Cylinder(**attrs)
+    cyl.create_from_list(attrs.values(), cols)
+    return cyl
 
 @dataclass
 class Cylinder:
@@ -75,6 +92,9 @@ class Cylinder:
 
     def __eq__(self, other):
         return type(self) == type(other) and self.__repr__() == other.__repr__()
+    
+    def __post_init__(self):
+        self.cyl_id = int(self.cyl_id)
 
     def calc_surface_area(self):
         radius = self.radius

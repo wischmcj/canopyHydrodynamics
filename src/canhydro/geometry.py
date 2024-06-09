@@ -347,6 +347,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
     c1 = Polygon()
     bBox = Polygon()
     c2 = Polygon()
+
     # coord_list = []
     try:
         # for each cylinder

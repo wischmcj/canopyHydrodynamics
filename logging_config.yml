@@ -31,16 +31,17 @@ handlers:
 loggers:
 
     script:
-        level: DEBUG
-        handlers: [file, console]
-        propagate: no
+        level: INFO
+        handlers: [file]
+        propagate: yes
 
     model:
-        level: DEBUG
-        handlers: [file, console]
+        level: INFO
+        handlers: [file]
         propagate: yes
 
 root:
     # By default, we display warning level logs from any library in the console
     # to match Python's default behavior while formatting logs nicely
-    level: DEBUG
+    level: INFO
+    handlers: [console, file]

@@ -3,11 +3,11 @@ from __future__ import annotations
 import os
 import toml
 import sys
+import logging
 import multiprocessing as mp
 from time import time 
 from itertools import product
-import gc
-import pytest
+
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 sys.path.insert(0, os.getcwd())
@@ -17,12 +17,13 @@ sys.path.insert(0, os.getcwd())
 from shapely.ops import unary_union
 from data.output.run_so_far import already_run
 from src.canhydro.utils import lam_filter
-from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
+from src.canhydro.CylinderCollection import pickle_collection, unpickle_collection
 from src.canhydro.Forester import Forester
 from test.utils import within_range
 import src.log_utils
 
-import logging 
+from scripts.basic_recipies import initialize_collection
+
 
 already_run= []
 
@@ -44,23 +45,23 @@ def try_pickle_collection(collection, designation = ""):
         log.info(f"Error pickling file {collection.file_name}: {e}")
         return
 
-def initialize_collection(file = "5_SmallTree", from_pickle = False, **kwargs):
-    if from_pickle:
-        collection = load_from_pickle(**kwargs)
-    else:
-        log.info(f"initializing collection...")
-        try:
-            forest = Forester()
-            forest.get_file_names(dir=test_input_dir)
-            forest.qsm_from_file_names(file_name=file)
-            basic_collection = forest.cylinder_collections[0]
-            basic_collection.project_cylinders("XY")
-        except Exception as e:
-            log.info(f"Error initializing collection for file {file}: {e}")
-            return None
-        log.info(f"successfully initialized collection")
-        # try_pickle_collection(basic_collection,file)
-    return basic_collection
+# def initialize_collection(file = "5_SmallTree", from_pickle = False, **kwargs):
+#     if from_pickle:
+#         collection = load_from_pickle(**kwargs)
+#     else:
+#         log.info(f"initializing collection...")
+#         try:
+#             forest = Forester()
+#             forest.get_file_names(dir=test_input_dir)
+#             forest.qsm_from_file_names(file_name=file)
+#             collection = forest.cylinder_collections[0]
+#             collection.project_cylinders("XY")
+#         except Exception as e:
+#             log.info(f"Error initializing collection for file {file}: {e}")
+#             return None
+#         log.info(f"successfully initialized collection")
+#         # try_pickle_collection(basic_collection,file)
+#     return collection
 
 def prep_for_stats(collection, case_angle, case_name, calculate:bool = True):
     log.info(f"attempting to prep for stats for case {case_name}")

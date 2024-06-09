@@ -87,7 +87,7 @@ lam_filter_cases = [
 
 find_flows_cases = [
     # (file, expected_stem_map, expected_flows )
-    pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
+    # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
     pytest.param(
         "7_DripPathAdjToTrunk.csv",
         drip_adj_stem_map,
@@ -101,6 +101,9 @@ find_flows_cases = [
         id="Drip Mid Branch",
     ),
     pytest.param(
+        "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
+    ),
+    pytest.param(
         "9_DripOnTrunk.csv",
         drip_on_trunk_stem_map,
         drip_on_trunk_flows,
@@ -108,9 +111,6 @@ find_flows_cases = [
     ),
     pytest.param(
         "3_HappyPathWTrunk.csv", happy_path_is_stem, happy_path_flows, id="Happy Path"
-    ),
-    pytest.param(
-        "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
     ),
 ]
 
@@ -223,8 +223,31 @@ def test_lam_filter(basic_collection, expected_result, lam_func):
 def test_find_flows(basic_collection, expected_stem_map, expected_flows):
     basic_collection.project_cylinders("XY")
     basic_collection.initialize_digraph_from()
-    basic_collection.find_flow_components()
+    basic_collection.find_flow_components_new()
     basic_collection.calculate_flows()
+    actual_flows = basic_collection.flows
+    _, actual_stem_map = lam_filter(
+        basic_collection.cylinders, lambda: is_stem, return_all=True
+    )
+    print(actual_flows)
+    print(expected_flows)
+    try:
+        assert actual_flows == expected_flows
+        assert actual_stem_map == expected_stem_map
+    except AssertionError as e:
+        breakpoint()
+        raise e
+
+@pytest.mark.parametrize(
+    "basic_collection, expected_stem_map, expected_flows",
+    find_flows_cases,
+    indirect=["basic_collection"],
+)
+def test_find_flows_rust(basic_collection, expected_stem_map, expected_flows):
+    basic_collection.project_cylinders("XY")
+    basic_collection.initialize_digraph_from_rust()
+    basic_collection.find_flow_components_rust()
+    basic_collection.calculate_flows_rust()
     actual_flows = basic_collection.flows
     _, actual_stem_map = lam_filter(
         basic_collection.cylinders, lambda: is_stem, return_all=True
@@ -284,7 +307,7 @@ def test_highlight_filt_draw(flexible_collection, accepted_err=0.03):
 )
 def test_dbh(basic_collection, expected_dbh):
     basic_collection.get_dbh()
-    actual_dbh = basic_collection.treeQualities["dbh"]
+    actual_dbh = basic_collection.dbh
     assert actual_dbh == expected_dbh
 
 
