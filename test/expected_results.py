@@ -2080,6 +2080,27 @@ drip_mid_flows = [Flow(num_cylinders=117, projected_area=16.47655636448612, surf
 
 
 
+drip_adj_flows_rust= [
+     Flow(
+        num_cylinders=107,
+        projected_area=2.9604039491372682,
+        surface_area=7.394338347069087,
+        angle_sum=124.04233409518383,
+        volume=0.521757,
+        sa_to_vol=4664.192277179154,
+        drip_node_id=0,
+        drip_node_loc=(0.076822, -3.386935, -0.595933),
+    ),
+     Flow(num_cylinders=10.0, 
+          projected_area=0.0065397522529897474, 
+          surface_area=0.027999615993246067, 
+          angle_sum=7.133359698969586, 
+          volume=5.2000000000000004e-05, 
+          sa_to_vol=6917.965178211722, 
+          drip_node_id=107, 
+          drip_node_loc=(-0.363553, -1.01903, 10.495052)
+     )
+     ]
 drip_adj_flows = [
     Flow(
         num_cylinders=107,

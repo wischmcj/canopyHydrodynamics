@@ -1,12 +1,12 @@
 """This is a sample python file for testing functions from the source code."""
 
 from __future__ import annotations
-
+import logging
 import os
 import sys
 import toml
 import pytest
-
+import numpy as np
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
@@ -22,15 +22,20 @@ from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
                                    ten_cyls_bo_one, ten_cyls_cyls,
                                    ten_cyls_dbh, ten_cyls_edges,
                                    ten_cyls_flows, ten_cyls_id_one,
-                                   ten_cyls_is_stem)
+                                   ten_cyls_is_stem,
+                                   drip_adj_flows_rust)
 
 from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
 from src.canhydro.utils import lam_filter
+from src.canhydro.DataClasses import Flow
 from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
+from scripts.basic_recipies import initialize_collection
+from scripts.compare_utils import compare_flows
 
+log = logging.getLogger("script")
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
@@ -84,7 +89,6 @@ lam_filter_cases = [
         "1_TenCyls.csv", ten_cyls_id_one, lambda: cyl_id == 1, id="YZ projection"
     ),
 ]
-
 find_flows_cases = [
     # (file, expected_stem_map, expected_flows )
     # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
@@ -114,6 +118,34 @@ find_flows_cases = [
     ),
 ]
 
+find_flows_cases_rust = [
+    # (file, expected_stem_map, expected_flows )
+    # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
+    pytest.param(
+        "7_DripPathAdjToTrunk.csv",
+        drip_adj_stem_map,
+        drip_adj_flows_rust,
+        id="Drip Adjacent Trunk",
+    ),
+    pytest.param(
+        "8_DripPathMidBranch.csv",
+        drip_mid_stem_map,
+        drip_mid_flows,
+        id="Drip Mid Branch",
+    ),
+    pytest.param(
+        "5_SmallTree.csv", small_tree_is_stem, small_tree_flows, id="Small Tree"
+    ),
+    pytest.param(
+        "9_DripOnTrunk.csv",
+        drip_on_trunk_stem_map,
+        drip_on_trunk_flows,
+        id="Drip On Trunk",
+    ),
+    pytest.param(
+        "3_HappyPathWTrunk.csv", happy_path_is_stem, happy_path_flows, id="Happy Path"
+    ),
+]
 
 pickle_cases = [
     # (file, expected_stem_map, expected_flows )
@@ -215,6 +247,29 @@ def test_lam_filter(basic_collection, expected_result, lam_func):
     actual_result = [cyl.cyl_id for cyl in cyls_returned]
     assert actual_result == expected_result
 
+def compare_flows(c1,c2):
+    f1 = c1.flows
+    f2 = c2.flows
+    # _, map1 = lam_filter(
+    #     c1.cylinders, lambda: is_stem, return_all=True
+    # )
+    # _, map2 = lam_filter(
+    #     c2.cylinders, lambda: is_stem, return_all=True
+    # )
+    diffs= []
+    unique_drip_nodes= [[],[]]
+    
+    for idf, flow in f1:
+        drip_node = flow.drip_node_id
+        compare_to = [flow2 for flow2 in f2 if flow2.drip_node_id ==drip_node ]
+        if len(compare_to) == 0:
+            diffs[idf] = flow - compare_to
+        else:
+            unique_drip_nodes[0].append(drip_node)
+    f1_drip_nodes = [flow.drip_node_id for flow in f1]
+    unique_drip_nodes[1].extend([flow.drip_node_id for flow in f2 if flow.drip_node_id not in f1_drip_nodes])
+    return diffs, unique_drip_nodes
+
 @pytest.mark.parametrize(
     "basic_collection, expected_stem_map, expected_flows",
     find_flows_cases,
@@ -240,7 +295,7 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
 
 @pytest.mark.parametrize(
     "basic_collection, expected_stem_map, expected_flows",
-    find_flows_cases,
+    find_flows_cases_rust,
     indirect=["basic_collection"],
 )
 def test_find_flows_rust(basic_collection, expected_stem_map, expected_flows):
@@ -258,7 +313,41 @@ def test_find_flows_rust(basic_collection, expected_stem_map, expected_flows):
         assert actual_flows == expected_flows
         assert actual_stem_map == expected_stem_map
     except AssertionError as e:
-        breakpoint()
+        collection = initialize_collection(basic_collection.file_name,from_pickle = False)
+        collection.initialize_digraph_from()
+        collection.find_flow_components_new()
+        collection.calculate_flows()
+        # diffs = compare_flows(collection,basic_collection)
+        f1 = collection.flows
+        f2 = basic_collection.flows
+        # _, map1 = lam_filter(
+        #     c1.cylinders, lambda: is_stem, return_all=True
+        # )
+        # _, map2 = lam_filter(
+        #     c2.cylinders, lambda: is_stem, return_all=True
+        # )
+        diffs= []
+        unique_drip_nodes= [[],[]]
+        for idf, flow in enumerate(f1):
+            drip_node = flow.drip_node_id
+            compare_to = [flow2 for flow2 in f2 if flow2.drip_node_id ==drip_node ]
+            if len(compare_to) == 0:
+                unique_drip_nodes[0].append(drip_node)
+                compare_to = f2[idf]
+            diffs.append(flow.compare(compare_to[0]))
+            
+        f1_drip_nodes = [flow.drip_node_id for flow in f1]
+        unique_drip_nodes[1].extend([flow.drip_node_id for flow in f2 if flow.drip_node_id not in f1_drip_nodes])
+        
+        missed_cyls = [[cyl for cyl in collection.cylinders if cyl.cyl_id == flow.drip_node_id][0] for flow in f1]
+        correction = [ Flow(    1,    np.float64(cyl.projected_data['XY']["area"]),    cyl.surface_area,cyl.angle,cyl.volume,cyl.sa_to_vol,cyl.cyl_id,[0,0,0])   for cyl in missed_cyls ]
+        def get_cyl_as_flow(node):
+            cyl = [cyl for cyl in collection.cylinders if cyl.cyl_id ==node][0]
+            correction =  Flow(    1,    np.float64(cyl.projected_data['XY']["area"]),    cyl.surface_area,cyl.angle,cyl.volume,cyl.sa_to_vol,cyl.cyl_id,[0,0,0])
+        log.info(f'{missed_cyls=}')
+        log.info(f'{diffs=}')
+
+        breakpoint()    
         raise e
 
 
