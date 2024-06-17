@@ -4,7 +4,7 @@ flask
 matplotlib==3.9.0
 networkx==3.3
 rustworkx
-numpy==1.26.4
+numpy==2.0.0
 scipy==1.13.1
 pytest==8.2.1
 rustworkx
