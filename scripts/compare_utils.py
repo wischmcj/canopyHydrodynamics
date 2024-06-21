@@ -94,8 +94,10 @@ def set_up_and_run(file):
     
     t = Timer(functools.partial(find_flows,collection))
     original_func_time_to_complete =t.timeit(1)
-
     log.info('Completed testing base line function')
+
+
+
 
 
     log.info('Completed 30 trials for both functions')
