@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Union
+import math
 
 import numpy as np
 from shapely.geometry import Polygon
@@ -19,37 +20,81 @@ class Projection:
 @dataclass
 class Flow:
     num_cylinders: int
-    projected_area: np.float64
-    surface_area: np.float64
-    angle_sum: np.float64
-    volume: np.float64
-    sa_to_vol: np.float64
+    projected_area: np.float16
+    surface_area: np.float16
+    angle_sum: np.float16
+    volume: np.float16
+    sa_to_vol: np.float16
     drip_node_id: int
     drip_node_loc: tuple
+    
+    def __post_init__(self):
+        self.projected_area= np.float16(self.projected_area)
+        self.surface_area  = np.float16(self.surface_area)  
+        self.angle_sum     = np.float16(self.angle_sum)     
+        self.volume        = np.float16(self.volume)       
+        self.sa_to_vol     = np.float16(self.sa_to_vol)     
 
     def __eq__(self,flow:Flow):
-        return (np.round(self.num_cylinders, decimals=1) == np.round(flow.num_cylinders, decimals=1)
-                and np.round(self.projected_area, decimals=3)   == np.round(flow.projected_area, decimals=3)
-                and np.round(self.surface_area  , decimals=3)       == np.round(flow.surface_area, decimals=3)
-               and np.round(self.angle_sum     , decimals=3)       == np.round(flow.angle_sum, decimals=3)
-                and np.round(self.volume        , decimals=3)       == np.round(flow.volume, decimals=3)
-                and np.round(self.sa_to_vol     , decimals=3)       == np.round(flow.sa_to_vol, decimals=3)
-                and np.round(self.drip_node_id   , decimals=0)       == np.round(flow.drip_node_id, decimals=0))
-
+        diff = self.pct_diff(flow)
+        for value in diff.values():
+            if value > 0.01:
+                return False
+        return True
+    
+    def __add__(self,flow:Flow):
+        return Flow( self.num_cylinders  + flow.num_cylinders     
+                    ,self.projected_area + flow.projected_area    
+                    ,self.surface_area   + flow.surface_area      
+                    ,self.angle_sum      + flow.angle_sum         
+                    ,self.volume         + flow.volume            
+                    ,self.sa_to_vol      + flow.sa_to_vol         
+                    ,self.drip_node_id
+                    ,self.drip_node_loc)
+    
+    def __sub__(self,flow:Flow):
+        return self.compare(flow)
+    
+    def __repr__(self) -> str:
+        return f'''Flow(num_cylinders={self.num_cylinders}, 
+                    projected_area={self.projected_area:2f}, 
+                    surface_area={self.surface_area:2f}, 
+                    volume={self.volume:2f}, 
+                    drip_node_id={self.drip_node_id},
+                    drip_node_loc={self.drip_node_loc}'''
+    
     def compare(self,flow):
-        same_drip= self.drip_node_id == flow.drip_node_id
-        ret = {  'num_cylinders':np.round(self.num_cylinders, decimals=1) - np.round(flow.num_cylinders, decimals=1)
-                ,'projected_area':np.round(self.projected_area, decimals=3)  - np.round(flow.projected_area, decimals=3)
-                ,'surface_area' :np.round(self.surface_area  , decimals=3)  - np.round(flow.surface_area, decimals=3)
-                ,'angle_sum'    :np.round(self.angle_sum     , decimals=3)  - np.round(flow.angle_sum, decimals=3)
-                ,'volume'       :np.round(self.volume        , decimals=3)  - np.round(flow.volume, decimals=3)
-                ,'sa_to_vol'    :np.round(self.sa_to_vol     , decimals=3)  - np.round(flow.sa_to_vol, decimals=3)
-                ,'drip_node_id' :self.drip_node_id
-                ,'drip_node_loc':self.drip_node_loc 
-                }
-        comp_flow = Flow(**ret)
-        return comp_flow
+        return Flow( self.num_cylinders  - flow.num_cylinders   
+             ,self.projected_area - flow.projected_area  
+             ,self.surface_area   - flow.surface_area    
+             ,self.angle_sum      - flow.angle_sum       
+             ,self.volume         - flow.volume          
+             ,self.sa_to_vol      - flow.sa_to_vol       
+             ,self.drip_node_id
+             ,math.dist(self.drip_node_loc, flow.drip_node_loc))
+    
+    def pct_diff(self,flow):
+        diff_attrs = ['num_cylinders','projected_area','surface_area','volume']
+        diff ={}
+        for attr in diff_attrs:
+            if getattr(self,attr)==0:
+                diff[attr] = 0 if getattr(flow,attr)==0 else (getattr(flow,attr)-getattr(self,attr))/np.float16(0.00001)
+            else:
+                diff[attr] = (getattr(flow,attr)-getattr(self,attr))/getattr(self,attr)
+        return diff
 
+    def within_range(self,flow,rng):
+        diff = self.pct_diff(flow)
+        rng = abs(rng)
+        for key,value in diff.items():
+            if key != 'num_cylinders':
+                if abs(value)> rng:
+                    return False
+        return True
+
+    def add_cyls(self,cylinders: list[Cylinder]):
+        for cylinder in cylinders:
+            self.add_cyl(cylinder)
 
     def add_cyls(self,cylinders: list[Cylinder]):
         for cylinder in cylinders:
