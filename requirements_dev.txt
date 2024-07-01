@@ -5,7 +5,7 @@ matplotlib==3.9.0
 networkx==3.3
 rustworkx
 numpy==1.26.4
-scipy==1.13.1
+scipy==1.14.0
 pytest==8.2.1
 rustworkx
 Shapely==2.0.4
