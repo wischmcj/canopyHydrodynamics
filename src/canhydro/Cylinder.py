@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from src.canhydro.DataClasses import Projection
-from src.canhydro.geometry import (draw_cyls, get_projection)
+from src.canhydro.geometry import (draw_cyls, get_projection, get_projection_scikit)
 
 log = logging.getLogger('model')
 
@@ -55,14 +55,14 @@ def create_empty_cyl():
 @dataclass
 class Cylinder:
     cyl_id: int
-    x: np.ndarray[np.float32]
-    y: np.ndarray[np.float32]
-    z: np.ndarray[np.float32]
-    radius: np.float32
-    length: np.float32
+    x: np.ndarray[np.float16]
+    y: np.ndarray[np.float16]
+    z: np.ndarray[np.float16]
+    radius: np.float16
+    length: np.float16
     branch_order: int
     branch_id: int
-    volume: np.float32
+    volume: np.float16
     parent_id: int
     reverse_branch_order: int
     segment_id: int
@@ -76,13 +76,13 @@ class Cylinder:
 
     stem_path_id = int
 
-    dx: np.float32 = 0
-    dy: np.float32 = 0
-    dz: np.float32 = 0
+    dx: np.float16 = 0
+    dy: np.float16 = 0
+    dz: np.float16 = 0
 
-    surface_area: np.float32 = 0.0
-    sa_to_vol: np.float32 = 0.0
-    slope: np.float32 = 0.0
+    surface_area: np.float16 = 0.0
+    sa_to_vol: np.float16 = 0.0
+    slope: np.float16 = 0.0
 
     is_stem: bool = False
     is_divide: bool = False
@@ -136,7 +136,18 @@ class Cylinder:
         self.xy_area = 0
         log.debug(str(self.__repr__()))
 
-    def get_projection(self, plane="XY"):
+    def get_flow_arr(self,plane = 'XY'):
+        return np.array([    1,    
+                    np.float16(self.projected_data['XY']["area"]),    
+                    self.surface_area,
+                    self.angle,
+                    self.volume,
+                    self.sa_to_vol ] )
+
+    def get_loc(self):
+        return (self.x[1],self.y[1],self.z[1])
+    
+    def get_projection(self, plane="XY", scikit = False):
         noCirPoints = 360
         tCir = np.linspace(
             0, 2 * np.pi, noCirPoints
@@ -152,7 +163,15 @@ class Cylinder:
             magnitude = [self.dy, self.dz, self.dx]
             vector = [np.transpose(self.y), np.transpose(self.z), np.transpose(self.x)]
 
-        projection = get_projection(vector, magnitude, self.radius)
+        if scikit:
+            from sklearn.preprocessing import StandardScaler
+            scaler = StandardScaler()
+            vector = scaler.fit_transform(vector)
+            magnitude = scaler.fit_transform(magnitude)
+        if scikit:
+            projection = get_projection_scikit(vector, magnitude, self.radius)
+        else:
+            projection = get_projection(vector, magnitude, self.radius)
         self.projected_data[plane] = projection
         if plane == "XY":
             self.xy_area = self.projected_data["XY"]["area"]

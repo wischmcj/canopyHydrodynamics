@@ -4,6 +4,7 @@ from __future__ import annotations
 import math
 import numpy as np
 import logging
+
 # from memory_profiler import LogFile
 # from numba import njit
 from scipy.linalg import lu_factor, lu_solve
@@ -71,7 +72,7 @@ def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     return sir_c
 
 
-def circumradius(points: coord_list, center: np.ndarray == []) -> np.float32:
+def circumradius(points: coord_list, center: np.ndarray == []) -> np.float16:
     """
     Calculte the radius of the circle in which the given polygon may be inscribed
     """
@@ -99,7 +100,7 @@ def simplices(points: coord_list) -> coord_list:
             )
 
 
-def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> np.float32:
+def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> np.float16:
     """
         Finds the minimal alpha shape for the given 
         coord list that still contains the given polygon
@@ -307,7 +308,10 @@ def rotation_matrix(a, axis: str = "x"):
 
     return rm
 
-def get_projection(vector: list, magnitude: list, radius: float()):
+def get_projection_scikit(vector: list, magnitude: list, radius:np.float16):
+    Cylinder(point=[0, 0, 0], vector=[0, 0, 5], radius=1)
+
+def get_projection(vector: list, magnitude: list, radius:np.float16):
     """
     Takes in the vector (starting point), magnitude and radius that fully define a cylinder.
     Finds the projection of the cylinder on a plane
@@ -484,14 +488,14 @@ def get_projection(vector: list, magnitude: list, radius: float()):
         )
 
 
-def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = [True], 
+def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = None, 
               save:bool = False, file_ext:str= '', show:bool = False):
     log.info("Plotting cylinder collection")
 
     fig, ax = plt.subplots()
     geoPolys = GeoSeries(collection)
     
-    colors = ["Blue" if col else "Grey" for col in colors]
+    colors = colors if colors else ["Blue" if col else "Grey" for col in [True]]
     geoPolys.plot(ax=ax, color=colors)
     if show:
         plt.show()
