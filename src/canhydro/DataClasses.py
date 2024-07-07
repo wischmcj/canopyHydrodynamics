@@ -96,10 +96,6 @@ class Flow:
         for cylinder in cylinders:
             self.add_cyl(cylinder)
 
-    def add_cyls(self,cylinders: list[Cylinder]):
-        for cylinder in cylinders:
-            add_cyl(cylinder)
-
     def add_cyl(self,cylinder):
         self.num_cylinders += 1
         self.projected_area += cylinder.projected_area
@@ -108,5 +104,5 @@ class Flow:
         self.volume += cylinder.volume
         self.sa_to_vol = self.surface_area/self.volume
 
-coord_list = Union[list[tuple[np.float64]], np.ndarray]
+coord_list = Union[list[tuple[np.float16]], np.ndarray]
 

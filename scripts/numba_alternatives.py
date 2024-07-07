@@ -50,7 +50,7 @@ def njit_stack(list_of_array:np.array[np.array()], col: bool):
 
 # *************** This is broken right now since casting a list of arrays as a numpy array is not no python friendly***************
 # *****************https://stackoverflow.com/questions/53861099/creating-a-numpy-array-decorated-by-njit-from-numba
-def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
+def projection_jit(vector: np.array, magnitude: np.array, radius: np.float16):
     dim_a = vector[0]
     dim_b = vector[1]
     dim_c = vector[2]
@@ -201,7 +201,7 @@ def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
     #     )
 
 @njit()
-def numba_get_projection(vector: list, magnitude: list, radius: np.float32):
+def numba_get_projection(vector: list, magnitude: list, radius: np.float16):
     """
     Takes in the vector (starting point), magnitude and radius that fully define a cylinder.
     Finds the projection of the cylinder on a plane
@@ -214,7 +214,7 @@ def numba_get_projection(vector: list, magnitude: list, radius: np.float32):
         "area": 0,
     }
     c1, bBox, c2, ang, aV, bV = projection_jit(
-        np.array(vector), np.array(magnitude), np.float32(radius)
+        np.array(vector), np.array(magnitude), np.float16(radius)
     )
     partsPS = [c1, bBox, c2]
     if np.max([poly_part.size for poly_part in partsPS]) > 0:

@@ -186,7 +186,7 @@ angles = [ -0.96,-0.92,-0.88,-0.84,-0.8,-0.76,-0.72,-0.68,-0.64,-0.6,-0.56,-0.52
 
 
 def get_cases(file_names, already_run, angles_to_tests):
-    already_run = [(x,float(y)) for x,y in already_run]
+    already_run = [(x,np.float16(y)) for x,y in already_run]
     cases = product(file_names,angles_to_tests)
     return [case for case in cases if case not in already_run]
 

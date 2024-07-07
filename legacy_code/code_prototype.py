@@ -881,11 +881,11 @@ class CylinderCollection:
         # for each drip node,add to drip_locs the sum of the volume of branches draining at the node
         #how to achieve
         #itter over nodes 
-        # bin the locations of the nodes into whole number areas defined by first to decimal pts
+        # bin the locations of the nodes into whole number areas defined by first to np.float16 pts
         #filter dict each time for the flow ids that drip to that node 
         #create sA_sum var to add the sa values for each of those flows to 
         #add the sa_sum var to the drip_loc array in the location bin 
-        # # bin the locations of the nodes into whole number areas defined by first to decimal pts
+        # # bin the locations of the nodes into whole number areas defined by first to np.float16 pts
         g = self._graph
         flowAgg= pd.DataFrame()
         nx.set_node_attributes(g, np.nan, 'loc')

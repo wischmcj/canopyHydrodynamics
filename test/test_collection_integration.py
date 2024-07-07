@@ -7,12 +7,9 @@ import sys
 import toml
 import pytest
 import numpy as np
-<<<<<<< Updated upstream
-=======
 import matplotlib.pyplot as plt
 from rustworkx.visualization import mpl_draw
 
->>>>>>> Stashed changes
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
@@ -38,14 +35,6 @@ from test.utils import within_range
 from src.canhydro.utils import lam_filter
 from src.canhydro.DataClasses import Flow
 from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
-from scripts.basic_recipies import initialize_collection
-from scripts.compare_utils import compare_flows
-<<<<<<< Updated upstream
-=======
-from src.canhydro.geometry import draw_cyls
->>>>>>> Stashed changes
-
-log = logging.getLogger("script")
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
@@ -280,32 +269,6 @@ def compare_flows(c1,c2):
     unique_drip_nodes[1].extend([flow.drip_node_id for flow in f2 if flow.drip_node_id not in f1_drip_nodes])
     return diffs, unique_drip_nodes
 
-<<<<<<< Updated upstream
-=======
-# @pytest.mark.parametrize(
-#     "basic_collection, expected_stem_map, expected_flows",
-#     find_flows_cases,
-#     indirect=["basic_collection"],
-# )
-# def test_find_flows(basic_collection, expected_stem_map, expected_flows):
-#     basic_collection.project_cylinders("XY")
-#     basic_collection.initialize_digraph_from()
-#     basic_collection.find_flow_components_new()
-#     basic_collection.calculate_flows()
-#     actual_flows = basic_collection.flows
-#     _, actual_stem_map = lam_filter(
-#         basic_collection.cylinders, lambda: is_stem, return_all=True
-#     )
-#     print(actual_flows)
-#     print(expected_flows)
-#     try:
-#         assert actual_flows == expected_flows
-#         assert actual_stem_map == expected_stem_map
-#     except AssertionError as e:
-#         breakpoint()
-#         raise e
-
->>>>>>> Stashed changes
 @pytest.mark.parametrize(
     "basic_collection, expected_stem_map, expected_flows",
     find_flows_cases_rust,
@@ -313,15 +276,9 @@ def compare_flows(c1,c2):
 )
 def test_find_flows_rust(basic_collection, expected_stem_map, expected_flows):
     basic_collection.project_cylinders("XY")
-<<<<<<< Updated upstream
-    basic_collection.initialize_digraph_from()
-    basic_collection.find_flow_components_new()
-    basic_collection.calculate_flows()
-=======
     basic_collection.initialize_digraph_from_rust()
     basic_collection.find_flow_components_rust()
     basic_collection.calculate_flows_rust()
->>>>>>> Stashed changes
     actual_flows = basic_collection.flows
     _, actual_stem_map = lam_filter(
         basic_collection.cylinders, lambda: is_stem, return_all=True
@@ -332,135 +289,7 @@ def test_find_flows_rust(basic_collection, expected_stem_map, expected_flows):
         assert actual_flows == expected_flows
         assert actual_stem_map == expected_stem_map
     except AssertionError as e:
-        collection = initialize_collection(basic_collection.file_name,from_pickle = False)
-        collection.initialize_digraph_from()
-        collection.find_flow_components_new()
-        collection.calculate_flows()
-        # diffs = compare_flows(collection,basic_collection)
-        c1=collection
-        c2=basic_collection
-        f1 = c1.flows
-        f2 = c2.flows
-        # _, map1 = lam_filter(
-        #     c1.cylinders, lambda: is_stem, return_all=True
-        # )
-        # _, map2 = lam_filter(
-        #     c2.cylinders, lambda: is_stem, return_all=True
-        # )
-        diffs= []
-        corrections= []
-        corrected= []
-        unique_drip_nodes= [[],[]]
-        for idf, flow in enumerate(f1):
-            drip_node = flow.drip_node_id
-            compare_to = [flow2 for flow2 in f2 if flow2.drip_node_id ==drip_node ]
-            if len(compare_to) == 0:
-                unique_drip_nodes[0].append(drip_node)
-                compare_to = f2[idf]
-            else: 
-                compare_to = compare_to[0]
-            if flow != compare_to:
-                cyl = [drp_cyl for drp_cyl in c1.cylinders if drp_cyl.cyl_id == flow.drip_node_id][0]
-                correction = Flow(    1,    np.float16(cyl.projected_data['XY']["area"]),    cyl.surface_area,cyl.angle,cyl.volume,cyl.sa_to_vol,cyl.cyl_id,[0,0,0])
-                diff = flow.compare(compare_to)
-                corrections.append(correction)
-                correction_effectiveness = flow.pct_diff(compare_to-correction).values()
-                if flow.within_range(compare_to-correction,0.03):
-                    corrected.append(diff)
-                else:
-                    diffs.append((diff,correction_effectiveness))
-
-        differing_cyls = []
         breakpoint()
-        for drip_node,flow_nodes in c1.drip_flow_components:
-            compare_to=c2.drip_flow_components.get(drip_node,[])
-            for node in flow_nodes:
-                if node not in compare_to:
-                    differing_cyls.append(node)
-            for node in compare_to:
-                if node not in flow_nodes:
-                    differing_cyls.append(node)
-        contested_cyls= ['red' if idc in differing_cyls else 'blue' for idc in c1.cyl_map]
-        c1.project_cylinders('XZ')
-        to_draw = [cyl.projected_data['XZ']["polygon"] for cyl in c1.cylinders]
-        draw_cyls(to_draw, colors = contested_cyls, show=True)
-        c1.project_cylinders('YZ')
-        to_draw = [cyl.projected_data['YZ']["polygon"] for cyl in c1.cylinders]
-        draw_cyls(to_draw, colors = contested_cyls, show=True)
-
-        # import rustworkx as rx
-        # subgraph = col.digraph.subgraph(col.digraph.filter_edges(lambda e: e.cyl_id >100 and e.cyl_id<160)) 
-        # mpl_draw(subgraph,rx.circular_layout(subgraph), node_size = 30,edge_labels = lambda e: e.cyl_id,with_labels = True)
-
-
-    #    [(x,y, cyl.cyl_id) for (_,(x,y,cyl)) in col.digraph.edge_index_map().items()]
-        # f1_drip_nodes = [flow.drip_node_id for flow in f1]
-        # unique_drip_nodes[1].extend([flow.drip_node_id for flow in f2 if flow.drip_node_id not in f1_drip_nodes])
-        
-        # missed_cyls = [[cyl for cyl in collection.cylinders if cyl.cyl_id == flow.drip_node_id][0] for flow in f1]
-        # correction = [ Flow(    1,    np.float16(cyl.projected_data['XY']["area"]),    cyl.surface_area,cyl.angle,cyl.volume,cyl.sa_to_vol,cyl.cyl_id,[0,0,0])   for cyl in missed_cyls ]
-        # def get_cyl_as_flow(node):
-        #     cyl = [cyl for cyl in collection.cylinders if cyl.cyl_id ==node][0]
-        #     correction =  Flow(    1,    np.float16(cyl.projected_data['XY']["area"]),    cyl.surface_area,cyl.angle,cyl.volume,cyl.sa_to_vol,cyl.cyl_id,[0,0,0])
-
-        breakpoint()    
-        raise e
-
-@pytest.mark.parametrize(
-    "basic_collection, expected_stem_map, expected_flows",
-    find_flows_cases_rust,
-    indirect=["basic_collection"],
-)
-def test_find_flows_rust(basic_collection, expected_stem_map, expected_flows):
-    basic_collection.project_cylinders("XY")
-    basic_collection.initialize_digraph_from_rust()
-    basic_collection.find_flow_components_rust()
-    basic_collection.calculate_flows_rust()
-    actual_flows = basic_collection.flows
-    _, actual_stem_map = lam_filter(
-        basic_collection.cylinders, lambda: is_stem, return_all=True
-    )
-    print(actual_flows)
-    print(expected_flows)
-    try:
-        assert actual_flows == expected_flows
-        assert actual_stem_map == expected_stem_map
-    except AssertionError as e:
-        collection = initialize_collection(basic_collection.file_name,from_pickle = False)
-        collection.initialize_digraph_from()
-        collection.find_flow_components_new()
-        collection.calculate_flows()
-        # diffs = compare_flows(collection,basic_collection)
-        f1 = collection.flows
-        f2 = basic_collection.flows
-        # _, map1 = lam_filter(
-        #     c1.cylinders, lambda: is_stem, return_all=True
-        # )
-        # _, map2 = lam_filter(
-        #     c2.cylinders, lambda: is_stem, return_all=True
-        # )
-        diffs= []
-        unique_drip_nodes= [[],[]]
-        for idf, flow in enumerate(f1):
-            drip_node = flow.drip_node_id
-            compare_to = [flow2 for flow2 in f2 if flow2.drip_node_id ==drip_node ]
-            if len(compare_to) == 0:
-                unique_drip_nodes[0].append(drip_node)
-                compare_to = f2[idf]
-            diffs.append(flow.compare(compare_to[0]))
-            
-        f1_drip_nodes = [flow.drip_node_id for flow in f1]
-        unique_drip_nodes[1].extend([flow.drip_node_id for flow in f2 if flow.drip_node_id not in f1_drip_nodes])
-        
-        missed_cyls = [[cyl for cyl in collection.cylinders if cyl.cyl_id == flow.drip_node_id][0] for flow in f1]
-        correction = [ Flow(    1,    np.float64(cyl.projected_data['XY']["area"]),    cyl.surface_area,cyl.angle,cyl.volume,cyl.sa_to_vol,cyl.cyl_id,[0,0,0])   for cyl in missed_cyls ]
-        def get_cyl_as_flow(node):
-            cyl = [cyl for cyl in collection.cylinders if cyl.cyl_id ==node][0]
-            correction =  Flow(    1,    np.float64(cyl.projected_data['XY']["area"]),    cyl.surface_area,cyl.angle,cyl.volume,cyl.sa_to_vol,cyl.cyl_id,[0,0,0])
-        log.info(f'{missed_cyls=}')
-        log.info(f'{diffs=}')
-
-        breakpoint()    
         raise e
 
 

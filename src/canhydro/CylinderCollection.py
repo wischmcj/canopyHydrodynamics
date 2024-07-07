@@ -7,7 +7,6 @@ import math
 import sys
 import pickle
 import os
-
 from itertools import chain
 
 import networkx as nx
