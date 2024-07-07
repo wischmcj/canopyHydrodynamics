@@ -15,7 +15,6 @@ log = logging.getLogger('model')
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    
 # QSM column order
 qsm_cols = {}
 for column in config["qsm"]:
