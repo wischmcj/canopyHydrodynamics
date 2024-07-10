@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import os
 import sys
-import toml
+
 import pytest
+import toml
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
@@ -23,37 +24,37 @@ from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
                                    ten_cyls_dbh, ten_cyls_edges,
                                    ten_cyls_flows, ten_cyls_id_one,
                                    ten_cyls_is_stem)
-
 from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
+from src.canhydro.CylinderCollection import (CylinderCollection,
+                                             pickle_collection,
+                                             unpickle_collection)
 from src.canhydro.utils import lam_filter
-from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]["test_input_dir"]
+    DIR = config["directories"]["root_dir"]
 
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
-    DIR = config["directories"]['root_dir']
+    test_input_dir = config["directories"]["test_input_dir"]
+    DIR = config["directories"]["root_dir"]
 
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
-    DIR = config["directories"]['root_dir']
+    test_input_dir = config["directories"]["test_input_dir"]
+    DIR = config["directories"]["root_dir"]
 
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
-    DIR = config["directories"]['root_dir']
-
-
-with open("src/canhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
-    DIR = config["directories"]['root_dir']
+    test_input_dir = config["directories"]["test_input_dir"]
+    DIR = config["directories"]["root_dir"]
 
 create_cylinders_cases = [
     # (file, expected_cylinders )
@@ -118,26 +119,11 @@ find_flows_cases = [
 pickle_cases = [
     # (file, expected_stem_map, expected_flows )
     # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
-    pytest.param(
-        "5_SmallTree.csv", 
-        id="Small Tree"
-    ),
-    pytest.param(
-        "7_DripPathAdjToTrunk.csv",
-        id="Drip Adjacent Trunk"
-    ),
-    pytest.param(
-        "8_DripPathMidBranch.csv",
-        id="Drip Mid Branch"
-    ),
-    pytest.param(
-        "9_DripOnTrunk.csv",
-        id="Drip On Trunk"
-    ),
-    pytest.param(
-        "3_HappyPathWTrunk.csv",
-        id="Happy Path"
-    ),
+    pytest.param("5_SmallTree.csv", id="Small Tree"),
+    pytest.param("7_DripPathAdjToTrunk.csv", id="Drip Adjacent Trunk"),
+    pytest.param("8_DripPathMidBranch.csv", id="Drip Mid Branch"),
+    pytest.param("9_DripOnTrunk.csv", id="Drip On Trunk"),
+    pytest.param("3_HappyPathWTrunk.csv", id="Happy Path"),
 ]
 
 create_graph_cases = [
@@ -175,18 +161,17 @@ def test_create_cylinders(basic_collection, expected_cylinders):
     actual = basic_collection.get_collection_data()
     expected = expected_cylinders
     assert expected == actual
-    
-@pytest.mark.parametrize(
-    "file_name, expected_cylinders",
-    create_cylinders_cases
-)
+
+
+@pytest.mark.parametrize("file_name, expected_cylinders", create_cylinders_cases)
 def test_create_cylinders_from_csv(file_name, expected_cylinders):
     csv_collection = CylinderCollection()
     file_path = "/".join([str(test_input_dir), file_name])
-    file_obj = open(file_path,'r')
+    file_obj = open(file_path)
     csv_collection.from_csv(file_obj, DIR)
     actual = csv_collection.get_collection_data()
     assert actual == expected_cylinders
+
 
 @pytest.mark.parametrize(
     "flexible_collection, angles, projection_axis",
@@ -214,6 +199,7 @@ def test_lam_filter(basic_collection, expected_result, lam_func):
     cyls_returned, _ = lam_filter(basic_collection.cylinders, lam_func)
     actual_result = [cyl.cyl_id for cyl in cyls_returned]
     assert actual_result == expected_result
+
 
 @pytest.mark.parametrize(
     "basic_collection, expected_stem_map, expected_flows",

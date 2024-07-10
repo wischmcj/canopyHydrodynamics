@@ -1,12 +1,15 @@
-
 # @jit
 # def cyl_vectors(magnitude):
 
-# return aV, bV, a_ortho, b_ortho
+from __future__ import annotations
 
+
+# return aV, bV, a_ortho, b_ortho
 # https://stackoverflow.com/questions/39822480/plotting-a-solid-cylinder-centered-on-a-plane-in-matplotlib
-def vectorized_get_projection(starts: np.array(), ends: np.array(), radii:np.array()):
-    return 'to do'
+def vectorized_get_projection(starts: np.array(), ends: np.array(), radii: np.array()):
+    return "to do"
+
+
 #     # 50 or so line segments arranged in a polygon
 #     # gets us 99% accuracy in approximating the area of a circle
 #     # (.5*n*r*r)sin(2*pi/n) = area of n-gon, 2*pi*r*r = area of circle
@@ -66,7 +69,7 @@ def vectorized_get_projection(starts: np.array(), ends: np.array(), radii:np.arr
 #     X, Y, Z = [p0[i] + v[i] * t + R * np.sin(theta) * n1[i] + R * np.cos(theta) * n2[i] for i in [0, 1, 2]]
 
 
-#stackoverflow.com/questions/39822480/plotting-a-solid-cylinder-centered-on-a-plane-in-matplotlib
+# stackoverflow.com/questions/39822480/plotting-a-solid-cylinder-centered-on-a-plane-in-matplotlib
 def vectorized_def_cyl(vector, magnitude):
     dim_a = vector[0]
     dim_b = vector[1]
@@ -150,7 +153,9 @@ def vectorized_def_cyl(vector, magnitude):
                 # Confounded - why does removing the first three [:,None]'s below lead to non-circular projections
                 # for XZ?
                 uov = (
-                    np.hstack(np.array((a_ortho[:, None], b_ortho[:, None], ZOrtho[:, None])))
+                    np.hstack(
+                        np.array((a_ortho[:, None], b_ortho[:, None], ZOrtho[:, None]))
+                    )
                     / uovd[:, None]
                 )
                 # donot re unit-fy, you only want the horizontal component, not the
@@ -169,10 +174,12 @@ def vectorized_def_cyl(vector, magnitude):
                 #            [0 if np.isnan(y) else y for y in yaC],
                 #         ))
                 c1 = stack(
-                    np.array((
-                        np.array([0 if np.isnan(x) else x for x in xaC]),
-                        np.array([0 if np.isnan(y) else y for y in yaC]),
-                    )),
+                    np.array(
+                        (
+                            np.array([0 if np.isnan(x) else x for x in xaC]),
+                            np.array([0 if np.isnan(y) else y for y in yaC]),
+                        )
+                    ),
                     col=True,
                 )
                 print(c1)
@@ -211,7 +218,9 @@ def vectorized_def_cyl(vector, magnitude):
             # x3             bVp1
             # x4             BvP2
 
-            bBox = stack(np.array((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4]))), True)
+            bBox = stack(
+                np.array((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4]))), True
+            )
 
         # print(".")
         # print(typeof(bBox))
@@ -224,13 +233,10 @@ def vectorized_def_cyl(vector, magnitude):
         return c1, bBox, c2, ang, aV, bV
 
 
+# Cylinder Collection
 
-#Cylinder Collection 
 
-
-def vectorized_project_cylinders(
-    self, plane: str = "XY", force_rerun: bool = False
-):
+def vectorized_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
     """Projects cylinders onto the specified plane"""
     if plane not in ("XY", "XZ", "YZ"):
         log.info(f"{plane}: invalid value for plane")

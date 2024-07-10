@@ -2,26 +2,24 @@
 
 from __future__ import annotations
 
-import toml
 import logging
 from dataclasses import dataclass, field
 
 import numpy as np
+import toml
 
 from src.canhydro.DataClasses import Projection
-from src.canhydro.geometry import (draw_cyls, get_projection)
+from src.canhydro.geometry import draw_cyls, get_projection
 
-log = logging.getLogger('model')
+log = logging.getLogger("model")
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    
+
 # QSM column order
 qsm_cols = {}
 for column in config["qsm"]:
     qsm_cols[column] = config["qsm"][column]
-
-
 
 
 NAME = "Cylinder"
@@ -85,9 +83,7 @@ class Cylinder:
     def create_from_list(self, attrs: list, columns=qsm_cols):
         """creates a cylinder corrosponding to that defined by a given row of the qsm (attrs)"""
 
-        extract = (
-            lambda attr: attrs[columns[attr]]
-        )  
+        extract = lambda attr: attrs[columns[attr]]
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] - self.z[0]
@@ -137,7 +133,7 @@ class Cylinder:
         if plane == "XY":
             self.xy_area = self.projected_data["XY"]["area"]
         return projection["polygon"]
-    
+
     def draw(self, plane: str = "XY"):
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly])

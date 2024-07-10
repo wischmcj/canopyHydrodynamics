@@ -26,6 +26,6 @@ if __name__ == "__main__":
     # ax.scatter(*zip(*points_2d))
     # #     ax.add_patch(PolygonPatch(alpha_shape))
     # geopoly = geo.GeoSeries(alpha_shape)
-    # geopoly.plot(ax=ax) 
+    # geopoly.plot(ax=ax)
     # plt.show()
     # breakpoint()

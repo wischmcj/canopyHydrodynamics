@@ -1,49 +1,50 @@
-#utils 
+# utils
+
+from __future__ import annotations
 
 import numpy as np
-# from src.canhydro.geometry import numba_get_projection
+from numba import njit, prange
 
-from src.canhydro.CylinderCollection import CylinderCollection
 from src.canhydro.Cylinder import Cylinder
-
+from src.canhydro.CylinderCollection import CylinderCollection
 from src.canhydro.utils import intermitent_log
 
-
-from numba import njit, prange
-from numba.typed import List
+# from src.canhydro.geometry import numba_get_projection
 
 
-
-def stack(to_stack:list[np.array], col: bool = True):
+def stack(to_stack: list[np.array], col: bool = True):
     """
-        A wrapper for njit stack that handles errors and allows for 
-        less strict typing 
+    A wrapper for njit stack that handles errors and allows for
+    less strict typing
     """
     list_of_array = list(to_stack)
     try:
-        njit_stack(list_of_array,col)
+        njit_stack(list_of_array, col)
     except ValueError as err:
         left_shape = list_of_array[0].shape[0]
         right_shape = list_of_array[1].shape[0]
-        stack_type ='column' if col else 'row'
-        msg = f'{err}: Cannot {stack_type} stack arrays with shapes {left_shape} and {right_shape}'
+        stack_type = "column" if col else "row"
+        msg = f"{err}: Cannot {stack_type} stack arrays with shapes {left_shape} and {right_shape}"
         log.error(msg)
         raise ValueError(msg) from err
 
+
 @njit()
-def njit_stack(list_of_array:np.array[np.array()], col: bool):
+def njit_stack(list_of_array: np.array[np.array()], col: bool):
     """
-        numba doesn't play well with np stacks, so I had to do it myself
+    numba doesn't play well with np stacks, so I had to do it myself
     """
     num_in = len(list_of_array)
     left_shape = list_of_array[0].shape[0]
     shape = (num_in, left_shape)
     stacked_array = np.empty(shape)
-    for j in prange(len(list_of_array)): 
+    for j in prange(len(list_of_array)):
         stacked_array[j] = list_of_array[j]
     return stacked_array if not col else stacked_array.T
 
-# geometry 
+
+# geometry
+
 
 # @profile
 @njit()
@@ -182,7 +183,9 @@ def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
             #            (x4,y4)
             #         )
             #         )
-            bBox = stack(np.array((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4]))), True)
+            bBox = stack(
+                np.array((np.array([x1, x2, x3, x4]), np.array([y1, y2, y3, y4]))), True
+            )
 
         # print(".")
         # print(typeof(bBox))
@@ -199,6 +202,7 @@ def projection_jit(vector: np.array, magnitude: np.array, radius: np.float32):
     #     log.info(
     #         f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
     #     )
+
 
 @njit()
 def numba_get_projection(vector: list, magnitude: list, radius: np.float32):
@@ -246,20 +250,20 @@ def numba_get_projection(vector: list, magnitude: list, radius: np.float32):
 
     return projection
 
-# Cylinder Collection 
-class NumbaCylinderCollection(CylinderCollection):
 
+# Cylinder Collection
+class NumbaCylinderCollection(CylinderCollection):
     def __init__(self, **kwargs):
-        super().__iniit__(**kwargs)    
+        super().__iniit__(**kwargs)
 
     def numba_project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
         """
         This a wrapper to the workhorse function:
-        numba_get_projection. Numba is a tool that compiles 
+        numba_get_projection. Numba is a tool that compiles
         python code into machine code, which can be much faster.
-        
+
         This function is still under development, however, and
-        appears to have minimal/no advantage over the 
+        appears to have minimal/no advantage over the
         non-numba version
         """
         if plane not in ("XY", "XZ", "YZ"):
@@ -280,11 +284,11 @@ class NumbaCylinderCollection(CylinderCollection):
             self.projections[plane] = True
             self.pSV = polys
 
-#Cylinder 
-class NumbaCylinder(Cylinder):
 
+# Cylinder
+class NumbaCylinder(Cylinder):
     def __init__(self, **kwargs):
-        super().__iniit__(**kwargs)    
+        super().__iniit__(**kwargs)
 
     def numba_get_projection(self, plane="XY"):
         noCirPoints = 360
@@ -309,7 +313,7 @@ class NumbaCylinder(Cylinder):
         return projection["polygon"]
 
 
-#efficiency_test
+# efficiency_test
 
 # #@profile
 # def test_small_tree_proj(small_tree, ez_projection):

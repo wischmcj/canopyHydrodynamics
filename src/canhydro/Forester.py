@@ -1,20 +1,22 @@
 from __future__ import annotations
 
 import logging
-import toml
 import os
 from pathlib import Path
+
+import toml
 
 from src.canhydro.CylinderCollection import CylinderCollection
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    input_dir = Path(config["directories"]['input_dir'])
+    input_dir = Path(config["directories"]["input_dir"])
 
-log = logging.getLogger('model')
+log = logging.getLogger("model")
 
 
 NAME = "Forester"
+
 
 class Forester:
     def __init__(self, file_names="", directory=input_dir) -> None:
@@ -41,8 +43,8 @@ class Forester:
             return
         collections = []
         for file_obj in self.file_names:
-            if '.csv' not in file_name:
-                file_name = file_name + '.csv'
+            if ".csv" not in file_name:
+                file_name = file_name + ".csv"
             if file_name == "All" or file_obj.name == file_name:
                 c = CylinderCollection()
                 c.from_csv(file_obj, dir)

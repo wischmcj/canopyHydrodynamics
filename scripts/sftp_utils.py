@@ -1,70 +1,76 @@
-import __future__
+from __future__ import annotations
+
 import paramiko
+
 from src.canhydro.global_vars import log
 
 
 def put_file(file, sftp):
-    log.info(f'trying to sftp {file}')
-    if './data/output/' not in file:
-        start_loc = f'./{file}'
+    log.info(f"trying to sftp {file}")
+    if "./data/output/" not in file:
+        start_loc = f"./{file}"
     else:
-        start_loc = f'./{file}'
-    end_loc = f'/home/wischmcj/Desktop/canopyHydrodynamics/{file}'
+        start_loc = f"./{file}"
+    end_loc = f"/home/wischmcj/Desktop/canopyHydrodynamics/{file}"
     # end_loc = f'/code/code/canopyHydrodynamics/data//{file}'
-    log.info(f'sftp locs: {start_loc}, {end_loc} ')
+    log.info(f"sftp locs: {start_loc}, {end_loc} ")
     try:
-        sftp.put(start_loc,end_loc)
-        msg = f'sftp put success'
+        sftp.put(start_loc, end_loc)
+        msg = "sftp put success"
     except FileNotFoundError as e:
-        msg = f'Error putting file {file}: {e}'
+        msg = f"Error putting file {file}: {e}"
         log.info(msg)
     return msg
 
 
 def get_file(file, sftp):
     # start_loc = f'/home/wischmcj/Desktop/canopyHydrodynamics/data/output/{file}'
-    start_loc = f'/code/code/canopyHydrodynamics/data/output/{file}'
-    if '/data/output/' not in file:
-        end_loc = f'./data/output/{file}'
+    start_loc = f"/code/code/canopyHydrodynamics/data/output/{file}"
+    if "/data/output/" not in file:
+        end_loc = f"./data/output/{file}"
     else:
-        end_loc = f'./{file}'
-    log.info(f'sftp locs: {start_loc}, {end_loc} ')
+        end_loc = f"./{file}"
+    log.info(f"sftp locs: {start_loc}, {end_loc} ")
     try:
-        sftp.get(start_loc,end_loc)
-        msg = f'sftp get success'
+        sftp.get(start_loc, end_loc)
+        msg = "sftp get success"
     except FileNotFoundError as e:
-        log.info(f'Error getting file: {e}')
+        log.info(f"Error getting file: {e}")
     return msg
 
-def sftp(file, get=False, dest_ip = '192.168.0.94' ):
-    ssh = paramiko.SSHClient() 
-    log.info('def client')
+
+def sftp(file, get=False, dest_ip="192.168.0.94"):
+    ssh = paramiko.SSHClient()
+    log.info("def client")
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     # ssh.connect(host, username='penguaman', password='')
-    ssh.connect(dest_ip, username='wischmcj',password='Gamma@13')
-    log.info('connected')
+    ssh.connect(dest_ip, username="wischmcj", password="Gamma@13")
+    log.info("connected")
     sftp = ssh.open_sftp()
-    log.info('sftp open')
-    if get: 
+    log.info("sftp open")
+    if get:
         msg = get_file(file, sftp)
-    else: 
+    else:
         msg = put_file(file, sftp)
     log.info(msg)
     return msg
 
 
-def sftp_many(files,**kwargs):
+def sftp_many(files, **kwargs):
     for f in files:
         try:
             sftp(f, **kwargs)
         except Exception as e:
-            print(f'Error sftp-ing {f}: {e}')
-    
+            print(f"Error sftp-ing {f}: {e}")
+
+
 def get(*args, **kwargs):
-    return sftp(*args, **kwargs, get = True)
+    return sftp(*args, **kwargs, get=True)
+
 
 def put(*args, **kwargs):
-    return sftp(*args, **kwargs, get = False)
+    return sftp(*args, **kwargs, get=False)
+
 
 # if __name__ == '__main__':
 #     sftp('data/test/', dest_ip='192.168.0.216')

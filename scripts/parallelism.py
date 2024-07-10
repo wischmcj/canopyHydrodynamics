@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 
 def pool_get_projection(cyl, plane):
     """
@@ -74,7 +76,7 @@ def pool_get_projection(cyl, plane):
                     "area": cPS.area,
                 }
                 cyl.projected_data[plane] = projection
-                
+
                 if plane == "XY":
                     cyl.xy_area = cyl.projected_data["XY"]["area"]
                 return projection
@@ -186,7 +188,7 @@ def pool_get_projection(cyl, plane):
                     "angle": ang,
                     "area": cPS.area,
                 }
-        
+
                 cyl.projected_data[plane] = projection
 
                 if plane == "XY":
@@ -201,7 +203,5 @@ def pool_get_projection(cyl, plane):
     except UnboundLocalError:
         log.debug(
             f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
-        ) 
-        log.error(
-            f"Erroring cyl id {cyl.cyl_id}"
         )
+        log.error(f"Erroring cyl id {cyl.cyl_id}")

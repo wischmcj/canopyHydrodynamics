@@ -194,6 +194,7 @@ def test_project_cylinder(proj_cyl):
 #     expected = ez_projection_xy_angle
 #     assert within_range(expected, actual, accepted_err)
 
+
 @pytest.mark.parametrize("test_cyl", [(proj_cyl_list)], indirect=["test_cyl"])
 def test_create_cyl_angle(test_cyl):
     """

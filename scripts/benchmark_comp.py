@@ -1,19 +1,21 @@
+from __future__ import annotations
 
-from time import time 
-
-from ..src.canhydro.Forester import Forester
-from ..src.canhydro.Cylinder import create_cyl
-from ..src.canhydro.global_vars import test_input_dir , log
-import numpy as np
-
+from time import time
 from timeit import timeit
 
-def initialize_forester(dir, file = None):
+import numpy as np
+
+from ..src.canhydro.Forester import Forester
+from ..src.canhydro.global_vars import log, test_input_dir
+
+
+def initialize_forester(dir, file=None):
     forester = Forester()
     forester.get_file_names(dir=test_input_dir)
     print(forester.file_names)
     forester.qsm_from_file_names(file_name=file)
     return forester
+
 
 def classic_init(file):
     forester = Forester()
@@ -69,9 +71,9 @@ def map_init(file):
     #     avg_sa_to_vol = (
     #         np.sum([cyl.sa_to_vol for cyl in cylinders]) / no_cylinders
     #     )
-        
-    
+
     # tree = forest.cylinder_collections[0]
+
 
 def old_flows(input):
     # 4_LargeCollection
@@ -82,6 +84,7 @@ def old_flows(input):
     dur = time() - start
     return dur
 
+
 def new_flows(input):
     start = time()
     input.find_flow_components()
@@ -91,28 +94,29 @@ def new_flows(input):
 
 
 def test(file, func):
-    forest = initialize_forester(test_input_dir,file)
-    log.info(f'Initializing for function {func.__name__}')
+    forest = initialize_forester(test_input_dir, file)
+    log.info(f"Initializing for function {func.__name__}")
     tree = forest.cylinder_collections[0]
     tree.initialize_digraph_from()
     # tree.find_flow_components()
     tree.project_cylinders()
-    log.info(f'Starting Testing for function {func.__name__}')
+    log.info(f"Starting Testing for function {func.__name__}")
     func(tree)
-    log.info(f'Itr {i} for {func.__name__} complete')
+    log.info(f"Itr {i} for {func.__name__} complete")
 
 
-def compare(file = '5_Small_Collection', old = old_flows, new = new_flows):
+def compare(file="5_Small_Collection", old=old_flows, new=new_flows):
     iterations = 1
-    new_time = timeit('test(file, new)',number =1)
-    old_time = timeit('test(file, old)',number =1)
+    new_time = timeit("test(file, new)", number=1)
+    old_time = timeit("test(file, old)", number=1)
 
-    new_line ='\n'
-    return  f"""Old average time is {old_time / iterations:.2f} seconds 
+    new_line = "\n"
+    return f"""Old average time is {old_time / iterations:.2f} seconds
 
                 {new_line.join(['',''])} New average time is {new_time / iterations:.2f} seconds
 
                 {new_line.join(['',''])} Thats a {old_time / new_time:.2f} times speedup"""
 
+
 if __name__ == "__main__":
-    print('run')
+    print("run")

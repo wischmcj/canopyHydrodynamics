@@ -1,31 +1,61 @@
 from __future__ import annotations
 
-import shutil
-import toml
 import os
+import shutil
 from pathlib import Path
 
-import pytest 
-from numpy import array as arr, all
-from src.canhydro.utils import create_dir_and_file, read_file_names, on_rm_error, stack, njit_stack
+import pytest
+import toml
+from numpy import all
+from numpy import array as arr
 
+from src.canhydro.utils import (create_dir_and_file, njit_stack, on_rm_error,
+                                read_file_names, stack)
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    DIR = config["directories"]['root_dir']
+    DIR = config["directories"]["root_dir"]
 
 njit_stack_test_cases = [
-    pytest.param(arr([arr([1,2,3]),arr([4,5,6])]),False ,arr([[1., 2., 3.],[4., 5., 6.]]), id = "3x3 row stack"),
-    pytest.param(arr([arr([1,2,3]),arr([4,5,6]),arr([7,8,9])]),False ,arr([[1., 2., 3.],[4., 5., 6.],[7., 8., 9.]]), id = "3x3x3 row stack"),
-    pytest.param(arr([arr([1,2]),arr([4,5])]),False ,arr([[1., 2.],[4., 5.]]), id = "2x2 row stack"),
-    pytest.param(arr([arr([1,2,3]),arr([4,5,6])]),True ,arr([[1., 4.],[2., 5.],[3., 6.]]), id = "3x3 col stack"),
-    pytest.param(arr([arr([1,2]),arr([4,5])]),True, arr([[1., 4.],[2., 5.]]), id = "2x2 col stack"),
+    pytest.param(
+        arr([arr([1, 2, 3]), arr([4, 5, 6])]),
+        False,
+        arr([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        id="3x3 row stack",
+    ),
+    pytest.param(
+        arr([arr([1, 2, 3]), arr([4, 5, 6]), arr([7, 8, 9])]),
+        False,
+        arr([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]),
+        id="3x3x3 row stack",
+    ),
+    pytest.param(
+        arr([arr([1, 2]), arr([4, 5])]),
+        False,
+        arr([[1.0, 2.0], [4.0, 5.0]]),
+        id="2x2 row stack",
+    ),
+    pytest.param(
+        arr([arr([1, 2, 3]), arr([4, 5, 6])]),
+        True,
+        arr([[1.0, 4.0], [2.0, 5.0], [3.0, 6.0]]),
+        id="3x3 col stack",
+    ),
+    pytest.param(
+        arr([arr([1, 2]), arr([4, 5])]),
+        True,
+        arr([[1.0, 4.0], [2.0, 5.0]]),
+        id="2x2 col stack",
+    ),
 ]
 
 stack_test_cases = [
-    pytest.param([arr([1]),arr([4,5]),arr([4,5])], False, ValueError, id = "1x2x2 ValueError"),
-    pytest.param([arr([1]),arr([4,5])], False, ValueError, id = "1x2 ValueError"),
+    pytest.param(
+        [arr([1]), arr([4, 5]), arr([4, 5])], False, ValueError, id="1x2x2 ValueError"
+    ),
+    pytest.param([arr([1]), arr([4, 5])], False, ValueError, id="1x2 ValueError"),
 ]
+
 
 def test_file_funcs():
     file_path = "".join([DIR, "test_data/"])
@@ -39,27 +69,22 @@ def test_file_funcs():
     shutil.rmtree(file, onerror=on_rm_error)
     print("File Names Successful")
 
-@pytest.mark.parametrize(
-    "arr_list,is_col_stack,expected",
-    njit_stack_test_cases
-)
-def test_njit_stack(arr_list,is_col_stack,expected):
+
+@pytest.mark.parametrize("arr_list,is_col_stack,expected", njit_stack_test_cases)
+def test_njit_stack(arr_list, is_col_stack, expected):
     """
     Test vstack and col stack capabilities v. numpy
     thow in a couple exenmplar custom tests to show functionality
     """
-    actual = njit_stack(arr_list,is_col_stack)
+    actual = njit_stack(arr_list, is_col_stack)
     assert all(actual == expected)
 
 
-@pytest.mark.parametrize(
-    "arr_list,is_col_stack,exception_type",
-    stack_test_cases
-)
-def test_stack_err(arr_list,is_col_stack,exception_type):
+@pytest.mark.parametrize("arr_list,is_col_stack,exception_type", stack_test_cases)
+def test_stack_err(arr_list, is_col_stack, exception_type):
     """
     Test vstack and col stack capabilities v. numpy
     thow in a couple exenmplar custom tests to show functionality
     """
     with pytest.raises(exception_type):
-        actual = stack(arr_list,is_col_stack)
+        actual = stack(arr_list, is_col_stack)

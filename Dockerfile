@@ -7,7 +7,7 @@ ARG ssh_pub_key
 RUN apt-get update && \
     apt-get install -y \
         git \
-        openssh-server 
+        openssh-server
         # \libmysqlclient-dev
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh
@@ -33,7 +33,7 @@ ENV RUN_ENVIRONMENT docker
 
 # RUN apk add --no-cache gcc musl-dev linux-headers
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt 
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Remove SSH keys
 RUN rm -rf /root/.ssh/

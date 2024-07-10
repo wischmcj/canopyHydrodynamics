@@ -1,68 +1,68 @@
 from __future__ import annotations
 
+# from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+# from matplotlib.figure import Figure
 import os
-import io
 import sys
 import time
+from test.sensitivity_analysis import sensitivity_analysis
+
+# import numpy as np
+from flask import Flask, render_template
+
+# from src.canhydro.Forester import Forester
+# from src.canhydro.global_vars import log, test_input_dir
+from scripts.benchmark_comp import compare
+from scripts.sftp_utils import sftp
+from src.canhydro.global_vars import log
+
 # import debugpy
 # from random import randint
 
 # from timeit import timeit
-# from time import time 
+# from time import time
 # debugpy.listen(("0.0.0.0", 5678))
 # import geopandas as geo
 # import matplotlib.pyplot as plt
 
-# import numpy as np
-from flask import Flask, render_template
 # import pytest
-
-# from src.canhydro.Forester import Forester
-# from src.canhydro.global_vars import log, test_input_dir
-from scripts.benchmark_comp import compare, initialize_forester
-from scripts.benchmark_comp import compare, initialize_forester
-from test.sensitivity_analysis import sensitivity_analysis
-from src.canhydro.global_vars import log, output_dir, data_dir
-from scripts.sftp_utils import sftp
-# from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-# from matplotlib.figure import Figure
-import os
-import paramiko
-
-
 
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 app = Flask(__name__)
 
-@app.route('/time/<string:file>')
+
+@app.route("/time/<string:file>")
 def time(file):
     string = compare(file)
-    return  render_template('index.html', strings=[string])
+    return render_template("index.html", strings=[string])
 
-@app.route('/cases')
+
+@app.route("/cases")
 def run_cases():
-    log.info('Starting Sensitivity Analysis...')
+    log.info("Starting Sensitivity Analysis...")
     string = sensitivity_analysis()
 
     return string
 
-@app.route('/get/<string:file>')
+
+@app.route("/get/<string:file>")
 def sftp_get(file):
     msg = sftp(file, get=True)
-    return  msg
+    return msg
 
-@app.route('/put/<string:file>')
+
+@app.route("/put/<string:file>")
 def sftp_put(file):
     msg = sftp(file, get=False)
-    return  msg
+    return msg
 
 
-
-@app.route('/hello')
+@app.route("/hello")
 def hello():
-    return 'Hello, World!'
+    return "Hello, World!"
+
 
 # @app.route('/timesum')
 # def local_run():
@@ -70,7 +70,7 @@ def hello():
 #     return  render_template('index.html', strings=[string])
 
 
-# removed to allow removal of plotting functions 
+# removed to allow removal of plotting functions
 # @app.route('/plot/<string:file>')
 # def plot_png(file):
 #     forest = initialize_forester(test_input_dir, file)
@@ -93,10 +93,9 @@ def hello():
 #     return 'Tested'
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     # pre_populate_cache()
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host="0.0.0.0")
 
 
 # if __name__ == "__main__":

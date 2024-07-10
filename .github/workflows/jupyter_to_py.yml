@@ -1,4 +1,4 @@
-name: Convert ipynb to py 
+name: Convert ipynb to py
 
 on: [push]
 

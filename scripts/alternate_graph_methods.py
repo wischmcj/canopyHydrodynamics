@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import time
 
+
 class AlternativeCylCollection:
     """
-    This class contains alternative implementations 
+    This class contains alternative implementations
         of various functions in the CylinderCollection class.
-    This class is used for memory and computational 
+    This class is used for memory and computational
         efficiency efinement
     """
+
     def initialize_graph(self):
         """This function initializes edge attributes as cylinder objects."""
         gr = nx.Graph()

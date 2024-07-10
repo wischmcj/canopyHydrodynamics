@@ -16,7 +16,7 @@ The code that you see zipped here is representiitive of the ongoing work in our 
 + Linter(s) added for formatting and best practices adherence
 + Fully fledged logging functionality added for visibility into results
 + toml configuration added for model parameterization
-+ A pytest based testing suite to surface potential disagreements with previous results 
++ A pytest based testing suite to surface potential disagreements with previous results
 
 ## Development Setup:
 
@@ -24,12 +24,12 @@ The code that you see zipped here is representiitive of the ongoing work in our 
 
   1. Python version 3.9 or higher
   2. A Virtual environment
-     - python -m venv 
-  3. Activate venv with 
+     - python -m venv
+  3. Activate venv with
       - source venv/bin/activate (zsh, terminal)
       - source venv\Scripts\activate.ps1 (PowerShell)
-  4. Install requirements 
-      - pip install -r requirements_dev.txt 
+  4. Install requirements
+      - pip install -r requirements_dev.txt
   5. Enabling Pre-commit lining
      2. Install pre-commit - pre-commit install
 
