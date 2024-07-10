@@ -7,6 +7,7 @@ import os
 import pickle
 import sys
 from itertools import chain
+from typing import Callable
 
 import networkx as nx
 # import rustworkx as rx
@@ -27,8 +28,6 @@ if has_geopandas := _try_import("geopandas"):
     from geopandas import GeoSeries
 
 if has_mem_profiler := _try_import("memory_profiler"):
-    import sys
-
     from memory_profiler import LogFile
 
     sys.stdout = LogFile()
@@ -217,8 +216,8 @@ class CylinderCollection:
     def draw(
         self,
         plane: str = "XY",
-        highlight_lambda: function = lambda: True,
-        filter_lambda: function = lambda: True,
+        highlight_lambda: Callable = lambda: True,
+        filter_lambda: Callable = lambda: True,
         include_drips: bool = False,
         include_contour: bool = False,
         include_alpha_shape: bool = False,
@@ -472,7 +471,7 @@ class CylinderCollection:
         # is 'needed' for statistics section
         np_flow_chars = [None] * (len(self.drip_nodes) + 1)
 
-        def numpy_flow_chars(lambda_filter: function, drip_cyl, index: int):
+        def numpy_flow_chars(lambda_filter: Callable, drip_cyl, index: int):
             arr = np.array(
                 [
                     np.array(
@@ -787,12 +786,7 @@ class CylinderCollection:
         return drip_point_locs
 
     def drip_map(
-        self,
-        a_lambda: function = lambda: True,
-        scale: int = 1,
-        interpolate: bool = False,
-        file_ext: str = "",
-        **args,
+        self, a_lambda: Callable = True, scale: int = 1, interpolate: bool = False
     ) -> None:
         """
         Returns a plot showing the locations of the drip points, subject
