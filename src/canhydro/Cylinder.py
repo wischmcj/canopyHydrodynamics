@@ -83,7 +83,6 @@ class Cylinder:
     def create_from_list(self, attrs: list, columns=qsm_cols):
         """creates a cylinder corrosponding to that defined by a given row of the qsm (attrs)"""
 
-        extract = lambda attr: attrs[columns[attr]]
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] - self.z[0]
@@ -113,11 +112,6 @@ class Cylinder:
         log.debug(str(self.__repr__()))
 
     def get_projection(self, plane="XY"):
-        noCirPoints = 360
-        tCir = np.linspace(
-            0, 2 * np.pi, noCirPoints
-        )  # 360 evenly spaced points between 0 - 2pi (radian degrees)
-
         if plane == "XY":
             magnitude = [self.dx, self.dy, self.dz]
             vector = [np.transpose(self.x), np.transpose(self.y), np.transpose(self.z)]
