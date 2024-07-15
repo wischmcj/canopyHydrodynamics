@@ -6,7 +6,7 @@ numba==0.59.1
 numpy==1.26.4
 scipy==1.13.1
 pytest==8.2.1
-Shapely==2.0.4
+Shapely==2.0.5
 toml==0.10.2
 pyyaml
 rich
