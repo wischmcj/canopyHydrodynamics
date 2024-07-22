@@ -3,7 +3,7 @@ geopandas
 matplotlib==3.9.0
 networkx==3.3
 numba==0.59.1
-numpy==1.26.4
+numpy==2.0.1
 scipy==1.13.1
 pytest==8.2.1
 Shapely==2.0.4
