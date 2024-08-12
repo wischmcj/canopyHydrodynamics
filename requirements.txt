@@ -1,6 +1,6 @@
 
 geopandas
-matplotlib==3.9.0
+matplotlib==3.9.1.post1
 networkx==3.3
 numba==0.59.1
 numpy==1.26.4
