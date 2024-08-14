@@ -196,7 +196,7 @@ def intermitent_log(prog: int, whole: int, msg: str, freq: int = 0.0001):
         print(msg + str(np.round((prog / whole) * 100, decimals=1)))
 
 
-def lam_filter(objects, a_lambda: function, return_all: bool = False):
+def lam_filter(objects, a_lambda: Callable, return_all: bool = False):
     """
     Takes in a lambda that filters on cylinder attrs
     returns a list of cylinders for which that

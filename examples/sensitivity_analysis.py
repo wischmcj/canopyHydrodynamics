@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from time import time 
 from itertools import product
 from time import time
 
@@ -49,7 +50,7 @@ def initialize_collection(file="5_SmallTree", from_pickle=False, **kwargs):
         try:
             forest = Forester()
             forest.get_file_names(dir=test_input_dir)
-            forest.qsm_from_file_names(file_name=file)
+            forest.qsm_to_collection(file_name=file)
             basic_collection = forest.cylinder_collections[0]
             basic_collection.project_cylinders("XY")
         except Exception as e:
@@ -282,7 +283,7 @@ def sensitivity_analysis():
 
     # forest = Forester()
     # forest.get_file_names(dir=test_input_dir)
-    # forest.qsm_from_file_names(file_name="Secrest32-06_000000")
+    # forest.qsm_to_collection(file_name="Secrest32-06_000000")
     # basic_collection = forest.cylinder_collections[0]
     # basic_collection.project_cylinders("XY")
     # basic_collection.initialize_digraph_from(in_flow_grade_lim=-0.3)
@@ -293,7 +294,7 @@ def sensitivity_analysis():
 
     # forest_old = Forester()
     # forest_old.get_file_names(dir=test_input_dir)
-    # forest_old.qsm_from_file_names(file_name="5_SmallTree.csv")
+    # forest_old.qsm_to_collection(file_name="5_SmallTree.csv")
     # basic_collection_old = forest_old.cylinder_collections[0]
 
     # angles = [ (cyl.cyl_id,cyl.angle) for cyl in basic_collection.cylinders]
@@ -360,7 +361,7 @@ if __name__ == "__main__":
 
     forest = Forester()
     forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="3_HappyPathWTrunk.csv")
+    forest.qsm_to_collection(file_name="3_HappyPathWTrunk.csv")
     collection = forest.cylinder_collections[0]
     collection.project_cylinders("XY")
     collection.initialize_digraph_from(in_flow_grade_lim=-0.16)

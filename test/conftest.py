@@ -30,7 +30,7 @@ def pytest_collection_modifyitems(items: list[Item]):
 def basic_forest():
     forest = Forester()
     forest.get_file_names(dir=test_input_dir)
-    # forest.qsm_from_file_names()
+    # forest.qsm_to_collection()
     return forest
 
 
@@ -46,14 +46,14 @@ def test_cyl(request):
 
 @pytest.fixture
 def basic_collection(basic_forest, request):
-    basic_forest.qsm_from_file_names(file_name=request.param)
+    basic_forest.qsm_to_collection(file_name=request.param)
     flexible_collection = basic_forest.cylinder_collections[0]
     return flexible_collection
 
 
 @pytest.fixture
 def flexible_collection(basic_forest, request):
-    basic_forest.qsm_from_file_names(file_name=request.param)
+    basic_forest.qsm_to_collection(file_name=request.param)
     flexible_collection = basic_forest.cylinder_collections[0]
     flexible_collection.project_cylinders("XZ")
     flexible_collection.project_cylinders("XY")
@@ -66,7 +66,7 @@ def flexible_collection(basic_forest, request):
 def ez_projection():
     forest = Forester()
     forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="2_EZ_projection.csv")
+    forest.qsm_to_collection(file_name="2_EZ_projection.csv")
     collection = forest.cylinder_collections[0]
     return collection
 
@@ -75,7 +75,7 @@ def ez_projection():
 def happy_path_projection():
     forest = Forester()
     forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="3_HappyPathWTrunk.csv")
+    forest.qsm_to_collection(file_name="3_HappyPathWTrunk.csv")
     collection = forest.cylinder_collections[0]
     return collection
 
@@ -84,7 +84,7 @@ def happy_path_projection():
 def small_tree():
     forest = Forester()
     forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="5_SmallTree.csv")
+    forest.qsm_to_collection(file_name="5_SmallTree.csv")
     collection = forest.cylinder_collections[0]
     return collection
 
@@ -93,7 +93,7 @@ def small_tree():
 def large_collection():
     forest = Forester()
     forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
+    forest.qsm_to_collection(file_name="4_LargeCollection.csv")
     collection = forest.cylinder_collections[0]
     # collection.project_cylinders("XZ")
     return collection

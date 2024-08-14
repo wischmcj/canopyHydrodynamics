@@ -35,7 +35,7 @@ def initialize_collection(file="5_SmallTree", from_pickle=False, **kwargs):
         try:
             forest = Forester()
             forest.get_file_names(dir=test_input_dir)
-            forest.qsm_from_file_names(file_name=file)
+            forest.qsm_to_collection(file_name=file)
             basic_collection = forest.cylinder_collections[0]
             basic_collection.project_cylinders("XY")
         except Exception as e:
