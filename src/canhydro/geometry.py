@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import math
+import functools
 
 import numpy as np
 # from memory_profiler import LogFile
@@ -292,6 +293,63 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
         return overlap_dict
 
 
+def get_rotation_matrix(b:np.array):
+    if np.linalg.norm(b) == 0:
+        return np.eye(3)
+    # Sourced from https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula#Matrix_notation
+    # b must be unit vector
+    # a is the z unit vector 
+    a = [0,0,1]
+    v = np.cross(b, a)
+    s = np.linalg.norm(v)
+    c = np.dot(b, a)
+    #The skew-symmetric cross product matrix of v
+    vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+    # Rotation matrix as per Rodregues formula
+    R = np.eye(3) + vx + np.dot(vx, vx) * ((1 - c) / (s ** 2))
+    return R
+
+@functools.lru_cache
+def get_unoriented_cylinder(r, h, noCirPoints = 40, nv =40):
+    """
+        Returns the parameterization of a cylinder given the radius (r) and height (h),
+            centered on the xy axis at the origin and oriented vertically 
+    """
+    theta = np.linspace(0, 2*np.pi, noCirPoints)
+    v = np.linspace(0, h, nv )
+    theta, v = np.meshgrid(theta, v)
+    x = r*np.cos(theta)
+    y = r*np.sin(theta)
+    z = v
+    return x, y, z
+
+def get_cylinder_surface(radius, vector):
+    vector = np.array(vector)
+    length = np.linalg.norm(vector)
+    vu = vector/np.linalg.norm(vector)
+
+    Xc,Yc,Zc = get_unoriented_cylinder(radius, length)
+
+    R = get_rotation_matrix(vu)
+    t = np.transpose(np.array([Xc, Yc, Zc]))
+    x,y,z = np.transpose(t @ R, (2,0,1))
+    x = x + vector[0]
+    y = y + vector[1]
+    z = z + vector[2]
+    return x,y,z,vu 
+
+def boundary_circle(r, h, nt=100):
+    """
+    r - boundary circle radius
+    h - height above xOy-plane where the circle is included
+    returns the circle parameterization
+    """
+    theta = np.linspace(0, 2*np.pi, nt)
+    x= r*np.cos(theta)
+    y = r*np.sin(theta)
+    z = h*np.ones(theta.shape)
+    return x, y, z
+
 def rotation_matrix(a, axis: str = "x"):
     """
     Returns a translation matrix for rotation 'a' degrees
@@ -312,7 +370,6 @@ def rotation_matrix(a, axis: str = "x"):
         )
 
     return rm
-
 
 def get_projection(vector: list, magnitude: list, radius: float()):
     """
@@ -374,8 +431,9 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                 }
                 return projection
             else:
-                # find orthogonal vectors @ endpoints
+                # find orthogonal unit vectors @ endpoints
                 # Identifies corners of projected rectangle
+                # Recall that aV is a unit vector pointing 'up' the cylinder
                 aVp1 = np.hstack((aV[1], -aV[0]))
                 aVp2 = np.hstack((-aV[1], aV[0]))
                 bVp1 = np.hstack((bV[1], -bV[0]))
@@ -384,7 +442,9 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                 aVp2 = aVp2 / np.linalg.norm(aVp2)
                 bVp1 = bVp1 / np.linalg.norm(bVp1)
                 bVp2 = bVp2 / np.linalg.norm(bVp2)
-                # from each endpoint, use radius to find vertices of the rectangle
+                # from each endpoint, use radius to find points on the edge of 
+                # the circle representing the end of the cylinder
+                # vertices of the rectangle
                 x1 = dim_a[0] + radius * aVp1[0]
                 y1 = dim_b[0] + radius * aVp1[1]
                 x2 = dim_a[0] + radius * aVp2[0]
@@ -491,12 +551,14 @@ def get_projection(vector: list, magnitude: list, radius: float()):
 
 
 def draw_cyls(
-    collection: list[Polygon] | Polygon,
+    collection: list,
     colors: list[bool] = [True],
     save: bool = False,
     file_ext: str = "",
     show: bool = False,
 ):
+    """Draws a collection of cylinders in 2 dimensions 
+    """
     log.info("Plotting cylinder collection")
 
     fig, ax = plt.subplots()
@@ -504,6 +566,69 @@ def draw_cyls(
 
     colors = ["Blue" if col else "Grey" for col in colors]
     geoPolys.plot(ax=ax, color=colors)
+    if show:
+        plt.show()
+    if save:
+        save_dir = "/".join(
+            [str(output_dir), "draw", f"{file_ext.replace('.','')}"]
+        )  # .replace("/", "\\")
+        plt.savefig(save_dir, dpi=3000)
+    return fig
+
+def draw_cylinders_3D(
+    radii: int,
+    vector_start_ends: list,
+    save: bool = False,
+    show: bool = False,
+    draw_vectors = False,
+    draw_projections = False,
+):
+    """Draws a single Cylinder in 3 dimensions 
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for radius, vector_start_end in zip(radii, vector_start_ends):
+        vector = vector_start_end[1] - vector_start_end[0]
+        vector = np.array(vector)
+        log.info("Plotting cylinder in 3D")
+        x,y,z,unit_vector= get_cylinder_surface(radius,vector)
+        #setting up chart
+        xlim=(np.min(x), np.max(x))
+        ylim=(np.min(y), np.max(y))
+        zlim=(np.min(z), np.max(z))
+
+        ax.plot_surface(x, y, z, alpha=0.6)
+
+        if draw_vectors:
+            ax.quiver(vector_start_end[0][0]
+                      , vector_start_end[0][1]
+                      , vector_start_end[0][2]
+                      , vector[0]
+                      , vector[1]
+                      , vector[2]
+                      ,color = 'black'
+                      )
+            
+        if draw_projections:
+            axis_extension = 4
+            xlim=(np.min(x)-axis_extension, np.max(x)+axis_extension)
+            ylim=(np.min(y)-axis_extension, np.max(y)+axis_extension)
+            zlim=(np.min(z)-axis_extension, np.max(z)+axis_extension)
+
+            # In the figure created, the viewer is on the positive
+            # side of the x and z axis, but the  negative side of the y axis
+            # So, we need to offset the y (e.g. XZ projection) based on its 2nd coordinate
+            ax.contourf(x, y, z, zdir='x', 
+                        offset=xlim[0], colors = 'C0')
+            ax.contourf(x, y, z, zdir='y', 
+                        offset=ylim[1], colors = 'C0')
+            ax.contourf(x, y, z, zdir='z', 
+                        offset=zlim[0], colors = 'C0')
+
+        # setting viewer perspective on chart
+        ax.view_init(elev=30, azim=-45, roll=0)
+        # ax.set(xlim=xlim, ylim=ylim, zlim=zlim,
+        #     xlabel='X', ylabel='Y', zlabel='Z')
     if show:
         plt.show()
     if save:

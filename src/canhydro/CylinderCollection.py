@@ -19,7 +19,7 @@ from shapely.ops import unary_union
 from src.canhydro.Cylinder import create_cyl
 from src.canhydro.DataClasses import Flow
 from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
-                                   get_projected_overlap)
+                                   get_projected_overlap, draw_cylinders_3D)
 from src.canhydro.utils import (_try_import, create_dir_and_file,
                                 intermitent_log, lam_filter, save_file)
 
@@ -46,6 +46,7 @@ with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
     in_flow_grade_lim = config["config_vars"]["in_flow_grade_lim"]
     output_dir = config["directories"]["output_dir"]
+    input_dir = config["directories"]["input_dir"]
 
 NAME = "CylinderCollection"
 
@@ -143,8 +144,12 @@ class CylinderCollection:
     def from_csv(self, file, aggregate_cyls=True):
         """Initializes a new Cyl Collection based on the data in a QSM
         with the configured column locations"""
-        self.file = file
-        self.file_name = file.name
+        if isinstance(file, str):
+            self.file_name = file
+            file = open(input_dir+file, "r")
+        else:
+            self.file = file
+            self.file_name = file.name
         log.info(f"Processing {str(file)}")
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
         cylinders = [create_cyl(row) for row in self.arr]
@@ -215,35 +220,38 @@ class CylinderCollection:
 
     def draw(
         self,
-        plane: str = "XY",
+        plane: str = "XY", # XY, XZ, YZ, or 3D
         highlight_lambda: Callable = lambda: True,
         filter_lambda: Callable = lambda: True,
         include_drips: bool = False,
         include_contour: bool = False,
         include_alpha_shape: bool = False,
         stem=False,
-        **args,
+        **kwargs
     ):
         """Draws cylinders meeting given characteristics onto the specified plane"""
-        if plane not in ("XY", "XZ", "YZ"):
+        if plane not in ("XY", "XZ", "YZ","3D"):
             log.info(f"{plane}: invalid value for plane")
-        if not self.projections[plane]:
-            self.project_cylinders(plane)
+
         cylinders, _ = lam_filter(self.cylinders, filter_lambda)
         filtered_cyls, matches = lam_filter(
             cylinders, highlight_lambda, return_all=True
         )
-        to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
-        log.info(f"{len(to_draw)} cylinders matched criteria")
+        log.info(f"{len(filtered_cyls)} cylinders matched criteria")
+        if plane == "3D":
+            radii = [cyl.radius for cyl in filtered_cyls]
+            vectors = [cyl.vector_start_end for cyl in filtered_cyls]
+            fig = draw_cylinders_3D(radii,vectors, **kwargs)
+        else:
+            if not self.projections[plane]:
+                self.project_cylinders(plane)
+            to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
+            fig = draw_cyls(collection=to_draw, colors=matches, **kwargs)
+
         if include_drips:
             self.drip_map()
         if include_contour:
             self.drip_map()
-        # if include_alpha_shape:
-        #     self.drip_map()
-        # if stem:
-        #     self.drip_map()
-        fig = draw_cyls(collection=to_draw, colors=matches, **args)
         return fig
 
     def get_dbh(self):

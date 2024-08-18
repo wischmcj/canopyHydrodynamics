@@ -64,7 +64,7 @@ class Forester:
                 file_name = file_name + ".csv"
             if file_name == "All" or file_obj.name == file_name:
                 c = CylinderCollection()
-                c.from_csv(file_obj, directory)
+                c.from_csv(file_obj)
                 collections.append(c)
         if len(collections) == 0:
             msg = f"File {file_name} not found in input directory {directory}"

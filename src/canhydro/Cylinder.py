@@ -9,7 +9,7 @@ import numpy as np
 import toml
 
 from src.canhydro.DataClasses import Projection
-from src.canhydro.geometry import draw_cyls, get_projection
+from src.canhydro.geometry import draw_cyls, get_projection, draw_cylinders_3D
 
 log = logging.getLogger("model")
 
@@ -37,7 +37,7 @@ def create_cyl(arr: np.array):
     cols = qsm_cols
     attrs = {k: arr[v] for (k, v) in cols.items()}
     cyl = Cylinder(**attrs)
-    cyl.create_from_list(arr, cols)
+    # cyl.initialize(arr, cols)
     return cyl
 
 
@@ -57,9 +57,9 @@ class Cylinder:
     segment_id: int
 
     projected_data: dict(Projection) = field(default_factory=dict)
-    flow_id: int() = None
+    flow_id: int = None
     flow_type: str = None
-    drip_node: int() = None
+    drip_node: int = None
     begins_at_drip_point: bool = None
     begins_at_divide_point: bool = None
 
@@ -80,7 +80,7 @@ class Cylinder:
         """Defines a readable string to represent a cylinder object
             *Utilized in tests to compare expected and actual results
         """
-        return f"Cylinder( cyl_id={self.cyl_id}, x={self.x}, y={self.y}, z={self.z}, radius={self.radius}, length={self.length}, branch_order={self.branch_order}, branch_id={self.branch_id}, volume={self.volume}, parent_id={self.parent_id}, reverse_branch_order={self.reverse_branch_order}, segment_id={self.segment_id}"
+        return f"Cylinder( cyl_id={self.cyl_id},\n x={self.x},\n y={self.y},\n z={self.z},\n radius={self.radius},\n length={self.length},\n branch_order={self.branch_order},\n branch_id={self.branch_id},\n volume={self.volume},\n parent_id={self.parent_id},\n reverse_branch_order={self.reverse_branch_order},\n segment_id={self.segment_id}"
 
     def __eq__(self, other):
         """Defines the minimum requirements for equality between two cylinders. 
@@ -88,7 +88,11 @@ class Cylinder:
         """
         return type(self) == type(other) and self.__repr__() == other.__repr__()
 
-    def create_from_list(self, attrs: list, columns=qsm_cols):
+    def __post_init__(self):
+        """Initializes the Cylinder object after all attributes are set"""
+        self.initialize()
+
+    def initialize(self):
         """Initializes remaining attributes based off of the 
                 attributes provided at object creation
         """
@@ -96,6 +100,10 @@ class Cylinder:
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] - self.z[0]
+        self.vector_start_end = np.array([
+                                    np.array([self.x[0], self.y[0], self.z[0]]),
+                                    np.array([self.x[1], self.y[1], self.z[1]]),
+                                ])
         self.vectors = {
             "XY": [
                 np.array([self.x[0], self.y[0], self.z[0]]),
@@ -174,10 +182,16 @@ class Cylinder:
             self.xy_area = self.projected_data["XY"]["area"]
         return projection["polygon"]
 
-    def draw(self, plane: str = "XY"):
+    def draw(self, plane: str = "XY", **kwargs):
         """A wrapper around the draw_cyl function allowing 
             more readable code for drawing a single cylinder 
                 - e.g. for some Cylider 'cyl'
                     cyl.draw() rather than geometry.draw_cyls([cyl]) """
         poly = self.projected_data[plane]["polygon"]
-        draw_cyls([poly])
+        draw_cyls([poly], **kwargs)
+
+    def draw_3D(self,
+                **kwargs):
+        """Draws the cylinder in 3D space"""
+        fig = draw_cylinders_3D([self.radius],[self.vector_start_end],**kwargs)
+        return fig
