@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 import math
 import functools
+import toml
 
 import numpy as np
 # from memory_profiler import LogFile
@@ -34,10 +35,16 @@ if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
 
 
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    in_flow_grade_lim = config["config_vars"]["in_flow_grade_lim"]
+    output_dir = config["directories"]["output_dir"]
+    input_dir = config["directories"]["input_dir"]
 # import matplotlib.pyplot as plt
 # from geopandas import GeoSeries
 
 
+### Functions relating to Alpha Shapes 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
     """
     Calculate the circumcenter of a set of points relative to simplex
@@ -204,173 +211,7 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
     return unary_union(triangles), edge_points, centers
 
 
-# def voronoi(points, centers: np.array[np.ndarray] = None):
-#     """
-#     Construct a voronoi diagram based on the provided centers
-#     """
-#     if not centers:
-#         coords = np.array(
-#             sorted(point.coords[0] for point in points if len(point.coords) > 0)
-#         )
-#         tri = simplices(coords)
-
-#     for center in centers:
-#         closest_points(center, points)
-#     return
-
-
-def closest_points(point: tuple, points: np.array, num_returned: int = 3):
-    """
-    Finds the closest point in the list 'points' from the input 'point'
-    """
-    points_to_return = []
-    distances = distance.cdist([point], points)
-    for i in np.arange(num_returned):
-        closest_index = distances.argmin()
-        points_to_return.append(points[closest_index])
-        distances = np.delete(distances, closest_index)
-
-    return points_to_return[0] if num_returned == 1 else points_to_return
-
-
-def furthest_point(
-    point: tuple,
-    points: np.array,
-):
-    """
-    Finds the furthest point in the list 'points' from the input 'point'
-    """
-    distances = distance.cdist([point], points)
-    furthest_index = distances.argmax()
-    return points[furthest_index], distances[furthest_index]
-
-
-def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
-    """Takes in a list of lists of polygons, w/
-     each list representing a diff percentile
-     grouping of polygons (e.g. grp1:(0%-25%), grp2:(25%, 50%)...)
-
-    Think of this function as calculating the shade cast
-        by the upper parts of the tree on the lower parts
-        of the tree. Proceeds from lowest percentile to highest,
-        determininng the additional overlap/shade added by
-        the cylinders (e.g. the branches ) each percentile grouping
-
-    shapely's intersection function could be used, and
-        would be slightly more accurate. However, it is also
-        rather slow for the intersection of this many shapes
-    """
-    if len(labels) != len(shading_poly_list):
-        log.debug(
-            f"Not enough labels; expected {len(shading_poly_list)} got {len(labels)}"
-        )
-    elif len(set(labels)) != len(labels):
-        log.debug("Labels must be distinct")
-    else:
-        overlap_dict = {}
-        shaded_polys = []
-        for idx, shader_polys in enumerate(shading_poly_list):
-            shader_union_poly = unary_union(shader_polys)
-            shader_sum = np.sum([poly.area for poly in shader_polys])
-            shaded_union = unary_union(shaded_polys)
-            total_union = unary_union(shaded_polys)
-
-            shader_on_shaded_w_overlap = shader_union_poly.area + shaded_union.area
-            shader_on_shaded_w_o_overlap = total_union.area
-            shader_on_shaded_overlap = (
-                shader_on_shaded_w_overlap - shader_on_shaded_w_o_overlap
-            )
-
-            shader_internal_overlap = shader_sum - shader_union_poly.area
-
-            overlap_dict[labels[idx]] = {
-                "sum_area": shader_sum,
-                "effective_area": shader_union_poly.area,
-                "internal_overlap": shader_internal_overlap,
-                "overlap_with_previous": shader_on_shaded_overlap,
-            }
-            shaded_polys.extend(shader_polys)
-        return overlap_dict
-
-
-def get_rotation_matrix(b:np.array):
-    if np.linalg.norm(b) == 0:
-        return np.eye(3)
-    # Sourced from https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula#Matrix_notation
-    # b must be unit vector
-    # a is the z unit vector 
-    a = [0,0,1]
-    v = np.cross(b, a)
-    s = np.linalg.norm(v)
-    c = np.dot(b, a)
-    #The skew-symmetric cross product matrix of v
-    vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
-    # Rotation matrix as per Rodregues formula
-    R = np.eye(3) + vx + np.dot(vx, vx) * ((1 - c) / (s ** 2))
-    return R
-
-@functools.lru_cache
-def get_unoriented_cylinder(r, h, noCirPoints = 40, nv =40):
-    """
-        Returns the parameterization of a cylinder given the radius (r) and height (h),
-            centered on the xy axis at the origin and oriented vertically 
-    """
-    theta = np.linspace(0, 2*np.pi, noCirPoints)
-    v = np.linspace(0, h, nv )
-    theta, v = np.meshgrid(theta, v)
-    x = r*np.cos(theta)
-    y = r*np.sin(theta)
-    z = v
-    return x, y, z
-
-def get_cylinder_surface(radius, vector):
-    vector = np.array(vector)
-    length = np.linalg.norm(vector)
-    vu = vector/np.linalg.norm(vector)
-
-    Xc,Yc,Zc = get_unoriented_cylinder(radius, length)
-
-    R = get_rotation_matrix(vu)
-    t = np.transpose(np.array([Xc, Yc, Zc]))
-    x,y,z = np.transpose(t @ R, (2,0,1))
-    x = x + vector[0]
-    y = y + vector[1]
-    z = z + vector[2]
-    return x,y,z,vu 
-
-def boundary_circle(r, h, nt=100):
-    """
-    r - boundary circle radius
-    h - height above xOy-plane where the circle is included
-    returns the circle parameterization
-    """
-    theta = np.linspace(0, 2*np.pi, nt)
-    x= r*np.cos(theta)
-    y = r*np.sin(theta)
-    z = h*np.ones(theta.shape)
-    return x, y, z
-
-def rotation_matrix(a, axis: str = "x"):
-    """
-    Returns a translation matrix for rotation 'a' degrees
-        around the given axis
-    """
-    rm = np.zeros((3, 3))
-    if axis == "x":
-        rm = np.array(
-            [[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]]
-        )
-    if axis == "y":
-        rm = np.array(
-            [[np.cos(a), 0, np.sin(a)], [0, 1, 0], [-np.sin(a), 0, np.cos(a)]]
-        )
-    if axis == "z":
-        rm = np.array(
-            [[np.cos(a), -np.sin(a), 0], [np.sin(a), np.cos(a), 0], [0, 0, 1]]
-        )
-
-    return rm
-
+### Functions relating to 2D Cylinder Projections
 def get_projection(vector: list, magnitude: list, radius: float()):
     """
     Takes in the vector (starting point), magnitude and radius that fully define a cylinder.
@@ -548,8 +389,116 @@ def get_projection(vector: list, magnitude: list, radius: float()):
         log.debug(
             f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
         )
+        
+def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
+    """Takes in a list of lists of polygons, w/
+     each list representing a diff percentile
+     grouping of polygons (e.g. grp1:(0%-25%), grp2:(25%, 50%)...)
+
+    Consider the case in which our percentiles are defined by 
+        height - with the first grouping being cylinders in the xth %ile
+        by height, thus being under than cylinders in all of the other groupings 
+    In this case, this function calculates the area of shade cast by each 
+        grouping on the below sections. As such, in each loop 'shading_poly_list'
+        is partitioned into 2 categories: The sections of canopy on which shade is 
+        being cast and the sections of canopy that are casting that shade.
+        After each loop, a new section of canopy is moved from the 'shading' group
+        to the 'shaded' group and a new calculation of shaded area is made. The result 
+        is a cummulative sum of shaded area at various heights in the canopy.
 
 
+    shapely's intersection function could be used, and
+        would be slightly more accurate. However, it is also
+        rather slow for the intersection of this many shapes
+    """
+    if len(labels) != len(shading_poly_list):
+        log.debug(
+            f"Not enough labels; expected {len(shading_poly_list)} got {len(labels)}"
+        )
+    elif len(set(labels)) != len(labels):
+        log.debug("Labels must be distinct")
+    else:
+        overlap_dict = {}
+        shaded_polys = []
+        for idx, shader_polys in enumerate(shading_poly_list):
+            shader_union_poly = unary_union(shader_polys)
+            shader_sum = np.sum([poly.area for poly in shader_polys])
+            shaded_union = unary_union(shaded_polys)
+            total_union = unary_union(shaded_polys)
+
+            shader_on_shaded_w_overlap = shader_union_poly.area + shaded_union.area
+            shader_on_shaded_w_o_overlap = total_union.area
+            shader_on_shaded_overlap = (
+                shader_on_shaded_w_overlap - shader_on_shaded_w_o_overlap
+            )
+
+            shader_internal_overlap = shader_sum - shader_union_poly.area
+
+            overlap_dict[labels[idx]] = {
+                "sum_area": shader_sum,
+                "effective_area": shader_union_poly.area,
+                "internal_overlap": shader_internal_overlap,
+                "overlap_with_previous": shader_on_shaded_overlap,
+            }
+            shaded_polys.extend(shader_polys)
+        return overlap_dict
+
+### Functions relating to 3D Cylinder Calculations
+def get_rotation_matrix(b:np.array):
+    if np.linalg.norm(b) == 0:
+        return np.eye(3)
+    # Sourced from https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula#Matrix_notation
+    # b must be unit vector
+    # a is the z unit vector 
+    a = [0,0,1]
+    v = np.cross(b, a)
+    s = np.linalg.norm(v)
+    c = np.dot(b, a)
+    #The skew-symmetric cross product matrix of v
+    vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+    # Rotation matrix as per Rodregues formula
+    R = np.eye(3) + vx + np.dot(vx, vx) * ((1 - c) / (s ** 2))
+    return R
+
+@functools.lru_cache
+def get_unoriented_cylinder(r, h, noCirPoints = 20, nv =20):
+    """
+        Given the radius (r) and height (h), returns the parameterization of a cylinder
+            centered on the z axis, with a base at the origin and oriented vertically 
+    """
+    theta = np.linspace(0, 2*np.pi, noCirPoints)
+    v = np.linspace(0, h, nv )
+    theta, v = np.meshgrid(theta, v)
+    x = r*np.cos(theta)
+    y = r*np.sin(theta)
+    z = v
+    return x, y, z
+
+def get_cylinder_surface(radius, vector_start_end):
+    """Returns points on the surface of the cylinder defined 
+        by the givent start and end points having the given radius
+
+    """
+    vector = vector_start_end[1] - vector_start_end[0]
+    vector = np.array(vector)
+    length = np.linalg.norm(vector)
+    vu = vector/np.linalg.norm(vector)
+
+    # Creates cylinder centered on the z axis with the base at the origin
+    Xc,Yc,Zc = get_unoriented_cylinder(radius, length)
+
+    # Creates matrix to rotate cylinder to the desired orientation
+    R = get_rotation_matrix(vu)
+    t = np.transpose(np.array([Xc, Yc, Zc]))
+    x,y,z = np.transpose(t @ R, (2,0,1))
+    
+    #shifts now oriented cylinder to the desired position
+    x = x + vector_start_end[0][0]
+    y = y + vector_start_end[0][1]
+    z = z + vector_start_end[0][2]
+    return x,y,z,vu 
+
+## Functions relating to Drawing Cylinders
 def draw_cyls(
     collection: list,
     colors: list[bool] = [True],
@@ -582,22 +531,24 @@ def draw_cylinders_3D(
     show: bool = False,
     draw_vectors = False,
     draw_projections = False,
+    file_ext: str = "3Ddraw",
 ):
     """Draws a single Cylinder in 3 dimensions 
     """
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     for radius, vector_start_end in zip(radii, vector_start_ends):
-        vector = vector_start_end[1] - vector_start_end[0]
-        vector = np.array(vector)
         log.info("Plotting cylinder in 3D")
-        x,y,z,unit_vector= get_cylinder_surface(radius,vector)
+        
+        x,y,z,unit_vector= get_cylinder_surface(radius,vector_start_end)
+
         #setting up chart
         xlim=(np.min(x), np.max(x))
         ylim=(np.min(y), np.max(y))
         zlim=(np.min(z), np.max(z))
 
         ax.plot_surface(x, y, z, alpha=0.6)
+        vector = vector_start_end[1] - vector_start_end[0]
 
         if draw_vectors:
             ax.quiver(vector_start_end[0][0]
@@ -626,9 +577,9 @@ def draw_cylinders_3D(
                         offset=zlim[0], colors = 'C0')
 
         # setting viewer perspective on chart
-        ax.view_init(elev=30, azim=-45, roll=0)
-        # ax.set(xlim=xlim, ylim=ylim, zlim=zlim,
-        #     xlabel='X', ylabel='Y', zlabel='Z')
+    ax.view_init(elev=30, azim=-45, roll=0)
+    #  ax.set(xlim=xlim, ylim=ylim, zlim=zlim,
+    #   xlabel='X', ylabel='Y', zlabel='Z')
     if show:
         plt.show()
     if save:
@@ -639,45 +590,31 @@ def draw_cylinders_3D(
     return fig
 
 
-def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
-    """Takes in a list of lists of polygons, each list representing a diff percentile grouping of polygons
-    'climbs the tree' itteratiely determininng the additional overlap/shade added by each percentile grouping
-
-    shapely's intersection function could be used, and would be slightly more accurate. However, it is also
-    rather slow for the intersection of this many shapes
+### Functions relating to Points in Space
+def closest_points(point: tuple, points: np.array, num_returned: int = 3):
     """
-    if len(labels) != len(shading_poly_list):
-        log.info(
-            f"Not enough labels; expected {len(shading_poly_list)} got {len(labels)}"
-        )
-    elif len(set(labels)) != len(labels):
-        log.info("Labels must be distinct")
-    else:
-        overlap_dict = {}
-        shaded_polys = []
-        for idx, shader_polys in enumerate(shading_poly_list):
-            print(idx)
-            shader_union_poly = unary_union(shader_polys)
-            shader_sum = np.sum([poly.area for poly in shader_polys])
-            shaded_union = unary_union(shaded_polys)
-            total_union = unary_union(shaded_polys)
+    Finds the closest point in the list 'points' from the input 'point'
+    """
+    points_to_return = []
+    distances = distance.cdist([point], points)
+    for i in np.arange(num_returned):
+        closest_index = distances.argmin()
+        points_to_return.append(points[closest_index])
+        distances = np.delete(distances, closest_index)
 
-            shader_on_shaded_w_overlap = shader_union_poly.area + shaded_union.area
-            shader_on_shaded_w_o_overlap = total_union.area
-            shader_on_shaded_overlap = (
-                shader_on_shaded_w_overlap - shader_on_shaded_w_o_overlap
-            )
+    return points_to_return[0] if num_returned == 1 else points_to_return
 
-            shader_internal_overlap = shader_sum - shader_union_poly.area
 
-            overlap_dict[labels[idx]] = {
-                "sum_area": shader_sum,
-                "effective_area": shader_union_poly.area,
-                "internal_overlap": shader_internal_overlap,
-                "overlap_with_previous": shader_on_shaded_overlap,
-            }
-            shaded_polys.extend(shader_polys)
-        return overlap_dict
+def furthest_point(
+    point: tuple,
+    points: np.array,
+):
+    """
+    Finds the furthest point in the list 'points' from the input 'point'
+    """
+    distances = distance.cdist([point], points)
+    furthest_index = distances.argmax()
+    return points[furthest_index], distances[furthest_index]
 
 
 # def drip_plot(**args):

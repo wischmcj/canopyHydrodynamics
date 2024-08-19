@@ -227,12 +227,13 @@ class CylinderCollection:
         include_contour: bool = False,
         include_alpha_shape: bool = False,
         stem=False,
+        file_ext: str = "",
         **kwargs
     ):
         """Draws cylinders meeting given characteristics onto the specified plane"""
         if plane not in ("XY", "XZ", "YZ","3D"):
             log.info(f"{plane}: invalid value for plane")
-
+        file_name = f"{self.file_name}_{plane}_{file_ext}"
         cylinders, _ = lam_filter(self.cylinders, filter_lambda)
         filtered_cyls, matches = lam_filter(
             cylinders, highlight_lambda, return_all=True
@@ -241,12 +242,12 @@ class CylinderCollection:
         if plane == "3D":
             radii = [cyl.radius for cyl in filtered_cyls]
             vectors = [cyl.vector_start_end for cyl in filtered_cyls]
-            fig = draw_cylinders_3D(radii,vectors, **kwargs)
+            fig = draw_cylinders_3D(radii,vectors, file_ext=file_name, **kwargs)
         else:
             if not self.projections[plane]:
                 self.project_cylinders(plane)
             to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
-            fig = draw_cyls(collection=to_draw, colors=matches, **kwargs)
+            fig = draw_cyls(collection=to_draw, colors=matches, file_ext=file_name, **kwargs)
 
         if include_drips:
             self.drip_map()

@@ -3,7 +3,7 @@ geopandas
 matplotlib==3.9.0
 networkx==3.3
 numpy==1.26.4
-oy
+PyQt6 #Needed for interactive 3D plots
 pytest==8.2.1
 pyyaml
 rich
