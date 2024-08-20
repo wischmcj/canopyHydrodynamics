@@ -1,4 +1,6 @@
 
+# This section details the column numbers in which 
+# each variable is stored in the input file.
 [qsm]
 # type=0
 cyl_id=1
@@ -28,9 +30,16 @@ branch_id=24
 # gv= [30,31,32]
 # gl= [33,34]
 
-[config_vars]
+[model_parameters]
 min_len_drip_flow = 2
 in_flow_grade_lim = -0.16666
+
+[directories]
+root_dir        = "./"
+input_dir       = "./data/input/"
+output_dir      = "./data/output/"
+test_input_dir  = "./data/test/"
+
 [project.optional-dependencies]
 test = [
     "black==23.3.0",
@@ -49,13 +58,6 @@ test = [
 [project.urls]
 Documentation = "https://github.com/wischmcj/canopyHydrodynamics/blob/main/README.md"
 Source = "https://github.com/wischmcj/canopyHydrodynamics/"
-
-
-[directories]
-root_dir = "./"
-input_dir = "./data/input/"
-output_dir = "./data/output/"
-test_input_dir = "./data/test/"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -124,39 +126,3 @@ line-ending = "auto"
 addopts = [
     "--import-mode=importlib",
 ]
-
-
-
-[tool.coverage.run]
-branch = true
-
-[tool.coverage.report]
-# Regexes for lines to exclude from consideration
-exclude_also = [
-    # Don't complain about missing debug-only code:
-    "def __repr__",
-    "if self\\.debug",
-    "local_run",
-
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
-
-    # Don't complain if non-runnable code isn't run:
-    "if 0:",
-    "if __name__ == .__main__.:",
-
-    # Don't complain about abstract methods, they aren't run:
-    "@(abc\\.)?abstractmethod",
-
-    # Don't complain about code written for code evaluation purposes
-    'if __name__ == "__main__"',
-
-    # Don't complain about code retained for demonstration purpouses
-    "class AlternativeCylCollection()",
-    ]
-
-ignore_errors = true
-
-[tool.coverage.html]
-directory = "coverage_html_report"
