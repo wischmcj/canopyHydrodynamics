@@ -44,7 +44,7 @@ log = logging.getLogger("model")
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    in_flow_grade_lim = config["config_vars"]["in_flow_grade_lim"]
+    in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
     output_dir = config["directories"]["output_dir"]
     input_dir = config["directories"]["input_dir"]
 
@@ -128,10 +128,6 @@ class CylinderCollection:
         self.drip_nodes = None
         self.cyl_to_drip = None
         self.drip_points = {"x": np.nan, "y": np.nan, "z": np.nan, "flow_id": np.nan}
-        self.flow_to_drip = {
-            0: 1  # allows us to bootstrap stemflow
-            # (cyl 1 drains to 0, so its child cyl 2 drains to 0, etc)
-        }  # A dictionary of flow ids with values equal to their drip node ids
         self.trunk_nodes = []
         self.drip_point_loc = None
         self.stem_flow_component = None

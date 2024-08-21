@@ -37,7 +37,7 @@ if has_matplotlib := _try_import("matplotlib"):
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    in_flow_grade_lim = config["config_vars"]["in_flow_grade_lim"]
+    in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
     output_dir = config["directories"]["output_dir"]
     input_dir = config["directories"]["input_dir"]
 # import matplotlib.pyplot as plt
@@ -336,7 +336,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                         c1 = Polygon(c1c)
                         c2 = Polygon(c2c)
                     except Exception as e:
-                        log.debug(
+                        log.error(
                             f"Error creating circular portions of the projections {e}"
                         )
 
@@ -355,7 +355,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                     bBox = Polygon(bBoxc)
                     partsPS = [c1, bBox, c2]
                 except:
-                    log.debug(
+                    log.error(
                         f"Error creating rectangular portion of the projection: vectors:{vector} magnitudes:{magnitude}"
                     )
                 try:
@@ -365,7 +365,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                         # cPSc = Polygon(coord_list)
                 except:
                     print(np.any(np.isnan(xaC)))
-                    log.debug("Error unioning projection polygons ")
+                    log.errpr("Error unioning projection polygons ")
                 # get angle away from plane projected on to
                 run = math.sqrt(delt_b**2 + delt_a**2)
                 rise = delt_c
@@ -383,10 +383,10 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                 }
                 return projection
         else:
-            log.debug("dim_a[0] is null, unable to project")
+            log.warning("dim_a[0] is null, unable to project")
         return projection
     except UnboundLocalError:
-        log.debug(
+        log.error(
             f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
         )
         
@@ -412,11 +412,11 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
         rather slow for the intersection of this many shapes
     """
     if len(labels) != len(shading_poly_list):
-        log.debug(
+        log.info(
             f"Not enough labels; expected {len(shading_poly_list)} got {len(labels)}"
         )
     elif len(set(labels)) != len(labels):
-        log.debug("Labels must be distinct")
+        log.info("Labels must be distinct")
     else:
         overlap_dict = {}
         shaded_polys = []

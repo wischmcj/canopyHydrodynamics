@@ -245,7 +245,7 @@ class AlternativeCylCollection:
         component_graphs = [
             g.subgraph(c).copy()
             for c in drip_flow_components
-            if len(c) > config_vars["min_len_drip_flow"]
+            if len(c) > model_parameters["min_len_drip_flow"]
         ]
 
         log.info(

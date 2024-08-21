@@ -1,11 +1,13 @@
+
+Z
 # canhydro
-This repository houses a bare bones script relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
+This repository houses python utilities described in 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.'
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 (https://www.researchgate.net/publication/375530854)
 
 ## Contents:
 
-The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the first draft of the above linked paper how it was run and reviewed. The remaning (majority) of this repository represents code written in the process of improving and productionalizing that code.
+The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the first draft of the above linked paper how it was run and reviewed. The functionality there-in has been formalized and expanded into the
 
 ## Improvements since publication of preprint
 
