@@ -5,7 +5,12 @@
 Welcome to canoPyHydro's documentation!
 =========================
 
-Add your content using ``reStructuredText`` syntax. See the
+
+**canoPyHydro**  seeks to empower researchers with percipitation partitioning data - leveraging
+evermore widely available terrestrial lidar scans (TLS) to provide detailed estimates of water 
+distribution throughout (and below) tree canopies. Users can not only use this tool to generate industry 
+standard metrtics, they can push the boundaries of canopy characterization with with a variety of 
+innovative visualization and analytics tools.
 `reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
 documentation for details.
 
