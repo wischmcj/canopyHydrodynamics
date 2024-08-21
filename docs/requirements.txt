@@ -11,3 +11,4 @@ ruff==0.5.1
 scipy==1.13.1
 Shapely==2.0.4
 toml==0.10.2
+myst_parser
