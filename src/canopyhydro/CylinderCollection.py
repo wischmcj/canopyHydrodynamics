@@ -16,11 +16,11 @@ import toml
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
-from src.canhydro.Cylinder import create_cyl
-from src.canhydro.DataClasses import Flow
-from src.canhydro.geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
+from src.canopyhydro.Cylinder import create_cyl
+from src.canopyhydro.DataClasses import Flow
+from src.canopyhydro.geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
                                    furthest_point, get_projected_overlap)
-from src.canhydro.utils import (_try_import, create_dir_and_file,
+from src.canopyhydro.utils import (_try_import, create_dir_and_file,
                                 intermitent_log, lam_filter, save_file)
 
 # Optional imports
@@ -42,7 +42,7 @@ if has_spatial := _try_import("scipy.spatial"):
 log = logging.getLogger("model")
 
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
     output_dir = config["directories"]["output_dir"]

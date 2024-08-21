@@ -10,7 +10,7 @@ import alphashape
 import pytest
 from shapely.geometry import LineString, Point, Polygon
 
-import src.canhydro.geometry as geometry
+import src.canopyhydro.geometry as geometry
 
 
 def test_2D_overlap():

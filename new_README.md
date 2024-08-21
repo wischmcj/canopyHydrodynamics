@@ -3,7 +3,7 @@
 <br />
 <h1>
 <p align="center">
-    <img src="./canhydro_logo.jpeg" height="390" width="390">
+    <img src=".canopyhydro_logo.jpeg" height="390" width="390">
 </p>
 
   CanoPyMap
@@ -23,7 +23,7 @@
   <a href="examples.md">More Examples</a>
 </p>
 
-# CanHydro
+# canoPyHydro
 
 ## Introduction
 
@@ -31,7 +31,7 @@ This package provides functionality to assist researchers in investigating water
 
 ## Overview
 
-The methods provided in CanHydro extract data from these QSMs (i.e. cylinder angle, projected area, ...) and use said data to predict how percipitation falling in the vicinity of the corresponding tree will be paritioned. At present, these paritions are as follows
+The methods provided in canoPyHydro extract data from these QSMs (i.e. cylinder angle, projected area, ...) and use said data to predict how percipitation falling in the vicinity of the corresponding tree will be paritioned. At present, these paritions are as follows
 
 1. Stem flow - Percipitation intercepted by the tree that flows down to the trunk of the tree
 2. Drip flow - Percipitation intercepted by the tree that drips to the ground prior to reaching the trunk of the tree
@@ -59,7 +59,7 @@ source venv/bin/activate
 The package is available on PyPI and can be installed using pip
 
 ```
-pip install CanHydro
+pip install canoPyHydro
 ```
 
 For the source code you can clone the git repository locally using
@@ -82,15 +82,15 @@ We can test the environment build by running
 pytest
 ```
 
-For a successful build we should have all tests pass. If this is the case then enjoy using CanHydro!
+For a successful build we should have all tests pass. If this is the case then enjoy using canoPyHydro!
 
 ## Examples
 
-We provide several examples to illustrate the tasks that CanHydro can perform in [`examples`](./examples). These examples are provided as both an annotated Jupyter notebook or a python script (the scripts are further separated for ease), and each example has a detailed description of its content within the README. `example_function` as a [notebook](./examples/notebooks/example_function.ipynb) or [scripts](./examples/scripts/example_function) are the best place to start for an introduction to the methodology, where we apply it to some simple test functions.
+We provide several examples to illustrate the tasks that canoPyHydro can perform in [`examples`](./examples). These examples are provided as both an annotated Jupyter notebook or a python script (the scripts are further separated for ease), and each example has a detailed description of its content within the README. `example_function` as a [notebook](./examples/notebooks/example_function.ipynb) or [scripts](./examples/scripts/example_function) are the best place to start for an introduction to the methodology, where we apply it to some simple test functions.
 
 ## License
 
-CanHydro is an open-source software licensed under the MIT License. Check the details in the [`LICENSE`](./LICENSE) file.
+canoPyHydro is an open-source software licensed under the MIT License. Check the details in the [`LICENSE`](./LICENSE) file.
 
 ## Citations
 

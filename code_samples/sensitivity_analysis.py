@@ -15,9 +15,9 @@ sys.path.insert(0, os.getcwd())
 import logging
 
 from data.output.run_so_far import already_run
-from src.canhydro.CylinderCollection import (pickle_collection,
+from src.canopyhydro.CylinderCollection import (pickle_collection,
                                              unpickle_collection)
-from src.canhydro.Forester import Forester
+from src.canopyhydro.Forester import Forester
 
 already_run = []
 
@@ -25,7 +25,7 @@ already_run = []
 
 log = logging.getLogger("model")
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
 

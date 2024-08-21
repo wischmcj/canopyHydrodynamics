@@ -11,10 +11,10 @@ sys.path.insert(0, os.getcwd())
 import scripts.sftp_utils as sftp
 
 from data.output.run_so_far import already_run
-from src.canhydro.CylinderCollection import (pickle_collection,
+from src.canopyhydro.CylinderCollection import (pickle_collection,
                                              unpickle_collection)
-from src.canhydro.Forester import Forester
-from src.canhydro.global_vars import log, test_input_dir
+from src.canopyhydro.Forester import Forester
+from src.canopyhydro.global_vars import log, test_input_dir
 
 
 def try_pickle_collection(collection, designation=""):

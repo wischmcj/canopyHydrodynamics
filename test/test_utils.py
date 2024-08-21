@@ -9,10 +9,10 @@ import toml
 from numpy import all
 from numpy import array as arr
 
-from src.canhydro.utils import (create_dir_and_file, njit_stack, on_rm_error,
+from src.canopyhydro.utils import (create_dir_and_file, njit_stack, on_rm_error,
                                 read_file_names, stack)
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     DIR = config["directories"]["root_dir"]
 
