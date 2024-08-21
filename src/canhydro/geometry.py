@@ -1,12 +1,12 @@
 """Spacially centeric code"""
 from __future__ import annotations
 
+import functools
 import logging
 import math
-import functools
-import toml
 
 import numpy as np
+import toml
 # from memory_profiler import LogFile
 # from numba import njit
 from scipy.linalg import lu_factor, lu_solve
@@ -44,7 +44,7 @@ with open("src/canhydro/user_def_config.toml") as f:
 # from geopandas import GeoSeries
 
 
-### Functions relating to Alpha Shapes 
+### Functions relating to Alpha Shapes
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
     """
     Calculate the circumcenter of a set of points relative to simplex
@@ -283,7 +283,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                 aVp2 = aVp2 / np.linalg.norm(aVp2)
                 bVp1 = bVp1 / np.linalg.norm(bVp1)
                 bVp2 = bVp2 / np.linalg.norm(bVp2)
-                # from each endpoint, use radius to find points on the edge of 
+                # from each endpoint, use radius to find points on the edge of
                 # the circle representing the end of the cylinder
                 # vertices of the rectangle
                 x1 = dim_a[0] + radius * aVp1[0]
@@ -389,21 +389,22 @@ def get_projection(vector: list, magnitude: list, radius: float()):
         log.error(
             f"UnboundLocalError: vector : {vector} magnitude: {magnitude} radius: {radius}"
         )
-        
+
+
 def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
     """Takes in a list of lists of polygons, w/
      each list representing a diff percentile
      grouping of polygons (e.g. grp1:(0%-25%), grp2:(25%, 50%)...)
 
-    Consider the case in which our percentiles are defined by 
+    Consider the case in which our percentiles are defined by
         height - with the first grouping being cylinders in the xth %ile
-        by height, thus being under than cylinders in all of the other groupings 
-    In this case, this function calculates the area of shade cast by each 
+        by height, thus being under than cylinders in all of the other groupings
+    In this case, this function calculates the area of shade cast by each
         grouping on the below sections. As such, in each loop 'shading_poly_list'
-        is partitioned into 2 categories: The sections of canopy on which shade is 
+        is partitioned into 2 categories: The sections of canopy on which shade is
         being cast and the sections of canopy that are casting that shade.
         After each loop, a new section of canopy is moved from the 'shading' group
-        to the 'shaded' group and a new calculation of shaded area is made. The result 
+        to the 'shaded' group and a new calculation of shaded area is made. The result
         is a cummulative sum of shaded area at various heights in the canopy.
 
 
@@ -443,71 +444,74 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
             shaded_polys.extend(shader_polys)
         return overlap_dict
 
+
 ### Functions relating to 3D Cylinder Calculations
-def get_rotation_matrix(b:np.array):
+def get_rotation_matrix(b: np.array):
     if np.linalg.norm(b) == 0:
         return np.eye(3)
     # Sourced from https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula#Matrix_notation
     # b must be unit vector
-    # a is the z unit vector 
-    a = [0,0,1]
+    # a is the z unit vector
+    a = [0, 0, 1]
     v = np.cross(b, a)
     s = np.linalg.norm(v)
     c = np.dot(b, a)
-    #The skew-symmetric cross product matrix of v
+    # The skew-symmetric cross product matrix of v
     vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
     # Rotation matrix as per Rodregues formula
-    R = np.eye(3) + vx + np.dot(vx, vx) * ((1 - c) / (s ** 2))
+    R = np.eye(3) + vx + np.dot(vx, vx) * ((1 - c) / (s**2))
     return R
 
+
 @functools.lru_cache
-def get_unoriented_cylinder(r, h, noCirPoints = 20, nv =20):
+def get_unoriented_cylinder(r, h, noCirPoints=20, nv=20):
     """
-        Given the radius (r) and height (h), returns the parameterization of a cylinder
-            centered on the z axis, with a base at the origin and oriented vertically 
+    Given the radius (r) and height (h), returns the parameterization of a cylinder
+        centered on the z axis, with a base at the origin and oriented vertically
     """
-    theta = np.linspace(0, 2*np.pi, noCirPoints)
-    v = np.linspace(0, h, nv )
+    theta = np.linspace(0, 2 * np.pi, noCirPoints)
+    v = np.linspace(0, h, nv)
     theta, v = np.meshgrid(theta, v)
-    x = r*np.cos(theta)
-    y = r*np.sin(theta)
+    x = r * np.cos(theta)
+    y = r * np.sin(theta)
     z = v
     return x, y, z
 
+
 def get_cylinder_surface(radius, vector_start_end):
-    """Returns points on the surface of the cylinder defined 
-        by the givent start and end points having the given radius
+    """Returns points on the surface of the cylinder defined
+    by the givent start and end points having the given radius
 
     """
     vector = vector_start_end[1] - vector_start_end[0]
     vector = np.array(vector)
     length = np.linalg.norm(vector)
-    vu = vector/np.linalg.norm(vector)
+    vu = vector / np.linalg.norm(vector)
 
     # Creates cylinder centered on the z axis with the base at the origin
-    Xc,Yc,Zc = get_unoriented_cylinder(radius, length)
+    Xc, Yc, Zc = get_unoriented_cylinder(radius, length)
 
     # Creates matrix to rotate cylinder to the desired orientation
     R = get_rotation_matrix(vu)
     t = np.transpose(np.array([Xc, Yc, Zc]))
-    x,y,z = np.transpose(t @ R, (2,0,1))
-    
-    #shifts now oriented cylinder to the desired position
+    x, y, z = np.transpose(t @ R, (2, 0, 1))
+
+    # shifts now oriented cylinder to the desired position
     x = x + vector_start_end[0][0]
     y = y + vector_start_end[0][1]
     z = z + vector_start_end[0][2]
-    return x,y,z,vu 
+    return x, y, z, vu
+
 
 ## Functions relating to Drawing Cylinders
 def draw_cyls(
     collection: list,
     colors: list[bool] = [True],
     save: bool = False,
-    file_ext: str = "",
+    file_name_ext: str = "",
     show: bool = False,
 ):
-    """Draws a collection of cylinders in 2 dimensions 
-    """
+    """Draws a collection of cylinders in 2 dimensions"""
     log.info("Plotting cylinder collection")
 
     fig, ax = plt.subplots()
@@ -519,62 +523,60 @@ def draw_cyls(
         plt.show()
     if save:
         save_dir = "/".join(
-            [str(output_dir), "draw", f"{file_ext.replace('.','')}"]
+            [str(output_dir), "draw", f"{file_name_ext.replace('.','')}"]
         )  # .replace("/", "\\")
         plt.savefig(save_dir, dpi=3000)
     return fig
+
 
 def draw_cylinders_3D(
     radii: int,
     vector_start_ends: list,
     save: bool = False,
     show: bool = False,
-    draw_vectors = False,
-    draw_projections = False,
-    file_ext: str = "3Ddraw",
+    draw_vectors=False,
+    draw_projections=False,
+    file_name_ext: str = "3Ddraw",
 ):
-    """Draws a single Cylinder in 3 dimensions 
-    """
+    """Draws a single Cylinder in 3 dimensions"""
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(111, projection="3d")
     for radius, vector_start_end in zip(radii, vector_start_ends):
         log.info("Plotting cylinder in 3D")
-        
-        x,y,z,unit_vector= get_cylinder_surface(radius,vector_start_end)
 
-        #setting up chart
-        xlim=(np.min(x), np.max(x))
-        ylim=(np.min(y), np.max(y))
-        zlim=(np.min(z), np.max(z))
+        x, y, z, unit_vector = get_cylinder_surface(radius, vector_start_end)
+
+        # setting up chart
+        xlim = (np.min(x), np.max(x))
+        ylim = (np.min(y), np.max(y))
+        zlim = (np.min(z), np.max(z))
 
         ax.plot_surface(x, y, z, alpha=0.6)
         vector = vector_start_end[1] - vector_start_end[0]
 
         if draw_vectors:
-            ax.quiver(vector_start_end[0][0]
-                      , vector_start_end[0][1]
-                      , vector_start_end[0][2]
-                      , vector[0]
-                      , vector[1]
-                      , vector[2]
-                      ,color = 'black'
-                      )
-            
+            ax.quiver(
+                vector_start_end[0][0],
+                vector_start_end[0][1],
+                vector_start_end[0][2],
+                vector[0],
+                vector[1],
+                vector[2],
+                color="black",
+            )
+
         if draw_projections:
             axis_extension = 4
-            xlim=(np.min(x)-axis_extension, np.max(x)+axis_extension)
-            ylim=(np.min(y)-axis_extension, np.max(y)+axis_extension)
-            zlim=(np.min(z)-axis_extension, np.max(z)+axis_extension)
+            xlim = (np.min(x) - axis_extension, np.max(x) + axis_extension)
+            ylim = (np.min(y) - axis_extension, np.max(y) + axis_extension)
+            zlim = (np.min(z) - axis_extension, np.max(z) + axis_extension)
 
             # In the figure created, the viewer is on the positive
             # side of the x and z axis, but the  negative side of the y axis
             # So, we need to offset the y (e.g. XZ projection) based on its 2nd coordinate
-            ax.contourf(x, y, z, zdir='x', 
-                        offset=xlim[0], colors = 'C0')
-            ax.contourf(x, y, z, zdir='y', 
-                        offset=ylim[1], colors = 'C0')
-            ax.contourf(x, y, z, zdir='z', 
-                        offset=zlim[0], colors = 'C0')
+            ax.contourf(x, y, z, zdir="x", offset=xlim[0], colors="C0")
+            ax.contourf(x, y, z, zdir="y", offset=ylim[1], colors="C0")
+            ax.contourf(x, y, z, zdir="z", offset=zlim[0], colors="C0")
 
         # setting viewer perspective on chart
     ax.view_init(elev=30, azim=-45, roll=0)
@@ -584,7 +586,7 @@ def draw_cylinders_3D(
         plt.show()
     if save:
         save_dir = "/".join(
-            [str(output_dir), "draw", f"{file_ext.replace('.','')}"]
+            [str(output_dir), "draw", f"{file_name_ext.replace('.','')}"]
         )  # .replace("/", "\\")
         plt.savefig(save_dir, dpi=3000)
     return fig

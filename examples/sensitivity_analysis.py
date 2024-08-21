@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import sys
-from time import time 
 from itertools import product
 from time import time
 
@@ -80,15 +79,15 @@ def generate_statistics(collection, case_name):
     log.info(
         f"attempting to generate stats for file {collection.file_name}, case_name {case_name}"
     )
-    # statistics = collection.statistics(file_ext = case_name)
+    # statistics = collection.statistics(file_name_ext = case_name)
     # try:
-    statistics = collection.statistics(file_ext=case_name)
+    statistics = collection.statistics(file_name_ext=case_name)
     # except Exception as e:
     #     log.info(f"Error gernerating stats for case {case_name} : {e}")
     #     return None
     log.info(f"attempting to generate flow file for {case_name}")
     try:
-        collection.generate_flow_file(file_ext=case_name)
+        collection.generate_flow_file(file_name_ext=case_name)
     except Exception as e:
         log.info(f"Error gernerating flow file for case {case_name}: {e}")
         return None
@@ -162,7 +161,7 @@ def draw_case(collection=None, file: str = "", pickle_point: str = "", angle="")
             plane="XZ",
             highlight_lambda=lambda: is_stem,
             save=True,
-            file_ext=f"{file}_{angle}_XZ.png",
+            file_name_ext=f"{file}_{angle}_XZ.png",
             show=False,
         )
         stemflow_and_trunk_fig = collection.draw(
@@ -170,7 +169,7 @@ def draw_case(collection=None, file: str = "", pickle_point: str = "", angle="")
             filter_lambda=lambda: is_stem,
             highlight_lambda=lambda: branch_order == 0,
             save=True,
-            file_ext=f"{file}_{angle}_XZ.png",
+            file_name_ext=f"{file}_{angle}_XZ.png",
             show=False,
         )
     except Exception as e:
@@ -182,7 +181,7 @@ def drip_map(collection=None, file: str = "", pickle_point: str = "", angle=""):
         if not collection:
             collection = load_from_pickle(file, pickle_point, angle)
 
-        drip_map = collection.drip_map(file_ext=f"{file}_{angle}_XZ.png")
+        drip_map = collection.drip_map(file_name_ext=f"{file}_{angle}_XZ.png")
     except Exception as e:
         log.info(f"Failed to draw and save pickle for {file}, case {angle}  :{e}")
 
@@ -192,7 +191,7 @@ def alpha_shape(collection=None, file: str = "", pickle_point: str = "", angle="
         if not collection:
             collection = load_from_pickle(file, pickle_point, angle)
 
-        drip_map = collection.drip_map(file_ext=f"{file}_{angle}_XZ.png")
+        drip_map = collection.drip_map(file_name_ext=f"{file}_{angle}_XZ.png")
     except Exception as e:
         log.info(f"Failed to draw and save pickle for {file}, case {angle}  :{e}")
 
