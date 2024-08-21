@@ -1,17 +1,21 @@
 [project]
-name =  "can_hydro"
+name =  "canoPyHydro"
 version = "0.0.1"
 authors = [
     {name = "Collin Wischmeyer", email = "cjwischmeyer@gmail.com"},
     {name = "Travis Swanson", email = "travis.swanson@gmail.com"},
     {name = "John Van Stan", email = "j.vanstan@csuohio.edu"},
 ]
-description="Utilities for Modeling Canopy Hydrodynamics"
+description="An Innovative Approach to Vegetative Precipitation Partitioning"
 readme = "README.md"
 requires-python = ">=3.9.1"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 5 - Production/Stable",
 ]
 
 [project.optional-dependencies]
@@ -25,13 +29,8 @@ test = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/wischmcj/canopyHydrodynamics/blob/main/README.md"
+Documentation = "https://canopyhydrodynamics.readthedocs.io/en/latest/"
 Source = "https://github.com/wischmcj/canopyHydrodynamics/"
-
-[tool.flit.module]
-name = "can_hydro"
-requires = ["flit_core>=3.4"]
-build-backend = "flit_core.buildapi"
 
 [tool.coverage.run]
 branch = true
@@ -65,7 +64,7 @@ ignore = [
 minversion = "6.0"
 addopts = "-ra -q"
 pythonpath = [
-  "canhydro"
+  "canoPyHydro"
 ]
 
 [tool.pylint]
