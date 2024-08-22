@@ -5,8 +5,6 @@ import sys
 from itertools import product
 from time import time
 
-import toml
-
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 sys.path.insert(0, os.getcwd())
 # print(sys.path)
@@ -14,17 +12,15 @@ sys.path.insert(0, os.getcwd())
 
 import logging
 
-from data.output.run_so_far import already_run
-from canopyhydro.CylinderCollection import (pickle_collection,
-                                             unpickle_collection)
-from canopyhydro.Forester import Forester
 from canopyhydro.configuration import test_input_dir
+from canopyhydro.CylinderCollection import (pickle_collection,
+                                            unpickle_collection)
+from canopyhydro.Forester import Forester
+from data.output.run_so_far import already_run
 
 already_run = []
 
-# log = logging.getLogger('script')
-
-log = logging.getLogger("model")
+log = logging.getLogger("script")
 
 
 def try_pickle_collection(collection, designation=""):

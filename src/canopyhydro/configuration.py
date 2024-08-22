@@ -1,17 +1,34 @@
+from __future__ import annotations
+
 import logging
-import os 
+import os
+
 import toml
+import yaml
+
+# Read in environment variables, set defaults if not present
+
+config_file = os.environ.get("CANOPYHYDRO_CONFIG", os.getcwd())
+log_config = os.environ.get(
+    "CANOPYHYDRO_LOG_CONFIG", f"{os.getcwd()}/logging_config.yml"
+)
+
+with open(log_config) as f:
+    config = yaml.safe_load(f.read())
+    logging.config.dictConfig(config)
 
 log = logging.getLogger(__name__)
-config_file         = None
-in_flow_grade_lim   = None
-output_dir          = None
-input_dir           = None
+
+config_file = None
+in_flow_grade_lim = None
+output_dir = None
+input_dir = None
 qsm_cols = {}
+
 try:
-    config_file = os.environ['CANOPYHYDRO_CONFIG']
+    config_file = os.environ["CANOPYHYDRO_CONFIG"]
 except Exception as e:
-    log.error(f'Error loading environment variable CANOPYHYDRO_CONFIG: {e}')
+    log.error(f"Error loading environment variable CANOPYHYDRO_CONFIG: {e}")
     raise e
 
 if config_file:
@@ -26,5 +43,5 @@ if config_file:
             for column in config["qsm"]:
                 qsm_cols[column] = config["qsm"][column]
     except Exception as e:
-        log.error(f'Error loading configuration variables from {config_file}: {e}')
+        log.error(f"Error loading configuration variables from {config_file}: {e}")
         raise e

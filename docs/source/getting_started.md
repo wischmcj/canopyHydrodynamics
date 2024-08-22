@@ -18,7 +18,7 @@ $ pip install git+https://github.com/canoPyHydro/canoPyHydro.git
 
 There are many optional configuration options, but there are only a few that are **necessary** to adjust/check
 to ensure the code runs as expected.
-The default configuration file can be be found at '/CanopyHydrodynamics/src/canopyhydro/user_def_config.toml'. Configuration options can be set by altering the contents of this file in place. At this time functionality changes must be made to this file (e.g. a custom file location cannot be set)
+The default configuration file can be be found at '/CanopyHydrodynamics/canopyhydro_config.toml'. Configuration options can be set by altering the contents of this file in place. At this time functionality changes must be made to this file (e.g. a custom file location cannot be set)
 
 ## QSM File structre
 The [qsm] section details the column numbers in which each variable is stored in the input file. To read in this file correctly,

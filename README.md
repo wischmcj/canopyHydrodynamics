@@ -36,7 +36,7 @@ The current tool set also boasts several different spacial analysis tools, sever
    pip install canoPyHydro
 ```
 
-4. **Set Configuration Options**: The default configuration file can be found at '/CanopyHydrodynamics/src/canopyhydro/user_def_config.toml'. Configuration options can be set by altering the contents of this file in place. Refer to the getting started guide for more information on configuration options. At this time functionality changes must be made to this file (e.g. a custom file location cannot be set)
+4. **Set Configuration Options**: The default configuration file can be found at '/CanopyHydrodynamics/canopyhydro_config.toml'. Configuration options can be set by altering the contents of this file in place. Refer to the getting started guide for more information on configuration options. At this time functionality changes must be made to this file (e.g. a custom file location cannot be set)
 
 ```bash
    pip install canoPyHydro
