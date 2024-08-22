@@ -11,7 +11,7 @@ CanoPyHydro provides users access to an innovative, bottom-up approach to estima
 The current tool set also boasts several different spacial analysis tools, several of which have been utilized in the study of non-hydrological environmental conditions within tree canopies. These include:
 
   - Functionality for characterizing the level of obsfucation present at given canopy cross sections
-  - Tools for identifying, highlighting and isolating branch subnetworks meeting any arbitrary contition(s) 
+  - Tools for identifying, highlighting and isolating branch subnetworks meeting any arbitrary contition(s)
     - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
   - 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
@@ -20,7 +20,7 @@ The current tool set also boasts several different spacial analysis tools, sever
 
 The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the first draft of the above linked paper how it was run and reviewed. The functionality there-in has been formalized and expanded into the
 
-## Getting Started 
+## Getting Started
 
 - Pre-requisites
 
@@ -63,17 +63,4 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
 
 This project was initially packaged with Flit using the the instructions found on the offical python website: https://packaging.python.org/en/latest/tutorials/packaging-projects/.
 
-## Wishlist
-
-- Optimizing the alpha value for alphashapes
-  - Can be done locally for areas with different point densities
-- Smoothing cylinders to eliminate false drip points
-  -polygon.buffer
-- Creating QSMs from point cloud data
-  - would almost certainly need to leverage c++
-- Integrate Point cloud processing libraries like Tree tool
-  - https://github.com/porteratzo/TreeTool
-- pip install -U pytreedb
-- A more robust meta manager that stores to a cloud based db
-- Local (maybe also remote) caching
-- 3d plotting
+0

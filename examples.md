@@ -14,7 +14,7 @@ authors:
 # Motivation
 
 Vegetation coverage has a marked effect on the spatiotemporal distribution of terrestrial rainfall. This process, refeered to as precipitation partitioning, is well established in the field of hydrology. However, the influence of partitioning on ecological processes is currently under-represented in statistical models due to the inaccessability of the related measurements.
-Canhydro seeks to empower researchers with partitioning data; allowing them to leverage existing data sets (e.g. increasingly available terrestrial lidar point clouds) to access a wealth of microclimactic data.
+canoPyHydro seeks to empower researchers with partitioning data; allowing them to leverage existing data sets (e.g. increasingly available terrestrial lidar point clouds) to access a wealth of microclimactic data.
 
 # Summary
 

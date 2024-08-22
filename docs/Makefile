@@ -1,11 +1,11 @@
 # Minimal makefile for Sphinx documentation
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
+SPHINXOPTS    = 
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = subsettools
-SOURCEDIR     = .
-BUILDDIR      = _build
+SPHINXPROJ    = canoPyHydro
+SOURCEDIR     = ./source
+BUILDDIR      = ./build
 
 # Put it first so that "make" without argument is like "make help".
 help:

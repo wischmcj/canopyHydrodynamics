@@ -6,7 +6,7 @@ from test.utils import within_range
 import pytest
 from numpy import all, array
 
-from src.canhydro.Cylinder import Cylinder
+from src.canopyhydro.Cylinder import Cylinder
 
 # Test Config
 accepted_err = 0.02

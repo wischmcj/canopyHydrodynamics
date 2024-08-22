@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from geopandas import GeoSeries
 
-from src.canhydro.global_vars import log
+from src.canopyhydro.global_vars import log
 
 
 def retain_quantile(df, field, percentile):

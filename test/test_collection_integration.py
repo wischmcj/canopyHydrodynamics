@@ -28,30 +28,30 @@ from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
-from src.canhydro.CylinderCollection import (CylinderCollection,
+from src.canopyhydro.CylinderCollection import (CylinderCollection,
                                              pickle_collection,
                                              unpickle_collection)
-from src.canhydro.utils import lam_filter
+from src.canopyhydro.utils import lam_filter
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
     DIR = config["directories"]["root_dir"]
 
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
     DIR = config["directories"]["root_dir"]
 
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
     DIR = config["directories"]["root_dir"]
 
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
     DIR = config["directories"]["root_dir"]

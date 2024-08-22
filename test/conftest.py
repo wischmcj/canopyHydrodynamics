@@ -6,10 +6,10 @@ import pytest
 import toml
 from _pytest.nodes import Item
 
-from src.canhydro.Cylinder import create_cyl
-from src.canhydro.Forester import Forester
+from src.canopyhydro.Cylinder import create_cyl
+from src.canopyhydro.Forester import Forester
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = Path(config["directories"]["test_input_dir"])
 

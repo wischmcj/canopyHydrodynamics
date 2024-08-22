@@ -25,7 +25,7 @@ handlers:
     file:
         level: 1
         class: logging.FileHandler
-        filename: ./log/canhydro.log
+        filename: ./logcanopyhydro.log
         formatter: default
 
 loggers:

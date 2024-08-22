@@ -3,7 +3,7 @@ s the level of detail represented in computational models continues to increase,
 
 The re-distribution of precipitation via vegetation interception therefore influences a wide array of terrestrial hydrological processes: contributing to run off (Savenije, 2004), recharging subsurface water pools (Friesen, 2020), and returning moisture to the atmosphere via transpiration (Coenders-Gerrits et al., 2020).
 
-CanHydro is inteneded to be a developlent tool for extracting environmental data from Lidar point clouds. As TLS technology is increasingly available, so too is point cloud data. The functions presented here allow researchers to tap into a treasure trove of existing data to empowering new inferencees.
+canoPyHydro is inteneded to be a developlent tool for extracting environmental data from Lidar point clouds. As TLS technology is increasingly available, so too is point cloud data. The functions presented here allow researchers to tap into a treasure trove of existing data to empowering new inferencees.
 
 Drip points are locations in the tree canopy that water flowing towards the stem of the tree cannot pass, due to the branch angle becoming too steep.
 
