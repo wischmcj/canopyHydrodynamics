@@ -14,3 +14,5 @@ toml==0.10.2
 myst-parser
 sphinx
 sphinx_rtd_theme
+pandoc
+canopyhydro

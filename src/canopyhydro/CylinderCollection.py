@@ -16,11 +16,11 @@ import toml
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
-from src.canopyhydro.Cylinder import create_cyl
-from src.canopyhydro.DataClasses import Flow
-from src.canopyhydro.geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
+from Cylinder import create_cyl
+from DataClasses import Flow
+from geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
                                    furthest_point, get_projected_overlap)
-from src.canopyhydro.utils import (_try_import, create_dir_and_file,
+from utils import (_try_import, create_dir_and_file,
                                 intermitent_log, lam_filter, save_file)
 
 # Optional imports
@@ -42,7 +42,7 @@ if has_spatial := _try_import("scipy.spatial"):
 log = logging.getLogger("model")
 
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
     output_dir = config["directories"]["output_dir"]
@@ -216,10 +216,7 @@ class CylinderCollection:
         """
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
-        elif not force_rerun and self.projections[plane]:
-            log.info(
-                "cached projections exist, pass 'force_rerun=True to calculate new projections "
-            )
+     
         else:
             polys = []
             log.info(f"Projection into {plane} axis begun for file {self.file_name}")

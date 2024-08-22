@@ -16,6 +16,10 @@ The current tool set also boasts several different spacial analysis tools, sever
   - 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
 
+## Citing canoPyHydro
+
+If you use our tools please cite this package in your work. You can cite the package by citing this paper (paper link here)
+
 ## Contents:
 
 The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the first draft of the above linked paper how it was run and reviewed. The functionality there-in has been formalized and expanded into the

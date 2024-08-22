@@ -8,12 +8,12 @@ from dataclasses import dataclass, field
 import numpy as np
 import toml
 
-from src.canopyhydro.DataClasses import Projection
-from src.canopyhydro.geometry import draw_cyls, get_projection, draw_cylinders_3D
+from DataClasses import Projection
+from geometry import draw_cyls, get_projection, draw_cylinders_3D
 
 log = logging.getLogger("model")
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
 
 # QSM column order

@@ -9,7 +9,7 @@ from _pytest.nodes import Item
 from src.canopyhydro.Cylinder import create_cyl
 from src.canopyhydro.Forester import Forester
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = Path(config["directories"]["test_input_dir"])
 

@@ -1,0 +1,201 @@
+<p>my text here (test)<span class="citation" data-cites="Friesen">[@Friesen]</span> test <span class="citation" data-cites="Friesen">@Friesen</span></p>
+<code>[@Pearson:2017]</code> <code>@Pearson:2017</code> <span class="citation" data-cites="Pearson:2017">[@Pearson:2017]</span> <span class="citation" data-cites="Friesen">@Friesen</span>
+<p align="center">
+<img src=".canopyhydro_logo.jpeg" height="390" width="390">
+</p>
+<h1 align="center">
+CanoPyHydro
+</h1>
+<p align="center">
+Leveraging remote sensing to map water availability in tree canopies.
+</p>
+</p>
+<p align="center">
+<a href="#summary">Summary</a> • <a href="#statement-of-need">Statement of Need</a> • <a href="#functionality">Functionality</a> • <a href="#flow-evaluation">Flow Evaluation</a> • <a href="#filtering-and-highlighting">Filtering and Highlighting</a> • <a href="#future-direction">Future Direction</a> • <a href="#acknowledgements">Acknowledgements</a> • <a href="#references">References</a> • <a href="examples.md">More Examples</a>
+</p>
+<p align="center">
+Vegetation coverage has a marked effect on the spatiotemporal distribution of terrestrial rainfall, marking the initial step in terrestrial rainfall pathways. <!-- As we demonstrate below, the importance of this 'precipitation partitioning' is well established in the field of hydrology and is of increasing interest in the modeling of ecological processes.  --> Growing interest from hydrologists and ecologists alike has lead to the numerous efforts to characterize these flows. However these typically correlative, regression-based efforts have struggled with the problem’s inherit degrees of freedom, drawing consistent scrutiny farom reviewers for their inconsistency and lack of conclusion <!-- (can cite levia X2 and  van stan here ) --> canoPyHydro has grown from an effort uncover strong mechanistic inferences into the drivers for the variation in these fluxes and drawn interest from fellow researchers as a tool for a variety of related use-cases, largely. No matter the use case, canoPyHydro provides value to researchers by enriching their (evermore widely available) terrestrial lidar scans (TLS) with percipitation partitioning data; giving them an tailored environment to explore canpy water distribution.
+</p>
+<!-- plant nutrient uptake and leaching (Aubrey, 2020), litter decomposition (Qualls, 2020),  plant microbiome composition and function (Van Stan et al., 2020). -->
+<!-- The below is an alternatie version, I think I like the above better, though
+
+Vegetation coverage has a marked effect on the spatiotemporal distribution of terrestrial rainfall. That is, trees have a measurable effect on when and where rain falls. This process, referred to as precipitation partitioning, is well established in the field of hydrology but the influence of partitioning on ecological processes is currently under-represented in statistical models. This is in large part due to the inaccessability of the related measurements.
+canoPyHydro seeks to empower researchers with percipitation partitioning data; allowing them to leverage existing data sets (e.g. increasingly available terrestrial lidar point clouds) to access a wealth of microclimactic data. -->
+<h1 id="summary">Summary</h1>
+<p>The main inputs to canoPyHydro are Qantitative Structural Models (QSMs). These models simplify TLS point clouds to represent trees as collections of topologically ordered cylinders. CanoPyHydro’s functionality can broadly categorized into two groups:</p>
+<ol type="1">
+<li>Utilities for the conversion and exploration of QSMs. Methods in this category:</li>
+</ol>
+<ul>
+<li>Convert QSMs to python objects and calculate individual cyliner metrics (i.e. surface area, angle(s))</li>
+<li>Create 2D and 3D visualizations (with robust filtering and highlighting functionality.</li>
+<li>Surface a variety of spatial metrics (i.e. inter-canopy occlusion)</li>
+</ul>
+<ol start="2" type="1">
+<li><p>Percipitation partitioning utilities</p>
+<ul>
+<li>Determining where intercepted percipitation is distributed by each part of the tree</li>
+<li>Qantify the structure of the canopy watershed</li>
+</ul></li>
+</ol>
+<p>CanoPyHydro takes a novel approach to the latter in particular, reimagining the trees’ canopies as watersheds. By identifying the many tributary-like flows flowing down their branches, and areas of run-off where water drips to the forest floor, canoPyHydro unveils previously unexplored structures and characterizes the stemflow and throughfall generating portions of the canopy.</p>
+<p>For tree-data explorers, CanoPyHydro’s spacial utilities are of particular interest. The use of <a href="https://en.wikipedia.org/wiki/Alpha_shape">Alpha Shapes</a> empowers users to apply the concept of canopy coverage area in unexpected, new ways. Likewise, CanoPyHydro can provide detailed <em>intra</em>-canopy occlusion data for arbitrary cross-sections of the canopy, providing detailed estimates of the shade within the canopy (in the vertical direction) and protection from wind/rain (in the horizontal direction).</p>
+<h1 id="statement-of-need">Statement of Need</h1>
+<p>This ‘net rainfall’ influences all subsequent terrestrial hydrological processes, by contributing to runoff (Savenije, 2004), recharging subsurface water pools <span class="citation" data-cites="Friesen">@Friesen</span> (Friesen, 2020), or returning to the atmosphere via transpiration (Coenders-Gerrits et al., 2020). Observations reveal substantial spatiotemporal variability in the amounts, timing, and distribution patterns of net rainfall beneath tree canopies, complicating reliable assessments of terrestrial water balances (Van Stan et al., 2020). Unfortunately, the costly and laborious techniques required to characterise processes challenge current practices in modelling and managing terrestrial water interactions (Gutmann, 2020). <!--
+  Despite this, the complexity of capturing these dynamics necesitates statistically-based monitoring designs that are both labor-intensive and costly (e.g., Voss et al., 2016; Zimmermann & Zimmermann, 2014). --></p>
+<p>The two types of net rainfall fluxes are throughfall and stemflow (Sadeghi et al., 2020). Throughfall describes the portion of rainfall that reaches the ground directly through gaps in the canopy or by dripping off foliage and branches (the latter being referred to as dripflow), while stemflow refers to the water that is channeled down tree stems. Attempts to correlate whole canopy characteristics with stemflow measurements have generated inconslusiver results (Referrence, 1900). Despite these attempts and the sophisticated tools available for scanning trees and creating detailed structural models (see references in Wischmeyer et al., 2024), a definitive method to accurately delineate the origins of these fluxes—critical for pinpointing how much rain falls and where—remains elusive.</p>
+<p>CanoPyHydro addresses this gap by employing an innovative, bottom-up approach for estimation precipitation redistribution, supplementing QSMs generated using existing tooling (Hackenberg et al., 2021) with complemntary, graph based models. CanoPyHydro’s titular algorithm traverses these graph models, using the resulting labels to percisely delineate drainage areas for stemflow and throughfall drip points. This approach harnesses the detailed canopy structure data availible through terrestrial LiDAR scans to map out precise water pathways, transforming how researchers and practitioners predict and analyze rainfall distribution in forested environments. Furthermore, the tool boasts configuration options that allow for the comparison of rainfall distribution under varying environmental conditions.</p>
+<p>CanoPyHydro supports the application of model outputs via a robust suite of analytical tools suitible for a variety of use cases. For example, user friendly filtering capbabilities allow for users to isolate branch subnetworks meeting any arbitrary contition(s) (i.e. only branches with a radius &gt; 10cm, branches with a branch order of 0 within 100cm of the ground,…). These filters may be used in tandem with built in visualization functions to remove or simply highlight specified portions of the tree and to generate descriptive statistics.</p>
+<p>By bridging the gap between advanced canopy scanning technologies and the need for precise hydrological data, CanoPyHydro empowers researchers and environmental managers; enhancing their understanding and management of water flows in forested ecosystems and paving the way for more informed conservation and sustainability practices.</p>
+<h1 id="functionality-call-outs">Functionality Call-Outs</h1>
+<p align="center">
+<a href="#qsms">QSMs</a> • <a href="#flow-identification">Flow Identification</a> • <a href="#metrics">Metrics</a> • <a href="#2d-Projection">2D Projection</a> • <a href="#occlusion">Occlusion</a> • <a href="#visualization">Visualization</a>
+</p>
+<h2 id="qsms">QSMs</h2>
+<p>Quantitative Structural Models are 3D models that approximate the structure of trees via cylinders of various radii, orientations and locations in space.These models are particularly useful in the reduction of point cloud data as they preserve high level structural data, but are much more compact and less computationally intensive. The QSM’s used in the creation of CanoPyHydro were generated by passing TLS point cloud data through a program called SimpleForest (Hackenberg et al., 2021) to generate .csv files.</p>
+<p><img src="./imgs/PC_QSM_Plot.png" alt="Point Cloud and QSM" /><em>(Left to right) A point clound redering, a SimpleForest rendering of the related QSM, a canoPyHydro coloring of said QSM</em></p>
+<p>The below code demonstrates two different ways that canoPyHydro can read in QSMs</p>
+<pre class="{python}"><code>  # A CylinderCollection object can be initialized directly
+  myCollection = CylinderCollection()
+
+  # Using the details of a QSM model stored in example_tree.csv
+  # to create a CylinderCollection object
+  myCollection.from_csv(&#39;example_tree.csv&#39;)
+
+
+  # Alternatively, the &#39;Forester&#39; class can be used
+  myForester = Forester(&quot;data/test/&quot;)
+  print(f&quot;Files available: {list(map(str,myForester.file_names))}&quot;)
+
+  ## ... Read in single QSMs
+  myForester.qsm_to_collection(&quot;example_tree.csv&quot;)
+  print(len(myForester.cylinder_collections))</code></pre>
+<p>Additional information can be found in <a href="./docs/examples.md">our qsm documentation</a> and in the documentation for <a href="https://www.simpleforest.org/pages/tutorials.html">SimpleForest</a>.</p>
+<h3 id="d-projections">2D Projections</h3>
+<p>In the current version of this tool, 2D metrics are available for projections onto the coordinate planes: XY, XZ and YZ. For a tree oriented ‘right-side-up’, these projections represent the tree as seen from above - XY - and from two, perpendicular ‘side’ views - XZ and YZ - dependent on the orientation of the point cloud data. 2D projections are critical to the functioning of this tool in variety of ways</p>
+<ul>
+<li>Projected 2D cylinder area is of use when calculating the volume of water generated by a given canopy based on rain intensity</li>
+<li>These projections are used to calculate canopy coverage and, by extension, woody area index; Both are key metrics in the study of stemflow</li>
+<li>By comparing 2D projected areas of different branch subsets, canoPyHydro can provide a variety of detailed occlusion data</li>
+</ul>
+<h2 id="flow-identification">Flow Identification</h2>
+<p>CanoPyHydro’s hydrological estimates rely on the classification of QSM cylinders as stemflow contributing or throughfall contributing. The precipitation intercepted by each cylinder is added to a theoretical ‘flow’, and each flow of water is assumed to flow towards the stem. In the model’s simplified view, these flows either reach the stem of the tree or drip to the ground after encountering a cylinder that is too steep to traverse-such points are referred to as ‘drip-points’. To identify these ‘too-steep’ portions of the tree, we choose a ‘drip cut-off angle’ (configurable by the user) and assume water is only able to flow down branches with an angle greater than the cutoff. The below diagram demonstrates how a graph based model allows us to use these assumptions to identify which cylinders in a QSM are on some drip-path - and are therefore throughfall contributing - and which are stemflow contributing.</p>
+<p><img src="./imgs/canohydro_algo_example.png" alt="Flow ID Alogrithm" /> <em>The above diagram shows a minimal example of a QSM to demonstrate the core concepts of canoPyHydro’s flow finding algorithm</em></p>
+<p>The algorithm above assigns an id to each of the flows found with ‘stemflow’ always recieving and id of 0. These flow ids are stored by the cylinder collection in the variable ‘cyl_to_drip’, a dictionary keyed by cylinder ids and can later be used for calculating the ‘size’ of the flow (see the Metrics section below) and for creating various visualizations of the canopy watershed.</p>
+<p>The below code demonstrates how the above is done in practice. Details regarding the various objects and functions used can be found in the <a href="./docs/"><code>docs</code></a> section of this repository.</p>
+<pre class="{python}"><code>  # Initializing a CylinderCollection object
+  myCollection = CylinderCollection()
+  myCollection.from_csv(&#39;example_tree.csv&#39;)
+
+  # Setting a cut-off angle (in radians)
+  cut_off_angle = -0.166
+
+  # Initializing the graph based model
+  myCollection.initialize_digraph_from(in_flow_grade_lim=cut_off_angle)
+
+  # Running the above described algorithm
+  myCollection.find_flow_components()
+
+  # Printing the results of the algorithm
+
+  ## Keys are equal to the cylinder ids of the cylinders in our collection
+  cyls = myCollection.cylinders
+  print(cyl_to_drip)</code></pre>
+<h2 id="flow-quantification">Flow Quantification</h2>
+<p>After the flows in a canopy’s watershed have been identified, common statistics regarding these flows can be calculated though the use of the ‘calculate_flows’ function. In this process flows are characterized based off of the aggregate characteristics of the cylinders that contribute intercepted water to them. In this way, flows are discussed as having:</p>
+<ul>
+<li>A number of cylinders</li>
+<li>A projected area, volume and surface area
+<ul>
+<li>each being the sum of the same for their contained cyliners</li>
+</ul></li>
+<li>A surface area to volume ratio</li>
+<li>A sum of the angles of their cylinders - This is available to facilitate the calculation of average flow angle for one or many flows Most importantly, each non-stem flow also has a unique drip point and drip point location, representing a point in the canopy at which one would expecte water to drip to the ground. Utilizing the above metrics, users can glean important information regarding a tree’s watershed. For example, the below graphic uses the projected area data for a tree’s flows, along with canoPyHydro’s visualization capabilities, to mak the location and relative abundance of moisture beneath two tree canopies.</li>
+</ul>
+<p><img src="./imgs/canohydro_drip_map_tale_of_2_trees.png" alt="Tale of Two Trees Drip Map" /> Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles represent various drip points in the canopy with the shading based on their respective flow’s volume</p>
+<h3 id="visualization">Visualization</h3>
+<pre class="{python}"><code>    myCollection = CylinderCollection()
+    myCollection.from_csv(&#39;example_tree.csv&#39;)
+    myCollection.project_cylinders(&#39;XY&#39;)
+    myCollection.initialize_digraph_from()
+    myCollection.find_flow_components()
+    myCollection.calculate_flows()
+    myCollection.draw(&#39;XY&#39;, highlight_lambda=lambda:is_stem, save = True, file_name_ext=&quot;docs_ex&quot;)
+    myCollection.draw(&#39;XZ&#39;, highlight_lambda=lambda:is_stem, save = True, file_name_ext=&quot;docs_ex&quot;)</code></pre>
+<p><img src="./imgs/example_tree_XY_docs_ex.png" alt="Stem Flow Highlight XY" /> Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles repre <img src="./imgs/example_tree_XZ_docs_ex.png" alt="Stem Flow Highlight XZ" /> Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles represent various drip points in the canopy with the shading based on their respective flow’s volumesent various drip points in the canopy with the shading based on their respective flow’s volume</p>
+<h2 id="metrics">Metrics</h2>
+<p>Though a variety of metrics are available through this package, the majority are straight forward, summations of cylinder characteristics. Details regarding these metrics and more are available in the <a href="./docs/metrics_definitions.md">metrics definitions</a> in this repository’s <a href="./docs/">documentation</a> directory. However, custom functions are available for calculating a few more complicated metrics, which will be highlighted in this section</p>
+<h2 id="visualizations">Visualizations</h2>
+<p>from src.canopyhydro.CylinderCollection import CylinderCollection-</p>
+<pre class="{python}"><code>  # Initializing a CylinderCollection object
+  myCollection = CylinderCollection()
+
+  # Converting a specified file to a CylinderCollection object
+  myCollection.from_csv(&#39;example_tree.csv&#39;)
+
+  # Requesting an plot of the tree projected onto the XZ plane (&#39;front&#39; view)
+  myCollection.project_cylinders(&#39;XZ&#39;)
+  myCollection.project_cylinders(&#39;XZ&#39;)
+  myCollection.draw(&#39;XZ&#39;)
+
+  # Requesting an plot of the tree projected onto the YZ plane (&#39;side&#39; view)
+  myCollection.project_cylinders(&#39;YZ&#39;)
+  myCollection.draw(&#39;YZ&#39;)
+
+  # Requesting an plot of the tree projected onto the XY plane (Birds eye view)
+  myCollection.project_cylinders(&#39;XY&#39;)
+  myCollection.draw(&#39;XY&#39;)</code></pre>
+<h3 id="occlusion">Occlusion</h3>
+<p>The occlusion of portions of the canopy, as well as the ground itsself has a quantifiable impact on light/UV exposue, surface temperature and wind exposure. In turn, these environmental conditions each impact moisutre availablity via processes such as evapotranspiration. As such, robust utilities for calculating this occlusion are provided to assist in data exploration.</p>
+<p>In the calculation of canopy coverage area, we utilize <a href="https://en.wikipedia.org/wiki/Alpha_shape">Alpha Shapes</a> rather than a circular region. In the vernacular of some popular python packages alpha shapes are referred to as ‘hulls’, with the tighly fit version used in canoPyHydro considered ‘convcave hulls’. This approach to quantifying canopy coverage provides a lower estimate of canopy coverage than would be measured with a smooth circle.with points along the border of the canopy being connected via concave curves. Doing so mitigate the effect of outlier points-those far further from the enter of the encapsulated figure than the average among said boundary points-byincluding less of the unoccluded space between branches. For this reason, this approach is applicable to horizontal 2D projections (XZ, YZ) in addition to vertical/birds eye view (XZ) projections and provides more accurate measures when boundary points are sparse (i.e. for branch subsets0).</p>
+<h3 id="cylinder-overlap-shade">Cylinder Overlap (Shade)</h3>
+<p>In order to better understand how the branches of a tree’s canopy overlap, more granular overlap information has also been made available via the ‘find_overlap_by_percentile’ function. When considered from a birds eye view (projecting onto the XY plane), this concept can be understood as a facsimile for the ‘shade’ cast by branches at a certain height in the tree canopy. Consider the below example * Add example The percentile list is used to determine the height at which to calculate shade. As such, the function will look at the overlap between cylinders in the 75%ile by height (in red) with the remaining cylinders (in blue). The returned values thus represent the ‘shade’ case by the red cylinders on the blue cylinders.</p>
+<pre><code>Following this logic if either the 0%ile or 100%ile is requested, then there will be no overlap reported. In the former case, all cylinders are included in the red group and therefore there are no blue cylinders on which to cast shade. In the latter case, all cylinders are in the blue group and so there are no red cylinders to cast shade onto the blue cylinders.</code></pre>
+<p>When considered in the XZ or YZ direction, this calculation can be useful in determining the wind exposure at different canopy depths.</p>
+<h3 id="aggregating-2d-area">Aggregating 2D Area</h3>
+<p>CanoPyHydro can also provide detailed intra-canopy occlusion data for given heights/depths. For a vertical (XZ) projection, this represents shading by higher branches on lower branches, for hoizontal projections (XZ, YZ) this represents wind exposure (or lack thereof). In future versions, arbitrary projection angles may be used to assist in calclating the effect of occlusion on partitioning in various different weather conditions. Depending on the goals of the user, the projected area of a collection of cylinders can be given as both:</p>
+<ul>
+<li><p>a simple sum of the projected area of each cylinder</p>
+<ul>
+<li>Note that this calculation will ignore overlap between cylinder areas
+<ul>
+<li>Add example</li>
+</ul></li>
+</ul></li>
+<li><p>the total projected area of the collection of cylinders</p>
+<ul>
+<li>Using this approach, areas in which cylinder projections over lap are only counted once
+<ul>
+<li>Add Example</li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="filtering-and-highlighting">Filtering and Highlighting</h3>
+<h2 id="canopy-coverage-area">Canopy Coverage Area</h2>
+<p>This area might classically be defined by measuring the radius of a trees canopy. As our method focuses on only portions of the tree canopy, it is useful to determine the area spanned by only those portions of the tree canopy. Using this more specific definition of a classic metric, comparisons can be made using related metrics such as woody area index (WAI). When considering the coverage area spanned by the stemflow generating portions of the tree, this metric may also be thought of as an analogous concept to a classical ‘watershed’.</p>
+<h1 id="future-direction">Future Direction</h1>
+<p>Future iterations will certaily add functionality to integrate additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.).</p>
+<h1 id="acknowledgements">Acknowledgements</h1>
+<p>We acknowledge the support of US-NSF DEB-2213623.</p>
+<h1 id="references">References</h1>
+<p>Coenders-Gerrits, A.M.J., Schilperoort, B., Jiménez-Rodríguez, C., 2020. Evaporative Processes on Vegetation: An Inside Look. Precipitation Partitioning by Vegetation: A Global Synthesis. https://doi.org/10.1007/978-3-030-29702-2_3</p>
+<p>Friesen, J., 2020. Flow Pathways of Throughfall and Stemflow Through the Subsurface. Precipitation Partitioning by Vegetation: A Global Synthesis. https://doi.org/10.1007/978-3-030-29702-2_13</p>
+<p>Cavelier, J., Jaramillo, M., Solis, D., de León, D., 1997. Water balance and nutrient inputs in bulk precipitation in tropical montane cloud forest in Panama. J Hydrol (Amst) 193, 83–96.</p>
+<p>Dunkerley, D., 2020. A review of the effects of throughfall and stemflow on soil properties and soil erosion. Precipitation Partitioning by Vegetation: A Global Synthesis. https://doi.org/10.1007/978-3-030-29702-2_12</p>
+<p>Hackenberg, J., Calders, K., Demol, M., Raumonen, P., Piboule, A., Disney, M., 2021. SimpleForest - a comprehensive tool for 3d reconstruction of trees from forest plot point clouds. bioRxiv. bioRxiv.</p>
+<p>Sadeghi, S.M.M., Gordon, A.G., Van Stan, J.T., 2020. A Global Synthesis of Throughfall and Stemflow Hydrometeorology. Precipitation Partitioning by Vegetation: A Global Synthesis. https://doi.org/10.1007/978-3-030-29702-2_4</p>
+<p>Savenije, H.H.G., 2004. The importance of interception and why we should delete the term evapotranspiration from our vocabulary. Hydrol Process 18, 1507–1511. https://doi.org/10.1002/hyp.5563</p>
+<p>Van Stan, J.T., Hildebrandt, A., Friesen, J., Metzger, J.C., Yankine, S.A., 2020. Spatial variablity and temporal stability of local net precipitation patterns. Precipitation Partitioning by Vegetation: A Global Synthesis. https://doi.org/10.1007/978-3-030-29702-2_6</p>
+<p>Voss, S., Zimmermann, B., Zimmermann, A., 2016. Detecting spatial structures in throughfall data: The effect of extent, sample size, sampling design, and variogram estimation method. J Hydrol (Amst) 540, 527–537. https://doi.org/10.1016/j.jhydrol.2016.06.042</p>
+<p>Wischmeyer, C., Swanson, T., Mueller, K., Lewis, N., Bastock, J., Van Stan, I.J.T., 2024. A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points. Methods Ecol Evol In press. https://doi.org/10.2139/ssrn.4600550</p>
+<p>Zimmermann, A., Zimmermann, B., 2014. Requirements for throughfall monitoring: the roles of temporal scale and canopy complexity. Agric For Meteorol 189, 125–139.</p>
+<hr />
+<p>references: <span class="citation" data-cites="article">@article</span>{Pearson:2017, url = {http://adsabs.harvard.edu/abs/2017arXiv170304627P}, Archiveprefix = {arXiv}, Author = {{Pearson}, S. and {Price-Whelan}, A.~M. and {Johnston}, K.~V.}, Eprint = {1703.04627}, Journal = {ArXiv e-prints}, Keywords = {Astrophysics - Astrophysics of Galaxies}, Month = mar, Title = {{Gaps in Globular Cluster Streams: Pal 5 and the Galactic Bar}}, Year = 2017 }</p>
+<p><span class="citation" data-cites="INCOLLECTION">@INCOLLECTION</span>{Coenders-Gerrits2020-hy, title = “Evaporative processes on vegetation: An inside look”, booktitle = “Precipitation Partitioning by Vegetation”, author = “Coenders-Gerrits, Miriam and Schilperoort, Bart and Jim{'e}nez-Rodr{'}guez, C{'e}sar”, publisher = “Springer International Publishing”, pages = “35–48”, year = 2020, address = “Cham” }</p>
+<p><span class="citation" data-cites="INCOLLECTION">@INCOLLECTION</span>{Friesen, title = “Flow pathways of throughfall and stemflow through the subsurface”, booktitle = “Precipitation Partitioning by Vegetation”, author = “Friesen, Jan”, publisher = “Springer International Publishing”, pages = “215–228”, year = 2020, address = “Cham” }</p>
+<p><span class="citation" data-cites="INCOLLECTION">@INCOLLECTION</span>{Dunkerley2020-sn, title = “A review of the effects of throughfall and stemflow on soil properties and soil erosion”, booktitle = “Precipitation Partitioning by Vegetation”, author = “Dunkerley, David”, publisher = “Springer International Publishing”, pages = “183–214”, year = 2020, address = “Cham” }</p>
+<p><span class="citation" data-cites="INCOLLECTION">@INCOLLECTION</span>{Sadeghi2020-qe, title = “A Global Synthesis of Throughfall and Stemflow Hydrometeorology”, booktitle = “Precipitation Partitioning by Vegetation”, author = “Sadeghi, Seyed Mohammad Moein and Gordon, D Alex and Van Stan, II, John T”, publisher = “Springer International Publishing”, pages = “49–70”, year = 2020, address = “Cham” }</p>
+<p><span class="citation" data-cites="INCOLLECTION">@INCOLLECTION</span>{Van_Stan2020-jq, title = “Spatial variability and temporal stability of local net precipitation patterns”, booktitle = “Precipitation Partitioning by Vegetation”, author = “Van Stan, II, John T and Hildebrandt, Anke and Friesen, Jan and Metzger, Johanna C and Yankine, Sandra A”, publisher = “Springer International Publishing”, pages = “89–104”, year = 2020, address = “Cham” }</p>
+<p><span class="citation" data-cites="ARTICLE">@ARTICLE</span>{Savenije2004-qh, title = “The importance of interception and why we should delete the term evapotranspiration from our vocabulary”, author = “Savenije, Hubert H G”, journal = “Hydrol. Process.”, publisher = “Wiley”, volume = 18, number = 8, pages = “1507–1511”, month = jun, year = 2004, copyright = “http://onlinelibrary.wiley.com/termsAndConditions#vor”, language = “en” }</p>
+<p>% The entry below contains non-ASCII chars that could not be converted % to a LaTeX equivalent. <span class="citation" data-cites="ARTICLE">@ARTICLE</span>{Voss2016-kb, title = “Detecting spatial structures in throughfall data: The effect of extent, sample size, sampling design, and variogram estimation method”, author = “Voss, Sebastian and Zimmermann, Beate and Zimmermann, Alexander”, abstract = “In the last decades, an increasing number of studies analyzed spatial patterns in throughfall by means of variograms. The estimation of the variogram from sample data requires an appropriate sampling scheme: most importantly, a large sample and a layout of sampling locations that often has to serve both variogram estimation and geostatistical prediction. While some recommendations on these aspects exist, they focus on Gaussian data and high ratios of the variogram range to the extent of the study area. However, many hydrological data, and throughfall data in particular, do not follow a Gaussian distribution. In this study, we examined the effect of extent, sample size, sampling design, and calculation method on variogram estimation of throughfall data. For our investigation, we first generated non-Gaussian random fields based on throughfall data with large outliers. Subsequently, we sampled the fields with three extents (plots with edge lengths of 25 m, 50 m, and 100 m), four common sampling designs (two grid-based layouts, transect and random sampling) and five sample sizes (50, 100, 150, 200, 400). We then estimated the variogram parameters by method-of-moments (non-robust and robust estimators) and residual maximum likelihood. Our key findings are threefold. First, the choice of the extent has a substantial influence on the estimation of the variogram. A comparatively small ratio of the extent to the correlation length is beneficial for variogram estimation. Second, a combination of a minimum sample size of 150, a design that ensures the sampling of small distances and variogram estimation by residual maximum likelihood offers a good compromise between accuracy and efficiency. Third, studies relying on method-of-moments based variogram estimation may have to employ at least 200 sampling points for reliable variogram estimates. These suggested sample sizes exceed the number recommended by studies dealing with Gaussian data by up to 100 %. Given that most previous throughfall studies relied on method-of-moments variogram estimation and sample sizes ≪200, currently available data are prone to large uncertainties.”, journal = “J. Hydrol. (Amst.)”, publisher = “Elsevier BV”, volume = 540, pages = “527–537”, month = sep, year = 2016, language = “en” }</p>
+<p><span class="citation" data-cites="ARTICLE">@ARTICLE</span>{Wischmeyer2023-wo, title = “A {LiDAR-driven} pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points”, author = “Wischmeyer, Collin and Swanson, Travis and Mueller, Kevin and Lewis, Nicholas and Bastock, Jillian and Van Stan, II, John Toland”, journal = “SSRN Electron. J.”, publisher = “Elsevier BV”, year = 2023, language = “en” } —-</p>

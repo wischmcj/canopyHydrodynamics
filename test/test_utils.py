@@ -12,7 +12,7 @@ from numpy import array as arr
 from src.canopyhydro.utils import (create_dir_and_file, njit_stack, on_rm_error,
                                 read_file_names, stack)
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     DIR = config["directories"]["root_dir"]
 

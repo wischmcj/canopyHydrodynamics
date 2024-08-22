@@ -33,25 +33,25 @@ from src.canopyhydro.CylinderCollection import (CylinderCollection,
                                              unpickle_collection)
 from src.canopyhydro.utils import lam_filter
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
     DIR = config["directories"]["root_dir"]
 
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
     DIR = config["directories"]["root_dir"]
 
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
     DIR = config["directories"]["root_dir"]
 
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
     DIR = config["directories"]["root_dir"]

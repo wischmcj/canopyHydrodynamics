@@ -1,7 +1,3 @@
----
-TEST TITLE
----
-
 <p align="center">
     <img src=".canopyhydro_logo.jpeg" height="390" width="390">
 </p>
@@ -72,9 +68,9 @@ By bridging the gap between advanced canopy scanning technologies and the need f
 
 <p align="center">
   <a href="#qsms">QSMs</a> •
+  <a href="#2d-projections">2D Projection</a> •
   <a href="#flow-identification">Flow Identification</a> •
-  <a href="#metrics">Metrics</a> •
-  <a href="#2d-Projection">2D Projection</a> •
+  <a href="#flow-quantification">Flow Quantification</a> •
   <a href="#occlusion">Occlusion</a> •
   <a href="#visualization">Visualization</a>
 </p>
@@ -120,7 +116,7 @@ In the current version of this tool, 2D metrics are available for projections on
 CanoPyHydro's hydrological estimates rely on the classification of QSM cylinders as stemflow contributing or throughfall contributing. The precipitation intercepted by each cylinder is added to a theoretical 'flow', and each flow of water is assumed to flow towards the stem. In the model's simplified view, these flows either reach the stem of the tree or drip to the ground after encountering a cylinder that is too steep to traverse-such points are referred to as 'drip-points'. To identify these 'too-steep' portions of the tree, we choose a 'drip cut-off angle' (configurable by the user) and assume water is only able to flow down branches with an angle greater than the cutoff.
 The below diagram demonstrates how a graph based model allows us to use these assumptions to identify which cylinders in a QSM are on some drip-path - and are therefore throughfall contributing - and which are stemflow contributing.
 
-![Flow ID Alogrithm](./imgscanopyhydro_algo_example.png)
+![Flow ID Alogrithm](./imgs/canohydro_algo_example.png)
 _The above diagram shows a minimal example of a QSM to demonstrate the core concepts of canoPyHydro's flow finding algorithm_
 
 The algorithm above assigns an id to each of the flows found with 'stemflow' always recieving and id of 0. These flow ids are stored by the cylinder collection in the variable 'cyl_to_drip', a dictionary keyed by cylinder ids and can later be used for calculating the 'size' of the flow (see the Metrics section below) and for creating various visualizations of the canopy watershed.
@@ -160,9 +156,10 @@ After the flows in a canopy's watershed have been identified, common statistics 
   Most importantly, each non-stem flow also has a unique drip point and drip point location, representing a point in the canopy at which one would expecte water to drip to the ground.
   Utilizing the above metrics, users can glean important information regarding a tree's watershed. For example, the below graphic uses the projected area data for a tree's flows, along with canoPyHydro's visualization capabilities, to mak the location and relative abundance of moisture beneath two tree canopies.
 
-![Tale of Two Trees Drip Map](./imgscanopyhydro_drip_map_tale_of_2_trees.png) Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles represent various drip points in the canopy with the shading based on their respective flow's volume
+![Tale of Two Trees Drip Map](./imgs/canohydro_drip_map_tale_of_2_trees.png) Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles represent various drip points in the canopy with the shading based on their respective flow's volume
 
 ### Visualization
+  
 
 ```{python}
     myCollection = CylinderCollection()
@@ -182,69 +179,13 @@ After the flows in a canopy's watershed have been identified, common statistics 
 
 Though a variety of metrics are available through this package, the majority are straight forward, summations of cylinder characteristics. Details regarding these metrics and more are available in the <a href="./docs/metrics_definitions.md">metrics definitions</a> in this repository's <a href="./docs/">documentation</a> directory. However, custom functions are available for calculating a few more complicated metrics, which will be highlighted in this section
 
-## Visualizations
-
-from src.canoPyHydro.CylinderCollection import CylinderCollection-
-
-```{python}
-  # Initializing a CylinderCollection object
-  myCollection = CylinderCollection()
-
-  # Converting a specified file to a CylinderCollection object
-  myCollection.from_csv('example_tree.csv')
-
-  # Requesting an plot of the tree projected onto the XZ plane ('front' view)
-  myCollection.project_cylinders('XZ')
-  myCollection.project_cylinders('XZ')
-  myCollection.draw('XZ')
-
-  # Requesting an plot of the tree projected onto the YZ plane ('side' view)
-  myCollection.project_cylinders('YZ')
-  myCollection.draw('YZ')
-
-  # Requesting an plot of the tree projected onto the XY plane (Birds eye view)
-  myCollection.project_cylinders('XY')
-  myCollection.draw('XY')
-```
-
 ### Occlusion
 
 The occlusion of portions of the canopy, as well as the ground itsself has a quantifiable impact on light/UV exposue, surface temperature and wind exposure. In turn, these environmental conditions each impact moisutre availablity via processes such as evapotranspiration. As such, robust utilities for calculating this occlusion are provided to assist in data exploration.
 
-In the calculation of canopy coverage area, we utilize [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) rather than a circular region. In the vernacular of some popular python packages alpha shapes are referred to as 'hulls', with the tighly fit version used in canoPyHydro considered 'convcave hulls'. This approach to quantifying canopy coverage provides a lower estimate of canopy coverage than would be measured with a smooth circle.with points along the border of the canopy being connected via concave curves. Doing so mitigate the effect of outlier points-those far further from the enter of the encapsulated figure than the average among said boundary points-byincluding less of the unoccluded space between branches. For this reason, this approach is applicable to horizontal 2D projections (XZ, YZ) in addition to vertical/birds eye view (XZ) projections and provides more accurate measures when boundary points are sparse (i.e. for branch subsets0).
+In the calculation of canopy coverage area, we utilize [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) rather than a circular region. In the vernacular of some popular python packages alpha shapes are referred to as 'hulls', with the tighly fit version used in canoPyHydro considered 'convcave hulls'. This approach to quantifying canopy coverage provides a lower estimate of canopy coverage than would be measured with a smooth circle.
 
-### Cylinder Overlap (Shade)
-
-In order to better understand how the branches of a tree's canopy overlap, more granular overlap information has also been made available via the 'find_overlap_by_percentile' function.
-When considered from a birds eye view (projecting onto the XY plane), this concept can be understood as a facsimile for the 'shade' cast by branches at a certain height in the tree canopy.
-Consider the below example \* Add example
-The percentile list is used to determine the height at which to calculate shade. As such, the function will look at the overlap between cylinders in the 75%ile by height (in red) with the remaining cylinders (in blue). The returned values thus represent the 'shade' case by the red cylinders on the blue cylinders.
-
-    Following this logic if either the 0%ile or 100%ile is requested, then there will be no overlap reported. In the former case, all cylinders are included in the red group and therefore there are no blue cylinders on which to cast shade. In the latter case, all cylinders are in the blue group and so there are no red cylinders to cast shade onto the blue cylinders.
-
-When considered in the XZ or YZ direction, this calculation can be useful in determining the wind exposure at different canopy depths.
-
-### Aggregating 2D Area
-
-CanoPyHydro can also provide detailed intra-canopy occlusion data for given heights/depths. For a vertical (XZ) projection, this represents shading by higher branches on lower branches, for hoizontal projections (XZ, YZ) this represents wind exposure (or lack thereof). In future versions, arbitrary projection angles may be used to assist in calclating the effect of occlusion on partitioning in various different weather conditions.
-Depending on the goals of the user, the projected area of a collection of cylinders can be given as both:
-
-- a simple sum of the projected area of each cylinder
-
-  - Note that this calculation will ignore overlap between cylinder areas
-    - Add example
-
-- the total projected area of the collection of cylinders
-
-  - Using this approach, areas in which cylinder projections over lap are only counted once
-    - Add Example
-
-### Filtering and Highlighting
-
-## Canopy Coverage Area
-
-This area might classically be defined by measuring the radius of a trees canopy. As our method focuses on only portions of the tree canopy, it is useful to determine the area spanned by only those portions of the tree canopy. Using this more specific definition of a classic metric, comparisons can be made using related metrics such as woody area index (WAI).
-When considering the coverage area spanned by the stemflow generating portions of the tree, this metric may also be thought of as an analogous concept to a classical 'watershed'.
+<!-- ith points along the border of the canopy being connected via concave curves. Doing so mitigate the effect of outlier points-those far further from the enter of the encapsulated figure than the average among said boundary points-byincluding less of the unoccluded space between branches. For this reason, this approach is applicable to horizontal 2D projections (XZ, YZ) in addition to vertical/birds eye view (XZ) projections and provides more accurate measures when boundary points are sparse (i.e. for branch subsets0). -->
 
 # Future Direction
 
@@ -278,3 +219,152 @@ Voss, S., Zimmermann, B., Zimmermann, A., 2016. Detecting spatial structures in 
 Wischmeyer, C., Swanson, T., Mueller, K., Lewis, N., Bastock, J., Van Stan, I.J.T., 2024. A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points. Methods Ecol Evol In press. https://doi.org/10.2139/ssrn.4600550
 
 Zimmermann, A., Zimmermann, B., 2014. Requirements for throughfall monitoring: the roles of temporal scale and canopy complexity. Agric For Meteorol 189, 125–139.
+
+----
+
+references:
+@article{Pearson:2017,
+  	url = {http://adsabs.harvard.edu/abs/2017arXiv170304627P},
+  	Archiveprefix = {arXiv},
+  	Author = {{Pearson}, S. and {Price-Whelan}, A.~M. and {Johnston}, K.~V.},
+  	Eprint = {1703.04627},
+  	Journal = {ArXiv e-prints},
+  	Keywords = {Astrophysics - Astrophysics of Galaxies},
+  	Month = mar,
+  	Title = {{Gaps in Globular Cluster Streams: Pal 5 and the Galactic Bar}},
+  	Year = 2017
+}
+
+@INCOLLECTION{Coenders-Gerrits2020-hy,
+  title     = "Evaporative processes on vegetation: An inside look",
+  booktitle = "Precipitation Partitioning by Vegetation",
+  author    = "Coenders-Gerrits, Miriam and Schilperoort, Bart and
+               Jim{\'e}nez-Rodr{\'\i}guez, C{\'e}sar",
+  publisher = "Springer International Publishing",
+  pages     = "35--48",
+  year      =  2020,
+  address   = "Cham"
+}
+
+@INCOLLECTION{Friesen,
+  title     = "Flow pathways of throughfall and stemflow through the subsurface",
+  booktitle = "Precipitation Partitioning by Vegetation",
+  author    = "Friesen, Jan",
+  publisher = "Springer International Publishing",
+  pages     = "215--228",
+  year      =  2020,
+  address   = "Cham"
+}
+
+@INCOLLECTION{Dunkerley2020-sn,
+  title     = "A review of the effects of throughfall and stemflow on soil
+               properties and soil erosion",
+  booktitle = "Precipitation Partitioning by Vegetation",
+  author    = "Dunkerley, David",
+  publisher = "Springer International Publishing",
+  pages     = "183--214",
+  year      =  2020,
+  address   = "Cham"
+}
+
+@INCOLLECTION{Sadeghi2020-qe,
+  title     = "A Global Synthesis of Throughfall and Stemflow Hydrometeorology",
+  booktitle = "Precipitation Partitioning by Vegetation",
+  author    = "Sadeghi, Seyed Mohammad Moein and Gordon, D Alex and Van Stan,
+               II, John T",
+  publisher = "Springer International Publishing",
+  pages     = "49--70",
+  year      =  2020,
+  address   = "Cham"
+}
+
+@INCOLLECTION{Van_Stan2020-jq,
+  title     = "Spatial variability and temporal stability of local net
+               precipitation patterns",
+  booktitle = "Precipitation Partitioning by Vegetation",
+  author    = "Van Stan, II, John T and Hildebrandt, Anke and Friesen, Jan and
+               Metzger, Johanna C and Yankine, Sandra A",
+  publisher = "Springer International Publishing",
+  pages     = "89--104",
+  year      =  2020,
+  address   = "Cham"
+}
+
+@ARTICLE{Savenije2004-qh,
+  title     = "The importance of interception and why we should delete the term
+               evapotranspiration from our vocabulary",
+  author    = "Savenije, Hubert H G",
+  journal   = "Hydrol. Process.",
+  publisher = "Wiley",
+  volume    =  18,
+  number    =  8,
+  pages     = "1507--1511",
+  month     =  jun,
+  year      =  2004,
+  copyright = "http://onlinelibrary.wiley.com/termsAndConditions\#vor",
+  language  = "en"
+}
+
+% The entry below contains non-ASCII chars that could not be converted
+% to a LaTeX equivalent.
+@ARTICLE{Voss2016-kb,
+  title     = "Detecting spatial structures in throughfall data: The effect of
+               extent, sample size, sampling design, and variogram estimation
+               method",
+  author    = "Voss, Sebastian and Zimmermann, Beate and Zimmermann, Alexander",
+  abstract  = "In the last decades, an increasing number of studies analyzed
+               spatial patterns in throughfall by means of variograms. The
+               estimation of the variogram from sample data requires an
+               appropriate sampling scheme: most importantly, a large sample
+               and a layout of sampling locations that often has to serve both
+               variogram estimation and geostatistical prediction. While some
+               recommendations on these aspects exist, they focus on Gaussian
+               data and high ratios of the variogram range to the extent of the
+               study area. However, many hydrological data, and throughfall
+               data in particular, do not follow a Gaussian distribution. In
+               this study, we examined the effect of extent, sample size,
+               sampling design, and calculation method on variogram estimation
+               of throughfall data. For our investigation, we first generated
+               non-Gaussian random fields based on throughfall data with large
+               outliers. Subsequently, we sampled the fields with three extents
+               (plots with edge lengths of 25 m, 50 m, and 100 m), four common
+               sampling designs (two grid-based layouts, transect and random
+               sampling) and five sample sizes (50, 100, 150, 200, 400). We
+               then estimated the variogram parameters by method-of-moments
+               (non-robust and robust estimators) and residual maximum
+               likelihood. Our key findings are threefold. First, the choice of
+               the extent has a substantial influence on the estimation of the
+               variogram. A comparatively small ratio of the extent to the
+               correlation length is beneficial for variogram estimation.
+               Second, a combination of a minimum sample size of 150, a design
+               that ensures the sampling of small distances and variogram
+               estimation by residual maximum likelihood offers a good
+               compromise between accuracy and efficiency. Third, studies
+               relying on method-of-moments based variogram estimation may have
+               to employ at least 200 sampling points for reliable variogram
+               estimates. These suggested sample sizes exceed the number
+               recommended by studies dealing with Gaussian data by up to 100
+               \%. Given that most previous throughfall studies relied on
+               method-of-moments variogram estimation and sample sizes ≪200,
+               currently available data are prone to large uncertainties.",
+  journal   = "J. Hydrol. (Amst.)",
+  publisher = "Elsevier BV",
+  volume    =  540,
+  pages     = "527--537",
+  month     =  sep,
+  year      =  2016,
+  language  = "en"
+}
+
+@ARTICLE{Wischmeyer2023-wo,
+  title     = "A {LiDAR-driven} pruning algorithm to delineate canopy drainage
+               areas of stemflow and throughfall drip points",
+  author    = "Wischmeyer, Collin and Swanson, Travis and Mueller, Kevin and
+               Lewis, Nicholas and Bastock, Jillian and Van Stan, II, John
+               Toland",
+  journal   = "SSRN Electron. J.",
+  publisher = "Elsevier BV",
+  year      =  2023,
+  language  = "en"
+}
+----

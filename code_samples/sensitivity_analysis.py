@@ -25,7 +25,7 @@ already_run = []
 
 log = logging.getLogger("model")
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     test_input_dir = config["directories"]["test_input_dir"]
 

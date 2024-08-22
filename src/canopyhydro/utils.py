@@ -15,7 +15,7 @@ import toml
 
 log = logging.getLogger("model")
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     input_dir = Path(config["directories"]["input_dir"])
     output_dir = Path(config["directories"]["output_dir"])

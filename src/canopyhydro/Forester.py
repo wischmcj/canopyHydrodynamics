@@ -13,9 +13,9 @@ sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 import toml
 
-from src.canopyhydro.CylinderCollection import CylinderCollection
+from CylinderCollection import CylinderCollection
 
-with open("srccanopyhydro/user_def_config.toml") as f:
+with open("src/canopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     input_dir = Path(config["directories"]["input_dir"])
 

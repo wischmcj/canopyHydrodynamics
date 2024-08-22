@@ -1,4 +1,4 @@
 Cylinder Collection Details 
 ===========================
 
-.. autofunction:: src.canoPyHydro.CylinderCollection.CylinderCollection.project_cylinders
+.. autofunction:: canopyhydro.CylinderCollection.project_cylinders
