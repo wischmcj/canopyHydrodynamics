@@ -5,32 +5,26 @@ import logging
 import math
 import os
 import pickle
-import sys
 from itertools import chain
 from typing import Callable
 
 import networkx as nx
 # import rustworkx as rx
 import numpy as np
-import toml
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
-from Cylinder import create_cyl
-from DataClasses import Flow
-from geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
+from canopyhydro.Cylinder import create_cyl
+from canopyhydro.DataClasses import Flow
+from canopyhydro.geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
                                    furthest_point, get_projected_overlap)
-from utils import (_try_import, create_dir_and_file,
+from canopyhydro.utils import (_try_import, create_dir_and_file,
                                 intermitent_log, lam_filter, save_file)
+from canopyhydro.configuration import in_flow_grade_lim, output_dir, input_dir
 
 # Optional imports
 if has_geopandas := _try_import("geopandas"):
     from geopandas import GeoSeries
-
-if has_mem_profiler := _try_import("memory_profiler"):
-    from memory_profiler import LogFile
-
-    sys.stdout = LogFile()
 
 if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
@@ -40,13 +34,6 @@ if has_spatial := _try_import("scipy.spatial"):
 
 
 log = logging.getLogger("model")
-
-
-with open("src/canopyhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
-    output_dir = config["directories"]["output_dir"]
-    input_dir = config["directories"]["input_dir"]
 
 NAME = "CylinderCollection"
 

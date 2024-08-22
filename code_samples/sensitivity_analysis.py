@@ -15,19 +15,16 @@ sys.path.insert(0, os.getcwd())
 import logging
 
 from data.output.run_so_far import already_run
-from src.canopyhydro.CylinderCollection import (pickle_collection,
+from canopyhydro.CylinderCollection import (pickle_collection,
                                              unpickle_collection)
-from src.canopyhydro.Forester import Forester
+from canopyhydro.Forester import Forester
+from canopyhydro.configuration import test_input_dir
 
 already_run = []
 
 # log = logging.getLogger('script')
 
 log = logging.getLogger("model")
-
-with open("src/canopyhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    test_input_dir = config["directories"]["test_input_dir"]
 
 
 def try_pickle_collection(collection, designation=""):
@@ -47,8 +44,8 @@ def initialize_collection(file="5_SmallTree", from_pickle=False, **kwargs):
     else:
         log.info("initializing collection...")
         try:
-            forest = Forester()
-            forest.get_file_names(dir=test_input_dir)
+            forest = Forester(test_input_dir)
+            forest.get_file_names()
             forest.qsm_to_collection(file_name=file)
             basic_collection = forest.cylinder_collections[0]
             basic_collection.project_cylinders("XY")
@@ -280,8 +277,8 @@ def sensitivity_analysis():
     #     else:
     #         log.info(f"suceeded running cases {case}")
 
-    # forest = Forester()
-    # forest.get_file_names(dir=test_input_dir)
+    # forest = Forester(test_input_dir)
+    # forest.get_file_names()
     # forest.qsm_to_collection(file_name="Secrest32-06_000000")
     # basic_collection = forest.cylinder_collections[0]
     # basic_collection.project_cylinders("XY")
@@ -291,8 +288,8 @@ def sensitivity_analysis():
 
     # pickle_collection(basic_collection,basic_collection.file_name)
 
-    # forest_old = Forester()
-    # forest_old.get_file_names(dir=test_input_dir)
+    # forest_old = Forester(test_input_dir)
+    # forest_old.get_file_names()
     # forest_old.qsm_to_collection(file_name="5_SmallTree.csv")
     # basic_collection_old = forest_old.cylinder_collections[0]
 
@@ -358,8 +355,8 @@ if __name__ == "__main__":
     log.info("starting")
     # sensitivity_analysis()
 
-    forest = Forester()
-    forest.get_file_names(dir=test_input_dir)
+    forest = Forester(test_input_dir)
+    forest.get_file_names()
     forest.qsm_to_collection(file_name="3_HappyPathWTrunk.csv")
     collection = forest.cylinder_collections[0]
     collection.project_cylinders("XY")

@@ -6,21 +6,12 @@ import logging
 from dataclasses import dataclass, field
 
 import numpy as np
-import toml
 
-from DataClasses import Projection
-from geometry import draw_cyls, get_projection, draw_cylinders_3D
+from canopyhydro.DataClasses import Projection
+from canopyhydro.geometry import draw_cyls, get_projection, draw_cylinders_3D
+from canopyhydro.configuration import qsm_cols
 
 log = logging.getLogger("model")
-
-with open("src/canopyhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-
-# QSM column order
-qsm_cols = {}
-for column in config["qsm"]:
-    qsm_cols[column] = config["qsm"][column]
-
 
 NAME = "Cylinder"
 
@@ -80,7 +71,7 @@ class Cylinder:
         """Defines a readable string to represent a cylinder object
             *Utilized in tests to compare expected and actual results
         """
-        return f"Cylinder( cyl_id={self.cyl_id},\n x={self.x},\n y={self.y},\n z={self.z},\n radius={self.radius},\n length={self.length},\n branch_order={self.branch_order},\n branch_id={self.branch_id},\n volume={self.volume},\n parent_id={self.parent_id},\n reverse_branch_order={self.reverse_branch_order},\n segment_id={self.segment_id}"
+        return f"Cylinder( cyl_id={self.cyl_id}, x={self.x}, y={self.y}, z={self.z}, radius={self.radius}, length={self.length}, branch_order={self.branch_order}, branch_id={self.branch_id}, volume={self.volume}, parent_id={self.parent_id}, reverse_branch_order={self.reverse_branch_order}, segment_id={self.segment_id}"
 
     def __eq__(self, other):
         """Defines the minimum requirements for equality between two cylinders. 

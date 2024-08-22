@@ -11,10 +11,10 @@ sys.path.insert(0, os.getcwd())
 import scripts.sftp_utils as sftp
 
 from data.output.run_so_far import already_run
-from src.canopyhydro.CylinderCollection import (pickle_collection,
-                                             unpickle_collection)
-from src.canopyhydro.Forester import Forester
-from src.canopyhydro.global_vars import log, test_input_dir
+from canopyhydro.CylinderCollection import (pickle_collection,
+                                        unpickle_collection)
+from canopyhydro.Forester import Forester
+from canopyhydro.global_vars import log, test_input_dir
 
 
 def try_pickle_collection(collection, designation=""):
@@ -34,8 +34,8 @@ def initialize_collection(file="5_SmallTree", from_pickle=False, **kwargs):
     else:
         log.info("initializing collection...")
         try:
-            forest = Forester()
-            forest.get_file_names(dir=test_input_dir)
+            forest = Forester(test_input_dir)
+            forest.get_file_names()
             forest.qsm_to_collection(file_name=file)
             basic_collection = forest.cylinder_collections[0]
             basic_collection.project_cylinders("XY")

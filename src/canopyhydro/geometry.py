@@ -6,43 +6,24 @@ import logging
 import math
 
 import numpy as np
-import toml
-# from memory_profiler import LogFile
-# from numba import njit
+
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
 from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
 
-from DataClasses import coord_list
-from utils import _try_import
+from canopyhydro.DataClasses import coord_list
+from canopyhydro.utils import _try_import
+from canopyhydro.configuration import output_dir
 
-# from src.canopyhydro.utils import stack
 log = logging.getLogger("model")
 
 
 if has_geopandas := _try_import("geopandas"):
     from geopandas import GeoSeries
 
-if has_mem_profiler := _try_import("memory_profiler"):
-    import sys
-
-    from memory_profiler import LogFile
-
-    sys.stdout = LogFile()
-
 if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
-
-
-with open("src/canopyhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
-    output_dir = config["directories"]["output_dir"]
-    input_dir = config["directories"]["input_dir"]
-# import matplotlib.pyplot as plt
-# from geopandas import GeoSeries
-
 
 ### Functions relating to Alpha Shapes
 def circumcenter_lapack(points: coord_list) -> np.ndarray:

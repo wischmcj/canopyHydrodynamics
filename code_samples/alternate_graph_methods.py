@@ -419,8 +419,8 @@ class AlternativeCylCollection:
 class EfficiencyTester:
     # @profile
     def min_graph_test():
-        forest = Forester()
-        forest.get_file_names(dir=test_input_dir)
+        forest = Forester(test_input_dir)
+        forest.get_file_names()
         forest.qsm_to_collection(file_name="4_LargeCollection.csv")
         flexible_collection = forest.cylinder_collections[0]
         flexible_collection.project_cylinders("XZ")
@@ -431,8 +431,8 @@ class EfficiencyTester:
 
     # @profile
     def base_graph_test():
-        forest = Forester()
-        forest.get_file_names(dir=test_input_dir)
+        forest = Forester(test_input_dir)
+        forest.get_file_names()
         forest.qsm_to_collection(file_name="4_LargeCollection.csv")
         flexible_collection = forest.cylinder_collections[0]
         flexible_collection.project_cylinders("XZ")
@@ -443,8 +443,8 @@ class EfficiencyTester:
 
     # @profile
     def obj_graph_test():
-        forest = Forester()
-        forest.get_file_names(dir=test_input_dir)
+        forest = Forester(test_input_dir)
+        forest.get_file_names()
         forest.qsm_to_collection(file_name="4_LargeCollection.csv")
         flexible_collection = forest.cylinder_collections[0]
         flexible_collection.project_cylinders("XZ")

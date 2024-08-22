@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import sys
 
-import toml
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 # sys.path.insert(0, '/code/code/canopyHydrodynamics/src/')
@@ -13,11 +12,8 @@ sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 import toml
 
-from CylinderCollection import CylinderCollection
-
-with open("src/canopyhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    input_dir = Path(config["directories"]["input_dir"])
+from canopyhydro.CylinderCollection import CylinderCollection
+from canopyhydro.configuration import input_dir
 
 log = logging.getLogger("model")
 
@@ -57,7 +53,7 @@ class Forester:
         if directory == '':
             directory = self.directory
         if self.file_names == "":
-            self.get_file_names(directory)
+            self.get_file_names()
         collections = []
         for file_obj in self.file_names:
             if ".csv" not in file_name and file_name != "All":

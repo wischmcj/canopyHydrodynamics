@@ -8,17 +8,12 @@ import shutil
 import stat
 import time
 from importlib.util import find_spec
-from pathlib import Path
 
 import numpy as np
-import toml
+
+from canopyhydro.configuration import output_dir, input_dir
 
 log = logging.getLogger("model")
-
-with open("src/canopyhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    input_dir = Path(config["directories"]["input_dir"])
-    output_dir = Path(config["directories"]["output_dir"])
 
 current_GMT = time.gmtime()
 time_stamp = str(calendar.timegm(current_GMT))

@@ -5,16 +5,11 @@ import shutil
 from pathlib import Path
 
 import pytest
-import toml
-from numpy import all
-from numpy import array as arr
+from numpy import all, array as arr
 
-from src.canopyhydro.utils import (create_dir_and_file, njit_stack, on_rm_error,
+from canopyhydro.utils import (create_dir_and_file, njit_stack, on_rm_error,
                                 read_file_names, stack)
-
-with open("src/canopyhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    DIR = config["directories"]["root_dir"]
+from canopyhydro.configuration import root_dir as DIR
 
 njit_stack_test_cases = [
     pytest.param(

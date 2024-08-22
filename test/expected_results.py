@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.canopyhydro.DataClasses import Flow
+from canopyhydro.DataClasses import Flow
 
 ten_cyls_cyls = [
     "Cylinder( cyl_id=0.0, x=[0.076822 0.076822], y=[-3.386935 -3.386935], z=[-0.595933 -0.5315  ], radius=0.222504, length=0.064433, branch_order=0.0, branch_id=0.0, volume=0.010021, parent_id=-1.0, reverse_branch_order=32.0, segment_id=0.0",
