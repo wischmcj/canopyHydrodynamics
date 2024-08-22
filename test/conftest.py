@@ -3,13 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-import toml
 from _pytest.nodes import Item
 
+from canopyhydro.configuration import test_input_dir
 from canopyhydro.Cylinder import create_cyl
 from canopyhydro.Forester import Forester
-from canopyhydro.configuration import test_input_dir
-
 
 test_input_dir = Path("./data/test/")
 

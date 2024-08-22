@@ -6,15 +6,14 @@ import logging
 import math
 
 import numpy as np
-
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
 from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
 
+from canopyhydro.configuration import output_dir
 from canopyhydro.DataClasses import coord_list
 from canopyhydro.utils import _try_import
-from canopyhydro.configuration import output_dir
 
 log = logging.getLogger("model")
 
@@ -24,6 +23,7 @@ if has_geopandas := _try_import("geopandas"):
 
 if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
+
 
 ### Functions relating to Alpha Shapes
 def circumcenter_lapack(points: coord_list) -> np.ndarray:

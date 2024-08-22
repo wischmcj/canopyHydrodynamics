@@ -2,18 +2,16 @@ from __future__ import annotations
 
 import logging
 import os
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 # sys.path.insert(0, '/code/code/canopyHydrodynamics/src/')
 # sys.path.insert(0, '/code/code/canopyHydrodynamics/')
 
-import toml
 
-from canopyhydro.CylinderCollection import CylinderCollection
 from canopyhydro.configuration import input_dir
+from canopyhydro.CylinderCollection import CylinderCollection
 
 log = logging.getLogger("model")
 
@@ -38,19 +36,19 @@ class Forester:
         log.debug(f"The following files found in {directory}: {file_names}")
         return paths
 
-    def qsm_to_collection(self, file_name:str='All', directory:Path=''):
+    def qsm_to_collection(self, file_name: str = "All", directory: Path = ""):
         """Creates a Cylinder collection from the given file
             and adds the collection to the Forester object
 
         Args:
-            file_name (str): 
+            file_name (str):
                 Name of the csv file containing QSM data for
                 the desired cylinder collection
-            directory (str, optional): 
-                File directory in which the specified file is located. 
+            directory (str, optional):
+                File directory in which the specified file is located.
                 Defaults to input_dir.
         """
-        if directory == '':
+        if directory == "":
             directory = self.directory
         if self.file_names == "":
             self.get_file_names()

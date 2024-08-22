@@ -8,7 +8,9 @@ import yaml
 
 # Read in environment variables, set defaults if not present
 
-config_file = os.environ.get("CANOPYHYDRO_CONFIG", os.getcwd())
+config_file = os.environ.get(
+    "CANOPYHYDRO_CONFIG", f"{os.getcwd()}/canopyhydro_config.toml"
+)
 log_config = os.environ.get(
     "CANOPYHYDRO_LOG_CONFIG", f"{os.getcwd()}/logging_config.yml"
 )
@@ -26,22 +28,15 @@ input_dir = None
 qsm_cols = {}
 
 try:
-    config_file = os.environ["CANOPYHYDRO_CONFIG"]
+    with open(config_file) as f:
+        config = toml.load(f)
+        in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
+        root_dir = config["directories"]["root_dir"]
+        output_dir = config["directories"]["output_dir"]
+        input_dir = config["directories"]["input_dir"]
+        test_input_dir = config["directories"]["test_input_dir"]
+        for column in config["qsm"]:
+            qsm_cols[column] = config["qsm"][column]
 except Exception as e:
-    log.error(f"Error loading environment variable CANOPYHYDRO_CONFIG: {e}")
+    log.error(f"Error loading configuration variables from {config_file}: {e}")
     raise e
-
-if config_file:
-    try:
-        with open(config_file) as f:
-            config = toml.load(f)
-            in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
-            root_dir = config["directories"]["root_dir"]
-            output_dir = config["directories"]["output_dir"]
-            input_dir = config["directories"]["input_dir"]
-            test_input_dir = config["directories"]["test_input_dir"]
-            for column in config["qsm"]:
-                qsm_cols[column] = config["qsm"][column]
-    except Exception as e:
-        log.error(f"Error loading configuration variables from {config_file}: {e}")
-        raise e

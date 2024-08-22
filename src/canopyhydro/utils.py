@@ -11,7 +11,7 @@ from importlib.util import find_spec
 
 import numpy as np
 
-from canopyhydro.configuration import output_dir, input_dir
+from canopyhydro.configuration import input_dir, output_dir
 
 log = logging.getLogger("model")
 

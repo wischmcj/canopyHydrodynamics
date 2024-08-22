@@ -6,7 +6,6 @@ from test.expected_results_shapes import (example_coords,
                                           star_poly, start_poly_coords)
 from test.utils import within_range
 
-import alphashape
 import pytest
 from shapely.geometry import LineString, Point, Polygon
 
@@ -291,6 +290,7 @@ def test_star_poly():
     assert results.contains(expected)
     assert expected.contains(results)
 
+
 @pytest.mark.parametrize(
     "point,points,num, expected",
     [((2, 2), example_coords, 1, (1, 2)), ((9, 7), start_poly_coords, 1, (1, 1))],
@@ -298,4 +298,3 @@ def test_star_poly():
 def test_closest_point(point, points, num, expected):
     actual = geometry.closest_points(point, points, num)
     assert actual == expected
-

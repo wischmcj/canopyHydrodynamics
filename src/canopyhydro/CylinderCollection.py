@@ -14,13 +14,13 @@ import numpy as np
 from shapely.geometry import Point
 from shapely.ops import unary_union
 
+from canopyhydro.configuration import in_flow_grade_lim, input_dir, output_dir
 from canopyhydro.Cylinder import create_cyl
 from canopyhydro.DataClasses import Flow
 from canopyhydro.geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
-                                   furthest_point, get_projected_overlap)
+                                  furthest_point, get_projected_overlap)
 from canopyhydro.utils import (_try_import, create_dir_and_file,
-                                intermitent_log, lam_filter, save_file)
-from canopyhydro.configuration import in_flow_grade_lim, output_dir, input_dir
+                               intermitent_log, lam_filter, save_file)
 
 # Optional imports
 if has_geopandas := _try_import("geopandas"):
@@ -203,7 +203,7 @@ class CylinderCollection:
         """
         if plane not in ("XY", "XZ", "YZ"):
             log.info(f"{plane}: invalid value for plane")
-     
+
         else:
             polys = []
             log.info(f"Projection into {plane} axis begun for file {self.file_name}")
