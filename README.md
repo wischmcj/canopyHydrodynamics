@@ -15,27 +15,32 @@ The current tool set also boasts several different spacial analysis tools, sever
     - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
   - 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
-
-## Citing canoPyHydro
-
-If you use our tools please cite this package in your work. You can cite the package by citing this paper (paper link here)
-
-## Contents:
-
-The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the first draft of the above linked paper how it was run and reviewed. The functionality there-in has been formalized and expanded into the
-
 ## Getting Started
 
-- Pre-requisites
+1. **Create a Virtual Environment**: Below we use the native 'venv' module to create a virtual environment. This is not strictly necessary, but it is a good practice to keep your project dependencies separate from your system dependencies in a virtual environment.
+   ```bash
+   python -m venv canHydroVenv
+   ```
+2. **Activate Your Environment**: Activate your virtual environment to install dependencies and run the project. The commands to activate the virtual environment depend on your operating system and shell. Below are the commands for activating the virtual environment in different operating systems and shells.
 
-  1. Python version 3.9 or higher
-  2. A Virtual environment
-      - python -m venv
-  3. Activate venv with
-      - source venv/bin/activate (zsh, terminal)
-      - source venv\Scripts\activate.ps1 (PowerShell)
-  4. Install requirements
-      - pip install -r requirements.txt
+```bash
+  # if using bash (Mac, Unix)
+  source canHydroVenv/bin/activate
+  # if using PowerShell (Windows)
+  source canHydroVenv\Scripts\activate.ps1
+```
+
+3. **Install canoPyHydro**: canoPHydro is publisehd with PyPA (the python packacing authority). You can install the latest stable release of canoPyHydro using pip. This installs our latest stable release as well as several libraries required for the use of the package's features. canoPyHydro currently supports Python versions 3.9 and up.
+
+```bash
+   pip install canoPyHydro
+```
+
+4. **Set Configuration Options**: The default configuration file can be found at '/CanopyHydrodynamics/src/canopyhydro/user_def_config.toml'. Configuration options can be set by altering the contents of this file in place. Refer to the getting started guide for more information on configuration options. At this time functionality changes must be made to this file (e.g. a custom file location cannot be set)
+
+```bash
+   pip install canoPyHydro
+   ```
 
 # Contributing
 
@@ -63,8 +68,46 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
 (https://www.researchgate.net/publication/375530854)
 
 
-## Packaging
+## Wishlist
+  - Optimizing the alpha value for alphashapes
+      - Can be done locally for areas with different point densities
+  - Smoothing cylinders to eliminate false drip points
+      -polygon.buffer
+  - Creating QSMs from point cloud data
+    - would almost certainly need to leverage c++
+  - Integrate Point cloud processing libraries like Tree tool
+    - https://github.com/porteratzo/TreeTool
+  - pip install -U pytreedb
+  - A more robust meta manager that stores to a cloud based db
+  - Local (maybe also remote) caching
+  - 3d plotting
 
-This project was initially packaged with Flit using the the instructions found on the offical python website: https://packaging.python.org/en/latest/tutorials/packaging-projects/.
+## Tutorials
+  The below code can be run at the first breakpoint in the test_collection_integration.py file
+  ### Displaying, Filtering and Highlighting
+    flexible_collection.draw(plane = 'XZ')
+    flexible_collection.draw(plane = 'XZ', a_lambda = lambda: cyl_id>100)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>50)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75, highlight_lambda = lambda:branch_order==2)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:branch_order==2)
+    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)
 
-0
+  ### Draw all projections
+    import geopandas as geo  # only import what we need
+    import matplotlib.pyplot as plt
+    happy_path_projection.project_cylinders('XY')
+    happy_path_projection.project_cylinders('XZ')
+    happy_path_projection.project_cylinders('YZ')
+    xz_poly = [cyl.projected_data['XZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
+    xy_poly = [cyl.projected_data['XY']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
+    yz_poly = [cyl.projected_data['YZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
+    geoPolys_xy = geo.GeoSeries(xy_poly)
+    geoPolys_xz = geo.GeoSeries(xz_poly)
+    geoPolys_yz = geo.GeoSeries(yz_poly)
+    fig, ax = plt.subplots(3)
+    geoPolys_xy.plot(ax=ax[0,0])
+    geoPolys_xy.plot(ax=ax[0])
+    geoPolys_xz.plot(ax=ax[1])
+    geoPolys_yz.plot(ax=ax[2])

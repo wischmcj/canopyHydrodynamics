@@ -14,7 +14,11 @@ innovative visualization and analytics tools.
 
 getting_started.md
 glossary.rst
-objects/objects_index.md
-examples/examples_index.md
-notebook_walkthroughs/notebook_walkthroughs.md
+```
+
+
+```{toctree}
+:glob:
+objects/*
+examples/*
 ```

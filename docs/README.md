@@ -15,10 +15,6 @@ The current tool set also boasts several different spacial analysis tools, sever
     - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
   - 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
-## Contents:
-
-The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the first draft of the above linked paper how it was run and reviewed. The functionality there-in has been formalized and expanded into the
-
 ## Getting Started
 
 1. **Create a Virtual Environment**: Below we use the native 'venv' module to create a virtual environment. This is not strictly necessary, but it is a good practice to keep your project dependencies separate from your system dependencies in a virtual environment.
@@ -71,47 +67,6 @@ This repository houses python utilities described in 'A LiDAR-driven pruning alg
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 (https://www.researchgate.net/publication/375530854)
 
-
-## Development Setup:
-
-- Pre-requisites
-
-  1. Python version 3.9 or higher
-  2. A Virtual environment
-     - python -m venv
-  3. Activate venv with
-      - source venv/bin/activate (zsh, terminal)
-      - source venv\Scripts\activate.ps1 (PowerShell)
-  4. Install requirements
-      - pip install -r requirements_dev.txt
-  5. Enabling Pre-commit lining
-     2. Install pre-commit - pre-commit install
-
-## Packaging
-
-This project was initially packaged with Flit using the the instructions found on the offical python website: https://packaging.python.org/en/latest/tutorials/packaging-projects/.
-
-## Running
-
-  A command line interface (CLI) is planned for this project, to allow researchers to easily point to, read in and process their lidar scans. Today, however, we have prioritized work needed to create a cahnhydro package, that would allow our code to be utilized in any python project by use of the 'pip install canoPyHydro' command.
-
-  For now, you can get a feel for how the program works in two ways
-
-1. By running the test files, which have been conveniently populated with 'breakpoints' that pause execution and allow for the invesigation of variables
-   - This is achieved through running 'pytest tests/test_collection_integration.py'
-2. By running the interactive jupyter notebook under '.\Cylinders\cli.ipynb'. This is indeed how most of the data for the paper was generated
-
-## Important Commands
-
-- The projection algorithm is an approximation
-- e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad
-
-## Known Issues
-
-- The projection algorithm is an approximation
-  - e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad
-- Cylinders occasionally have more than one possible drip point. Our algorithm chooses just one of theses and lists that as the drip node
-  - Note that these possible drip nodes more often than not fall very close together
 
 ## Wishlist
   - Optimizing the alpha value for alphashapes
