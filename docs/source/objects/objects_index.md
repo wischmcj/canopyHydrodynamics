@@ -1,9 +1,9 @@
 # Objects Used by canoPyHydro
+```{include} ./objects_overview.md
+```
 ------------------------------------------
 **Title**  page description
-<!--
-```{include} ../README.md
-``` -->
+
 ```{toctree}
 :maxdepth: 2
 :caption: Table of Contents
