@@ -14,10 +14,10 @@ from scipy.spatial import Delaunay, distance
 from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
 
-from src.canhydro.DataClasses import coord_list
-from src.canhydro.utils import _try_import
+from src.canopyhydro.DataClasses import coord_list
+from src.canopyhydro.utils import _try_import
 
-# from src.canhydro.utils import stack
+# from src.canoPyHydro.utils import stack
 log = logging.getLogger("model")
 
 
@@ -35,7 +35,7 @@ if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
 
 
-with open("src/canhydro/user_def_config.toml") as f:
+with open("srccanopyhydro/user_def_config.toml") as f:
     config = toml.load(f)
     in_flow_grade_lim = config["model_parameters"]["in_flow_grade_lim"]
     output_dir = config["directories"]["output_dir"]
