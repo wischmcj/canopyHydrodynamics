@@ -15,7 +15,6 @@ The current tool set also boasts several different spacial analysis tools, sever
     - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
   - 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
-
 ## Contents:
 
 The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the first draft of the above linked paper how it was run and reviewed. The functionality there-in has been formalized and expanded into the
@@ -30,7 +29,7 @@ The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code
 
 ```bash
   # if using bash (Mac, Unix)
-  source canHydroVenv/bin/activate  
+  source canHydroVenv/bin/activate
   # if using PowerShell (Windows)
   source canHydroVenv\Scripts\activate.ps1
 ```
@@ -72,10 +71,6 @@ This repository houses python utilities described in 'A LiDAR-driven pruning alg
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 (https://www.researchgate.net/publication/375530854)
 
-
-## Packaging
-
-This project was initially packaged with Flit using the the instructions found on the offical python website: https://packaging.python.org/en/latest/tutorials/packaging-projects/.
 
 ## Development Setup:
 
@@ -161,18 +156,3 @@ This project was initially packaged with Flit using the the instructions found o
     geoPolys_xy.plot(ax=ax[0])
     geoPolys_xz.plot(ax=ax[1])
     geoPolys_yz.plot(ax=ax[2])
-
-## Wishlist
-
-- Optimizing the alpha value for alphashapes
-  - Can be done locally for areas with different point densities
-- Smoothing cylinders to eliminate false drip points
-  -polygon.buffer
-- Creating QSMs from point cloud data
-  - would almost certainly need to leverage c++
-- Integrate Point cloud processing libraries like Tree tool
-  - https://github.com/porteratzo/TreeTool
-- pip install -U pytreedb
-- A more robust meta manager that stores to a cloud based db
-- Local (maybe also remote) caching
-- 3d plotting

@@ -23,7 +23,7 @@ TEST TITLE
 </p>
 <p align="center">
   Vegetation coverage has a marked effect on the spatiotemporal distribution of terrestrial rainfall, marking the initial step in terrestrial rainfall pathways. <!-- As we demonstrate below, the importance of this 'precipitation partitioning' is well established in the field of hydrology and is of increasing interest in the modeling of ecological processes.  -->
-  Growing interest from hydrologists and ecologists alike has lead to the numerous efforts to characterize these flows. However these typically correlative, regression-based efforts have struggled with the problem's inherit degrees of freedom, drawing consistent scrutiny farom reviewers for their inconsistency and lack of conclusion 
+  Growing interest from hydrologists and ecologists alike has lead to the numerous efforts to characterize these flows. However these typically correlative, regression-based efforts have struggled with the problem's inherit degrees of freedom, drawing consistent scrutiny farom reviewers for their inconsistency and lack of conclusion
   <!-- (can cite levia X2 and  van stan here ) -->
   canoPyHydro has grown from an effort uncover strong mechanistic inferences into the drivers for the variation in these fluxes and drawn interest from fellow researchers as a tool for a variety of related use-cases, largely. No matter the use case, canoPyHydro provides value to researchers by enriching their (evermore widely available) terrestrial lidar scans (TLS) with percipitation partitioning data; giving them an tailored environment to explore canpy water distribution.
 </p>
@@ -56,7 +56,7 @@ For tree-data explorers, CanoPyHydro's spacial utilities are of particular inter
 # Statement of Need
 
 This ‘net rainfall’ influences all subsequent terrestrial hydrological processes, by contributing to runoff (Savenije, 2004), recharging subsurface water pools (Friesen, 2020), or returning to the atmosphere via transpiration (Coenders-Gerrits et al., 2020). Observations reveal substantial spatiotemporal variability in the amounts, timing, and distribution patterns of net rainfall beneath tree canopies, complicating reliable assessments of terrestrial water balances (Van Stan et al., 2020). Unfortunately, the costly and laborious techniques required to characterise processes challenge current practices in modelling and managing terrestrial water interactions (Gutmann, 2020).
-<!-- 
+<!--
   Despite this, the complexity of capturing these dynamics necesitates statistically-based monitoring designs that are both labor-intensive and costly (e.g., Voss et al., 2016; Zimmermann & Zimmermann, 2014). -->
 
 
