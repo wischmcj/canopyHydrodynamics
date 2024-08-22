@@ -4,7 +4,6 @@ This section contains a set of example workflows that demonstrate different capa
 
 ```{toctree}
 :maxdepth: 1
-creating_figures.ipynb
 ```
 
 You can get the tutorials by cloning the canoPyHydro repo and navigating to the "examples" folder:

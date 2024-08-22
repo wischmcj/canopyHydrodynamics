@@ -1,13 +1,11 @@
-<!-- canoPyHydro documentation master file -->
+# Welcome to canoPyHydro's documentation!!
 ```{include} ../README.md
 ```
-
-# Welcome to canoPyHydro's documentation!!
 ------------------------------------------
 **canoPyHydro**  seeks to empower researchers with percipitation partitioning data - leveraging
-evermore widely available terrestrial lidar scans (TLS) to provide detailed estimates of water 
-distribution throughout (and below) tree canopies. Users can not only use this tool to generate industry 
-standard metrtics, they can push the boundaries of canopy characterization with with a variety of 
+evermore widely available terrestrial lidar scans (TLS) to provide detailed estimates of water
+distribution throughout (and below) tree canopies. Users can not only use this tool to generate industry
+standard metrtics, they can push the boundaries of canopy characterization with with a variety of
 innovative visualization and analytics tools.
 
 ```{toctree}
@@ -16,6 +14,7 @@ innovative visualization and analytics tools.
 
 getting_started.md
 glossary.rst
-examples/index.md
+objects/objects_index.md
+examples/examples_index.md
 notebook_walkthroughs/notebook_walkthroughs.md
 ```
