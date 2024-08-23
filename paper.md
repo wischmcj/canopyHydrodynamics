@@ -1,3 +1,39 @@
+---
+title: ‘HydroCanoPy: A Python Package for Delineating Tree Canopy Drainage Areas’
+tags:
+  - Python
+  - hydrology
+  - rainfall
+  - tree
+  - stemflow
+  - throughfall 
+authors:
+  - name: Collin Wischmeyer
+    orcid: 0009-0002-8490-0999
+    affiliation: 1
+  - name: Travis E. Swanson
+    orcid: 0000-0002-6879-7621
+    affiliation: 2
+  - name: Kevin E. Mueller
+    orcid: 0000-0002-0739-7472
+    affiliation: 1
+  - name: Nicholas R. Lewis
+    affiliation: 1
+  - name: Jillian Bastock
+    affiliation: 1
+  - name: John T. Van Stan II
+    orcid: 000-0002-0692-7064
+    corresponding: true
+    affiliation: 1
+
+affiliations:
+  - name: Department of Biological, Geological, and Environmental Sciences, Cleveland State University, Cleveland OH, USA
+    index: 1
+  - name: The Water Institute of the Gulf, Baton Rouge LA, USA
+    index: 2
+date: 31 August 2024
+bibliography: paper.bib
+---
 <p align="center">
     <img src=".canopyhydro_logo.jpeg" height="390" width="390">
 </p>
