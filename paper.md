@@ -223,7 +223,7 @@ After the flows in a canopy's watershed have been identified, common statistics 
 ```
 
 ![Stem Flow Highlight XY](./imgs/example_tree_XY_docs_ex.png) 
-![Stem Flow Highlight XZ](./imgs/example_tree_XZ_docs_ex.png)_Here we see an example of the visualization capabilities of canoPyHydro. The above images show the same tree from two different angles, with the stemflow contributing cylinders highlighted in blue.
+![Stem Flow Highlight XZ](./imgs/example_tree_XZ_docs_ex.png)_Here we see an example of the visualization capabilities of canoPyHydro. The above images show the same tree from two different angles, with the stemflow contributing cylinders highlighted in blue._
 
 ## Metrics
 
@@ -235,12 +235,17 @@ The occlusion of portions of the canopy, as well as the ground itsself has a qua
 
 In the calculation of canopy coverage area, we utilize [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) rather than a circular region. In the vernacular of some popular python packages alpha shapes are referred to as 'hulls', with the tightly fit version used in canoPyHydro considered 'convcave hulls'. This approach to quantifying canopy coverage provides a lower estimate of canopy coverage than would be measured with a smooth circle.
 
-<!-- ith points along the border of the canopy being connected via concave curves. Doing so mitigate the effect of outlier points-those far further from the enter of the encapsulated figure than the average among said boundary points-byincluding less of the unoccluded space between branches. For this reason, this approach is applicable to horizontal 2D projections (XZ, YZ) in addition to vertical/birds eye view (XZ) projections and provides more accurate measures when boundary points are sparse (i.e. for branch subsets0). -->
+![Stem Flow Highlight XY](./imgs/example_tree_XY_docs_ex.png) 
+![Alpha Shape Example](./imgs/example_tree_XY_Alpha_shape.png)_Here we see an example of an alpha shape for the same tree disussed above_
 
 # Future Direction
 
-Future iterations will certainly add functionality to integrate additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.).
-
+- We hope to widen the use cases for our tool by integrating additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.). 
+- By growing python libraries for spacial analysis (scipy-spacial, open3d) we hope to all for the projection of cylinders at an arbirtary angle, to suppoort the afformentioned integration of weather data.
+- Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency) you can see the current work being done to improve the efficiency of the flow finding algorithm. Early results so as much as a 200x increase in the speed of the algorithm as a result of:
+  - migrating the the use of rust based graph models, using the rustworkx library
+  - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing
+  
 # Acknowledgements
 
 We acknowledge the support of US-NSF DEB-2213623.

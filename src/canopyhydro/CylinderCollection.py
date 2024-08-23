@@ -413,6 +413,8 @@ class CylinderCollection:
         # want to get a ring of points around the component
         # however, the root node also has degree one, so we exclude it with n!= -1
         component = component if component else self.digraph
+        if stem:
+            component=myCollection.stem_flow_component
         end_nodes = [n for n in component.nodes if component.degree(n) == 1 and n != -1]
 
         endCyls = [
