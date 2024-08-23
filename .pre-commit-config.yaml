@@ -10,10 +10,12 @@ repos:
       # Run the Ruff linter.
       - id: ruff
         types_or: [ python, pyi, jupyter ]
+        exclude: '^.ipynb'
         args: ["--fix"]
       # Run the Ruff formatter.
       - id: ruff-format
         types_or: [ python, pyi, jupyter ]
+        exclude: '^.ipynb'
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0

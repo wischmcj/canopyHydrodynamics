@@ -116,6 +116,7 @@ dbh_cases = [
     pytest.param("5_SmallTree.csv", small_tree_dbh, id="Small Tree"),
 ]
 
+
 @pytest.mark.parametrize(
     "basic_collection, expected_cylinders",
     create_cylinders_cases,
@@ -200,7 +201,7 @@ def test_pickle(basic_collection, expected_stem_map, expected_flows):
     basic_collection.find_flow_components()
     basic_collection.calculate_flows()
     pickle_file = pickle_collection(basic_collection)
-  
+
     unpickled_collection = unpickle_collection(pickle_file)
 
     actual_flows = unpickled_collection.flows
@@ -211,7 +212,8 @@ def test_pickle(basic_collection, expected_stem_map, expected_flows):
     print(expected_flows)
     assert actual_flows == expected_flows
     assert actual_stem_map == expected_stem_map
-    
+
+
 @pytest.mark.parametrize(
     "basic_collection, expected_dbh", dbh_cases, indirect=["basic_collection"]
 )
@@ -219,6 +221,7 @@ def test_dbh(basic_collection, expected_dbh):
     basic_collection.get_dbh()
     actual_dbh = basic_collection.treeQualities["dbh"]
     assert actual_dbh == expected_dbh
+
 
 @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
 def test_collection_overlap(flexible_collection):

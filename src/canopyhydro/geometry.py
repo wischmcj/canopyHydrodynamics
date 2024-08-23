@@ -507,7 +507,7 @@ def draw_cyls(
             [str(output_dir), "draw", f"{file_name_ext.replace('.','')}"]
         )  # .replace("/", "\\")
         plt.savefig(save_dir, dpi=3000)
-    return fig
+    return ax
 
 
 def draw_cylinders_3D(
