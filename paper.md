@@ -35,7 +35,7 @@ date: 31 August 2024
 bibliography: paper.bib
 ---
 <p align="center">
-    <img src=".canopyhydro_logo.jpeg" height="390" width="390">
+    <img src="./imgs/canhydro_logo.jpeg" height="390" width="390">
 </p>
 <h1 align="center">CanoPyHydro</h1>
   <p align="center">
@@ -71,7 +71,7 @@ The main inputs to canoPyHydro are Qantitative Structural Models (QSMs). These m
 1. Utilities for the conversion and exploration of QSMs. Methods in this category:
 
   - Convert QSMs to python objects and calculate individual cyliner metrics (i.e. surface area, angle(s))
-  - Create 2D and 3D visualizations (with robust filtering and highlighting functionality.
+  - Create 2D and 3D visualizations (with robust filtering and highlighting functionality).
   - Surface a variety of spatial metrics (i.e. inter-canopy occlusion)
 
 2. Percipitation partitioning utilities
@@ -144,6 +144,23 @@ Many of the metrics calculated by this tool relate to projections of QSMs onto t
 - These projections are used to calculate canopy coverage and, by extension, woody area index; Both are key metrics in the study of stemflow
 - By comparing 2D projected areas of different branch subsets, canoPyHydro can provide a variety of detailed occlusion data
 
+![2D to 3D](./imgs/3d_cyl_projections.svg)_Here you can see how these projections function on the cylinder level._
+
+![Point Cloud and QSM](./imgs/canhydro_XZ_XY_Tale_of_2_Trees.png)_Here you can see an example of the XY and XZ projections of two trees._
+
+```{python}
+  # Initializing a CylinderCollection object
+  myCollection = CylinderCollection()
+  myCollection.from_csv('example_tree.csv')
+
+  # Projecting the cylinders onto the XY plane
+  myCollection.project_cylinders('XY')
+
+  # Projecting the cylinders onto the XZ plane
+  myCollection.project_cylinders('XZ')
+```
+
+
 ## Flow Identification
 
 CanoPyHydro's hydrological estimates rely on the classification of QSM cylinders as stemflow contributing or throughfall contributing. This is done by assigning each cylinder is to a 'flow' object, which is said to contain the precipitation intercepted by that cylinder. Each flow of water is assumed to flow towards the stem, and each will eventually either reach the stem of the tree unless the flow reaches a cylinder that is too steep to traverse. Points at which a flow encounters one such cylidner are referred to as 'drip-points'. To identify these 'too-steep' portions of the tree, we choose a 'drip cut-off angle' (configurable by the user), assuming that water is only able to flow down branches with an angle greater than the chosen cutoff.
@@ -189,7 +206,7 @@ After the flows in a canopy's watershed have been identified, common statistics 
   Most importantly, each non-stem flow also has a unique drip point and drip point location, representing a point in the canopy at which one would expectedwater to drip to the ground.
   Utilizing the above metrics, users can glean important information regarding a tree's watershed. For example, the below graphic uses the projected area data for a tree's flows, along with canoPyHydro's visualization capabilities, to mak the location and relative abundance of moisture beneath two tree canopies.
 
-![Tale of Two Trees Drip Map](./imgs/canohydro_drip_map_tale_of_2_trees.png) Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles represent various drip points in the canopy with the shading based on their respective flow's volume
+![Tale of Two Trees Drip Map](./imgs/canohydro_drip_map_tale_of_2_trees.png)_Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles represent various drip points in the canopy with the shading based on their respective flow's volume_
 
 ### Visualization
 
@@ -205,8 +222,8 @@ After the flows in a canopy's watershed have been identified, common statistics 
     myCollection.draw('XZ', highlight_lambda=lambda:is_stem, save = True, file_name_ext="docs_ex")
 ```
 
-![Stem Flow Highlight XY](./imgs/example_tree_XY_docs_ex.png) Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles repre
-![Stem Flow Highlight XZ](./imgs/example_tree_XZ_docs_ex.png) Here we see a side by side comparison of two trees identified as having differing canopy hydrodynamics. The circles represent various drip points in the canopy with the shading based on their respective flow's volumesent various drip points in the canopy with the shading based on their respective flow's volume
+![Stem Flow Highlight XY](./imgs/example_tree_XY_docs_ex.png) 
+![Stem Flow Highlight XZ](./imgs/example_tree_XZ_docs_ex.png)_Here we see an example of the visualization capabilities of canoPyHydro. The above images show the same tree from two different angles, with the stemflow contributing cylinders highlighted in blue.
 
 ## Metrics
 
