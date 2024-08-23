@@ -8,12 +8,8 @@ import yaml
 
 # Read in environment variables, set defaults if not present
 
-config_file = os.environ.get(
-    "CANOPYHYDRO_CONFIG", f"{os.getcwd()}/canopyhydro_config.toml"
-)
-log_config = os.environ.get(
-    "CANOPYHYDRO_LOG_CONFIG", f"{os.getcwd()}/logging_config.yml"
-)
+config_file = os.environ.get("CANOPYHYDRO_CONFIG", "./canopyhydro_config.toml")
+log_config = os.environ.get("CANOPYHYDRO_LOG_CONFIG", "./logging_config.yml")
 
 with open(log_config) as f:
     config = yaml.safe_load(f.read())

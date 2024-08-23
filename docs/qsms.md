@@ -17,10 +17,10 @@ Note that QSMs are simply collections of cylinders at the most basic level, but 
     - Each cylinder is assigned a unique ID, starting from 0 and moving up
     - A cylinder's parentID is that of the cylinder adjacent to it in the direction of the stem
   - Segment ID
-    - Cylinders are grouped into segments, representing homogenous sections of the tree*
+    - Cylinders are grouped into segments, representing homogeneous sections of the tree*
   - Branch ID
     - Segments are grouped into branches, representing sections of the tree with similar radii*
   - Branch Order
-    - Referrs to the degrees of seperation of cylinder's branch to the trunk.*
+    - Refers to the degrees of separation of cylinder's branch to the trunk.*
 
-  *A more technical explaination can be found on the [SimpleForest](https://www.simpleforest.org/pages/tutorials.html) website
+  *A more technical explanation can be found on the [SimpleForest](https://www.simpleforest.org/pages/tutorials.html) website

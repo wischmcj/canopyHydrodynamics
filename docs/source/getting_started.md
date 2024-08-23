@@ -8,7 +8,7 @@
 $ pip install canoPyHydro
 ```
 
-You can also install the latest development version by cloning the GitHub repository and using pip to install from the local directory:
+You can also install also the latest development version by cloning the GitHub repository and using pip to install from the local directory:
 
 ```bash
 $ pip install git+https://github.com/canoPyHydro/canoPyHydro.git
@@ -16,11 +16,25 @@ $ pip install git+https://github.com/canoPyHydro/canoPyHydro.git
 
 # Configuration
 
+For a quick start, the below can be added to the beginning of your script to automatically set the required configuration options.
+
+```{python}
+  from canopyhydro.configuration import *
+```
+# Environment Variables
+The following environment variables are used to set the configuration and logging files. These can be set in the script as per the below code or from in the terminal before running a script.
+
+```{python}
+  from canopyhydro.configuration import *
+  config_file = os.environ["CANOPYHYDRO_CONFIG"] = f"{os.getcwd()}/canopyhydro_config.toml"
+  log_config = os.environ["CANOPYHYDRO_LOG_CONFIG"] = f"{os.getcwd()}/logging_config.yml"
+```
+
 There are many optional configuration options, but there are only a few that are **necessary** to adjust/check
 to ensure the code runs as expected.
 The default configuration file can be be found at '/CanopyHydrodynamics/canopyhydro_config.toml'. Configuration options can be set by altering the contents of this file in place. At this time functionality changes must be made to this file (e.g. a custom file location cannot be set)
 
-## QSM File structre
+## QSM File structure
 The [qsm] section details the column numbers in which each variable is stored in the input file. To read in this file correctly,
 the following columns are required, and each row in the QSM must have a corresponding value for each:
         - cyl_id

@@ -10,12 +10,12 @@ repos:
       # Run the Ruff linter.
       - id: ruff
         types_or: [ python, pyi, jupyter ]
-        exclude: '^.ipynb'
+        exclude: '\.ipynb'
         args: ["--fix"]
       # Run the Ruff formatter.
       - id: ruff-format
         types_or: [ python, pyi, jupyter ]
-        exclude: '^.ipynb'
+        exclude: '\.ipynb'
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
@@ -54,11 +54,11 @@ repos:
     rev: v2.1.0
     hooks:
       - id: codespell
+        exclude: '\.ipynb'
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.9.0
     hooks:
-      - id: python-check-blanket-noqa
       - id: python-check-blanket-type-ignore
       - id: python-no-log-warn
       - id: python-use-type-annotations

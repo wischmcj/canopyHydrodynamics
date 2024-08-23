@@ -5,11 +5,6 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.getcwd()))
-# sys.path.insert(0, '/code/code/canopyHydrodynamics/src/')
-# sys.path.insert(0, '/code/code/canopyHydrodynamics/')
-
-
 from canopyhydro.configuration import input_dir
 from canopyhydro.CylinderCollection import CylinderCollection
 

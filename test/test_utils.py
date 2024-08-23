@@ -70,7 +70,6 @@ def test_file_funcs():
 def test_njit_stack(arr_list, is_col_stack, expected):
     """
     Test vstack and col stack capabilities v. numpy
-    thow in a couple exenmplar custom tests to show functionality
     """
     actual = njit_stack(arr_list, is_col_stack)
     assert all(actual == expected)
@@ -80,7 +79,6 @@ def test_njit_stack(arr_list, is_col_stack, expected):
 def test_stack_err(arr_list, is_col_stack, exception_type):
     """
     Test vstack and col stack capabilities v. numpy
-    thow in a couple exenmplar custom tests to show functionality
     """
     with pytest.raises(exception_type):
         actual = stack(arr_list, is_col_stack)

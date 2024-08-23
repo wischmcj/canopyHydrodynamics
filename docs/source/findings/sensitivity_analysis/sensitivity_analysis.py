@@ -1,17 +1,9 @@
 from __future__ import annotations
 
 import functools
-import os
-import sys
+import logging
 from itertools import product
 from time import time
-
-sys.path.insert(0, os.path.dirname(os.getcwd()))
-sys.path.insert(0, os.getcwd())
-# print(sys.path)
-
-
-import logging
 
 from canopyhydro.configuration import test_input_dir
 from canopyhydro.CylinderCollection import (pickle_collection,
@@ -78,7 +70,7 @@ def generate_statistics(collection, case_name):
     log.info(
         f"attempting to generate stats for file {collection.file_name}, case_name {case_name}"
     )
-    statistics = collection.statistics(file_name_ext=case_name)
+    collection.statistics(file_name_ext=case_name)
     log.info(f"attempting to generate flow file for {case_name}")
     collection.generate_flow_file(file_name_ext=case_name)
 
@@ -141,17 +133,17 @@ def draw_case(collection=None, file: str = "", pickle_point: str = "", angle="")
     if not collection:
         collection = load_from_pickle(file, pickle_point, angle)
 
-    stem_flow_fig = collection.draw(
+    collection.draw(
         plane="XZ",
-        highlight_lambda=lambda: is_stem,
+        highlight_lambda=lambda: is_stem,  # noqa
         save=True,
         file_name_ext=f"{file}_{angle}_XZ.png",
         show=False,
     )
-    stemflow_and_trunk_fig = collection.draw(
+    collection.draw(
         plane="XZ",
-        filter_lambda=lambda: is_stem,
-        highlight_lambda=lambda: branch_order == 0,
+        filter_lambda=lambda: is_stem,  # noqa
+        highlight_lambda=lambda: branch_order == 0,  # noqa
         save=True,
         file_name_ext=f"{file}_{angle}_XZ.png",
         show=False,

@@ -64,7 +64,7 @@ A digraph is then constructed with each edge representing one cylinder, with edg
     // add 3 pics, tree w/ x/y/z planes plotted as well. Maybe a 3D pic as werll
 ```
 
-  In a future version of this tool, projection at an arbitrary angle will be available. At that time, it will be possible to incorperate average rain angle as a model parameter.
+  In a future version of this tool, projection at an arbitrary angle will be available. At that time, it will be possible to incorporate average rain angle as a model parameter.
 
 ## Cylinder Projected Area
 
@@ -114,13 +114,13 @@ By bridging the gap between advanced canopy scanning technologies and the need f
 
 # Input Data
 
-    In the current version of the tool, point cloud data must first be converted to a quantitative structural model - or QSM - using a tool such as SimpleForest (Hackenburg, 2021) prior to being provided as an input.The current version of this tool focuses on canopy structure as a predictor of water availability. To this end, the tool leverages quantitative structural models; a well known format for representing tree branches as cylinders, allowing for point cloud data fron terrestrial lidar scans to be reduced in complexity while preserving the aggregeate characteristics of the tree canopy. Using these "QSM"'s, we are able to provide a variety of statistical an visualization capabilities for our users.
+    In the current version of the tool, point cloud data must first be converted to a quantitative structural model - or QSM - using a tool such as SimpleForest (Hackenburg, 2021) prior to being provided as an input.The current version of this tool focuses on canopy structure as a predictor of water availability. To this end, the tool leverages quantitative structural models; a well known format for representing tree branches as cylinders, allowing for point cloud data from terrestrial lidar scans to be reduced in complexity while preserving the aggregeate characteristics of the tree canopy. Using these "QSM"'s, we are able to provide a variety of statistical an visualization capabilities for our users.
 
 # QSMs
 
 # Upcoming features
 
-  Future iterations will certaily add functionality to integrate additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.).
+  Future iterations will certainly add functionality to integrate additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.).
 
 # Figures
 

@@ -30,7 +30,7 @@ The current tool set also boasts several different spacial analysis tools, sever
   source canHydroVenv\Scripts\activate.ps1
 ```
 
-3. **Install canoPyHydro**: canoPHydro is publisehd with PyPA (the python packacing authority). You can install the latest stable release of canoPyHydro using pip. This installs our latest stable release as well as several libraries required for the use of the package's features. canoPyHydro currently supports Python versions 3.9 and up.
+3. **Install canoPyHydro**: canoPHydro is published with PyPA (the python packacing authority). You can install the latest stable release of canoPyHydro using pip. This installs our latest stable release as well as several libraries required for the use of the package's features. canoPyHydro currently supports Python versions 3.9 and up.
 
 ```bash
    pip install canoPyHydro
@@ -46,7 +46,7 @@ The current tool set also boasts several different spacial analysis tools, sever
 
 We welcome contributions to this project! Whether it's reporting a bug, proposing a new feature, or contributing code, we appreciate your help. Here's how you can contribute:
 
-1. **Install Aditional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
+1. **Install Additional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
 
    ```bash
    pip install -r requirements-dev.txt

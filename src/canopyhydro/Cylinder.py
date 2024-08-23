@@ -180,7 +180,7 @@ class Cylinder:
     def draw(self, plane: str = "XY", **kwargs):
         """A wrapper around the draw_cyl function allowing
         more readable code for drawing a single cylinder
-            - e.g. for some Cylider 'cyl'
+            - e.g. for some Cylinder 'cyl'
                 cyl.draw() rather than geometry.draw_cyls([cyl])"""
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly], **kwargs)

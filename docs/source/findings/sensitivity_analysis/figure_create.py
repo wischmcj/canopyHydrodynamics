@@ -8,6 +8,8 @@ import pandas as pd
 from geopandas import GeoSeries
 from sensitivity_analysis import run_test_cases
 
+from canopyhydro.configuration import log
+
 
 def retain_quantile(df, field, percentile):
     percentile_val = df[field].quantile(percentile)
@@ -76,7 +78,7 @@ if __name__ == "__main__":
         x.append(-10)
         y.append(-10)
         # if we want to specify the max drip size from
-        # a seperate run of this code to ensure they are on
+        # a separate run of this code to ensure they are on
         # the same scale
         # drip_point_size.append(6.603)
 

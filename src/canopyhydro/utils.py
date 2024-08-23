@@ -8,6 +8,7 @@ import shutil
 import stat
 import time
 from importlib.util import find_spec
+from typing import Callable
 
 import numpy as np
 

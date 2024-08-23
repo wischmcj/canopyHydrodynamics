@@ -4,11 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-
-import pytest
-
-sys.path.insert(0, os.path.dirname(os.getcwd()))
-
 from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
                                    drip_mid_flows, drip_mid_stem_map,
                                    drip_on_trunk_flows, drip_on_trunk_stem_map,
@@ -27,11 +22,15 @@ from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
+import pytest
+
 from canopyhydro.configuration import test_input_dir
 from canopyhydro.CylinderCollection import (CylinderCollection,
                                             pickle_collection,
                                             unpickle_collection)
 from canopyhydro.utils import lam_filter
+
+sys.path.insert(0, os.path.dirname(os.getcwd()))
 
 create_cylinders_cases = [
     # (file, expected_cylinders )
@@ -51,16 +50,16 @@ lam_filter_cases = [
     # (file, angles, projection )
     pytest.param(
         "1_TenCyls.csv", ten_cyls_bo_one, lambda: branch_order == 1, id="XY projection"
-    ),
+    ),  # noqa
     pytest.param(
         "1_TenCyls.csv",
         ten_cyls_bo_and_len,
         lambda: branch_order == 0 or length <= 0.22447,
         id="XZ projection",
-    ),
+    ),  # noqa
     pytest.param(
         "1_TenCyls.csv", ten_cyls_id_one, lambda: cyl_id == 1, id="YZ projection"
-    ),
+    ),  # noqa
 ]
 
 find_flows_cases = [
@@ -179,7 +178,7 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
     actual_flows = basic_collection.flows
     _, actual_stem_map = lam_filter(
         basic_collection.cylinders, lambda: is_stem, return_all=True
-    )
+    )  # noqa
     print(actual_flows)
     print(expected_flows)
     try:
@@ -207,7 +206,7 @@ def test_pickle(basic_collection, expected_stem_map, expected_flows):
     actual_flows = unpickled_collection.flows
     _, actual_stem_map = lam_filter(
         unpickled_collection.cylinders, lambda: is_stem, return_all=True
-    )
+    )  # noqa
     print(actual_flows)
     print(expected_flows)
     assert actual_flows == expected_flows

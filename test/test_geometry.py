@@ -45,25 +45,25 @@ def test_proj_overlap():
     assert actual == funky_squares_overlap_areas
 
 
-# @pytest.mark.parametrize(
-#     "vector,magnitude,radius,e_angle,e_area",
-#     [
-#         ([(2, -1), (4, -1), (5, -1)], [-3, -5, -6], 1, -0.785398, 13.91),
-#         ([(1, -0.5), (1, -1.5), (1, -3)], [1.5, 2.5, 3], 1, 0.785398, 8.08),
-#         ([(-2, 1), (-4, 1), (-5, 1)], [3, 5, 6], 1, 0.785398, 13.91),
-#         ([(1, 4), (1, 6), (1, 7)], [3, 5, 6], 1, 0.785398, 13.91),
-#         ([(-1, -4), (-1, -6), (-1, -7)], [3, 5, 6], 1, 0.785398, 13.91),
-#         ([(1, -2), (1, -4), (1, -5)], [3, 5, 6], 1, 0.785398, 13.91),
-#     ],
-# )
-# def test_project_cyl(vector, magnitude, radius, e_angle, e_area):
-#     """
-#     Tests projection of cylinders parallel with:
-#     the XY plane, Z axis the line x=y (45 deg)
-#     """
-#     actual = geometry.numba_get_projection(vector, magnitude, radius)
-#     assert within_range(e_angle, actual["angle"], 0.02)
-#     assert within_range(e_area, actual["area"], 0.02)
+@pytest.mark.parametrize(
+    "vector,magnitude,radius,e_angle,e_area",
+    [
+        ([(2, -1), (4, -1), (5, -1)], [-3, -5, -6], 1, -0.785398, 13.91),
+        ([(1, -0.5), (1, -1.5), (1, -3)], [1.5, 2.5, 3], 1, 0.785398, 8.08),
+        ([(-2, 1), (-4, 1), (-5, 1)], [3, 5, 6], 1, 0.785398, 13.91),
+        ([(1, 4), (1, 6), (1, 7)], [3, 5, 6], 1, 0.785398, 13.91),
+        ([(-1, -4), (-1, -6), (-1, -7)], [3, 5, 6], 1, 0.785398, 13.91),
+        ([(1, -2), (1, -4), (1, -5)], [3, 5, 6], 1, 0.785398, 13.91),
+    ],
+)
+def test_project_cyl(vector, magnitude, radius, e_angle, e_area):
+    """
+    Tests projection of cylinders parallel with:
+    the XY plane, Z axis the line x=y (45 deg)
+    """
+    actual = geometry.numba_get_projection(vector, magnitude, radius)
+    assert within_range(e_angle, actual["angle"], 0.02)
+    assert within_range(e_area, actual["area"], 0.02)
 
 
 @pytest.mark.parametrize(
@@ -123,6 +123,8 @@ def test_curcumradius(points, expected):
 
 
 # Alpha Shape tests below
+# Credit for the coordinates utilized in these tests goes to
+# user 'bellokk' on git hub (https://github.com/bellockk/alphashape/tree/master)
 
 
 def test_given_a_point_return_a_point():
@@ -181,25 +183,6 @@ def test_given_a_triangle_with_two_duplicate_points_returns_a_line():
     assert LineString([(1.0, 0.0), (0.0, 1.0)]) == tri_two_dupe
 
 
-# def test_given_a_four_point_polygon_with_small_alpha_return_input():
-#     """
-#     Given a polygon with four points, and an alpha value of zero, return
-#     the input as a polygon.
-#     """
-#     pts = [Point((x,y)) for (x,y) in  [(0., 0.), (0., 1.), (1., 1.), (1., 0.)]]
-#     quad_small, _= concave_hull(pts, .0001)
-#     assert shapely.geometry.Polygon([(0., 0.), (0., 1.), (1., 1.), (1., 0.), (0., 0.)]).equals(quad_small)
-
-# @pytest.mark.parametrize("flexible_collection", ["5_SmallTree.csv"], indirect=True)
-# def test_small_tree(flexible_collection):
-#     flexible_collection.project_cylinders(plane="XY")
-#     flexible_collection.initialize_graph_from()
-#     flexible_collection.watershed_boundary(flexible_collection.graph, plane="XY")
-#     expected = small_tree_wateshed_poly
-#     actual = flexible_collection.hull
-#     assert str(actual) == expected
-
-
 def test_star_poly():
     """
     Given a 3-dimensional data set, return an expected set of edges.
@@ -223,22 +206,22 @@ def test_star_poly():
         ]
     )
     points_2d = [Point((x, y)) for (x, y) in coords_2d]
-    expected_vertices = [
-        [0.0, 0.0],
-        [0.0, 0.0],
-        [0.0, 1.0],
-        [0.0, 1.0],
-        [1.0, 0.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-        [1.0, 1.0],
-        [0.25, 0.5],
-        [0.5, 0.25],
-        [0.5, 0.5],
-        [0.5, 0.5],
-        [0.5, 0.75],
-        [0.75, 0.5],
-    ]
+    # expected_vertices = [
+    #     [0.0, 0.0],
+    #     [0.0, 0.0],
+    #     [0.0, 1.0],
+    #     [0.0, 1.0],
+    #     [1.0, 0.0],
+    #     [1.0, 0.0],
+    #     [1.0, 1.0],
+    #     [1.0, 1.0],
+    #     [0.25, 0.5],
+    #     [0.5, 0.25],
+    #     [0.5, 0.5],
+    #     [0.5, 0.5],
+    #     [0.5, 0.75],
+    #     [0.75, 0.5],
+    # ]
     expected = star_poly
     results, _, _ = geometry.concave_hull(points_2d, 2.1)
     assert results.contains(expected)
@@ -269,22 +252,22 @@ def test_star_poly():
         ]
     )
     points_2d = [Point((x, y)) for (x, y) in coords_2d]
-    expected_vertices = [
-        [0.0, 0.0],
-        [0.0, 0.0],
-        [0.0, 1.0],
-        [0.0, 1.0],
-        [1.0, 0.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-        [1.0, 1.0],
-        [0.25, 0.5],
-        [0.5, 0.25],
-        [0.5, 0.5],
-        [0.5, 0.5],
-        [0.5, 0.75],
-        [0.75, 0.5],
-    ]
+    # expected_vertices = [
+    #     [0.0, 0.0],
+    #     [0.0, 0.0],
+    #     [0.0, 1.0],
+    #     [0.0, 1.0],
+    #     [1.0, 0.0],
+    #     [1.0, 0.0],
+    #     [1.0, 1.0],
+    #     [1.0, 1.0],
+    #     [0.25, 0.5],
+    #     [0.5, 0.25],
+    #     [0.5, 0.5],
+    #     [0.5, 0.5],
+    #     [0.5, 0.75],
+    #     [0.75, 0.5],
+    # ]
     expected = star_poly
     results, _, _ = geometry.concave_hull(points_2d, 2.1)
     assert results.contains(expected)

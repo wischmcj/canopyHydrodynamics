@@ -70,7 +70,7 @@ def unpickle_collection(
             The name of the file to unpickle. Optionally, the full path to the file.
         is_full_path (bool):
             If True, the file name is assumed to be the full path to the file.
-            If False, the file name is assumed to be the name of the file in the output directorys
+            If False, the file name is assumed to be the name of the file in the output directories
 
     Returns:
         Cylinder Collection: The unpickled collection.
@@ -321,10 +321,7 @@ class CylinderCollection:
             desired_height = 1.3
             approx_height_range_start = desired_height - 0.1
             start_z = self.extent["min"][2]
-            # trunk = lam_filter(
-            #     self.cylinders,
-            #     a_lambda=lambda: branch_order == 0,
-            # )
+
             diff_from_desired_height = [
                 (abs(cyl.z[0] - desired_height), cyl.cyl_id)
                 for cyl in self.cylinders
@@ -374,7 +371,7 @@ class CylinderCollection:
         if self.trunk_nodes:
             return self.trunk_nodes
         elif len(g.nodes) > 0:
-            trunk_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 0)
+            trunk_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 0)  # noqa
             trunk_nodes = [cyl.cyl_id for cyl in trunk_cyls]
             self.trunk_nodes = trunk_nodes
             return trunk_nodes
@@ -437,7 +434,7 @@ class CylinderCollection:
         """This function creates a directed graph and its undirected counterpart.
         Initializes edge attributes as cylinder objects"""
         gr = nx.DiGraph()
-        trunk_nodes, _ = lam_filter(self.cylinders, lambda: branch_order == 0)
+        trunk_nodes, _ = lam_filter(self.cylinders, lambda: branch_order == 0)  # noqa
         edges = (
             (
                 (int(cyl.cyl_id), int(cyl.parent_id), {"cylinder": cyl})
@@ -666,7 +663,7 @@ class CylinderCollection:
     def find_trunk_lean(self):
         """Draws a straight line from base to tip of the trunk
         Finds the angle of that line from the XZ plane"""
-        trunk_beg = lam_filter(self.cylinders, a_lambda=lambda: branch_order == 0)
+        trunk_beg = lam_filter(self.cylinders, a_lambda=lambda: branch_order == 0)  # noqa
         trunk_points = [(cyl.x[0], cyl.y[0], cyl.z[0]) for cyl in trunk_beg]
         root = trunk_points[0]
         furthest_afeild, _ = furthest_point(root, trunk_points)
@@ -687,7 +684,7 @@ class CylinderCollection:
             self.project_cylinders(plane)
         # if eval(metric) not in vars(Cylinder):
         #     log.info(f"Provided metric invalid: {eval(metric)} is not a property of Cylinder")
-        non_trunk_polys, _ = lam_filter(self.cylinders, lambda: branch_order != 0)
+        non_trunk_polys, _ = lam_filter(self.cylinders, lambda: branch_order != 0)  # noqa
         cyl_metric = [cyl.z[0] for cyl in non_trunk_polys]
         percentiles_by_metric = np.percentile(cyl_metric, percentiles)
         prev_perc = 0
@@ -773,11 +770,11 @@ class CylinderCollection:
         total_volume = np.sum([cyl.volume for cyl in self.cylinders])
         max_bo = np.max([cyl.branch_order for cyl in self.cylinders])
 
-        order_zero_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 0)
-        order_one_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 1)
-        order_two_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 2)
-        order_three_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 3)
-        order_four_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 4)
+        order_zero_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 0)  # noqa
+        order_one_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 1)  # noqa
+        order_two_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 2)  # noqa
+        order_three_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 3)  # noqa
+        order_four_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 4)  # noqa
 
         statistics = {
             "total_psa": projected_union_area,

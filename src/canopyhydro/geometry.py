@@ -74,7 +74,7 @@ def circumradius(points: coord_list, center: np.ndarray == []) -> np.float32:
 
 def simplices(points: coord_list) -> coord_list:
     """
-    Yeilds simpicies and radius
+    Yields simpicies and radius
     """
     coords = np.asarray(points)
     tri = Delaunay(coords)
@@ -101,8 +101,9 @@ def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> np.float3
         10  # annectotally seems to be plenty high to ensure a discontinuous alpha shape
     )
     lower = 0
-    itterations = 10
-    while runs <= itterations:
+    iterations = 10
+    runs = 0
+    while runs <= iterations:
         alpha = (upper - lower) / 2
         hull, _ = concave_hull(boundary_points, union_poly)
         if hull.contains(Polygon):
@@ -180,12 +181,11 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
                 add_edge(edges, edge_points, coords, ic, ia)
                 add_center(centers, center)
         else:
-            # To Do - 3D version using trimesh/itertools
-            do_nothing = True
+            raise (Exception("3D alpha shapes not yet supported"))
 
     if voronoi:
         # voronoi diagram
-        v_diag = MultiLineString(centers)
+        MultiLineString(centers)
 
     m = MultiLineString(edge_points)
     triangles = list(polygonize(m))
@@ -198,7 +198,7 @@ def get_projection(vector: list, magnitude: list, radius: float()):
     Takes in the vector (starting point), magnitude and radius that fully define a cylinder.
     Finds the projection of the cylinder on a plane
 
-    Some linear algebra/diff eq could help us find this for an arbtrary plane.
+    Some linear algebra/diff eq could help us find this for an arbitrary plane.
     """
     noCirPoints = 360
     tCir = np.linspace(
@@ -220,9 +220,6 @@ def get_projection(vector: list, magnitude: list, radius: float()):
     # oVz = lambda v, a, b: ((-v[0] * a - v[1] * b) / v[2])
 
     # initializing min max arrays+
-    min_c = np.zeros_like(delt_c)
-    max_c = np.zeros_like(delt_c)
-    pSV = []
     projection = {
         "polygon": Polygon(),
         "base_vector": (0, 0, 0),
@@ -294,10 +291,10 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                     # interest
                     xaC = dim_a[0] + uov[:, 0] * radius
                     yaC = dim_b[0] + uov[:, 1] * radius
-                    zaC = dim_c[0] + uov[:, 2] * radius
+                    # zaC = dim_c[0] + uov[:, 2] * radius
                     xbC = dim_a[1] + uov[:, 0] * radius
                     ybC = dim_b[1] + uov[:, 1] * radius
-                    zbC = dim_c[1] + uov[:, 2] * radius
+                    # zbC = dim_c[1] + uov[:, 2] * radius
                     try:
                         c1c = list(
                             zip(
@@ -335,18 +332,18 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                     # coord_list.extend(bBoxc)
                     bBox = Polygon(bBoxc)
                     partsPS = [c1, bBox, c2]
-                except:
+                except Exception as err:
                     log.error(
-                        f"Error creating rectangular portion of the projection: vectors:{vector} magnitudes:{magnitude}"
+                        f"Error creating rectangular portion of the projection: {err=}: {vector=},{magnitude=}"
                     )
                 try:
                     if np.max([poly_part.area for poly_part in partsPS]) > 0:
                         to_union = [poly for poly in partsPS if poly.area > 0]
                         cPS = unary_union([part for part in to_union])
                         # cPSc = Polygon(coord_list)
-                except:
+                except Exception as err:
                     print(np.any(np.isnan(xaC)))
-                    log.errpr("Error unioning projection polygons ")
+                    log.error(f"Error unioning projection polygons: {err=} ")
                 # get angle away from plane projected on to
                 run = math.sqrt(delt_b**2 + delt_a**2)
                 rise = delt_c
@@ -386,7 +383,7 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
         being cast and the sections of canopy that are casting that shade.
         After each loop, a new section of canopy is moved from the 'shading' group
         to the 'shaded' group and a new calculation of shaded area is made. The result
-        is a cummulative sum of shaded area at various heights in the canopy.
+        is a cumulative sum of shaded area at various heights in the canopy.
 
 
     shapely's intersection function could be used, and
