@@ -15,4 +15,5 @@ scipy==1.13.1
 Shapely==2.0.4
 sphinx
 sphinx_rtd_theme
+sphinxcontrib-napoleon
 toml==0.10.2

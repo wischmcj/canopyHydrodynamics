@@ -17,12 +17,46 @@ from canopyhydro.utils import _try_import
 
 log = logging.getLogger("model")
 
-
-if has_geopandas := _try_import("geopandas"):
-    from geopandas import GeoSeries
-
 if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
+    from matplotlib.collections import PatchCollection
+    from matplotlib.colors import to_rgba
+    from matplotlib.patches import PathPatch
+    from matplotlib.path import Path
+
+    # Plots a Polygon to pyplot `ax`
+    def polygon_plot(ax, polys: list | Polygon, **kwargs):
+        if isinstance(polys, Polygon):
+            polys = [polys]
+        colors = kwargs.get("facecolor", ["grey"])
+        if isinstance(colors, str):
+            colors = list(colors)
+        union_dict = {color: [] for color in colors}
+        breakpoint()
+        for poly, color in zip(polys, colors):
+            union_dict[color].append(poly)
+        for color, polys in union_dict.items():
+            if polys != []:
+                to_draw = unary_union(polys)
+                kwargs["facecolor"] = to_rgba(color)
+
+                path = Path.make_compound_path(
+                    Path(np.asarray(to_draw.exterior.coords)[:, :2]),
+                    *[
+                        Path(np.asarray(ring.coords)[:, :2])
+                        for ring in to_draw.interiors
+                    ],
+                )
+
+                patch = PathPatch(path, **kwargs)
+                collection = PatchCollection([patch], **kwargs)
+                ax.add_collection(collection, autolim=True)
+                ax.autoscale_view()
+        return collection
+else:
+
+    def polygon_plot(ax, poly, **kwargs):
+        raise ImportError("matplotlib is required to plot polygons")
 
 
 ### Functions relating to Alpha Shapes
@@ -119,9 +153,10 @@ def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> np.float3
 # @profile
 # might eventually be updated to deal
 # with 3d a la https://github.com/bellockk/alphashape/blob/master/alphashape/optimizealpha.py
-def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
+def concave_hull(boundary_points, alpha: int = 0):
     """alpha shape / concave hull
-    Draws a minimal concave polygon with a concavity factor alpha
+    Creates a delaunay triangulation on the set of points. Using this triangulation,
+    returns a minimal concave polygon with a concavity factor alpha
     see: trunk_lean
     """
 
@@ -182,14 +217,35 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
                 add_center(centers, center)
         else:
             raise (Exception("3D alpha shapes not yet supported"))
-
-    if voronoi:
-        # voronoi diagram
-        MultiLineString(centers)
-
     m = MultiLineString(edge_points)
     triangles = list(polygonize(m))
     return unary_union(triangles), edge_points, centers
+
+
+# def draw_vectors(vectors: list[tuple[list[int]]],
+#                  colors: Optional[list[str]] = ["black"],
+#                  save: bool = False,
+#                  show: bool = False,
+#                  file_name_ext: str = "",
+#                  )->tuple[int,int,int]:
+#     """Gets the x, y and z coordinates from a list of vectors
+#         as seperate lists.
+
+#     ### Args:
+#         - `vectors (list[tuple[list[int]]])`: _description_
+
+#     ### Returns:
+#         - `_type_`: _description_
+#     """
+#     for x,y,z in vectors:
+#         plt.plot(x, y, z, color="black")
+#     if save:
+#         save_dir = "/".join(
+#             [str(output_dir), "draw_vectors", f"{file_name_ext.replace('.','')}"]
+#         )  # .replace("/", "\\")
+#         plt.savefig(save_dir, dpi=3000)
+#     if show:
+#         plt.show()
 
 
 ### Functions relating to 2D Cylinder Projections
@@ -342,7 +398,6 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                         cPS = unary_union([part for part in to_union])
                         # cPSc = Polygon(coord_list)
                 except Exception as err:
-                    print(np.any(np.isnan(xaC)))
                     log.error(f"Error unioning projection polygons: {err=} ")
                 # get angle away from plane projected on to
                 run = math.sqrt(delt_b**2 + delt_a**2)
@@ -487,16 +542,40 @@ def draw_cyls(
     colors: list[bool] = [True],
     save: bool = False,
     file_name_ext: str = "",
+    overlay: list | None = None,
+    overlay_transparency: float | None = None,
     show: bool = False,
 ):
     """Draws a collection of cylinders in 2 dimensions"""
     log.info("Plotting cylinder collection")
 
     fig, ax = plt.subplots()
-    geoPolys = GeoSeries(collection)
+    colors = ["Black" if col else "Grey" for col in colors]
 
-    colors = ["Blue" if col else "Grey" for col in colors]
-    geoPolys.plot(ax=ax, color=colors)
+    polygon_plot(ax, collection, facecolor=colors)
+    if overlay:
+        for item in overlay:
+            # The below if statements allow for the overlay to be:
+            #   a single polygon or a list of polygons
+            #       - in the case of watershed alpha shapes
+            #   or a list of coordinate lists
+            #       - in the case of drip points
+            if isinstance(item, Polygon):
+                polygon_plot(ax, item, facecolor=["grey"], alpha=overlay_transparency)
+            if isinstance(item, list):
+                if isinstance(item[0], Polygon):
+                    polygon_plot(
+                        ax,
+                        item,
+                        facecolor=["grey"] * len(item),
+                        alpha=overlay_transparency,
+                    )
+                elif isinstance(item[0], list):
+                    ax.scatter(*item, alpha=overlay_transparency, color="red")
+            else:
+                log.error(
+                    "Overlay must be a Polygon, a list of Polygons or coordinate list"
+                )
     if show:
         plt.show()
     if save:

@@ -34,6 +34,40 @@ def create_cyl(arr: np.array):
 
 @dataclass
 class Cylinder:
+    """
+    The Cylinder class is used to represent the 3-D cylinders that make up a QSM.
+    Contains several wrappers for functions in 'geometry'.
+
+    Attributes:
+        cyl_id (int): Desc.
+        x (np.ndarray[np.float32]): Desc.
+        y (np.ndarray[np.float32]): Desc.
+        z (np.ndarray[np.float32]): Desc.
+        radius (np.float32): Desc.
+        length (np.float32): Desc.
+        branch_order (int): Desc.
+        branch_id (int): Desc.
+        volume (np.float32): Desc.
+        parent_id (int): Desc.
+        reverse_branch_order (int): Desc.
+        segment_id (int): Desc.
+        projected_data (dict(Projection)): Desc. default_factory=dict
+        flow_id (int): Desc. Defaults to None
+        flow_type (str): Desc. Defaults to None
+        drip_node (int): Desc. Defaults to None
+        begins_at_drip_point (bool): Desc. Defaults to None
+        begins_at_divide_point (bool): Desc. Defaults to None
+        stem_path_id (int): Desc. Defaults to None
+        dx (np.float32): Desc. Defaults to 0
+        dy (np.float32): Desc. Defaults to 0
+        dz (np.float32): Desc. Defaults to 0
+        surface_area (np.float32): Desc. Defaults to 0.0
+        sa_to_vol (np.float32): Desc. Defaults to 0.0
+        slope (np.float32): Desc. Defaults to 0.0
+        is_stem (bool): Desc. Defaults to False
+        is_divide (bool): Desc. Defaults to False
+    """
+
     cyl_id: int
     x: np.ndarray[np.float32]
     y: np.ndarray[np.float32]
@@ -86,31 +120,22 @@ class Cylinder:
     def initialize(self):
         """Initializes remaining attributes based off of the
         attributes provided at object creation
+
+        References:
+            - self.x, self.y, self.z
+            - self.dx, self.dy, self.dz
+            - self.radius, self.length
+            - self.volume
+            - self.surface_area
+            - self.sa_to_vol
+            - self.angle
+            - self.xy_area
+
         """
 
         self.dx = self.x[1] - self.x[0]
         self.dy = self.y[1] - self.y[0]
         self.dz = self.z[1] - self.z[0]
-        self.vector_start_end = np.array(
-            [
-                np.array([self.x[0], self.y[0], self.z[0]]),
-                np.array([self.x[1], self.y[1], self.z[1]]),
-            ]
-        )
-        self.vectors = {
-            "XY": [
-                np.array([self.x[0], self.y[0], self.z[0]]),
-                np.array([self.x[1], self.y[1], self.z[1]]),
-            ],
-            "XZ": [
-                np.array([self.x[0], self.z[0], self.y[0]]),
-                np.array([self.x[1], self.z[1], self.y[1]]),
-            ],
-            "YZ": [
-                np.array([self.y[0], self.z[0], self.x[0]]),
-                np.array([self.y[1], self.z[1], self.x[1]]),
-            ],
-        }
         radius = self.radius
         length = self.length
         self.surface_area = (
@@ -178,14 +203,27 @@ class Cylinder:
         return projection["polygon"]
 
     def draw(self, plane: str = "XY", **kwargs):
-        """A wrapper around the draw_cyl function allowing
+        """
+        A wrapper around the draw_cyl function allowing
         more readable code for drawing a single cylinder
             - e.g. for some Cylinder 'cyl'
-                cyl.draw() rather than geometry.draw_cyls([cyl])"""
+                cyl.draw() rather than geometry.draw_cyls([cyl])
+
+        Args:
+            - plane:
+                The projection of the cylinder to draw:
+                    'XY, 'XZ', or 'YZ'. Defaults to "XY".
+        """
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly], **kwargs)
 
     def draw_3D(self, **kwargs):
         """Draws the cylinder in 3D space"""
-        fig = draw_cylinders_3D([self.radius], [self.vector_start_end], **kwargs)
+        vector_start_end = np.array(
+            [
+                np.array([self.x[0], self.y[0], self.z[0]]),
+                np.array([self.x[1], self.y[1], self.z[1]]),
+            ]
+        )
+        fig = draw_cylinders_3D([self.radius], [vector_start_end], **kwargs)
         return fig

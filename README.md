@@ -4,16 +4,16 @@ The goal of this and future versions of CanoPyHydro is to provide a tool set tha
 
 CanoPyHydro provides users access to an innovative, bottom-up approach to estimation precipitation redistribution. By enriching QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
 
-  - Stemflow and throughfall generating areas of the canopy
-  - The 'drip points' to which throughfall is directed - complete with their relative volumes
-  - 'Divides' and 'confluences' within the canopy that dictate the flow of water through the canopy
+- Stemflow and throughfall generating areas of the canopy
+- The 'drip points' to which throughfall is directed - complete with their relative volumes
+- 'Divides' and 'confluences' within the canopy that dictate the flow of water through the canopy
 
 The current tool set also boasts several different spacial analysis tools, several of which have been utilized in the study of non-hydrological environmental conditions within tree canopies. These include:
 
-  - Functionality for characterizing the level of obsfucation present at given canopy cross sections
-  - Tools for identifying, highlighting and isolating branch subnetworks meeting any arbitrary contition(s)
-    - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
-  - 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
+- Functionality for characterizing the level of obsfucation present at given canopy cross sections
+- Tools for identifying, highlighting and isolating branch subnetworks meeting any arbitrary contition(s)
+  - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
+- 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
 ## Getting Started
 
@@ -40,7 +40,7 @@ The current tool set also boasts several different spacial analysis tools, sever
 
 ```bash
    pip install canoPyHydro
-   ```
+```
 
 # Contributing
 
@@ -67,24 +67,27 @@ This repository houses python utilities described in 'A LiDAR-driven pruning alg
 A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
 (https://www.researchgate.net/publication/375530854)
 
-
 ## Wishlist
-  - Optimizing the alpha value for alphashapes
-      - Can be done locally for areas with different point densities
-  - Smoothing cylinders to eliminate false drip points
-      -polygon.buffer
-  - Creating QSMs from point cloud data
-    - would almost certainly need to leverage c++
-  - Integrate Point cloud processing libraries like Tree tool
-    - https://github.com/porteratzo/TreeTool
-  - pip install -U pytreedb
-  - A more robust meta manager that stores to a cloud based db
-  - Local (maybe also remote) caching
-  - 3d plotting
+
+- Optimizing the alpha value for alphashapes
+  - Can be done locally for areas with different point densities
+- Smoothing cylinders to eliminate false drip points
+  -polygon.buffer
+- Creating QSMs from point cloud data
+  - would almost certainly need to leverage c++
+- Integrate Point cloud processing libraries like Tree tool
+  - https://github.com/porteratzo/TreeTool
+- pip install -U pytreedb
+- A more robust meta manager that stores to a cloud based db
+- Local (maybe also remote) caching
+- 3d plotting
 
 ## Tutorials
+
   The below code can be run at the first breakpoint in the test_collection_integration.py file
-  ### Displaying, Filtering and Highlighting
+
+### Displaying, Filtering and Highlighting
+
     flexible_collection.draw(plane = 'XZ')
     flexible_collection.draw(plane = 'XZ', a_lambda = lambda: cyl_id>100)
     flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100)
@@ -94,7 +97,8 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
     flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:branch_order==2)
     flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)
 
-  ### Draw all projections
+### Draw all projections
+
     import geopandas as geo  # only import what we need
     import matplotlib.pyplot as plt
     happy_path_projection.project_cylinders('XY')

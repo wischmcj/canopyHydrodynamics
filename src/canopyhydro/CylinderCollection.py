@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import logging
-import math
 import os
 import pickle
 from itertools import chain
@@ -15,22 +14,23 @@ from shapely.geometry import Point
 from shapely.ops import unary_union
 
 from canopyhydro.configuration import in_flow_grade_lim, input_dir, output_dir
-from canopyhydro.Cylinder import create_cyl
+from canopyhydro.Cylinder import Cylinder, create_cyl
 from canopyhydro.DataClasses import Flow
-from canopyhydro.geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
-                                  furthest_point, get_projected_overlap)
 from canopyhydro.utils import (_try_import, create_dir_and_file,
                                intermitent_log, lam_filter, save_file)
+from src.canopyhydro.geometry import (concave_hull, draw_cylinders_3D,
+                                      draw_cyls, furthest_point,
+                                      get_projected_overlap)
 
 # Optional imports
 if has_geopandas := _try_import("geopandas"):
-    from geopandas import GeoSeries
+    pass
 
 if has_matplotlib := _try_import("matplotlib"):
-    import matplotlib.pyplot as plt
+    pass
 
 if has_spatial := _try_import("scipy.spatial"):
-    from scipy.spatial import distance
+    pass
 
 
 log = logging.getLogger("model")
@@ -39,6 +39,24 @@ NAME = "CylinderCollection"
 
 
 def pickle_collection(collection, designation: str = ""):
+    """
+    Pickles a collection to a file so that it may be
+        read into a CylinderCollection object at a later time.
+
+    Args:
+        collection (str):
+            The collection to pickle.
+        designation (bool):
+            If True, the file name is assumed to be the full path to the file.
+            If False, the file name is assumed to be the name of the file in the output directories
+
+    Returns:
+        Cylinder Collection: The unpickled collection.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pickle.UnpicklingError: If there is an error while unpickling the file.
+    """
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
     if designation == "":
         designation = ".pickle"
@@ -91,6 +109,110 @@ def unpickle_collection(
 
 
 class CylinderCollection:
+    """
+    CylinderCollections represent QSM's or sections thereof, but with additional structure.
+    A CylinderCollection is initialized from a .csv file and can:
+        - Project cylinders onto the XY, XZ, and YZ planes
+        - Determine which precipitation partition water intercepted by
+            each of its cylinders will flow into.
+        - Find common tree characteristics: DBH, trunk lean, etc.
+        - Calculate occlusion for given cross sections of the canopy
+        - Draw detailed figures representing the canopy watershed, with:
+            - Cylinders in 3D or projected on to the XY, XZ, or YZ planes
+            - Drip points (areas of dense throughfall)
+            - Alpha shapes (concave hulls) around arbitrary parts of the canopy
+
+    Attributes:
+       file (str): The path to the .csv file used to initialize the CylinderCollection. Defaults to "".
+       surface_area (float):
+          The total surface area of all cylinders in the collection. Defaults to np.nan.
+       file_name (string):
+          The name of the .csv file used to initialize the CylinderCollection. Defaults to "".
+       volume (float):
+          The total volume of all cylinders in the collection. Defaults to np.nan.
+       avg_sa_to_vol (float):
+          The average ratio of surface area to volume for the cylinders in the collection. Defaults to np.nan.
+       max_branch_order (float):
+          The maximum branch order in the collection. Defaults to np.nan.
+       max_reverse_branch_order (float):
+          The maximum reverse branch order in the collection. Defaults to np.nan.
+       extent (dict):
+          The minimum and maximum coordinates of the cylinders in the collection.
+          Defaults to {
+               "min": [np.nan, np.nan, np.nan],
+               "max": [np.nan, np.nan, np.nan],
+           }.
+       treeQualities (dict):
+          Various characteristics of the tree represented by the collection. Defaults to {
+           "total_psa": None,
+           "tot_hull_area": None,
+           "stem_flow_hull_area": None,
+           "stem_psa": None,
+           "flowStats": None,
+           "dbh": None,
+           "tot_surface_area": None,
+           "stem_surface_area": None,
+       }.
+       projections (dict):
+          Whether the cylinders have been projected onto the XY, XZ, and YZ planes.
+          Defaults to {
+           "XY": False,
+           "XZ": False,
+           "YZ": False
+           }.
+       hulls (dict):
+          Whether hulls have been calculated for the projections onto the XY, XZ, and YZ planes.
+          Defaults to {
+           "XY":False,
+           "XZ": False,
+           "YZ": False
+          }.
+       stem_hull (shapely.Polygon):
+          The hull of the stem of the tree. Defaults to None.
+       stem_paths (list):
+          The paths along the stem of the tree. Defaults to [[]].
+       trunk (list):
+          The cylinders that make up the trunk of the tree. Defaults to [].
+       graph (nx.Graph):
+          The graph representation of the tree. Defaults to None.
+       digraph (nx.Digraph):
+          The directed graph representation of the tree. Defaults to None.
+       end_nodes (list):
+          The nodes at the ends of the branches of the tree. Defaults to [].
+       flows (list[Flow]):
+          The flows of water intercepted by the cylinders. Defaults to None.
+       divide_nodes (list[int]):
+          The nodes at which the flows divide. Defaults to None.
+       drip_nodes (list[int]):
+          The nodes at which water drips from the tree. Defaults to None.
+       cyl_to_drip (dict[int,int]):
+          A mapping from cylinders to drip points. Defaults to None.
+       drip_points (dict[str,list]):
+          The coordinates and flow ids of the drip points.
+          Defaults to {
+           "x": np.nan,
+           "y": np.nan,
+           "z": np.nan,
+           "flow_id": np.nan
+           }.
+       trunk_nodes (list):
+          The nodes that make up the trunk of the tree. Defaults to [].
+       drip_point_loc (list):
+          The locations of the drip points. Defaults to None.
+       stem_flow_component (nx.Graph):
+          The component of the graph representing stem flow. Defaults to None.
+       drip_graph (nx.Graph):
+          The graph representing the flow of drips. Defaults to None.
+       drip_flow_components (list[nx.Graph]):
+          The components of the drip graph. Defaults to None.
+       flow_chars (dict):
+          Characteristics of the flows: num_cylinders, projected_area,
+           surface_area, angle_sum, volume, sa_to_vol, drip_node_id, drip_node_loc.
+          Defaults to {}.
+       trunk_lean (float):
+          The angle of lean of the trunk. Defaults to None.
+    """
+
     cylinders = dict
 
     # initialize our object level variables for cylinder objects
@@ -121,7 +243,7 @@ class CylinderCollection:
 
         # Projection Attrs
         self.projections = {"XY": False, "XZ": False, "YZ": False}
-        self.hull = None
+        self.hulls = {"XY": False, "XZ": False, "YZ": False}
         self.stem_hull = None
 
         # Special case tree attributes
@@ -131,6 +253,7 @@ class CylinderCollection:
         # Graph and Attributes
         self.graph = None
         self.digraph = None
+        self.end_nodes = []
         self.flows = None
         self.divide_nodes = None
         self.drip_nodes = None
@@ -144,6 +267,32 @@ class CylinderCollection:
         # Calculations using graph results
         self.flow_chars = {}
         self.trunk_lean = None
+
+    def __eq__(self, other):
+        """
+        Compares two CylinderCollections for equality.
+
+        Args:
+            other: The other CylinderCollection to compare.
+
+        Returns:
+            bool: True if the CylinderCollections are equal, False otherwise.
+
+        Raises:
+            AttributeError: If one or both CylinderCollections contain no cylinders.
+            TypeError: If the other object is not a CylinderCollection.
+
+        """
+        if len(self.cylinders) == 0 or len(other.cylinders) == 0:
+            raise AttributeError(
+                "One or both Cylinder Collections contain no Cylinders (Did you forget to initialize?)"
+            )
+        if type(self) == type(other):
+            raise TypeError(
+                "CylinderCollections may only be compared to other cylinder collections"
+            )
+        # order matters here
+        return np.all([cyl == other[idx] for idx, cyl in enumerate(self.cylinders)])
 
     def from_csv(self, file, aggregate_cyls=True):
         """
@@ -228,41 +377,15 @@ class CylinderCollection:
         cyl_desc = [cyl.__repr__() for cyl in self.cylinders]
         return cyl_desc
 
-    def __eq__(self, other):
-        """
-        Compares two CylinderCollections for equality.
-
-        Args:
-            other: The other CylinderCollection to compare.
-
-        Returns:
-            bool: True if the CylinderCollections are equal, False otherwise.
-
-        Raises:
-            AttributeError: If one or both CylinderCollections contain no cylinders.
-            TypeError: If the other object is not a CylinderCollection.
-
-        """
-        if len(self.cylinders) == 0 or len(other.cylinders) == 0:
-            raise AttributeError(
-                "One or both Cylinder Collections contain no Cylinders (Did you forget to initialize?)"
-            )
-        if type(self) == type(other):
-            raise TypeError(
-                "CylinderCollections may only be compared to other cylinder collections"
-            )
-        # order matters here
-        return np.all([cyl == other[idx] for idx, cyl in enumerate(self.cylinders)])
-
     def draw(
         self,
         plane: str = "XY",  # XY, XZ, YZ, or 3D
         highlight_lambda: Callable = lambda: True,
         filter_lambda: Callable = lambda: True,
-        # include_drips: bool = False,
-        # include_contour: bool = False,
-        # include_alpha_shape: bool = False,
-        stem=False,
+        as_vectors: bool = False,
+        include_drips: bool = False,
+        include_alpha_shape: bool = False,
+        overlay_transparency: float = 0.5,
         file_name_ext: str = "",
         **kwargs,
     ):
@@ -287,25 +410,70 @@ class CylinderCollection:
         filtered_cyls, matches = lam_filter(
             cylinders, highlight_lambda, return_all=True
         )
+        # if as_vectors:
+        #     to_draw=[[cyl.x,cyl.y,cyl.z] for cyl in self.filtered_cyls]
+        #     draw_vectors( to_draw,
+        #                  colors=matches,
+        #                  file_name_ext=file_name,
+        #                  **kwargs)
         log.info(f"{len(filtered_cyls)} cylinders matched criteria")
         if plane == "3D":
-            radii = [cyl.radius for cyl in filtered_cyls]
-            vectors = [cyl.vector_start_end for cyl in filtered_cyls]
+            radii, vectors = [], []
+            for cyl in filtered_cyls:
+                start_end = np.array(
+                    [
+                        np.array([self.x[0], self.y[0], self.z[0]]),
+                        np.array([self.x[1], self.y[1], self.z[1]]),
+                    ]
+                )
+                radius = cyl.radius
+                radii.append(radius)
+                vectors.append(start_end)
             fig = draw_cylinders_3D(radii, vectors, file_name_ext=file_name, **kwargs)
         else:
-            if not self.projections[plane]:
-                self.project_cylinders(plane)
-            to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
-            fig = draw_cyls(
-                collection=to_draw, colors=matches, file_name_ext=file_name, **kwargs
-            )
+            if as_vectors:
+                to_draw = [[cyl.x, cyl.y, cyl.z] for cyl in self.filtered_cyls]
+            else:
+                if not self.projections[plane]:
+                    self.project_cylinders(plane)
+                to_draw = [
+                    cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls
+                ]
 
-        # if include_drips:
-        #     self.drip_map()
-        # if include_contour:
-        #     self.drip_map()
-        # if include_alpha_shape:
-        #     self.watershed_boundary()
+            overlay = []
+            if include_alpha_shape:
+                if not self.hulls[plane]:
+                    log.warning(
+                        f"No {plane} plane alpha shape found. Running watershed_boundary"
+                    )
+                    self.watershed_boundary(plane=plane)
+                overlay.append(self.hulls[plane])
+
+            if include_drips:
+                if not self.drip_point_loc:
+                    log.warning(
+                        "No drip point locations found, running set_drip_points"
+                    )
+                    self.set_drip_points()
+                dpts = self.drip_point_loc
+                x_pts = list(pt[0] for pt in dpts)
+                y_pts = list(pt[1] for pt in dpts)
+                z_pts = list(pt[2] for pt in dpts)
+                if plane == "XY":
+                    overlay.append([x_pts, y_pts])
+                elif plane == "XZ":
+                    overlay.append([x_pts, z_pts])
+                elif plane == "YZ":
+                    overlay.append([y_pts, z_pts])
+
+            fig = draw_cyls(
+                collection=to_draw,
+                colors=matches,
+                file_name_ext=file_name,
+                overlay=overlay,
+                overlay_transparency=overlay_transparency,
+                **kwargs,
+            )
         return fig
 
     def get_dbh(self):
@@ -344,18 +512,20 @@ class CylinderCollection:
         Returns:
             A list of end nodes in the graph.
         """
+        if not self.digraph:
+            log.warning(
+                "Graph not initialized, running initialize_graph_from with default values"
+            )
+            self.initialize_digraph_from()
         g = self.digraph
+
         if self.end_nodes:
             return self.end_nodes
         elif len(g.nodes) > 0:
+            # the root node also has degree one, so we exclude it with n!= -1
             end_nodes = [n for n in g.nodes if g.degree(n) == 1 and n != -1]
             self.end_nodes = end_nodes
             return end_nodes
-        else:
-            log.warning(
-                "Graph not initialized, run <CylinderCollection>.initialize_graph(**args)"
-            )
-            return list(None)
 
     def get_trunk_nodes(self) -> list[int]:
         """
@@ -381,12 +551,22 @@ class CylinderCollection:
             )
             return list(None)
 
+    def direction_from_trunk(self, cyl: Cylinder):
+        base_cyl = self.cylinders[0]
+        tree_center = (base_cyl.x[0], base_cyl.y[0], base_cyl.z[0])
+        x, y, z = cyl.x[1], cyl.y[1], cyl.z[1]
+        directon_from_trunk = (
+            -1 if x <= tree_center[0] else 1,
+            -1 if y <= tree_center[1] else 1,
+            -1,
+        )
+        return directon_from_trunk
+
     def watershed_boundary(
         self,
-        component=None,
         plane: str = "XY",
-        curvature_alpha: np.float64 = 2,
-        stem: bool = False,
+        filter_lambda: Callable | None = None,
+        curvature_alpha: np.float64 = 1.8,
         draw: bool = False,
         save: bool = False,
         file_name_ext: str = "",
@@ -408,29 +588,43 @@ class CylinderCollection:
         Returns:
             None
         """
-        if not self.projections[plane]:
-            self.project_cylinders(plane)
-        # want to get a ring of points around the component
-        # however, the root node also has degree one, so we exclude it with n!= -1
-        component = component if component else self.digraph
-        if stem:
-            component=myCollection.stem_flow_component
-        end_nodes = [n for n in component.nodes if component.degree(n) == 1 and n != -1]
+        comp_cylinders = self.cylinders
+        if filter_lambda:
+            comp_cylinders, _ = lam_filter(self.cylinders, filter_lambda)
 
-        endCyls = [
+        end_nodes = self.get_end_nodes()
+        end_cylinders = [
             cyl
-            for cyl in self.cylinders
+            for cyl in comp_cylinders
             if cyl.cyl_id in end_nodes or cyl.branch_order == 0
         ]
-        boundary_points = [Point(cyl.x[1], cyl.y[1]) for cyl in endCyls]
+        boundary_points = [
+            (cyl.x[1], cyl.y[1], cyl.z[1] + cyl.radius * 2) for cyl in comp_cylinders
+        ]
+        if plane in ("YZ", "XZ"):
+            # using only branch tips as boundary points only really
+            #  works in the XY direction. In the other directions
+            #  the botom of the canopy is bounded by points on the surfaces
+            # of various cylinders
+            comp_cylinders = [cyl for cyl in comp_cylinders if cyl.branch_order != 0]
+            for cyl in comp_cylinders:
+                buffer = cyl.radius * 2
+                buffer_arr = np.array(self.direction_from_trunk(cyl)) * buffer
+                coords = (cyl.x[0], cyl.y[0], cyl.z[0])
+                buffered_coords = coords + buffer_arr
+                boundary_points.append(buffered_coords)
 
+        if plane == "XY":
+            boundary_points = [Point(cyl.x[1], cyl.y[1]) for cyl in end_cylinders]
+        elif plane == "XZ":
+            boundary_points = [Point(x, z) for x, _, z in boundary_points]
+        elif plane == "YZ":
+            boundary_points = [Point(y, z) for _, y, z in boundary_points]
         hull, _, _ = concave_hull(boundary_points, curvature_alpha)
         if draw:
             draw_cyls([hull], save=save, file_name_ext=file_name_ext)
-        if stem:
-            self.stem_hull = hull
-        else:
-            self.hull = hull
+        self.hulls[plane] = hull
+        return hull, boundary_points
 
     def initialize_digraph_from(self, in_flow_grade_lim=in_flow_grade_lim):
         """This function creates a directed graph and its undirected counterpart.
@@ -479,7 +673,7 @@ class CylinderCollection:
         dists = {node: len(path) - 1 for node, path in trunk_paths.items()}
         return dists
 
-    def find_flow_components(self):
+    def find_flow_components(self, save_components: bool | None = False):
         g = self.digraph
         if type(g) == nx.Graph:
             msg = "Find Flow Digraph invoked for undirected graph"
@@ -549,17 +743,23 @@ class CylinderCollection:
             f"{self.file_name} found to have {len(drip_components)} drip components"
         )
         print("reached_End of find flows")
-
-        self.stem_flow_component = stem_flow_component
-        self.drip_flow_components = drip_components
-        self.drip_graph = g_drip
         self.divide_nodes = divide_nodes
         self.drip_nodes = drip_nodes
         self.cyl_to_drip = cyl_to_drip_node
+        if save_components:
+            self.stem_flow_component = stem_flow_component
+            self.drip_flow_components = drip_components
+            self.drip_graph = g_drip
 
     # @profile
     def calculate_flows(self, plane: str = "XY"):
         """uses subgraphs from FindFlowComponents to aggregate flow characteristics"""
+        if not self.projections[plane]:
+            log.warning(
+                f"""No {plane} projection data found. Running project_cylinders
+                            This may take several minutes"""
+            )
+            self.project_cylinders(plane)
         cyls = self.cylinders
         flow_chars = []
         # edge_attributes = {}
@@ -614,9 +814,9 @@ class CylinderCollection:
                 log.warning(f"Error: More that 1 cyl with id {drip_node} found")
 
             drip_node_loc = (
-                cyl_before_drip[0].x[0],
-                cyl_before_drip[0].y[0],
-                cyl_before_drip[0].z[0],
+                cyl_before_drip[0].x[1],
+                cyl_before_drip[0].y[1],
+                cyl_before_drip[0].z[1],
             )
             drip_cylinders = [
                 cyl
@@ -649,9 +849,7 @@ class CylinderCollection:
             log.info(f"summed drip edges in component {idx}")
         self.flows = flow_chars
 
-    def identify_stem_paths(
-        self,
-    ):
+    def identify_stem_paths(self):
         # Special case tree attributes
         root = 0
         self.stem_paths = nx.all_simple_paths(self.g, 0, root)
@@ -676,16 +874,11 @@ class CylinderCollection:
         return angle
 
     def find_overlap_by_percentile(
-        self,
-        plane: str = "XY",
-        percentiles: list[int] = [25, 50, 75],
-        metric: str = "z",
+        self, plane: str = "XY", percentiles: list[int] = [25, 50, 75]
     ):
         percentiles.sort()
         if not self.projections[plane]:
             self.project_cylinders(plane)
-        # if eval(metric) not in vars(Cylinder):
-        #     log.info(f"Provided metric invalid: {eval(metric)} is not a property of Cylinder")
         non_trunk_polys, _ = lam_filter(self.cylinders, lambda: branch_order != 0)  # noqa
         cyl_metric = [cyl.z[0] for cyl in non_trunk_polys]
         percentiles_by_metric = np.percentile(cyl_metric, percentiles)
@@ -707,23 +900,19 @@ class CylinderCollection:
     def statistics(self, plane: str = "XY", file_name_ext: str = ""):
         if not self.pSV:
             self.project_cylinders(plane)
-        if not self.hull:
-            self.watershed_boundary(component=self.graph)
+        if not self.hulls[plane]:
+            self.watershed_boundary(plane=plane)
         if not self.stem_hull:
             if not self.stem_flow_component:
                 self.find_flow_components()
                 self.calculate_flows(plane=plane)
-            self.watershed_boundary(
-                component=self.stem_flow_component,
-                plane=plane,
-                stem=True,
-                # ,save = True, draw=True
-                file_name_ext=file_name_ext + "_stem_hull",
+            self.stem_hull = self.watershed_boundary(
+                plane="XY", filter_lambda=lambda: is_stem == True
             )
         dbh = self.get_dbh()
 
-        canopy_cover = self.hull.area
-        canopy_boundary = self.hull.boundary.length
+        canopy_cover = self.hulls[plane].area
+        canopy_boundary = self.hulls[plane].boundary.length
 
         canopy_cover_stem = self.stem_hull.area
         canopy_boundary_stem = self.stem_hull.boundary.length
@@ -843,10 +1032,10 @@ class CylinderCollection:
         )
         return flow_file
 
-    def get_drip_points(
+    def set_drip_points(
         self,
         # metric :str = 'projected_area',
-        percentile: int = 30,
+        percentile: int = 90,
     ):
         """
         Returns the locations of the drip points.
@@ -854,8 +1043,13 @@ class CylinderCollection:
         with a value for the provided metric in the percentile given
         """
         if not self.flows:
-            log.warning("flows are not defined, run identify and calculate flows")
-            return
+            log.warning(
+                """flows are not defined, running 'find_flow_components'
+                            and  'calculate flows'"""
+            )
+            log.warning("This may take several minutes")
+            self.find_flow_components()
+            self.calculate_flows()
         # excluding trunk node
         drip_nodes = [
             (f.drip_node_id, f.projected_area, f.drip_node_loc)
@@ -876,115 +1070,14 @@ class CylinderCollection:
         drip_points = [
             node for node, area in flow_by_area_dict.items() if area > point_cutoff
         ]
-
-        drip_point_locs = [
+        if drip_points == []:
+            log.warning(f"No drip points found in the {percentile}th percentile")
+            log.warning("Assuming a small drip point list, including all drip points")
+            drip_points = [node for node, _ in flow_by_area_dict.items()]
+        drip_point_locs = list(
             [node[2][0], node[2][1], node[2][2]]
             for node in drip_nodes
             if node[0] in drip_points
-        ]
+        )
+        self.drip_point_loc = drip_point_locs
         return drip_point_locs
-
-    def drip_map(
-        self,
-        a_lambda: Callable = True,
-        scale: int = 1,
-        interpolate: bool = False,
-        file_name_ext: str = "",
-        show: bool = True,
-        save: bool = False,
-    ) -> None:
-        """
-        Returns a plot showing the locations of the drip points, subject
-        to input params
-
-        a_lambda: function to filter drip points displayed (e.g. those with projected area>10m^2 )
-        scale: how large of a boundary to draw around drip points
-        """
-        drip_point_locs = self.get_drip_points()
-        drip_point_locs_x = [pt[0] * scale for pt in drip_point_locs]
-        drip_point_locs_y = [pt[1] * scale for pt in drip_point_locs]
-        # min_xy = np.min(mins)
-        # max_xy = np.max(maxs)
-        # x_mesh, y_mesh = np.meshgrid(
-        #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
-        # )
-        if interpolate:
-            drip_point_locs_xy = [
-                [pt[0] * scale, pt[1] * scale] for pt in drip_point_locs
-            ]
-
-            math.floor(np.min(drip_point_locs_x))
-
-            mins = self.extent["min"]
-            maxs = self.extent["max"]
-            extents = [mins[0], maxs[0], mins[1], maxs[1]]
-            min_xy = np.min(
-                [
-                    math.floor(np.min(drip_point_locs_x)),
-                    math.floor(np.min(drip_point_locs_y)),
-                ]
-            )
-            max_xy = np.max(
-                [
-                    math.ceil(np.max(drip_point_locs_x)),
-                    math.ceil(np.max(drip_point_locs_y)),
-                ]
-            )
-            x_mesh, y_mesh = np.meshgrid(
-                np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
-            )
-
-            def dist_to_drip(a, b):
-                distances = distance.cdist([[a, b]], drip_point_locs_xy)
-                min_dist = np.min(distances)
-                return math.log(1 / min_dist)
-
-            distance_matrix = np.zeros((x_mesh.shape[0], x_mesh.shape[0]))
-
-            for a in range(x_mesh.shape[0]):
-                for b in range(x_mesh.shape[0]):
-                    distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
-
-        for a in range(x_mesh.shape[0]):
-            for b in range(x_mesh.shape[0]):
-                distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
-
-        if has_matplotlib:
-            _, ax = plt.subplots()
-
-            ax.contourf(
-                y_mesh,
-                x_mesh,
-                distance_matrix,
-                levels=15,
-                max=0.5,
-                cmap=plt.cm.Blues,
-                extend="neither",
-                extent=extents,
-            )
-
-            ax.scatter(drip_point_locs_x, drip_point_locs_y)
-
-            filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
-            polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
-
-            if len(polys) > 0:
-                geoPolys = GeoSeries(polys)
-                geoPolys.plot(ax=ax)
-                if show:
-                    plt.show()
-                if save:
-                    save_dir = "/".join(
-                        [str(output_dir), "draw", f"{file_name_ext.replace('.','')}"]
-                    )  # .replace("/", "\\")
-                    plt.savefig(save_dir, dpi=3000)
-            else:
-                log.warning(
-                    "Drip Map: No cylinders returned for lambda function: {a_lambda}"
-                )
-        else:
-            log.warning(
-                "Unable to draw drip map as module matplotlib.pyplot is not available"
-            )
-
-        return distance_matrix

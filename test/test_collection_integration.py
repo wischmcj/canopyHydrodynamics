@@ -234,6 +234,6 @@ def test_watershed(flexible_collection):
     flexible_collection.initialize_digraph_from()
     flexible_collection.project_cylinders("XY")
     flexible_collection.watershed_boundary(flexible_collection.graph)
-    actual_poly = flexible_collection.hull
+    actual_poly = flexible_collection.hulls["XY"]
     expected_poly = small_tree_wateshed_poly
     assert actual_poly == expected_poly

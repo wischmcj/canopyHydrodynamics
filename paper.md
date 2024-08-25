@@ -6,7 +6,7 @@ tags:
   - rainfall
   - tree
   - stemflow
-  - throughfall 
+  - throughfall
 authors:
   - name: Collin Wischmeyer
     orcid: 0009-0002-8490-0999
@@ -34,6 +34,19 @@ affiliations:
 date: 31 August 2024
 bibliography: paper.bib
 ---
+<head>
+   <meta charset=utf-8 />
+   <title></title>
+   <style>
+     div.container {
+       display:inline-block;
+     }
+
+     p {
+       text-align:center;
+     }
+   </style>
+</head>
 <p align="center">
     <img src="./imgs/canhydro_logo.jpeg" height="390" width="390">
 </p>
@@ -66,20 +79,9 @@ canoPyHydro seeks to empower researchers with percipitation partitioning data; a
 
 # Summary
 
-The main inputs to canoPyHydro are Qantitative Structural Models (QSMs). These models simplify TLS point clouds to represent trees as collections of topologically ordered cylinders. CanoPyHydro's functionality can broadly categorized into two groups:
+The main inputs to canoPyHydro are Qantitative Structural Models (QSMs). These models simplify TLS point clouds to represent trees as collections of topologically ordered cylinders. CanoPyHydro's functionality can broadly categorized into two groups: Utilities for the ingestion and exploration of QSMs and utilities for predicting percipitation partitioning.
 
-1. Utilities for the conversion and exploration of QSMs. Methods in this category:
-
-  - Convert QSMs to python objects and calculate individual cyliner metrics (i.e. surface area, angle(s))
-  - Create 2D and 3D visualizations (with robust filtering and highlighting functionality).
-  - Surface a variety of spatial metrics (i.e. inter-canopy occlusion)
-
-2. Percipitation partitioning utilities
-
-   - Determining where intercepted percipitation is distributed by each part of the tree
-   - Qantify the structure of the canopy watershed
-
-CanoPyHydro takes a novel approach to the latter in particular, reimagining the trees' canopies as watersheds. By identifying the many tributary-like flows flowing down their branches, and areas of run-off where water drips to the forest floor, canoPyHydro unveils previously unexplored structures and characterizes the stemflow and throughfall generating portions of the canopy.
+CanoPyHydro takes a novel approach to the latter in particular, reimagining the trees' canopies as watersheds. CanoPyHydro unveils the previously unexplored structure of these watersheds: identifing the many tributary-like flows amongst trees' branches, determining which reach reach the trunk (thus becoming stemflow) and delineating areas of run-off where water drips to the forest floor (becoming throughfall).
 
 For tree-data explorers, CanoPyHydro's spacial utilities are of particular interest. The use of [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) empowers users to apply the concept of canopy coverage area in unexpected, new ways. Likewise, CanoPyHydro can provide detailed _intra_-canopy occlusion data for arbitrary cross-sections of the canopy, providing detailed estimates of the shade within the canopy (in the vertical direction) and protection from wind/rain (in the horizontal direction).
 
@@ -144,9 +146,15 @@ Many of the metrics calculated by this tool relate to projections of QSMs onto t
 - These projections are used to calculate canopy coverage and, by extension, woody area index; Both are key metrics in the study of stemflow
 - By comparing 2D projected areas of different branch subsets, canoPyHydro can provide a variety of detailed occlusion data
 
-![2D to 3D](./imgs/3d_cyl_projections.svg)_Here you can see how these projections function on the cylinder level._
+<div class="container">
+  <img style="display: block; auto;" src="./imgs/3d_cyl_projections.svg" height="500" width="500" alt="3d_to_2d_cyl"/>
+  <p>Here you can see how these projections function on the cylinder level.</p>
+</div>
+<div class="container">
+  <img style="display: block; margin: auto;" src="./imgs/canhydro_XZ_XY_Tale_of_2_Trees.png" height="400" width="400" alt="Point Cloud and QSM"/>
+  <p>Here you can see an example of the XY and XZ projections of two trees.</p>
+</div>
 
-![Point Cloud and QSM](./imgs/canhydro_XZ_XY_Tale_of_2_Trees.png)_Here you can see an example of the XY and XZ projections of two trees._
 
 ```{python}
   # Initializing a CylinderCollection object
@@ -222,7 +230,7 @@ After the flows in a canopy's watershed have been identified, common statistics 
     myCollection.draw('XZ', highlight_lambda=lambda:is_stem, save = True, file_name_ext="docs_ex")
 ```
 
-![Stem Flow Highlight XY](./imgs/example_tree_XY_docs_ex.png) 
+![Stem Flow Highlight XY](./imgs/example_tree_XY_docs_ex.png)
 ![Stem Flow Highlight XZ](./imgs/example_tree_XZ_docs_ex.png)_Here we see an example of the visualization capabilities of canoPyHydro. The above images show the same tree from two different angles, with the stemflow contributing cylinders highlighted in blue._
 
 ## Metrics
@@ -235,17 +243,17 @@ The occlusion of portions of the canopy, as well as the ground itsself has a qua
 
 In the calculation of canopy coverage area, we utilize [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) rather than a circular region. In the vernacular of some popular python packages alpha shapes are referred to as 'hulls', with the tightly fit version used in canoPyHydro considered 'convcave hulls'. This approach to quantifying canopy coverage provides a lower estimate of canopy coverage than would be measured with a smooth circle.
 
-![Stem Flow Highlight XY](./imgs/example_tree_XY_docs_ex.png) 
+![Stem Flow Highlight XY](./imgs/example_tree_XY_docs_ex.png)
 ![Alpha Shape Example](./imgs/example_tree_XY_Alpha_shape.png)_Here we see an example of an alpha shape for the same tree disussed above_
 
 # Future Direction
 
-- We hope to widen the use cases for our tool by integrating additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.). 
+- We hope to widen the use cases for our tool by integrating additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.).
 - By growing python libraries for spacial analysis (scipy-spacial, open3d) we hope to all for the projection of cylinders at an arbirtary angle, to suppoort the afformentioned integration of weather data.
 - Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency) you can see the current work being done to improve the efficiency of the flow finding algorithm. Early results so as much as a 200x increase in the speed of the algorithm as a result of:
   - migrating the the use of rust based graph models, using the rustworkx library
   - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing
-  
+
 # Acknowledgements
 
 We acknowledge the support of US-NSF DEB-2213623.

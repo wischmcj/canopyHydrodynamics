@@ -32,7 +32,6 @@ if has_numba:
     from numba import njit, prange
     from numba.typed import List
 
-
 # Data munging utils
 
 

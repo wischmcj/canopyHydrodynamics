@@ -8,7 +8,7 @@ import pandas as pd
 from geopandas import GeoSeries
 from sensitivity_analysis import run_test_cases
 
-from canopyhydro.configuration import log
+from src.canopyhydro.configuration import log
 
 
 def retain_quantile(df, field, percentile):
@@ -23,7 +23,17 @@ def return_quantile(df, field, percentile):
     return df[df[field] >= percentile_val][field]
 
 
-def plot_drip_points(collection, percentile):
+def get_drip_point_coords(collection, percentile):
+    """## Returns the x, y, z coordinates of drip points
+     in the percentile indicated by projected area (found in'find_flow_components')
+
+    ### Args:
+        - `collection (_type_)`: _description_
+        - `percentile (_type_)`: _description_
+
+    ### Returns:
+        - `_type_`: _description_
+    """
     scale = 1
     flows = pd.DataFrame([flow.__dict__ for flow in collection.flows])
     flows = flows[flows["drip_node_id"] != 0]
@@ -107,7 +117,7 @@ if __name__ == "__main__":
         stem_hull = col.stem_hull
         geopolys = GeoSeries(polys)
         geohull = GeoSeries(stem_hull)
-        tot_geoHull = GeoSeries(col.hull)
+        tot_geoHull = GeoSeries(col.hulls["XY"])
 
         fig, ax = plt.subplots()
         ext = "stem_highlight_xz"
@@ -121,9 +131,9 @@ if __name__ == "__main__":
             ax.set_ylim(y_lim)
             plt.show()
             # plt.savefig(f'/code/code/canopyHydrodynamics/data/output/draw/{file}_{ext}.svg')
-            plt.savefig(
-                f"/media/penguaman/Healthy/BranchHighlight/branchHighlight/{file}_{ext}.svg"
-            )
+            # plt.savefig(
+            #     f"/media/penguaman/Healthy/BranchHighlight/branchHighlight/{file}_{ext}.svg"
+            # )
         except KeyError as e:
             log.error(f"error getting XZ projected data {e}")
             #   trying to run project_cylinders {e}')
@@ -139,9 +149,9 @@ if __name__ == "__main__":
         geopolys_trans.plot(ax=ax, color=colors)
         ax.set_xlim(x_lim)
         ax.set_ylim(y_lim)
-        plt.savefig(
-            f"/media/penguaman/Healthy/BranchHighlight/branchHighlight/{file}_{ext}.svg"
-        )
+        # plt.savefig(
+        #     f"/media/penguaman/Healthy/BranchHighlight/branchHighlight/{file}_{ext}.svg"
+        # )
 
         plt.show()
 
@@ -162,12 +172,12 @@ if __name__ == "__main__":
 
         ax.set_xlim(x_lim)
         ax.set_ylim(y_lim)
-        plt.savefig(f"./images/dripsWithTrees/{file}_{ext}.svg")
+        # plt.savefig(f"./images/dripsWithTrees/{file}_{ext}.svg")
         plt.show()
 
         fig, ax = plt.subplots()
         ext = "two_hulls"
-        tot_geoHull = GeoSeries(col.hull)
+        tot_geoHull = GeoSeries(col.hulls["XY"])
         tot_geoHull_trans = tot_geoHull.translate(xoff=x_trans, yoff=y_trans, zoff=0.0)
         geohull_trans = geohull.translate(xoff=x_trans, yoff=y_trans, zoff=0.0)
         tot_geoHull_trans.plot(ax=ax, color="darkgrey", alpha=0.3)
@@ -201,12 +211,12 @@ if __name__ == "__main__":
 
         ax.set_xlim(x_lim)
         ax.set_ylim(y_lim)
-        plt.savefig(f"./images/dripsWithHulls/{file}_{ext}.svg")
+        # plt.savefig(f"./images/dripsWithHulls/{file}_{ext}.svg")
         plt.show()
 
         fig, ax = plt.subplots()
         ext = "only_hulls"
-        tot_geoHull = GeoSeries(col.hull)
+        tot_geoHull = GeoSeries(col.hulls["XY"])
         tot_geoHull_trans = tot_geoHull.translate(xoff=x_trans, yoff=y_trans, zoff=0.0)
         geohull_trans = geohull.translate(xoff=x_trans, yoff=y_trans, zoff=0.0)
         tot_geoHull_trans.plot(ax=ax, color="darkgrey", alpha=0.3)
@@ -214,5 +224,34 @@ if __name__ == "__main__":
 
         ax.set_xlim(x_lim)
         ax.set_ylim(y_lim)
-        plt.savefig(f"./images//hulls/{file}_{ext}.svg")
+        # plt.savefig(f"./images//hulls/{file}_{ext}.svg")
         plt.show()
+
+
+# As class functions
+# def percentile_by_field(to_filter:list[dict], field, percentile):
+#     to_filter_list= to_filter[field]
+#     percentile_val = np.percentile(to_filter_list, percentile)
+#     filter_arr = np.array(to_filter_list) >= percentile_val
+#     return to_filter[filter_arr]
+
+
+# def get_drip_point_coords(self, percentile):
+#     """## Returns the x, y, z coordinates of drip points
+#     in the percentile indicated by projected area (found in'find_flow_components')
+
+#     ### Args:
+#         - `collection (_type_)`: _description_
+#         - `percentile (_type_)`: _description_
+
+#     ### Returns:
+#         - `_type_`: _description_
+#     """
+#     scale = 1
+#     flows = np.array([flow.__dict__ for flow in self.flows])
+#     flows = flows[flows["drip_node_id"] != 0]
+#     drip_points = self.percentile_by_field(flows, "projected_area", percentile)
+#     drip_point_locs_x = [pt[0] * scale for pt in drip_points["drip_node_loc"]]
+#     drip_point_locs_y = [pt[1] * scale for pt in drip_points["drip_node_loc"]]
+#     drip_point_size = [pt * 5 for pt in drip_points["projected_area"]]
+#     return drip_point_locs_x, drip_point_locs_y, drip_point_size

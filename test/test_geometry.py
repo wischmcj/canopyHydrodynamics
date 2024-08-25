@@ -229,51 +229,6 @@ def test_star_poly():
     # breakpoint()
 
 
-def test_star_poly():
-    """
-    Given a 3-dimensional data set, return an expected set of edges.
-    """
-    coords_2d = sorted(
-        [
-            (0.0, 0.0),
-            (0.0, 0.0),
-            (0.0, 1.0),
-            (1.0, 0.0),
-            (1.0, 1.0),
-            (1.0, 0.0),
-            (0.0, 1.0),
-            (1.0, 1.0),
-            (0.25, 0.5),
-            (0.5, 0.25),
-            (0.5, 0.5),
-            (0.75, 0.5),
-            (0.5, 0.75),
-            (0.5, 0.5),
-        ]
-    )
-    points_2d = [Point((x, y)) for (x, y) in coords_2d]
-    # expected_vertices = [
-    #     [0.0, 0.0],
-    #     [0.0, 0.0],
-    #     [0.0, 1.0],
-    #     [0.0, 1.0],
-    #     [1.0, 0.0],
-    #     [1.0, 0.0],
-    #     [1.0, 1.0],
-    #     [1.0, 1.0],
-    #     [0.25, 0.5],
-    #     [0.5, 0.25],
-    #     [0.5, 0.5],
-    #     [0.5, 0.5],
-    #     [0.5, 0.75],
-    #     [0.75, 0.5],
-    # ]
-    expected = star_poly
-    results, _, _ = geometry.concave_hull(points_2d, 2.1)
-    assert results.contains(expected)
-    assert expected.contains(results)
-
-
 @pytest.mark.parametrize(
     "point,points,num, expected",
     [((2, 2), example_coords, 1, (1, 2)), ((9, 7), start_poly_coords, 1, (1, 1))],

@@ -210,7 +210,20 @@ def test_create_cyl_vectors(test_cyl):
     """
     Tests the creation of the test cylinder fixture
     """
-    actual = test_cyl.vectors
+    actual = {
+        "XY": [
+            np.array([test_cyl.x[0], test_cyl.y[0], test_cyl.z[0]]),
+            np.array([test_cyl.x[1], test_cyl.y[1], test_cyl.z[1]]),
+        ],
+        "XZ": [
+            np.array([test_cyl.x[0], test_cyl.z[0], test_cyl.y[0]]),
+            np.array([test_cyl.x[1], test_cyl.z[1], test_cyl.y[1]]),
+        ],
+        "YZ": [
+            np.array([test_cyl.y[0], test_cyl.z[0], test_cyl.x[0]]),
+            np.array([test_cyl.y[1], test_cyl.z[1], test_cyl.x[1]]),
+        ],
+    }
     expected = ez_projection_vectors
     # Probably should mae a  data class for these cylinder vectors... oh well
     for k, v in actual.items():
