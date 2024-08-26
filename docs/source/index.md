@@ -14,11 +14,12 @@ innovative visualization and analytics tools.
 
 getting_started.md
 glossary.rst
+qsms.md
 ```
 
 
 ```{toctree}
 :glob:
-objects/*
-examples/*
+objects/
+examples/
 ```

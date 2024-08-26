@@ -17,6 +17,10 @@ from canopyhydro.utils import _try_import
 
 log = logging.getLogger("model")
 
+if has_geopandas := _try_import('geopandas'):
+    from geopandas import GeoSeries
+
+
 if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
     from matplotlib.collections import PatchCollection
@@ -557,9 +561,11 @@ def draw_cyls(
     log.info("Plotting cylinder collection")
 
     fig, ax = plt.subplots()
-    colors = ["Black" if col else "Grey" for col in colors]
-
-    polygon_plot(ax, collection, facecolor=colors)
+    geoPolys = GeoSeries(collection)
+    
+    colors = ["Blue" if col else "Grey" for col in colors]
+    geoPolys.plot(ax=ax, color=colors)
+    # polygon_plot(ax, collection, facecolor=colors)
     if overlay:
         for item in overlay:
             # The below if statements allow for the overlay to be:
@@ -644,8 +650,8 @@ def draw_cylinders_3D(
 
         # setting viewer perspective on chart
     ax.view_init(elev=30, azim=-45, roll=0)
-    #  ax.set(xlim=xlim, ylim=ylim, zlim=zlim,
-    #   xlabel='X', ylabel='Y', zlabel='Z')
+    ax.set(xlim=xlim, ylim=ylim, zlim=zlim,
+            xlabel='X', ylabel='Y', zlabel='Z')
     if show:
         plt.show()
     if save:

@@ -203,6 +203,7 @@ class CylinderCollection:
         # Aggregate values from file
         self.surface_area = np.nan
         self.file_name = ""
+        self.pSV = []   # Whole tree polygon
         self.volume = np.nan
         self.avg_sa_to_vol = np.nan
         self.max_branch_order = np.nan
@@ -883,8 +884,6 @@ class CylinderCollection:
                     }
                 )
             )
-            # nx.set_edge_attributes(g, edge_attributes, "dripNode")
-            log.info(f"summed drip edges in component {idx}")
         self.flows = flow_chars
 
     def identify_stem_paths(self):
@@ -988,7 +987,7 @@ class CylinderCollection:
             if not self.stem_flow_component:
                 self.find_flow_components()
                 self.calculate_flows(plane=plane)
-            self.stem_hull = self.watershed_boundary(
+            self.stem_hull, _ = self.watershed_boundary(
                 plane="XY",
                 filter_lambda=lambda: is_stem,  # noqa
             )
@@ -1097,7 +1096,6 @@ class CylinderCollection:
         stat_file = save_file(
             self.file_name.replace(".csv", f"_{file_name_ext}"),
             out_file=statistics,
-            subdir="statistics",
             method="statistics",
             overwrite=True,
         )
