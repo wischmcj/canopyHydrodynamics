@@ -1,5 +1,5 @@
 # Canopy Coverage
-As a part of the canopy coverage analysis, we are interested in the shape of the canopy. Among other reasons, we are interested in this as the area covered by the canopy is the denominator is several important metrics commonly used to compare one tree to another such as woody area index (WAI). Similarily, users leveraging CanoPyHydro's percipitation partitioning estimates will find it beneficial to produce similar metrics using the amount of rain that becomes throughfall/stemflow and the total amount intercepted by the canopy as a numerator.
+As a part of the canopy coverage analysis, we are interested in the shape of the canopy. Among other reasons, we are interested in this as the area covered by the canopy is the denominator is several important metrics commonly used to compare one tree to another such as woody area index (WAI). Similarly, users leveraging CanoPyHydro's percipitation partitioning estimates will find it beneficial to produce similar metrics using the amount of rain that becomes throughfall/stemflow and the total amount intercepted by the canopy as a numerator.
 **Traditional measurements of canopy coverage area will not suffuce for the latter use case** as often subsets of a tree's branches are being investigated. In this case, the shape of the canopy diverges from a simple circle
 
 # Delauny Triangulation

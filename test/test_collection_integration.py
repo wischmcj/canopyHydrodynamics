@@ -49,17 +49,23 @@ ez_projection_cases = [
 lam_filter_cases = [
     # (file, angles, projection )
     pytest.param(
-        "1_TenCyls.csv", ten_cyls_bo_one, lambda: branch_order == 1, id="XY projection"
-    ),  # noqa
+        "1_TenCyls.csv",
+        ten_cyls_bo_one,
+        lambda: branch_order == 1,  # noqa
+        id="XY projection",
+    ),
     pytest.param(
         "1_TenCyls.csv",
         ten_cyls_bo_and_len,
-        lambda: branch_order == 0 or length <= 0.22447,
+        lambda: branch_order == 0 or length <= 0.22447,  # noqa
         id="XZ projection",
-    ),  # noqa
+    ),
     pytest.param(
-        "1_TenCyls.csv", ten_cyls_id_one, lambda: cyl_id == 1, id="YZ projection"
-    ),  # noqa
+        "1_TenCyls.csv",
+        ten_cyls_id_one,
+        lambda: cyl_id == 1,  # noqa
+        id="YZ projection",
+    ),
 ]
 
 find_flows_cases = [
@@ -177,8 +183,10 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
     basic_collection.calculate_flows()
     actual_flows = basic_collection.flows
     _, actual_stem_map = lam_filter(
-        basic_collection.cylinders, lambda: is_stem, return_all=True
-    )  # noqa
+        basic_collection.cylinders,
+        lambda: is_stem,  # noqa
+        return_all=True,
+    )
     print(actual_flows)
     print(expected_flows)
     try:
@@ -205,8 +213,10 @@ def test_pickle(basic_collection, expected_stem_map, expected_flows):
 
     actual_flows = unpickled_collection.flows
     _, actual_stem_map = lam_filter(
-        unpickled_collection.cylinders, lambda: is_stem, return_all=True
-    )  # noqa
+        unpickled_collection.cylinders,
+        lambda: is_stem,  # noqa
+        return_all=True,
+    )
     print(actual_flows)
     print(expected_flows)
     assert actual_flows == expected_flows

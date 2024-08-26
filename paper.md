@@ -29,7 +29,7 @@ authors:
 affiliations:
   - name: Department of Biological, Geological, and Environmental Sciences, Cleveland State University, Cleveland OH, USA
     index: 1
-  - name: The Water Institute of the Gulf, Baton Rouge LA, USA
+  - name: The Water Institute of the Gulf, Baton Rogue LA, USA
     index: 2
 date: 31 August 2024
 bibliography: paper.bib
@@ -81,7 +81,7 @@ canoPyHydro seeks to empower researchers with percipitation partitioning data; a
 
 The main inputs to canoPyHydro are Qantitative Structural Models (QSMs). These models simplify TLS point clouds to represent trees as collections of topologically ordered cylinders. CanoPyHydro's functionality can broadly categorized into two groups: Utilities for the ingestion and exploration of QSMs and utilities for predicting percipitation partitioning.
 
-CanoPyHydro takes a novel approach to the latter in particular, reimagining the trees' canopies as watersheds. CanoPyHydro unveils the previously unexplored structure of these watersheds: identifing the many tributary-like flows amongst trees' branches, determining which reach reach the trunk (thus becoming stemflow) and delineating areas of run-off where water drips to the forest floor (becoming throughfall).
+CanoPyHydro takes a novel approach to the latter in particular, reimagining the trees' canopies as watersheds. CanoPyHydro unveils the previously unexplored structure of these watersheds: identifying the many tributary-like flows amongst trees' branches, determining which reach reach the trunk (thus becoming stemflow) and delineating areas of run-off where water drips to the forest floor (becoming throughfall).
 
 For tree-data explorers, CanoPyHydro's spacial utilities are of particular interest. The use of [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) empowers users to apply the concept of canopy coverage area in unexpected, new ways. Likewise, CanoPyHydro can provide detailed _intra_-canopy occlusion data for arbitrary cross-sections of the canopy, providing detailed estimates of the shade within the canopy (in the vertical direction) and protection from wind/rain (in the horizontal direction).
 
@@ -249,7 +249,7 @@ In the calculation of canopy coverage area, we utilize [Alpha Shapes](https://en
 # Future Direction
 
 - We hope to widen the use cases for our tool by integrating additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.).
-- By growing python libraries for spacial analysis (scipy-spacial, open3d) we hope to all for the projection of cylinders at an arbirtary angle, to suppoort the afformentioned integration of weather data.
+- By growing python libraries for spacial analysis (scipy-spacial, open3d) we hope to all for the projection of cylinders at an arbitrary angle, to support the afformentioned integration of weather data.
 - Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency) you can see the current work being done to improve the efficiency of the flow finding algorithm. Early results so as much as a 200x increase in the speed of the algorithm as a result of:
   - migrating the the use of rust based graph models, using the rustworkx library
   - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing

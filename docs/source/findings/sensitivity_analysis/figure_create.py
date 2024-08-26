@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     collections = [pickle.load(db_file) for db_file in db_files]
 
-    drip_info = [plot_drip_points(col, 0.98) for col in collections]
+    drip_info = [get_drip_point_coords(col, 0.98) for col in collections]
     max_drip = 0
     for x, y, drip_point_size in drip_info:
         potential_max_drip = np.max(drip_point_size)

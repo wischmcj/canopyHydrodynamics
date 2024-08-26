@@ -6,7 +6,7 @@ import os
 import pickle
 from io import TextIOWrapper
 from itertools import chain
-from typing import Callable, Optional, Union
+from typing import Callable
 
 import networkx as nx
 # import rustworkx as rx
@@ -689,9 +689,9 @@ class CylinderCollection:
 
     def find_flow_components(self, save_components: bool | None = False):
         """
-        Determines to which partion perciplitation intercepted by
+        Determines to which partition perciplitation intercepted by
             each cylinder in the collection is likely to contribute to.
-        That is, veiwing each cylinder as a source, and allowing travel on the
+        That is, viewing each cylinder as a source, and allowing travel on the
             digraph as defined by the edge's direction, the function determines:
             - the set of nodes that can be reached from each source node.
             - for each set of nodes (each, 'flow') the eventual sink (or drip nodes)
@@ -973,7 +973,7 @@ class CylinderCollection:
 
         Args:
             plane:
-                The plane used for projection dependend statistics.
+                The plane used for projection dependent statistics.
                 Defaults to "XY".
             file_name_ext:
                 the naming suffix to used for the saved file name
@@ -990,7 +990,8 @@ class CylinderCollection:
                 self.find_flow_components()
                 self.calculate_flows(plane=plane)
             self.stem_hull = self.watershed_boundary(
-                plane="XY", filter_lambda=lambda: is_stem == True
+                plane="XY",
+                filter_lambda=lambda: is_stem,  # noqa
             )
         dbh = self.get_dbh()
 
@@ -1168,11 +1169,9 @@ class CylinderCollection:
             log.warning("Assuming a small drip point list, including all drip points")
             drip_points = [node for node, _ in flow_by_area_dict.items()]
         drip_point_locs = list(
-            
-                [node[2][0], node[2][1], node[2][2]]
-                for node in drip_nodes
-                if node[0] in drip_points
-            
+            [node[2][0], node[2][1], node[2][2]]
+            for node in drip_nodes
+            if node[0] in drip_points
         )
         self.drip_point_loc = drip_point_locs
         return drip_point_locs

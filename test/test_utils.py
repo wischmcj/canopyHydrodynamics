@@ -81,4 +81,4 @@ def test_stack_err(arr_list, is_col_stack, exception_type):
     Test vstack and col stack capabilities v. numpy
     """
     with pytest.raises(exception_type):
-        actual = stack(arr_list, is_col_stack)
+        stack(arr_list, is_col_stack)

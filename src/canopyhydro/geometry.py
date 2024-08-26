@@ -32,7 +32,6 @@ if has_matplotlib := _try_import("matplotlib"):
         if isinstance(colors, str):
             colors = list(colors)
         union_dict = {color: [] for color in colors}
-        breakpoint()
         for poly, color in zip(polys, colors):
             union_dict[color].append(poly)
         for color, polys in union_dict.items():
@@ -229,7 +228,7 @@ def concave_hull(boundary_points, alpha: int = 0):
 #                  file_name_ext: str = "",
 #                  )->tuple[int,int,int]:
 #     """Gets the x, y and z coordinates from a list of vectors
-#         as seperate lists.
+#         as separate lists.
 
 #     ### Args:
 #         - `vectors (list[tuple[list[int]]])`: _description_
@@ -267,7 +266,6 @@ def get_projection(vector: list, magnitude: list, radius: float()):
     delt_c = magnitude[2]
     dim_a = vector[0]
     dim_b = vector[1]
-    dim_c = vector[2]
     # unit vector at base of cylinder, pointing up cylinder axis
     vNorm = np.sqrt(delt_a**2 + delt_b**2 + delt_c**2)
     aV = np.hstack((delt_a, delt_b, delt_c)) / vNorm
@@ -294,8 +292,6 @@ def get_projection(vector: list, magnitude: list, radius: float()):
                 pX = dim_a[0] + radius * a_ortho
                 pY = dim_b[0] + radius * b_ortho
                 cPS = Polygon(list(zip(pX, pY)))
-                min_c = np.min(dim_c[:])
-                max_c = np.max(dim_c[:])
                 ang = 0
                 projection = {
                     "polygon": cPS,

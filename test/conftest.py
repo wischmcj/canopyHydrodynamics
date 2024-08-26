@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 from _pytest.nodes import Item
 
 from canopyhydro.configuration import test_input_dir
 from canopyhydro.Cylinder import create_cyl
 from canopyhydro.Forester import Forester
-
-test_input_dir = Path("./data/test/")
 
 
 def pytest_collection_modifyitems(items: list[Item]):
