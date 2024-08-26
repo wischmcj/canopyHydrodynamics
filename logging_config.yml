@@ -11,7 +11,7 @@ formatters:
 handlers:
     console:
         level: 0
-        class: src.log.handlers.ConsoleHandler
+        class: canopyhydro.handlers.ConsoleHandler
         formatter: default
         styles:
             log.web_url: bright_blue

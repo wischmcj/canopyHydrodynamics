@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import logging.config
 import os
 
 import toml
@@ -17,7 +18,6 @@ with open(log_config) as f:
 
 log = logging.getLogger(__name__)
 
-config_file = None
 in_flow_grade_lim = None
 output_dir = None
 input_dir = None

@@ -17,11 +17,10 @@ from shapely.ops import unary_union
 from canopyhydro.configuration import in_flow_grade_lim, input_dir, output_dir
 from canopyhydro.Cylinder import Cylinder, create_cyl
 from canopyhydro.DataClasses import Flow
+from canopyhydro.geometry import (concave_hull, draw_cylinders_3D, draw_cyls,
+                                  furthest_point, get_projected_overlap)
 from canopyhydro.utils import (create_dir_and_file, intermitent_log,
                                lam_filter, save_file)
-from src.canopyhydro.geometry import (concave_hull, draw_cylinders_3D,
-                                      draw_cyls, furthest_point,
-                                      get_projected_overlap)
 
 log = logging.getLogger("model")
 

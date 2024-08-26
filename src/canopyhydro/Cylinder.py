@@ -203,14 +203,13 @@ class Cylinder:
         return projection["polygon"]
 
     def draw(self, plane: str = "XY", **kwargs):
-        """
-        A wrapper around the draw_cyl function allowing
-        more readable code for drawing a single cylinder
+        """A wrapper around the draw_cyl function allowing
+        more readable code for drawing a single cylinder.
         e.g. For some Cylinder 'cyl' cyl.draw() replaces geometry.draw_cyls([cyl])
 
         Args:
-            - plane:
-                The projection of the cylinder to draw:
+            plane:
+                The projection of the cylinder to draw.
                 'XY, 'XZ', or 'YZ'. Defaults to "XY".
         """
         poly = self.projected_data[plane]["polygon"]
