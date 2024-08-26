@@ -440,10 +440,21 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
         to the 'shaded' group and a new calculation of shaded area is made. The result
         is a cumulative sum of shaded area at various heights in the canopy.
 
+    Note:
+        shapely's intersection function could be used, and
+            would be slightly more accurate. However, it is also
+            rather slow for the intersection of this many shapes
 
-    shapely's intersection function could be used, and
-        would be slightly more accurate. However, it is also
-        rather slow for the intersection of this many shapes
+     Returns:
+         list[dict]: Each dicitonary corresponding to a percentile,
+         with metrics describing the overlap between the polygons in that percentile
+         {
+             "sum_area": sum of areas of the polygons in the percentile,
+             "effective_area": the area of the union of the polygons in the percentile,
+             "internal_overlap": sum_area - effective_area,
+             "overlap_with_previous": the area of the overlap between the polygons in the percentile,
+                     with the polygons in the previous percentile,
+        }
     """
     if len(labels) != len(shading_poly_list):
         log.info(

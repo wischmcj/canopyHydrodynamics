@@ -14,6 +14,6 @@ ruff==0.5.1
 scipy==1.13.1
 Shapely==2.0.4
 sphinx
-sphinx_rtd_theme
+sphinx-rtd-theme==3.0.0rc1
 sphinxcontrib-napoleon
 toml==0.10.2

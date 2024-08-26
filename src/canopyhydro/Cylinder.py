@@ -206,13 +206,12 @@ class Cylinder:
         """
         A wrapper around the draw_cyl function allowing
         more readable code for drawing a single cylinder
-            - e.g. for some Cylinder 'cyl'
-                cyl.draw() rather than geometry.draw_cyls([cyl])
+        e.g. For some Cylinder 'cyl' cyl.draw() replaces geometry.draw_cyls([cyl])
 
         Args:
             - plane:
                 The projection of the cylinder to draw:
-                    'XY, 'XZ', or 'YZ'. Defaults to "XY".
+                'XY, 'XZ', or 'YZ'. Defaults to "XY".
         """
         poly = self.projected_data[plane]["polygon"]
         draw_cyls([poly], **kwargs)
