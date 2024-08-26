@@ -8,7 +8,7 @@ numpy==1.26.4
 scipy==1.13.1
 pytest==8.2.1
 rustworkx
-Shapely==2.0.4
+Shapely==2.0.6
 toml==0.10.2
 debugpy
 pyyaml
