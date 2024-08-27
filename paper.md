@@ -147,7 +147,7 @@ Many of the metrics calculated by this tool relate to projections of QSMs onto t
 - By comparing 2D projected areas of different branch subsets, canoPyHydro can provide a variety of detailed occlusion data
 
 <div class="container">
-  <img style="display: block; auto;" src="./imgs/3d_cyl_projections.svg" height="500" width="500" alt="3d_to_2d_cyl"/>
+  <img style="display: block; auto;" src="./imgs/Cylinder_projections_3D.png" height="500" width="500" alt="3d_to_2d_cyl"/>
   <p>Here you can see how these projections function on the cylinder level.</p>
 </div>
 <div class="container">

@@ -3,13 +3,24 @@
    <meta charset=utf-8 />
    <title></title>
    <style>
-     div.container {
-       display:inline-block;
-     }
+    div.container {
+      display:inline-block;
+    }
 
-     p {
-       text-align:center;
-     }
+    p {
+      text-align:center;
+    }
+
+    img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    figcaption {
+      font-size: 10px;
+      text-align:center;
+    }
    </style>
 </head>
 <p align="center">
@@ -29,7 +40,7 @@
   <a href="#tutorials">Tutorials</a>
 </p>
 
-# Summary
+## Summary
 
 The goal of this and future versions of CanoPyHydro is to provide a tool set that empowers researchers and practitioners to gain new perspectives on rainfall distribution in forested environments. A list of publications that have utilized this tool-and influenced its development- can be found at the bottom of this page.
 
@@ -92,11 +103,13 @@ The Cylinder class is used to represent the 3-D cylinders that make up a QSM. Th
   fig = myCyl.draw_3D(show=False, draw_projections=True)
 ```
 
-<div class="container">
-  <img style="display: block; margin: auto;" src="./imgs/Cylinder_projections_3D.png" height="400" width="500" alt="Point Cloud and QSM"/>
+<div align="center">
+  <div class="container">
+    <img src="./imgs/Cylinder_projections_3D.png" height="350" width="400" alt="Point Cloud and QSM"/>
+  </div>
 </div>
-
-The Cylinder Collection class is more or less a list of 1 or more Cylinder objects. Cylinder Collections almost always represent [QSMs](https://canopyhydrodynamics.readthedocs.io/en/latest/qsms.html#) (or parts of a QSM), and are meant to help users explore their QSMs. Below, we demonstrate how one might can a cylinder collection using cylinder data (e.g. QSM data) stored in a CSV file and how that data can be drawn in a variety of ways.
+The Cylinder Collection class is a data class consisting of multiple cylinders and related metrics. Cylinder Collections almost always represent [QSMs](https://canopyhydrodynamics.readthedocs.io/en/latest/qsms.html#) or parts of a QSM and are meant to help users explore these QSMs. Below, we demonstrate how one might create a cylinder collection using cylinder data (e.g. QSM data) stored in a CSV file and how the afforementioned concept of projections can be used to visualize the data in a variety of ways.
+Note: the tree chosen for the below is intentionally small to make the visualization easier to understand.
 
 ```{python}
 # Creating a CylinderCollection object
@@ -104,59 +117,149 @@ myCollection = CylinderCollection()
 
 # The below file is one of our several testing files featuring only
 # the trunk of a tree and one of its branches
-myCollection.from_csv("5_SmallTree.csv")
+myCollection.from_csv("charlie_brown.csv")
 
-# The below code will plot the entire tree
-myCollection.draw("XZ", 0)  # noqa
+# plot the tree as seen from the 'front'
+myCollection.draw("XZ")
 
-# The below code will plot the entire tree as seen from above
-myCollection.draw("XY", 0)  # noqa
+# plot the tree as seen from above
+myCollection.draw("XY")
 
-# The below code will plot only part of the tree
-myCollection.draw("XZ", filter_lambda=lambda: cyl_id > 100)  # noqa
-
-# Here we plot a bit more of the tree and
-#  highlight a portion as well
-myCollection.draw("XZ", filter_lambda=lambda: cyl_id > 50,highlight_lambda=lambda: cyl_id > 100)  # noqa
-
+# plot the tree as seen from the 'side'
+myCollection.draw("YZ")
 ```
+
 <div align="center">
   <div class="container">
-    <img style="display: block; margin: auto;" src="./imgs/whole_tree_tutorial.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
+    <img src="./imgs/charlie_brown_XZ.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
+    <p>XZ Projection</p>
   </div>
   <div class="container">
-    <img style="display: block; margin: auto;" src="./imgs/whole_tree_birds_eye_tutorial.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <img src="./imgs/charlie_brown_XY.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <p>XY Projection</p>
   </div>
   <div class="container">
-    <img style="display: block; margin: auto;" src="./imgs/single_branch_tutorial.png" height="300" width="300" alt="Plot of a branch only"/>
-  </div>
-  <div class="container">
-    <img style="display: block; margin: auto;" src="./imgs/highlighted_branch_tutorial.png" height="300" width="175" alt="Plot of the highlighted branch w/ the trunk"/>
+    <img src="./imgs/charlie_brown_YZ.png" height="300" width="150" alt="Plot of a branch only"/>
+    <p>YZ Projection</p>
   </div>
 </div>
 
-As you can see above, the CylinderCollection class is a powerful tool for exploring QSM data; allowing users to filter and highlight data in a variety of ways.
+Compared to a QSM, CylinderCollections have additional structure in the form of a digraph model. These digraph models represent the direction water flows along the branches of the modeled tree and are used in the 'find_flow_components' and 'calculate_flows' function to characterize the flow of water through the canopy. The below code, continuing from the above demonstrates the use of these functions.
+
+```{python}
+# creating the digraph model
+myCollection.initialize_digraph_from()
+
+# Identifying the flows to which each cyl belongs
+myCollection.find_flow_components()
+
+# Calculating the propreties of each flow
+myCollection.calculate_flows()
+
+# Print out calcualted flow characteristics
+print(myCollection.flows)
+```
+| num_cylinders | projected_area | surface_area | angle_sum | volume | sa_to_vol | drip_node_id | drip_node_loc |
+|-----|-----|-----|-----|-----|-----|-----|-----|
+| 162.0 | 0.345 | 1.167 | 111.92 | 0.019 | 82717.985 | 0.0 | (-0.5, 3.4, 8.7) |
+| 18 | 0.005 | 0.021 | 10.275 | 0.0 | 14370.354 | 232 | (1.9, 2.2, 13.9) |
+| 13 | 0.004 | 0.015 | 7.718 | 0.0 | 11229.764 | 360 | (1.8, 2.6, 13.6) |
+| 24 | 0.008 | 0.032 | 1.697 | 0.0 | 18378.751 | 515 | (1.5, 2.8, 12.9) |
+| ... | ... | ... | ... | ... | ... | ... | ... |
+
+What you see above is a sample of the flow characterstics calculated for the 'charlie_brown' tree. The first flow listed is, as is the convention in canoPyHydro, the tree's stemflow and the others are the throughfall flows. The 'drip_node_loc' column lists the x,y,z coordinates of the node of the afformentioned graph to which water intercepted by the flow's cylinders is directed. The various geometric characteristics give a sense of the size and shape of the flow's cylinders (or 'canopy drainage area').
+
+The draw function also allows for a variety of different overlays, filtering and highlighting. To demonstrate this briefly, we will show below how this filtering can be used in a variety of ways, including highlighting the various flows mentioned above. For more information on the CylinderCollection class, please refer to the [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/objects.html#canopyhydrodynamics.objects.CylinderCollection).
 
 
+```{python}
+# Plot the entire tree with stem flow highlighted
+myCollection.draw("XZ", highlight_lambda=lambda:is_stem)
 
-# Contributing
+# Plot the interesting portion of the tree with stem flow highlighted
+myCollection.draw("XZ",
+                  highlight_lambda=lambda:is_stem,
+                  filter_lambda=lambda: cyl_id>100)
 
-We welcome contributions to this project! Whether it's reporting a bug, proposing a new feature, or contributing code, we appreciate your help. Here's how you can contribute:
+# Adding drip points to the above mentioned plot
+myCollection.draw("XZ",
+                  highlight_lambda=lambda:is_stem,
+                  filter_lambda=lambda: cyl_id>100,
+                  include_drips=True)
+```
 
-1. **Install Additional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
+<div align="center">
+  <div class="container">
+    <img src="./imgs/charlie_brown_stem_flow.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
+    <figcaption>Plot of the entire tree </figcaption>
+  </div>
+  <div class="container">
+    <img src="./imgs/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <figcaption>Same as left but zoomed in</figcaption>
+  </div>
+  <div class="container">
+    <img src="./imgs/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
+    <figcaption>Adding locations of drip points</figcaption>
+  </div>
+</div>
 
-   ```bash
-   pip install -r requirements-dev.txt
-   ```
-2. **Install Pre-commit**: This repository utilizes the ruff pre-commit hook to ensure that all code is linted before being committed. To install pre-commit, run the following commands:
+The final bit of functionality we will review today is the ability to create concave hulls around groups of cylinders in a CylinderCollection. This is done using the 'watershed_boundary' function. The below code demonstrates how this function can be used to find a concave hull around the entire tree, or a portion of the tree. Note that a new, more robist example tree is used
 
-   ```bash
-   pip3 install pre-commit
-   pre-commit install
-   ```
-3. **Review the contributing Guidelines **: Check out the documentation, where you can find [contributing guidelines](https://canopyhydrodynamics.readthedocs.io/en/latest/contributing.html). Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+```{python}
+# Reading in the tree data and finding flows
+myCollection = CylinderCollection()
+myCollection.from_csv("example_tree.csv")
+myCollection.project_cylinders("XY")
+myCollection.initialize_digraph_from()
+myCollection.find_flow_components()
+myCollection.calculate_flows()
 
-Thank you for your interest in contributing to our project!
+#drawing the tree for reference
+myCollection.draw("XY", save=True, file_name_ext="read_me_alpha")
+
+# Drawing the whole canopy boundary
+myCollection.watershed_boundary(plane = 'XY', draw=True)
+
+# Drawing the canopy boundary and tree together
+myCollection.draw("XY",
+                  include_alpha_shape=True)
+
+# Drawing a tighter fitting alpha shape
+myCollection.watershed_boundary(plane = 'XY',
+                                curvature_alpha=2,
+                                draw=True)
+myCollection.draw("XY",
+                  include_alpha_shape=True)
+
+# Drawing the stem flow watershed boundary
+# with stemflow cylinders highlighted
+myCollection.watershed_boundary(plane = 'XY',
+                                curvature_alpha=2,
+                                filter_lambda=lambda: is_stem)
+myCollection.draw("XY",
+                  include_alpha_shape=True,
+                  highlight_lambda=lambda: is_stem)
+```
+<div align="center">
+  <div class="container">
+    <img src="./imgs/10_MediumCollection_XY_read_me_only_hull.png" height="300" width="300" alt="Entire canopy hull alone"/>
+    <figcaption>Entire canopy hull alone</figcaption>
+  </div>
+  <div class="container">
+    <img src="./imgs/10_MediumCollectioncsv_XY_read_me_hull_and_tree.png" height="300" width="300" alt="Hull overlaid on the canopy"/>
+    <figcaption>Hull overlaid on the canopy</figcaption>
+  </div>
+</div>
+<div align="center">
+  <div class="container">
+    <img src="./imgs/10_MediumCollectioncsv_XY_tight_hull_and_tree.png" height="300" width="300" alt="A tighter fitting hull<"/>
+    <figcaption>A tighter fitting hull</figcaption>
+  </div>
+  <div class="container">
+    <img src="./imgs/10_MediumCollectioncsv_XY_stem_hull_and_tree.png" height="300" width="300" alt="The stem flow boundary hull"/>
+    <figcaption>The stem flow boundary hull</figcaption>
+  </div>
+</div>
 
 ## Publications:
 
@@ -173,36 +276,21 @@ A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow 
   - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing
 
 
-# Tutorials
+# Contributing
 
-  The below code can be run at the first breakpoint in the test_collection_integration.py file
+We welcome contributions to this project! Whether it's reporting a bug, proposing a new feature, or contributing code, we appreciate your help. Here's how you can set up you local environment in order to do so:
 
-## Displaying, Filtering and Highlighting
+1. **Install Additional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
 
-    flexible_collection.draw(plane = 'XZ')
-    flexible_collection.draw(plane = 'XZ', a_lambda = lambda: cyl_id>100)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>50)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75, highlight_lambda = lambda:branch_order==2)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:branch_order==2)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+2. **Install Pre-commit**: This repository utilizes the ruff pre-commit hook to ensure that all code is linted before being committed. To install pre-commit, run the following commands:
 
-## Draw all projections
+   ```bash
+   pip3 install pre-commit
+   pre-commit install
+   ```
+3. **Review the contributing Guidelines **: Check out the documentation, where you can find [contributing guidelines](https://canopyhydrodynamics.readthedocs.io/en/latest/contributing.html). Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
 
-    import geopandas as geo  # only import what we need
-    import matplotlib.pyplot as plt
-    happy_path_projection.project_cylinders('XY')
-    happy_path_projection.project_cylinders('XZ')
-    happy_path_projection.project_cylinders('YZ')
-    xz_poly = [cyl.projected_data['XZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-    xy_poly = [cyl.projected_data['XY']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-    yz_poly = [cyl.projected_data['YZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-    geoPolys_xy = geo.GeoSeries(xy_poly)
-    geoPolys_xz = geo.GeoSeries(xz_poly)
-    geoPolys_yz = geo.GeoSeries(yz_poly)
-    fig, ax = plt.subplots(3)
-    geoPolys_xy.plot(ax=ax[0,0])
-    geoPolys_xy.plot(ax=ax[0])
-    geoPolys_xz.plot(ax=ax[1])
-    geoPolys_yz.plot(ax=ax[2])
+Thank you for your interest in contributing to our project!

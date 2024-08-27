@@ -203,7 +203,7 @@ class CylinderCollection:
         # Aggregate values from file
         self.surface_area = np.nan
         self.file_name = ""
-        self.pSV = []   # Whole tree polygon
+        self.pSV = []  # Whole tree polygon
         self.volume = np.nan
         self.avg_sa_to_vol = np.nan
         self.max_branch_order = np.nan
@@ -406,8 +406,8 @@ class CylinderCollection:
             for cyl in filtered_cyls:
                 start_end = np.array(
                     [
-                        np.array([self.x[0], self.y[0], self.z[0]]),
-                        np.array([self.x[1], self.y[1], self.z[1]]),
+                        np.array([cyl.x[0], cyl.y[0], cyl.z[0]]),
+                        np.array([cyl.x[1], cyl.y[1], cyl.z[1]]),
                     ]
                 )
                 radius = cyl.radius
@@ -445,6 +445,7 @@ class CylinderCollection:
                 elif plane == "YZ":
                     overlay.append([y_pts, z_pts])
 
+            print("overlay", overlay)
             fig = draw_cyls(
                 collection=to_draw,
                 colors=matches,

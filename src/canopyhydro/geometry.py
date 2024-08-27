@@ -8,7 +8,7 @@ import math
 import numpy as np
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
-from shapely.geometry import MultiLineString, MultiPoint, Polygon
+from shapely.geometry import MultiLineString, MultiPoint, MultiPolygon, Polygon
 from shapely.ops import polygonize, unary_union
 
 from canopyhydro.configuration import output_dir
@@ -17,7 +17,7 @@ from canopyhydro.utils import _try_import
 
 log = logging.getLogger("model")
 
-if has_geopandas := _try_import('geopandas'):
+if has_geopandas := _try_import("geopandas"):
     from geopandas import GeoSeries
 
 
@@ -32,6 +32,8 @@ if has_matplotlib := _try_import("matplotlib"):
     def polygon_plot(ax, polys: list | Polygon, **kwargs):
         if isinstance(polys, Polygon):
             polys = [polys]
+        if isinstance(polys, MultiPolygon):
+            polys = list(polys.geoms)
         colors = kwargs.get("facecolor", ["grey"])
         if isinstance(colors, str):
             colors = list(colors)
@@ -562,7 +564,7 @@ def draw_cyls(
 
     fig, ax = plt.subplots()
     geoPolys = GeoSeries(collection)
-    
+
     colors = ["Blue" if col else "Grey" for col in colors]
     geoPolys.plot(ax=ax, color=colors)
     # polygon_plot(ax, collection, facecolor=colors)
@@ -573,7 +575,7 @@ def draw_cyls(
             #       - in the case of watershed alpha shapes
             #   or a list of coordinate lists
             #       - in the case of drip points
-            if isinstance(item, Polygon):
+            if isinstance(item, Polygon) or isinstance(item, MultiPolygon):
                 polygon_plot(ax, item, facecolor=["grey"], alpha=overlay_transparency)
             if isinstance(item, list):
                 if isinstance(item[0], Polygon):
@@ -650,8 +652,7 @@ def draw_cylinders_3D(
 
         # setting viewer perspective on chart
     ax.view_init(elev=30, azim=-45, roll=0)
-    ax.set(xlim=xlim, ylim=ylim, zlim=zlim,
-            xlabel='X', ylabel='Y', zlabel='Z')
+    ax.set(xlim=xlim, ylim=ylim, zlim=zlim, xlabel="X", ylabel="Y", zlabel="Z")
     if show:
         plt.show()
     if save:
