@@ -1,5 +1,5 @@
 ---
-title: ‘HydroCanoPy: A Python Package for Delineating Tree Canopy Drainage Areas’
+title: CanoPyHydro: A Python Package for Delineating Tree Canopy Drainage Areas’
 tags:
   - Python
   - hydrology

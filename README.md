@@ -1,39 +1,4 @@
----
-title: ‘HydroCanoPy: A Python Package for Delineating Tree Canopy Drainage Areas’
-tags:
-  - Python
-  - hydrology
-  - rainfall
-  - tree
-  - stemflow
-  - throughfall
-authors:
-  - name: Collin Wischmeyer
-    orcid: 0009-0002-8490-0999
-    affiliation: 1
-  - name: Travis E. Swanson
-    orcid: 0000-0002-6879-7621
-    affiliation: 2
-  - name: Kevin E. Mueller
-    orcid: 0000-0002-0739-7472
-    affiliation: 1
-  - name: Nicholas R. Lewis
-    affiliation: 1
-  - name: Jillian Bastock
-    affiliation: 1
-  - name: John T. Van Stan II
-    orcid: 000-0002-0692-7064
-    corresponding: true
-    affiliation: 1
 
-affiliations:
-  - name: Department of Biological, Geological, and Environmental Sciences, Cleveland State University, Cleveland OH, USA
-    index: 1
-  - name: The Water Institute of the Gulf, Baton Rogue LA, USA
-    index: 2
-date: 31 August 2024
-bibliography: paper.bib
----
 <head>
    <meta charset=utf-8 />
    <title></title>
@@ -107,7 +72,7 @@ The current tool set also boasts several different spacial analysis tools, sever
 That's it! You're ready to start using canoPyHydro. Check out the the below tutorials and the [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/index.html) for more information on how to use the package.
 
 # Tutorial
-The Cylinder class is used to represent the 3-D cylinders that make up a QSM. The most important function of these Cylinder objects is their ability to return data regarding the projections onto the XY, XZ and YZ planes. 
+The Cylinder class is used to represent the 3-D cylinders that make up a QSM. The most important function of these Cylinder objects is their ability to return data regarding the projections onto the XY, XZ and YZ planes.
 
 ```{python}
   myCyl = Cylinder(
@@ -137,7 +102,7 @@ The Cylinder Collection class is more or less a list of 1 or more Cylinder objec
 # Creating a CylinderCollection object
 myCollection = CylinderCollection()
 
-# The below file is one of our several testing files featuring only 
+# The below file is one of our several testing files featuring only
 # the trunk of a tree and one of its branches
 myCollection.from_csv("5_SmallTree.csv")
 
@@ -150,7 +115,7 @@ myCollection.draw("XY", 0)  # noqa
 # The below code will plot only part of the tree
 myCollection.draw("XZ", filter_lambda=lambda: cyl_id > 100)  # noqa
 
-# Here we plot a bit more of the tree and 
+# Here we plot a bit more of the tree and
 #  highlight a portion as well
 myCollection.draw("XZ", filter_lambda=lambda: cyl_id > 50,highlight_lambda=lambda: cyl_id > 100)  # noqa
 
@@ -168,7 +133,7 @@ myCollection.draw("XZ", filter_lambda=lambda: cyl_id > 50,highlight_lambda=lambd
   <div class="container">
     <img style="display: block; margin: auto;" src="./imgs/highlighted_branch_tutorial.png" height="300" width="175" alt="Plot of the highlighted branch w/ the trunk"/>
   </div>
-</div>  
+</div>
 
 As you can see above, the CylinderCollection class is a powerful tool for exploring QSM data; allowing users to filter and highlight data in a variety of ways.
 
