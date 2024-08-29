@@ -6,5 +6,5 @@
 
 ```{toctree}
 :glob:
-sensitivity_analysis/*
+sensitivity_analysis.md
 ```

@@ -2,17 +2,35 @@
 
 ## Installation
 
-`canoPyHydro` can be installed using pip. This installs our latest stable release with fully-supported features. `canoPyHydro` currently supports Python versions 3.9, 3.10 and 3.11.
+1. **Create a Virtual Environment**: elow wBe use the native 'venv' module to create a virtual environment. This is not strictly necessary, but it is a good practice to keep your project dependencies separate from your system dependencies in a virtual environment.
+   ```bash
+   python -m venv canHydroVenv
+   ```
+
+2. **Activate Your Environment**: Activate your virtual environment to install dependencies and run the project. The commands to activate the virtual environment depend on your operating system and shell. Below are the commands for activating the virtual environment in different operating systems and shells.
 
 ```bash
-$ pip install canoPyHydro
+  # if using bash (Mac, Unix)
+  source canHydroVenv/bin/activate
+  # if using PowerShell (Windows)
+  source canHydroVenv\Scripts\activate.ps1
+```
+
+3. **Install canoPyHydro**: canoPHydro is published with PyPA (the python packacing authority), so you can install the latest stable release of canoPyHydro using pip. This installs our latest stable release as well as several libraries required for the use of the package's features. canoPyHydro currently supports Python versions 3.9. 3.10 and 3.11.
+
+```bash
+   pip install canoPyHydro
 ```
 
 You can also install also the latest development version by cloning the GitHub repository and using pip to install from the local directory:
 
 ```bash
-$ pip install git+https://github.com/canoPyHydro/canoPyHydro.git
+$ pip install git+https://github.com/wischmcj/canopyHydrodynamics.git
 ```
+
+4. **Set Configuration Options**: The default configuration file can be found at '/CanopyHydrodynamics/canopyhydro_config.toml'. Configuration options can be set by altering the contents of that file in place. Refer to the [configuration section below](https://canopyhydrodynamics.readthedocs.io/en/latest/getting_started.html#configuration) for more information on configuration options.
+
+That's it! You're ready to start using canoPyHydro. You can find a basic tutorial below, as well as some more in depth use case examples in the [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/index.html).
 
 # Configuration
 
@@ -21,8 +39,18 @@ For a quick start, the below can be added to the beginning of your script to aut
 ```{python}
   from canopyhydro.configuration import *
 ```
-# Environment Variables
-The following environment variables are used to set the configuration and logging files. These can be set in the script as per the below code or from in the terminal before running a script.
+
+However we recomend that you read on to understand the configuration options and how to set them.
+
+## Environment Variables
+The following environment variables are used to set the location of your configuration and logging files. These can be set or from in the terminal before running a script.
+
+```bash
+export CANOPYHYDRO_CONFIG=/path/to/your/config/file.toml
+export CANOPYHYDRO_LOG_CONFIG=/path/to/your/logging/config/file.yml
+```
+
+or by placing the following code at the start of your script:
 
 ```{python}
   from canopyhydro.configuration import *
@@ -30,9 +58,7 @@ The following environment variables are used to set the configuration and loggin
   log_config = os.environ["CANOPYHYDRO_LOG_CONFIG"] = f"{os.getcwd()}/logging_config.yml"
 ```
 
-There are many optional configuration options, but there are only a few that are **necessary** to adjust/check
-to ensure the code runs as expected.
-The default configuration file can be be found at '/CanopyHydrodynamics/canopyhydro_config.toml'. Configuration options can be set by altering the contents of this file in place. At this time functionality changes must be made to this file (e.g. a custom file location cannot be set)
+The default configuration file can be be found at '/CanopyHydrodynamics/canopyhydro_config.toml' and configuration options can be set by altering the contents of this file in place, or by setting the environment variables as described above to specify your own file location.
 
 ## QSM File structure
 The [qsm] section details the column numbers in which each variable is stored in the input file. To read in this file correctly,
@@ -49,8 +75,9 @@ the below additional columns are required as well but can be left blank in the i
         - branch_order
         - reverse_branch_order
         - segment_id
+
 ## Model Parameters
-More detail on these parameters can be found in the documentation. For now, all you need to ensure is that both
+More detail on these parameters can be found in the [documentation](). For now, all you need to ensure is that both
 variables have an integer value
 - min_len_drip_flow
     - must be > 0
@@ -58,42 +85,11 @@ variables have an integer value
     - must be > -pi/2 and
 
 ## Directories
-root_dir
-input_dir
-output_dir
-test_input_dir
 
+The `root_dir` configuration variable is used to specify the root directory of the project. It is the base directory where all other directories are located.
 
+The `input_dir` configuration variable is used to specify the directory where input files are located. This directory is where the library will look for QSM .csv files to read in.
 
-### Cylinder Overlap (Shade)
+The `output_dir` configuration variable is used to specify the directory where output files will be generated. This is the directory where the project will write results files (i.e. statistics, flow data) as well as pickle files and saved figures.
 
-In order to better understand how the branches of a tree's canopy overlap, more granular overlap information has also been made available via the 'find_overlap_by_percentile' function.
-When considered from a birds eye view (projecting onto the XY plane), this concept can be understood as a facsimile for the 'shade' cast by branches at a certain height in the tree canopy.
-Consider the below example \* Add example
-The percentile list is used to determine the height at which to calculate shade. As such, the function will look at the overlap between cylinders in the 75%ile by height (in red) with the remaining cylinders (in blue). The returned values thus represent the 'shade' case by the red cylinders on the blue cylinders.
-
-    Following this logic if either the 0%ile or 100%ile is requested, then there will be no overlap reported. In the former case, all cylinders are included in the red group and therefore there are no blue cylinders on which to cast shade. In the latter case, all cylinders are in the blue group and so there are no red cylinders to cast shade onto the blue cylinders.
-
-When considered in the XZ or YZ direction, this calculation can be useful in determining the wind exposure at different canopy depths.
-
-### Aggregating 2D Area
-
-CanoPyHydro can also provide detailed intra-canopy occlusion data for given heights/depths. For a vertical (XZ) projection, this represents shading by higher branches on lower branches, for hoizontal projections (XZ, YZ) this represents wind exposure (or lack thereof). In future versions, arbitrary projection angles may be used to assist in calclating the effect of occlusion on partitioning in various different weather conditions.
-Depending on the goals of the user, the projected area of a collection of cylinders can be given as both:
-
-- a simple sum of the projected area of each cylinder
-
-  - Note that this calculation will ignore overlap between cylinder areas
-    - Add example
-
-- the total projected area of the collection of cylinders
-
-  - Using this approach, areas in which cylinder projections over lap are only counted once
-    - Add Example
-
-### Filtering and Highlighting
-
-## Canopy Coverage Area
-
-This area might classically be defined by measuring the radius of a trees canopy. As our method focuses on only portions of the tree canopy, it is useful to determine the area spanned by only those portions of the tree canopy. Using this more specific definition of a classic metric, comparisons can be made using related metrics such as woody area index (WAI).
-When considering the coverage area spanned by the stemflow generating portions of the tree, this metric may also be thought of as an analogous concept to a classical 'watershed'.
+The `test_input_dir` configuration variable is used to specify the directory where test input files are located. This directory contains the files that are used for testing purposes, such as test data or sample input files. This directory is used by the test suite to run tests on the library, but will not be used in the main project.

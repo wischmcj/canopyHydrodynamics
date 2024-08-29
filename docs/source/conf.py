@@ -31,3 +31,11 @@ exclude_patterns = []
 
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+html_theme_options = {
+    'collapse_navigation': False,
+    'navigation_depth': 3,
+    'includehidden': False,
+    'titles_only': True,
+    'prev_next_buttons_location': 'both',
+    'github_url': "https://github.com/wischmcj/canopyHydrodynamics/tree/documentation/add-sphinx-readthedocs"
+}    

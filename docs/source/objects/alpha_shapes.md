@@ -1,3 +1,29 @@
+
+<head>
+   <meta charset=utf-8 />
+   <title></title>
+   <style>
+    div.container {
+      display:inline-block;
+    }
+
+    p {
+      text-align:center;
+    }
+
+    img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    figcaption {
+      font-size: 10px;
+      text-align:center;
+    }
+   </style>
+</head>
+
 # Canopy Coverage
 As a part of the canopy coverage analysis, we are interested in the shape of the canopy. Among other reasons, we are interested in this as the area covered by the canopy is the denominator is several important metrics commonly used to compare one tree to another such as woody area index (WAI). Similarly, users leveraging CanoPyHydro's percipitation partitioning estimates will find it beneficial to produce similar metrics using the amount of rain that becomes throughfall/stemflow and the total amount intercepted by the canopy as a numerator.
 **Traditional measurements of canopy coverage area will not suffuce for the latter use case** as often subsets of a tree's branches are being investigated. In this case, the shape of the canopy diverges from a simple circle
@@ -73,7 +99,6 @@ x_y_coords = sorted([(0.1, 0.),(0.0, 0.0),(0.0, 1.0),(.70, 0.0),(1.0, 1.0),(1.0,
 
 
 ```
-
 
 <p align="center">
     <img src="./imgs/alpha_shape_scatter.png" height="390" width="390">

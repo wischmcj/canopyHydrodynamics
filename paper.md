@@ -278,13 +278,15 @@ In the calculation of canopy coverage area, we utilize [Alpha Shapes](https://en
 ![Stem Flow Highlight XY](./docs/source/imgs/example_tree_XY_docs_ex.png)
 ![Alpha Shape Example](./docs/source/imgs/example_tree_XY_Alpha_shape.png)_Here we see an example of an alpha shape for the same tree disussed above_
 
-# Future Direction
+## Future Direction
 
-- We hope to widen the use cases for our tool by integrating additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.).
-- By growing python libraries for spacial analysis (scipy-spacial, open3d) we hope to all for the projection of cylinders at an arbitrary angle, to support the afformentioned integration of weather data.
-- Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency) you can see the current work being done to improve the efficiency of the flow finding algorithm. Early results so as much as a 200x increase in the speed of the algorithm as a result of:
-  - migrating the the use of rust based graph models, using the rustworkx library
-  - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing
+- We hope to widen the use cases for our tool by integrating additional real world data (i.e wind speed and direction, rain intensity and average angle, etc.).
+- By integrating python libraries for spacial analysis (scipy-spacial, open3d) into canoPyHydro, we hope to allow for the projection of cylinders at an arbitrary angle. This will lead directly into supporting the afformentioned integration of weather data.
+- Improve the efficiency of the flow finding algorithm and the flow caluclation algorithm. This will allow for the processing of larger QSMs and the use of more complex models (i.e. tesselated meshes).
+  - Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency), you can see the current work being done to meet this goal. Early results so as much as a 200x increase in the speed of the algorithm as a result of:
+    - migrating the the use of rust based graph models, using the rustworkx library
+    - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing
+
 
 # Acknowledgements
 

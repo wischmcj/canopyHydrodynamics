@@ -20,6 +20,6 @@ qsms.md
 
 ```{toctree}
 :glob:
-objects/
-examples/
+objects/*
+examples/*
 ```
