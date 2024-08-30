@@ -4,4 +4,7 @@
 ------------------------------------------
 ```{toctree}
 :maxdepth: 1
+:caption: Examples
+
+notebook_walkthroughs.md
 ```

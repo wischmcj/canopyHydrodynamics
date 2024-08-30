@@ -20,6 +20,7 @@ extensions = [
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
+    # 'm2r',
 ]
 
 templates_path = ["_templates"]
@@ -36,6 +37,5 @@ html_theme_options = {
     'navigation_depth': 3,
     'includehidden': False,
     'titles_only': True,
-    'prev_next_buttons_location': 'both',
-    'github_url': "https://github.com/wischmcj/canopyHydrodynamics/tree/documentation/add-sphinx-readthedocs"
+    'prev_next_buttons_location': 'both'
 }    
