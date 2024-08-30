@@ -445,7 +445,6 @@ class CylinderCollection:
                 elif plane == "YZ":
                     overlay.append([y_pts, z_pts])
 
-            print("overlay", overlay)
             fig = draw_cyls(
                 collection=to_draw,
                 colors=matches,

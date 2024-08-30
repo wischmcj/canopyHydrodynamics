@@ -86,7 +86,6 @@ def on_rm_error(path):
 def create_dir_and_file(
     filename,
 ) -> None:
-    print(type(filename))
     os.makedirs(filename, exist_ok=True)
 
 

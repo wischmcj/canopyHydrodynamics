@@ -41,7 +41,6 @@ def create_cyl(arr: np.array):
         Cylinder( cyl_id=1.0, x=[-2.372914 -2.382034], y=[2.875943 2.887813], z=[-0.55     -0.452896], radius=0.277545, length=0.098251, branch_order=0.0, branch_id=0.0, volume=0.023777, parent_id=0.0, reverse_branch_order=41.0, segment_id=0.0
     """
     cols = qsm_cols
-    print(cols)
     attrs = {k: arr[v] for (k, v) in cols.items()}
     cyl = Cylinder(**attrs)
     # cyl.initialize(arr, cols)
