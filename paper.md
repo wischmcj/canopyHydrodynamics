@@ -1,61 +1,21 @@
----
-title: CanoPyHydro: A Python Package for Delineating Tree Canopy Drainage Areas’
-tags:
-  - Python
-  - hydrology
-  - rainfall
-  - tree
-  - stemflow
-  - throughfall
-authors:
-  - name: Collin Wischmeyer
-    orcid: 0009-0002-8490-0999
-    affiliation: 1
-  - name: Travis E. Swanson
-    orcid: 0000-0002-6879-7621
-    affiliation: 2
-  - name: Kevin E. Mueller
-    orcid: 0000-0002-0739-7472
-    affiliation: 1
-  - name: Nicholas R. Lewis
-    affiliation: 1
-  - name: Jillian Bastock
-    affiliation: 1
-  - name: John T. Van Stan II
-    orcid: 000-0002-0692-7064
-    corresponding: true
-    affiliation: 1
-
-affiliations:
-  - name: Department of Biological, Geological, and Environmental Sciences, Cleveland State University, Cleveland OH, USA
-    index: 1
-  - name: The Water Institute of the Gulf, Baton Rogue LA, USA
-    index: 2
-date: 31 August 2024
-bibliography: paper.bib
----
 <head>
    <meta charset=utf-8 />
-   <title></title>
    <style>
-    div.container {
-      display:inline-block;
-    }
-
-    p {
-      text-align:center;
-    }
-
-    img {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    figcaption {
-      font-size: 15px;
-      text-align:center;
-    }
+      div.container {
+        display:inline-block;
+      }
+      p {
+        text-align:center;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      figcaption {
+        font-size: 15px;
+        text-align:center;
+      }
    </style>
 </head>
 <div align="center">
@@ -262,8 +222,6 @@ After the flows in a canopy's watershed have been identified, common statistics 
   </div>
   <figcaption>Here we see an example of the visualization capabilities of canoPyHydro. The above images show the same tree from two different angles, with the stemflow contributing cylinders highlighted in blue</figcaption>
 </div>
-![Stem Flow Highlight XY](./docs/source/imgs/example_tree_XY_docs_ex.png)
-![Stem Flow Highlight XZ](./docs/source/imgs/example_tree_XZ_docs_ex.png)_Here we see an example of the visualization capabilities of canoPyHydro. The above images show the same tree from two different angles, with the stemflow contributing cylinders highlighted in blue._
 
 ## Metrics
 
@@ -318,7 +276,42 @@ Wischmeyer, C., Swanson, T., Mueller, K., Lewis, N., Bastock, J., Van Stan, I.J.
 Zimmermann, A., Zimmermann, B., 2014. Requirements for throughfall monitoring: the roles of temporal scale and canopy complexity. Agric For Meteorol 189, 125–139.
 
 ----
+---
+title: CanoPyHydro: A Python Package for Delineating Tree Canopy Drainage Areas’
+tags:
+  - Python
+  - hydrology
+  - rainfall
+  - tree
+  - stemflow
+  - throughfall
+authors:
+  - name: Collin Wischmeyer
+    orcid: 0009-0002-8490-0999
+    affiliation: 1
+  - name: Travis E. Swanson
+    orcid: 0000-0002-6879-7621
+    affiliation: 2
+  - name: Kevin E. Mueller
+    orcid: 0000-0002-0739-7472
+    affiliation: 1
+  - name: Nicholas R. Lewis
+    affiliation: 1
+  - name: Jillian Bastock
+    affiliation: 1
+  - name: John T. Van Stan II
+    orcid: 000-0002-0692-7064
+    corresponding: true
+    affiliation: 1
 
+affiliations:
+  - name: Department of Biological, Geological, and Environmental Sciences, Cleveland State University, Cleveland OH, USA
+    index: 1
+  - name: The Water Institute of the Gulf, Baton Rogue LA, USA
+    index: 2
+date: 31 August 2024
+bibliography: paper.bib
+---
 references:
 @article{Pearson:2017,
   	url = {http://adsabs.harvard.edu/abs/2017arXiv170304627P},
