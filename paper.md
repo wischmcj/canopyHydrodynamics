@@ -37,24 +37,21 @@ bibliography: paper.bib
 <head>
    <meta charset=utf-8 />
    <style>
-    div.container {
-      display:inline-block;
-    }
-
-    p {
-      text-align:center;
-    }
-
-    img {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    figcaption {
-      font-size: 15px;
-      text-align:center;
-    }
+      div.container {
+        display:inline-block;
+      }
+      p {
+        text-align:center;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      figcaption {
+        font-size: 15px;
+        text-align:center;
+      }
    </style>
 </head>
 <div align="center">
