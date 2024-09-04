@@ -34,7 +34,6 @@ affiliations:
 date: 31 August 2024
 bibliography: paper.bib
 ---
-<head>
    <meta charset=utf-8 />
    <style>
       div.container {
@@ -53,7 +52,6 @@ bibliography: paper.bib
         text-align:center;
       }
    </style>
-</head>
 <div align="center">
   <img src="./docs/source/imgs/canhydro_logo.jpeg" height="600" width="600" alt="Flow ID Algorithm"/>
   <h1>CanoPyHydro</h1>
