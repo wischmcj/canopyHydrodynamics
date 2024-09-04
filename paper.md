@@ -1,39 +1,4 @@
----
-title: CanoPyHydro: A Python Package for Delineating Tree Canopy Drainage Areas’
-tags:
-  - Python
-  - hydrology
-  - rainfall
-  - tree
-  - stemflow
-  - throughfall
-authors:
-  - name: Collin Wischmeyer
-    orcid: 0009-0002-8490-0999
-    affiliation: 1
-  - name: Travis E. Swanson
-    orcid: 0000-0002-6879-7621
-    affiliation: 2
-  - name: Kevin E. Mueller
-    orcid: 0000-0002-0739-7472
-    affiliation: 1
-  - name: Nicholas R. Lewis
-    affiliation: 1
-  - name: Jillian Bastock
-    affiliation: 1
-  - name: John T. Van Stan II
-    orcid: 000-0002-0692-7064
-    corresponding: true
-    affiliation: 1
-
-affiliations:
-  - name: Department of Biological, Geological, and Environmental Sciences, Cleveland State University, Cleveland OH, USA
-    index: 1
-  - name: The Water Institute of the Gulf, Baton Rogue LA, USA
-    index: 2
-date: 31 August 2024
-bibliography: paper.bib
----
+<head>
    <meta charset=utf-8 />
    <style>
       div.container {
@@ -52,6 +17,7 @@ bibliography: paper.bib
         text-align:center;
       }
    </style>
+</head>
 <div align="center">
   <img src="./docs/source/imgs/canhydro_logo.jpeg" height="600" width="600" alt="Flow ID Algorithm"/>
   <h1>CanoPyHydro</h1>
@@ -310,7 +276,42 @@ Wischmeyer, C., Swanson, T., Mueller, K., Lewis, N., Bastock, J., Van Stan, I.J.
 Zimmermann, A., Zimmermann, B., 2014. Requirements for throughfall monitoring: the roles of temporal scale and canopy complexity. Agric For Meteorol 189, 125–139.
 
 ----
+---
+title: CanoPyHydro: A Python Package for Delineating Tree Canopy Drainage Areas’
+tags:
+  - Python
+  - hydrology
+  - rainfall
+  - tree
+  - stemflow
+  - throughfall
+authors:
+  - name: Collin Wischmeyer
+    orcid: 0009-0002-8490-0999
+    affiliation: 1
+  - name: Travis E. Swanson
+    orcid: 0000-0002-6879-7621
+    affiliation: 2
+  - name: Kevin E. Mueller
+    orcid: 0000-0002-0739-7472
+    affiliation: 1
+  - name: Nicholas R. Lewis
+    affiliation: 1
+  - name: Jillian Bastock
+    affiliation: 1
+  - name: John T. Van Stan II
+    orcid: 000-0002-0692-7064
+    corresponding: true
+    affiliation: 1
 
+affiliations:
+  - name: Department of Biological, Geological, and Environmental Sciences, Cleveland State University, Cleveland OH, USA
+    index: 1
+  - name: The Water Institute of the Gulf, Baton Rogue LA, USA
+    index: 2
+date: 31 August 2024
+bibliography: paper.bib
+---
 references:
 @article{Pearson:2017,
   	url = {http://adsabs.harvard.edu/abs/2017arXiv170304627P},
