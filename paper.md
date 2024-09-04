@@ -36,7 +36,6 @@ bibliography: paper.bib
 ---
 <head>
    <meta charset=utf-8 />
-   <title></title>
    <style>
     div.container {
       display:inline-block;
@@ -262,8 +261,6 @@ After the flows in a canopy's watershed have been identified, common statistics 
   </div>
   <figcaption>Here we see an example of the visualization capabilities of canoPyHydro. The above images show the same tree from two different angles, with the stemflow contributing cylinders highlighted in blue</figcaption>
 </div>
-![Stem Flow Highlight XY](./docs/source/imgs/example_tree_XY_docs_ex.png)
-![Stem Flow Highlight XZ](./docs/source/imgs/example_tree_XZ_docs_ex.png)_Here we see an example of the visualization capabilities of canoPyHydro. The above images show the same tree from two different angles, with the stemflow contributing cylinders highlighted in blue._
 
 ## Metrics
 
