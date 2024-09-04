@@ -52,8 +52,8 @@ myCollection.draw("XZ") # 'front' view
 ```
 
 <div class="container">
-    <img src="../imgs/minimal_tree_XZ_hull_tutorial.png" height="300" width="300">
-    <img src="../imgs/minimal_tree_XY_hull_tutorial.png" height="300" width="300">
+    <img src="./imgs/minimal_tree_XZ_hull_tutorial.png" height="300" width="300">
+    <img src="./imgs/minimal_tree_XY_hull_tutorial.png" height="300" width="300">
 </p>
 
 As you can see above, our tree has only a few, short branches. As is common among groups of smaller groups of cylinders (i.e. branch subsets), there are also significant gaps between the tree's branches.
@@ -78,7 +78,7 @@ x_y_coords = [(node.x, node.y) for node in end_nodes]
 myCollection.draw("XY", include_alpha_shape=True)
 ```
 <p align="center">
-    <img src="../imgs/minimal_tree_alphashape.png" height="390" width="390">
+    <img src="./imgs/minimal_tree_alphashape.png" height="390" width="390">
 </p>
 <p>
 As expected, the alpha shape (the outline of which is in grey above) narrowly encloses the tree's branches as compared to a circular region. In the above example, the alpha shape is defined by an alpha value of 1.8. This is the default value, but can be adjusted by the user. The 'draw' function will draw the most recently produced alpha shape, so one can alter this value as shown below:
@@ -89,7 +89,7 @@ myCollection.watershed_boundary(curvature_alpha=1)
 myCollection.draw("XY", include_alpha_shape=True)
 ```
 <p align="center">
-    <img src="../imgs/minimal_tree_low_alpha_XY_hull_tutorial.png" height="390" width="390">
+    <img src="./imgs/minimal_tree_low_alpha_XY_hull_tutorial.png" height="390" width="390">
 </p>
 
 ```{python}

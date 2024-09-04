@@ -6,17 +6,14 @@
     div.container {
       display:inline-block;
     }
-
     p {
       text-align:center;
     }
-
     img {
       display: block;
       margin-left: auto;
       margin-right: auto;
     }
-
     figcaption {
       font-size: 15px;
       text-align:center;
@@ -24,7 +21,7 @@
    </style>
 </head>
 <p align="center">
-    <img src="./source/imgs/canhydro_logo.jpeg" height="390" width="390">
+    <img src="./imgs/canhydro_logo.jpeg" height="390" width="390">
 </p>
 <h1 align="center">CanoPyHydro</h1>
   <p align="center">
@@ -60,7 +57,10 @@ The current tool set also boasts several different spacial analysis tools, sever
   <li>i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...</li>
   <li>2D and 3D visualization functionality to interactively to explore the structure of tree canopies</li>
 </ul>
+
 # Tutorial
+Before running the code from this tutorial, we reccomend that you set up your environment by following the instructions in the [getting started](https://canopyhydrodynamics.readthedocs.io/en/latest/getting_started.html) section of the documentation.
+
 The Cylinder class is used to represent the 3-D cylinders that make up a QSM. The most important function of these Cylinder objects is their ability to return data regarding the projections onto the XY, XZ and YZ planes.
 
 ```{python}
@@ -83,7 +83,7 @@ The Cylinder class is used to represent the 3-D cylinders that make up a QSM. Th
 
 <div align="center">
   <div class="container">
-    <img src="./source/imgs/Cylinder_projections_3D.png" height="350" width="400" alt="Point Cloud and QSM"/>
+    <img src="./imgs/Cylinder_projections_3D.png" height="350" width="400" alt="Point Cloud and QSM"/>
   </div>
 </div>
 The Cylinder Collection class is a data class consisting of multiple cylinders and related metrics. Cylinder Collections almost always represent [QSMs](https://canopyhydrodynamics.readthedocs.io/en/latest/qsms.html#) or parts of a QSM and are meant to help users explore these QSMs. Below, we demonstrate how one might create a cylinder collection using cylinder data (e.g. QSM data) stored in a CSV file and how the afforementioned concept of projections can be used to visualize the data in a variety of ways.
@@ -109,15 +109,15 @@ myCollection.draw("YZ")
 
 <div align="center">
   <div class="container">
-    <img src="./source/imgs/charlie_brown_XZ.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
+    <img src="./imgs/charlie_brown_XZ.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
     <p>XZ Projection</p>
   </div>
   <div class="container">
-    <img src="./source/imgs/charlie_brown_XY.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <img src="./imgs/charlie_brown_XY.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
     <p>XY Projection</p>
   </div>
   <div class="container">
-    <img src="./source/imgs/charlie_brown_YZ.png" height="300" width="150" alt="Plot of a branch only"/>
+    <img src="./imgs/charlie_brown_YZ.png" height="300" width="150" alt="Plot of a branch only"/>
     <p>YZ Projection</p>
   </div>
 </div>
@@ -168,15 +168,15 @@ myCollection.draw("XZ",
 
 <div align="center">
   <div class="container">
-    <img src="./source/imgs/charlie_brown_stem_flow.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
+    <img src="./imgs/charlie_brown_stem_flow.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
     <figcaption>Plot of the entire tree </figcaption>
   </div>
   <div class="container">
-    <img src="./source/imgs/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <img src="./imgs/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
     <figcaption>Same as left but zoomed in</figcaption>
   </div>
   <div class="container">
-    <img src="./source/imgs/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
+    <img src="./imgs/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
     <figcaption>Adding locations of drip points</figcaption>
   </div>
 </div>
@@ -220,21 +220,21 @@ myCollection.draw("XY",
 ```
 <div align="center">
   <div class="container">
-    <img src="./source/imgs/10_MediumCollection_XY_read_me_only_hull.png" height="300" width="300" alt="Entire canopy hull alone"/>
+    <img src="./imgs/10_MediumCollection_XY_read_me_only_hull.png" height="300" width="300" alt="Entire canopy hull alone"/>
     <figcaption>Entire canopy hull alone</figcaption>
   </div>
   <div class="container">
-    <img src="./source/imgs/10_MediumCollectioncsv_XY_read_me_hull_and_tree.png" height="300" width="300" alt="Hull overlaid on the canopy"/>
+    <img src="./imgs/10_MediumCollectioncsv_XY_read_me_hull_and_tree.png" height="300" width="300" alt="Hull overlaid on the canopy"/>
     <figcaption>Hull overlaid on the canopy</figcaption>
   </div>
 </div>
 <div align="center">
   <div class="container">
-    <img src="./source/imgs/10_MediumCollectioncsv_XY_tight_hull_and_tree.png" height="300" width="300" alt="A tighter fitting hull<"/>
+    <img src="./imgs/10_MediumCollectioncsv_XY_tight_hull_and_tree.png" height="300" width="300" alt="A tighter fitting hull<"/>
     <figcaption>A tighter fitting hull</figcaption>
   </div>
   <div class="container">
-    <img src="./source/imgs/10_MediumCollectioncsv_XY_stem_hull_and_tree.png" height="300" width="300" alt="The stem flow boundary hull"/>
+    <img src="./imgs/10_MediumCollectioncsv_XY_stem_hull_and_tree.png" height="300" width="300" alt="The stem flow boundary hull"/>
     <figcaption>The stem flow boundary hull</figcaption>
   </div>
 </div>

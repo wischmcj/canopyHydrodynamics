@@ -10,7 +10,7 @@ from __future__ import annotations
 project = "canoPyHydro"
 copyright = "2024, Collin Wischmeyer"
 authors = "Collin Wischmeyer, Travis Swanson, John Van Stan"
-release = "0.1"
+release = "0.0.5"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -33,9 +33,9 @@ exclude_patterns = []
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 html_theme_options = {
-    'collapse_navigation': False,
-    'navigation_depth': 3,
-    'includehidden': False,
-    'titles_only': True,
-    'prev_next_buttons_location': 'both'
-}    
+    "collapse_navigation": False,
+    "navigation_depth": 3,
+    "includehidden": False,
+    "titles_only": True,
+    "prev_next_buttons_location": "both",
+}
