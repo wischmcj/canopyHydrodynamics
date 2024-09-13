@@ -35,16 +35,16 @@
 <p align="center">
   Vegetation coverage has a marked effect on the spatiotemporal distribution of terrestrial rainfall, marking the initial step in terrestrial rainfall-to-runoff pathways. <!-- As we demonstrate below, the importance of this 'precipitation partitioning' is well established in the field of hydrology and is of increasing interest in the modeling of ecological and biogeochemical processes.  -->
   Growing interest from hydrologists and environmental scientists has led to numerous attempts to characterize these flows. However, these efforts have largely been correlative and regression-based, lacking clear frameworks to guide meaningful inferences (Van Stan et al., 2020).
-  canoPyHydro empowers researchers to derive mechanistic inferences into the drivers underlying variability in canopy rainfall drainage fluxes and has garnered interest for its versatility across related use-cases. By integrating precipitation partitioning data with increasingly available terrestrial lidar scans (TLS), canoPyHydro offers a tailored environment to explore canopy water distribution, enhancing the precision and depth of hydrological analyses.
+  CanoPyHydro empowers researchers to derive mechanistic inferences into the drivers underlying variability in canopy rainfall drainage fluxes and has garnered interest for its versatility across related use-cases. By integrating precipitation partitioning data with increasingly available terrestrial lidar scans (TLS), canoPyHydro offers a tailored environment to explore canopy water distribution, enhancing the precision and depth of hydrological analyses.
 </p>
 
 # Summary
 
-The main inputs to canoPyHydro are Qantitative Structural Models (QSMs). These models simplify TLS point clouds to represent trees as collections of topologically ordered cylinders. CanoPyHydro's functionality can broadly categorized into two groups: Utilities for the ingestion and exploration of QSMs and utilities for predicting percipitation partitioning.
+The main inputs to canoPyHydro are Quantitative Structural Models (QSMs), which distill TLS point clouds of trees into topologically ordered cylinders representing branch structures. CanoPyHydro's functionality is divided into two groups: utilities for QSM ingestion and exploration, and utilities for predicting percipitation partitioning.
 
-CanoPyHydro takes a novel approach to the latter in particular, reimagining the trees' canopies as watersheds. CanoPyHydro unveils the previously unexplored structure of these watersheds: identifying the many tributary-like flows amongst trees' branches, determining which reach reach the trunk (thus becoming stemflow) and delineating areas of run-off where water drips to the forest floor (becoming throughfall).
+CanoPyHydro introduces a novel approach by treating tree canopies as watersheds to reveal the tributary-like flows within branch networks. It precisely distinguishes which flows reach the trunk (thus becoming stemflow) and delineates areas where water drips to the forest floor (as throughfall).
 
-For tree-data explorers, CanoPyHydro's spacial utilities are of particular interest. The use of [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) empowers users to apply the concept of canopy coverage area in unexpected, new ways. Likewise, CanoPyHydro can provide detailed _intra_-canopy occlusion data for arbitrary cross-sections of the canopy, providing detailed estimates of the shade within the canopy (in the vertical direction) and protection from wind/rain (in the horizontal direction).
+For tree-data explorers, CanoPyHydro's spatial utilities stand out. The use of [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) enables novel interpretations of canopy coverage area, while detailed _intra_-canopy cross-sections offer precise insights into the vertical shading within the canopy and protection from wind/rain (in the horizontal direction).
 
 # Statement of Need
 
