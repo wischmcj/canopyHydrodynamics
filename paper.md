@@ -136,8 +136,9 @@ Many of the metrics calculated by CanoPyHydro are derived from projections of QS
 
 ## Flow Identification
 
-CanoPyHydro's hydrological estimates rely on the classification of QSM cylinders as stemflow contributing or throughfall contributing. This is done by assigning each cylinder is to a 'flow' object, which is said to contain the precipitation intercepted by that cylinder. Each flow of water is assumed to flow towards the stem, and each will eventually either reach the stem of the tree unless the flow reaches a cylinder that is too steep to traverse. Points at which a flow encounters one such cylidner are referred to as 'drip-points'. To identify these 'too-steep' portions of the tree, we choose a 'drip cut-off angle' (configurable by the user), assuming that water is only able to flow down branches with an angle greater than the chosen cutoff.
-The below diagram demonstrates how graph based models allow us to use these assumptions to identify which flows containing a drip point - and are therefore throughfall contributing - and which do not - and are therefore stemflow contributing.
+CanoPyHydro’s hydrological estimates classify QSM cylinders as contributing either to stemflow or throughfall. Each cylinder is assigned to a 'flow' object, which represents the precipitation intercepted by that cylinder. Water is assumed to flow toward the tree’s stem unless it encounters a cylinder too steep to traverse. These steep areas, where water drips off rather than continuing to the stem, are termed 'drip-points.'
+
+To identify such areas, a user-defined 'drip cut-off angle' is applied, which assumes water can only flow down branches with angles above the specified threshold. The below diagram illustrates how graph-based models use these assumptions to idifferentiate between flows that contain a drip point (throughfall) and those that do not (stemflow).
 
 <div align="center">
   <div class="container">
@@ -146,7 +147,7 @@ The below diagram demonstrates how graph based models allow us to use these assu
   </div>
 </div>
 
-The algorithm above assigns an id to each of the flows found with 'stemflow' always receiving and id of 0. These flow ids are stored by the cylinder collection in the variable 'cyl_to_drip', a dictionary keyed by cylinder ids and can later be used for calculating the 'size' of the flow (see the Metrics section below) and for creating various visualizations of the canopy watershed.
+The algorithm assigns an ID to each of the identified flows, with 'stemflow' always receiving an ID of 0. These flow IDs are stored in the cylinder collection within the 'cyl_to_drip' variable, a dictionary keyed by cylinder IDs. These IDs can be used later to calculate the flow 'size' (see the Metrics section below) and to generate visualizations of the canopy watershed.
 
 The below code demonstrates how the above is done in practice. Details regarding the various objects and functions used can be found in the <a href="./docs/">`docs`</a> section of this repository.
 
@@ -180,8 +181,8 @@ After the flows in a canopy's watershed have been identified, common statistics 
   - each being the sum of the same for their contained cyliners
 - A surface area to volume ratio
 - A sum of the angles of their cylinders - This is available to facilitate the calculation of average flow angle for one or many flows
-  Most importantly, each non-stem flow also has a unique drip point and drip point location, representing a point in the canopy at which one would expectedwater to drip to the ground.
-  Utilizing the above metrics, users can glean important information regarding a tree's watershed. For example, the below graphic uses the projected area data for a tree's flows, along with canoPyHydro's visualization capabilities, to mak the location and relative abundance of moisture beneath two tree canopies.
+  Most importantly, each non-stem flow also has a unique drip point and drip point location, representing a point in the canopy at which one would expect water to drip to the ground.
+  Utilizing the above metrics, users can glean important information regarding a tree's rainfall-drainage watersheds. For example, the below graphic uses the projected area data for a tree's flows, along with canoPyHydro's visualization capabilities, to make the location and relative abundance of moisture beneath two tree canopies.
 
 <div align="center">
   <div class="container">
@@ -220,21 +221,36 @@ Though a variety of metrics are available through this package, the majority are
 
 ### Shade
 
-The internal shading of portions of the canopy, as well as the ground itsself has a quantifiable impact on light/UV exposue, surface temperature and wind exposure. In turn, these environmental conditions each impact moisutre availability via processes such as evapotranspiration. As such, robust utilities for calculating these shade patterns are provided to assist in data exploration.
+The internal shading of the canopy, as well as the ground beneath it, impacts the energy balance, surface temperature, and wind exposure. In turn, these environmental conditions influence moisture availability via related processes like evaporation. To support data exploration, CanoPyHydro includes robust tools for calculating these shade patterns.
 
-In the calculation of canopy coverage area, we utilize [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) rather than a circular region. In the vernacular of some popular python packages alpha shapes are referred to as 'hulls', with the tightly fit version used in canoPyHydro considered 'convcave hulls'. This approach to quantifying canopy coverage provides a lower estimate of canopy coverage than would be measured with a smooth circle.
+In the calculation of canopy coverage area, we utilize [Alpha Shapes](https://en.wikipedia.org/wiki/Alpha_shape) rather than a circular region. In some popular Python packages, Alpha Shapes are referred to as 'hulls,' with CanoPyHydro using the tightly fitted 'concave hull' variant. This approach provides a more precise, often lower, estimate of canopy coverage compared to a circular approximation.
 
 ![Stem Flow Highlight XY](./docs/source/imgs/example_tree_XY_docs_ex.png)
 ![Alpha Shape Example](./docs/source/imgs/example_tree_XY_Alpha_shape.png)_Here we see an example of an alpha shape for the same tree disussed above_
 
 ## Future Direction
 
-- We hope to widen the use cases for our tool by integrating additional real world data (i.e wind speed and direction, rain intensity and average angle, etc.).
-- By integrating python libraries for spacial analysis (scipy-spacial, open3d) into canoPyHydro, we hope to allow for the projection of cylinders at an arbitrary angle. This will lead directly into supporting the afformentioned integration of weather data.
-- Improve the efficiency of the flow finding algorithm and the flow caluclation algorithm. This will allow for the processing of larger QSMs and the use of more complex models (i.e. tesselated meshes).
-  - Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency), you can see the current work being done to meet this goal. Early results so as much as a 200x increase in the speed of the algorithm as a result of:
-    - migrating the the use of rust based graph models, using the rustworkx library
-    - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing
+As we continue to develop CanoPyHydro, several key advancements are planned to broaden its functionality and enhance its utility across a range of research applications. These improvements will focus on integrating real-world environmental data, advancing spatial analysis, optimizing computational efficiency, and expanding the scope of canopy hydrology modeling. Below are the primary directions for future development:
+
+- Integrating Real-World Environmental Data
+We aim to broaden CanoPyHydro's application by incorporating additional real-world environmental data, such as wind speed and direction, rain intensity, and rainfall angle. These integrations will enhance the precision of canopy water distribution modeling by factoring in dynamic environmental conditions, allowing researchers to simulate and predict hydrological processes under various weather scenarios. This will be particularly useful for studying the effects of storm events, seasonal changes, and long-term climate impacts on canopy water redistribution.
+
+- Advancing Spatial Analysis with Python Libraries
+By incorporating advanced Python libraries for spatial analysis, such as scipy-spatial and open3d, we aim to enable the projection of cylinders at arbitrary angles. This advancement will allow CanoPyHydro to support the aforementioned integration of weather data, improving the accuracy of stemflow and throughfall predictions. Additionally, this enhancement will facilitate more complex spatial queries, such as identifying microclimates within a canopy or evaluating wind-driven rain impacts on specific tree branches.
+
+- Optimizing Computational Efficiency
+A critical goal is to improve the efficiency of the flow-finding and flow-calculation algorithms, enabling CanoPyHydro to process larger QSMs and handle more complex tree models, such as tessellated meshes. These improvements will expand the tool's scalability, making it more suitable for large-scale studies involving dense forest ecosystems or intricate tree structures. Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency), you can find current work toward this goal, which has shown promising results, with up to a 200x increase in algorithm speed. This improvement is attributed to migrating to Rust-based graph models using the rustworkx library and refactoring the flow-finding algorithm as a graph traversal process, enabling parallel processing. These developments will significantly reduce computational time and resource requirements, allowing users to run complex models on standard computing setups.
+
+- Expanding Canopy Coverage Analysis
+In the future, we aim to integrate additional methods for calculating canopy coverage beyond Alpha Shapes. By offering options for alternative geometric representations, such as 3D meshes or voxel-based models, CanoPyHydro will enable more flexible and accurate analyses of canopy structure and its influence on rainfall distribution. This expansion will help researchers tailor their analyses to specific forest types, vegetation structures, or ecological research questions.
+
+- Supporting Multi-Scale Hydrological Modeling
+We plan to extend CanoPyHydro’s capabilities to support multi-scale hydrological modeling, allowing for the simultaneous analysis of both individual trees and larger forest stands. This will facilitate more comprehensive ecosystem studies, enabling users to model how water flows through entire landscapes, from canopy to forest floor, while considering the collective behavior of multiple trees. This functionality will be particularly beneficial for watershed management, forest hydrology, and conservation planning at broader spatial scales.
+
+- Customizable User Interfaces for Specialized Applications
+To make CanoPyHydro accessible to a wider range of users, we envision developing customizable user interfaces tailored to specific research applications. These could include simplified interfaces for educators and students, as well as advanced options for scientists requiring detailed control over modeling parameters and data inputs. Customization will also include the integration of automated workflows, enabling users to conduct common analyses with minimal manual intervention.
+
+Through these future developments, CanoPyHydro will continue to evolve as a powerful and versatile tool for exploring tree hydrology, driving new insights into how tree canopies interact with environmental conditions and contribute to water redistribution in forest ecosystems.
 
 
 # Acknowledgements
