@@ -34,15 +34,9 @@
 </p>
 <p align="center">
   Vegetation coverage has a marked effect on the spatiotemporal distribution of terrestrial rainfall, marking the initial step in terrestrial rainfall-to-runoff pathways. <!-- As we demonstrate below, the importance of this 'precipitation partitioning' is well established in the field of hydrology and is of increasing interest in the modeling of ecological and biogeochemical processes.  -->
-  Growing interest from hydrologists and environmental scientists has led to numerous attempts to characterize these flows. However, these efforts have largely been correlative and regression-based, lacking clear frameworks to guide meaningful inferences. <!-- (Van Stan et al., 2020) -->
-  canoPyHydro has grown from an effort uncover strong mechanistic inferences into the drivers for the variation in these fluxes and drawn interest from fellow researchers as a tool for a variety of related use-cases, largely. No matter the use case, canoPyHydro provides value to researchers by enriching their (evermore widely available) terrestrial lidar scans (TLS) with percipitation partitioning data; giving them an tailored environment to explore canpy water distribution.
+  Growing interest from hydrologists and environmental scientists has led to numerous attempts to characterize these flows. However, these efforts have largely been correlative and regression-based, lacking clear frameworks to guide meaningful inferences (Van Stan et al., 2020).
+  canoPyHydro empowers researchers to derive mechanistic inferences into the drivers underlying variability in canopy rainfall drainage fluxes and has garnered interest for its versatility across related use-cases. By integrating precipitation partitioning data with increasingly available terrestrial lidar scans (TLS), canoPyHydro offers a tailored environment to explore canopy water distribution, enhancing the precision and depth of hydrological analyses.
 </p>
-
-<!-- plant nutrient uptake and leaching (Aubrey, 2020), litter decomposition (Qualls, 2020),  plant microbiome composition and function (Van Stan et al., 2020). -->
-<!-- The below is an alternatie version, I think I like the above better, though
-
-Vegetation coverage has a marked effect on the spatiotemporal distribution of terrestrial rainfall. That is, trees have a measurable effect on when and where rain falls. This process, referred to as precipitation partitioning, is well established in the field of hydrology but the influence of partitioning on ecological processes is currently under-represented in statistical models. This is in large part due to the inaccessability of the related measurements.
-canoPyHydro seeks to empower researchers with percipitation partitioning data; allowing them to leverage existing data sets (e.g. increasingly available terrestrial lidar point clouds) to access a wealth of microclimactic data. -->
 
 # Summary
 
