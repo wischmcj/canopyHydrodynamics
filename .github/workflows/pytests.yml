@@ -14,8 +14,9 @@ jobs:
         python-version: '3.10'
         cache: 'pip'
     - name: Install dependencies
-      run: python3 -m pip install --upgrade pip
+      run: |
+           python3 -m pip install --upgrade pip
            pip install -r requirements.txt
            pip install pytest
     - name: Test with pytest
-      run: pytest test/test_collection_integration.py 
+      run: pytest test/test_collection_integration.py

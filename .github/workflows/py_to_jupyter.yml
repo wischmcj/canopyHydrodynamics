@@ -1,4 +1,4 @@
-name: onver py to ipynb
+name: Convert py to ipynb
 
 on: [create]
 
@@ -19,4 +19,4 @@ jobs:
         pip install jupytext
     - name: Convert py to ipynb for dev work
       run:
-        jupytext --to ipynb legacy_code/code_prototype.py
+        jupytext --to ipynb docs/source/examples/*.ipynb
