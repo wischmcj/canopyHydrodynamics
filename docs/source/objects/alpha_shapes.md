@@ -5,18 +5,15 @@
    <style>
     div.container {
       display:inline-block;
-    }
-
+    };
     p {
       text-align:center;
-    }
-
+    };
     img {
       display: block;
       margin-left: auto;
       margin-right: auto;
-    }
-
+    };
     figcaption {
       font-size: 10px;
       text-align:center;
