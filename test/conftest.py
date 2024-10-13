@@ -1,23 +1,17 @@
 from __future__ import annotations
 
+import os
+import sys
+
 import pytest
-import toml
-import logging
 from _pytest.nodes import Item
-from pathlib import Path
 
-from _pytest.nodes import Item
-from pathlib import Path
+cwd = os.getcwd()
+sys.path.append(cwd + "/src/")
 
-from src.canhydro.Cylinder import create_cyl
-from src.canhydro.Forester import Forester
-
-with open("src/canhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    test_input_dir = Path(config["directories"]['test_input_dir'])
-
-
-test_input_dir =Path("./data/test/")
+from canopyhydro.configuration import test_input_dir
+from canopyhydro.Cylinder import create_cyl
+from canopyhydro.Forester import Forester
 
 
 def pytest_collection_modifyitems(items: list[Item]):
@@ -31,9 +25,9 @@ def pytest_collection_modifyitems(items: list[Item]):
 # @lru_cache(maxsize=256)
 @pytest.fixture
 def basic_forest():
-    forest = Forester()
-    forest.get_file_names(dir=test_input_dir)
-    # forest.qsm_from_file_names()
+    forest = Forester(test_input_dir)
+    forest.get_file_names()
+    # forest.qsm_to_collection()
     return forest
 
 
@@ -49,14 +43,14 @@ def test_cyl(request):
 
 @pytest.fixture
 def basic_collection(basic_forest, request):
-    basic_forest.qsm_from_file_names(file_name=request.param)
+    basic_forest.qsm_to_collection(file_name=request.param)
     flexible_collection = basic_forest.cylinder_collections[0]
     return flexible_collection
 
 
 @pytest.fixture
 def flexible_collection(basic_forest, request):
-    basic_forest.qsm_from_file_names(file_name=request.param)
+    basic_forest.qsm_to_collection(file_name=request.param)
     flexible_collection = basic_forest.cylinder_collections[0]
     flexible_collection.project_cylinders("XZ")
     flexible_collection.project_cylinders("XY")
@@ -67,36 +61,36 @@ def flexible_collection(basic_forest, request):
 
 @pytest.fixture
 def ez_projection():
-    forest = Forester()
-    forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="2_EZ_projection.csv")
+    forest = Forester(test_input_dir)
+    forest.get_file_names()
+    forest.qsm_to_collection(file_name="2_EZ_projection.csv")
     collection = forest.cylinder_collections[0]
     return collection
 
 
 @pytest.fixture
 def happy_path_projection():
-    forest = Forester()
-    forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="3_HappyPathWTrunk.csv")
+    forest = Forester(test_input_dir)
+    forest.get_file_names()
+    forest.qsm_to_collection(file_name="3_HappyPathWTrunk.csv")
     collection = forest.cylinder_collections[0]
     return collection
 
 
 @pytest.fixture
 def small_tree():
-    forest = Forester()
-    forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="5_SmallTree.csv")
+    forest = Forester(test_input_dir)
+    forest.get_file_names()
+    forest.qsm_to_collection(file_name="5_SmallTree.csv")
     collection = forest.cylinder_collections[0]
     return collection
 
 
 @pytest.fixture
 def large_collection():
-    forest = Forester()
-    forest.get_file_names(dir=test_input_dir)
-    forest.qsm_from_file_names(file_name="4_LargeCollection.csv")
+    forest = Forester(test_input_dir)
+    forest.get_file_names()
+    forest.qsm_to_collection(file_name="4_LargeCollection.csv")
     collection = forest.cylinder_collections[0]
     # collection.project_cylinders("XZ")
     return collection
