@@ -1,104 +1,298 @@
-# canhydro
-This repository houses a bare bones script relating to 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
-A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
-(https://www.researchgate.net/publication/375530854)
 
-## Contents:
+<head>
+   <meta charset=utf-8 />
+   <title></title>
+   <style>
+    div.container {
+      display:inline-block;
+    }
 
-The interactive jupyter notebook under '.\Cylinders\cli.ipynb' displays the code written for the first draft of the above linked paper how it was run and reviewed. The remaning (majority) of this repository represents code written in the process of improving and productionalizing that code.
+    p {
+      text-align:center;
+    }
 
-## Improvements since publication of preprint
+    img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-The code that you see zipped here is representiitive of the ongoing work in our ***productionalizing*** branch, where you will see in progress improvements such as:
+    figcaption {
+      font-size: 15px;
+      text-align:center;
+    }
+   </style>
+</head>
+<p align="center">
+    <img src="./docs/source/imgs/canhydro_logo.jpeg" height="390" width="390">
+</p>
+<h1 align="center">CanoPyHydro</h1>
+  <p align="center">
+    Leveraging remote sensing to map water availability in tree canopies.
+    </p>
+</p>
+<p align="center">
+  <a href="#summary">Summary</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#publications">Publications</a> •
+  <a href="#future-direction">Future Direction</a> •
+  <a href="#tutorials">Tutorials</a>
+</p>
 
-+ Functionality refactored into testable methods
-+ Flexible, fast visualization functionality added
-+ Linter(s) added for formatting and best practices adherence
-+ Fully fledged logging functionality added for visibility into results
-+ toml configuration added for model parameterization
-+ A pytest based testing suite to surface potential disagreements with previous results 
+## Summary
 
-## Development Setup:
+The goal of this and future versions of CanoPyHydro is to provide a tool set that empowers researchers and practitioners to gain new perspectives on rainfall distribution in forested environments. A list of publications that have utilized this tool-and influenced its development- can be found at the bottom of this page.
 
-- Pre-requisites
+CanoPyHydro provides users access to an innovative, bottom-up approach to estimation precipitation redistribution. By enriching QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
 
-  1. Python version 3.9 or higher
-  2. A Virtual environment
-     - python -m venv 
-  3. Activate venv with 
-      - source venv/bin/activate (zsh, terminal)
-      - source venv\Scripts\activate.ps1 (PowerShell)
-  4. Install requirements 
-      - pip install -r requirements_dev.txt 
-  5. Enabling Pre-commit lining
-     2. Install pre-commit - pre-commit install
+- Stemflow and throughfall generating areas of the canopy
+- The 'drip points' to which throughfall is directed - complete with their relative volumes
+- 'Divides' and 'confluences' within the canopy that dictate the flow of water through the canopy
 
-## Packaging
+The current tool set also boasts several different spacial analysis tools, several of which have been utilized in the study of non-hydrological environmental conditions within tree canopies. These include:
 
-This project was initially packaged with Flit using the the instructions found on the offical python website: https://packaging.python.org/en/latest/tutorials/packaging-projects/.
+- Functionality for characterizing the level of obsfucation present at given canopy cross sections
+- Tools for identifying, highlighting and isolating branch subnetworks meeting any arbitrary contition(s)
+  - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
+- 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
-## Running
+## Getting Started
 
-  A command line interface (CLI) is planned for this project, to allow researchers to easily point to, read in and process their lidar scans. Today, however, we have prioritized work needed to create a cahnhydro package, that would allow our code to be utilized in any python project by use of the 'pip install canhydro' command.
+1. **Create a Virtual Environment**: Below we use the native 'venv' module to create a virtual environment. This is not strictly necessary, but it is a good practice to keep your project dependencies separate from your system dependencies in a virtual environment.
+   ```bash
+   python -m venv canHydroVenv
+   ```
+2. **Activate Your Environment**: Activate your virtual environment to install dependencies and run the project. The commands to activate the virtual environment depend on your operating system and shell. Below are the commands for activating the virtual environment in different operating systems and shells.
 
-  For now, you can get a feel for how the program works in two ways
+```bash
+  # if using bash (Mac, Unix)
+  source canHydroVenv/bin/activate
+  # if using PowerShell (Windows)
+  source canHydroVenv\Scripts\activate.ps1
+```
 
-1. By running the test files, which have been conveniently populated with 'breakpoints' that pause execution and allow for the invesigation of variables
-   - This is achieved through running 'pytest tests/test_collection_integration.py'
-2. By running the interactive jupyter notebook under '.\Cylinders\cli.ipynb'. This is indeed how most of the data for the paper was generated
+3. **Install canoPyHydro**: canoPHydro is published with PyPA (the python packacing authority). You can install the latest stable release of canoPyHydro using pip. This installs our latest stable release as well as several libraries required for the use of the package's features. canoPyHydro currently supports Python versions 3.9 and up.
 
-## Important Commands
+```bash
+   pip install canoPyHydro
+```
 
-- The projection algorithm is an approximation
-- e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad
+4. **Set Configuration Options**: The default configuration file can be found at '/CanopyHydrodynamics/canopyhydro_config.toml'. Configuration options can be set by altering the contents of that file in place. Refer to the [configuration page in the docs](https://canopyhydrodynamics.readthedocs.io/en/latest/getting_started.html#configuration) for more information on configuration options.
 
-## Known Issues
+That's it! You're ready to start using canoPyHydro. Check out the the below tutorials and the [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/index.html) for more information on how to use the package.
 
-- The projection algorithm is an approximation
-  - e.g. a vector forming a 3,5,6 triangle (vector from (1,1,1)(4,6,7)) has an angle of 45 degrees or 0.785 rad with the XY plane but the algorithm returns .799 rad
-- Cylinders occasionally have more than one possible drip point. Our algorithm chooses just one of theses and lists that as the drip node
-  - Note that these possible drip nodes more often than not fall very close together
+# Tutorial
 
-## Wishlist
-  - Optimizing the alpha value for alphashapes
-      - Can be done locally for areas with different point densities
-  - Smoothing cylinders to eliminate false drip points
-      -polygon.buffer
-  - Creating QSMs from point cloud data
-    - would almost certainly need to leverage c++
-  - Integrate Point cloud processing libraries like Tree tool
-    - https://github.com/porteratzo/TreeTool
-  - pip install -U pytreedb
-  - A more robust meta manager that stores to a cloud based db
-  - Local (maybe also remote) caching
-  - 3d plotting
+The below tutorial should be a great starting place for those looking to get a feel for the capabilities of canoPyHydro. The tutorial will cover the creation of a CylinderCollection object, options for the visualization of QSMs in 2D and the calculation of flow characteristics.
 
-## Tutorials
-  The below code can be run at the first breakpoint in the test_collection_integration.py file
-  ### Displaying, Filtering and Highlighting
-    flexible_collection.draw(plane = 'XZ')
-    flexible_collection.draw(plane = 'XZ', a_lambda = lambda: cyl_id>100)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>50)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>75, highlight_lambda = lambda:branch_order==2)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:branch_order==2)
-    flexible_collection.draw(plane = 'XZ', filter_lambda = lambda: cyl_id>100, highlight_lambda = lambda:is_stem)
+The Cylinder class is used to represent the 3-D cylinders that make up a QSM. The most important function of these Cylinder objects is their ability to return data regarding the projections onto the XY, XZ and YZ planes.
 
-  ### Draw all projections
-    import geopandas as geo  # only import what we need
-    import matplotlib.pyplot as plt
-    happy_path_projection.project_cylinders('XY')
-    happy_path_projection.project_cylinders('XZ')
-    happy_path_projection.project_cylinders('YZ')
-    xz_poly = [cyl.projected_data['XZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-    xy_poly = [cyl.projected_data['XY']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-    yz_poly = [cyl.projected_data['YZ']['polygon'] for cyl in happy_path_projection.cylinders[1:20]]
-    geoPolys_xy = geo.GeoSeries(xy_poly)
-    geoPolys_xz = geo.GeoSeries(xz_poly)
-    geoPolys_yz = geo.GeoSeries(yz_poly)
-    fig, ax = plt.subplots(3)
-    geoPolys_xy.plot(ax=ax[0,0])
-    geoPolys_xy.plot(ax=ax[0])
-    geoPolys_xz.plot(ax=ax[1])
-    geoPolys_yz.plot(ax=ax[2])
+```{python}
+  myCyl = Cylinder(
+    cyl_id=1.0,
+    x=[3, 6],
+    y=[2, 4],
+    z=[6, 12],
+    radius=2.0,
+    length=0.064433,
+    branch_order=0.0,
+    branch_id=0.0,
+    volume=0.010021,
+    parent_id=0.0,
+    reverse_branch_order=32.0,
+    segment_id=0.0,
+  )
+  fig = myCyl.draw_3D(show=False, draw_projections=True)
+```
+
+<div align="center">
+  <div class="container">
+    <img src="./docs/source/imgs/Cylinder_projections_3D.png" height="350" width="400" alt="Point Cloud and QSM"/>
+  </div>
+</div>
+The Cylinder Collection class is a data class consisting of multiple cylinders and related metrics. Cylinder Collections almost always represent [QSMs](https://canopyhydrodynamics.readthedocs.io/en/latest/qsms.html#) or parts of a QSM and are meant to help users explore these QSMs. Below, we demonstrate how one might create a cylinder collection using cylinder data (e.g. QSM data) stored in a CSV file and how the afforementioned concept of projections can be used to visualize the data in a variety of ways.
+Note: the tree chosen for the below is intentionally small to make the visualization easier to understand.
+
+```{python}
+# Creating a CylinderCollection object
+myCollection = CylinderCollection()
+
+# The below file is one of our several testing files featuring only
+# the trunk of a tree and one of its branches
+myCollection.from_csv("charlie_brown.csv")
+
+# plot the tree as seen from the 'front'
+myCollection.draw("XZ")
+
+# plot the tree as seen from above
+myCollection.draw("XY")
+
+# plot the tree as seen from the 'side'
+myCollection.draw("YZ")
+```
+
+<div align="center">
+  <div class="container">
+    <img src="./docs/source/imgs/charlie_brown_XZ.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
+    <p>XZ Projection</p>
+  </div>
+  <div class="container">
+    <img src="./docs/source/imgs/charlie_brown_XY.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <p>XY Projection</p>
+  </div>
+  <div class="container">
+    <img src="./docs/source/imgs/charlie_brown_YZ.png" height="300" width="150" alt="Plot of a branch only"/>
+    <p>YZ Projection</p>
+  </div>
+</div>
+
+Compared to a QSM, CylinderCollections have additional structure in the form of a digraph model. These digraph models represent the direction water flows along the branches of the modeled tree and are used in the 'find_flow_components' and 'calculate_flows' function to characterize the flow of water through the canopy. The below code, continuing from the above demonstrates the use of these functions.
+
+```{python}
+# creating the digraph model
+myCollection.initialize_digraph_from()
+
+# Identifying the flows to which each cyl belongs
+myCollection.find_flow_components()
+
+# Calculating the propreties of each flow
+myCollection.calculate_flows()
+
+# Print out recommend flow characteristics
+print(myCollection.flows)
+```
+| num_cylinders | projected_area | surface_area | angle_sum | volume | sa_to_vol | drip_node_id | drip_node_loc |
+|-----|-----|-----|-----|-----|-----|-----|-----|
+| 162.0 | 0.345 | 1.167 | 111.92 | 0.019 | 82717.985 | 0.0 | (-0.5, 3.4, 8.7) |
+| 18 | 0.005 | 0.021 | 10.275 | 0.0 | 14370.354 | 232 | (1.9, 2.2, 13.9) |
+| 13 | 0.004 | 0.015 | 7.718 | 0.0 | 11229.764 | 360 | (1.8, 2.6, 13.6) |
+| 24 | 0.008 | 0.032 | 1.697 | 0.0 | 18378.751 | 515 | (1.5, 2.8, 12.9) |
+| ... | ... | ... | ... | ... | ... | ... | ... |
+
+What you see above is a sample of the flow characteristics calculated for the 'charlie_brown' tree. The first flow listed is, as is the convention in canoPyHydro, the tree's stemflow and the others are the throughfall flows. The 'drip_node_loc' column lists the x,y,z coordinates of the node of the afformentioned graph to which water intercepted by the flow's cylinders is directed. The various geometric characteristics give a sense of the size and shape of the flow's cylinders (or 'canopy drainage area').
+
+The draw function also allows for a variety of different overlays, filtering and highlighting. To demonstrate this briefly, we will show below how this filtering can be used in a variety of ways, including highlighting the various flows mentioned above. For more information on the CylinderCollection class, please refer to the [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/objects.html#canopyhydrodynamics.objects.CylinderCollection).
+
+
+```{python}
+# Plot the entire tree with stem flow highlighted
+myCollection.draw("XZ", highlight_lambda=lambda:is_stem)
+
+# Plot the interesting portion of the tree with stem flow highlighted
+myCollection.draw("XZ",
+                  highlight_lambda=lambda:is_stem,
+                  filter_lambda=lambda: cyl_id>100)
+
+# Adding drip points to the above mentioned plot
+myCollection.draw("XZ",
+                  highlight_lambda=lambda:is_stem,
+                  filter_lambda=lambda: cyl_id>100,
+                  include_drips=True)
+```
+
+<div align="center">
+  <div class="container">
+    <img src="./docs/source/imgs/charlie_brown_stem_flow.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
+    <figcaption>Plot of the entire tree </figcaption>
+  </div>
+  <div class="container">
+    <img src="./docs/source/imgs/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <figcaption>Same as left but zoomed in</figcaption>
+  </div>
+  <div class="container">
+    <img src="./docs/source/imgs/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
+    <figcaption>Adding locations of drip points</figcaption>
+  </div>
+</div>
+
+The final bit of functionality we will review today is the ability to create concave hulls around groups of cylinders in a CylinderCollection. This is done using the 'watershed_boundary' function. The below code demonstrates how this function can be used to find a concave hull around the entire tree, or a portion of the tree. Note that a new, more robist example tree is used
+
+```{python}
+# Reading in the tree data and finding flows
+myCollection = CylinderCollection()
+myCollection.from_csv("example_tree.csv")
+myCollection.project_cylinders("XY")
+myCollection.initialize_digraph_from()
+myCollection.find_flow_components()
+myCollection.calculate_flows()
+
+#drawing the tree for reference
+myCollection.draw("XY", save=True, file_name_ext="read_me_alpha")
+
+# Drawing the whole canopy boundary
+myCollection.watershed_boundary(plane = 'XY', draw=True)
+
+# Drawing the canopy boundary and tree together
+myCollection.draw("XY",
+                  include_alpha_shape=True)
+
+# Drawing a tighter fitting alpha shape
+myCollection.watershed_boundary(plane = 'XY',
+                                curvature_alpha=2,
+                                draw=True)
+myCollection.draw("XY",
+                  include_alpha_shape=True)
+
+# Drawing the stem flow watershed boundary
+# with stemflow cylinders highlighted
+myCollection.watershed_boundary(plane = 'XY',
+                                curvature_alpha=2,
+                                filter_lambda=lambda: is_stem)
+myCollection.draw("XY",
+                  include_alpha_shape=True,
+                  highlight_lambda=lambda: is_stem)
+```
+<div align="center">
+  <div class="container">
+    <img src="./docs/source/imgs/10_MediumCollection_XY_read_me_only_hull.png" height="300" width="300" alt="Entire canopy hull alone"/>
+    <figcaption>Entire canopy hull alone</figcaption>
+  </div>
+  <div class="container">
+    <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_read_me_hull_and_tree.png" height="300" width="300" alt="Hull overlaid on the canopy"/>
+    <figcaption>Hull overlaid on the canopy</figcaption>
+  </div>
+</div>
+<div align="center">
+  <div class="container">
+    <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_tight_hull_and_tree.png" height="300" width="300" alt="A tighter fitting hull<"/>
+    <figcaption>A tighter fitting hull</figcaption>
+  </div>
+  <div class="container">
+    <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_stem_hull_and_tree.png" height="300" width="300" alt="The stem flow boundary hull"/>
+    <figcaption>The stem flow boundary hull</figcaption>
+  </div>
+</div>
+
+## Publications:
+
+The utilities that this repository houses were first created as part of a research paper - *'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.'*. This paper has been accepted for publication in *The Journal of Ecology and Evolution*. A DOI for that publication will be added here once available, but in the meantime, a pre-print of the paper can be found on [ResearchGate](https://www.researchgate.net/publication/375530854).
+
+## Future Direction
+
+- We hope to widen the use cases for our tool by integrating additional real world data (i.e wind speed and direction, rain intensity and average angle, etc.).
+- By integrating python libraries for spacial analysis (scipy-spacial, open3d) into canoPyHydro, we hope to allow for the projection of cylinders at an arbitrary angle. This will lead directly into supporting the afformentioned integration of weather data.
+- Improve the efficiency of the flow finding algorithm and the flow caluclation algorithm. This will allow for the processing of larger QSMs and the use of more complex models (i.e. tessellated meshes).
+  - Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency), you can see the current work being done to meet this goal. Early results so as much as a 200x increase in the speed of the algorithm as a result of:
+    - migrating the the use of rust based graph models, using the rustworkx library
+    - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing
+
+
+# Contributing
+
+We welcome contributions to this project! Whether it's reporting a bug, proposing a new feature, or contributing code, we appreciate your help. Here's how you can set up you local environment in order to do so:
+
+1. **Install Additional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
+
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+2. **Install Pre-commit**: This repository utilizes the ruff pre-commit hook to ensure that all code is linted before being committed. To install pre-commit, run the following commands:
+
+   ```bash
+   pip3 install pre-commit
+   pre-commit install
+   ```
+3. **Review the contributing Guidelines **: Check out the documentation, where you can find [contributing guidelines](https://canopyhydrodynamics.readthedocs.io/en/latest/contributing.html). Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+
+Thank you for your interest in contributing to our project!
