@@ -20,8 +20,8 @@
   <a href="#future-direction">Future Direction</a> •
 </p>
 
-   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Detailed information regarding package use cases, the definitions of relevant terms and the methods available in the package can be found in our [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/). 
-   
+   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Detailed information regarding package use cases, the definitions of relevant terms and the methods available in the package can be found in our [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/).
+
 ## Summary
 CanoPyHydro takes an innovative, bottom-up approach to estimation precipitation redistribution by enriching Lidar-derived QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
 
@@ -65,6 +65,7 @@ The Cylinder class is used to represent the 3-D cylinders that make up a QSM. Th
     <img src="./docs/source/imgs/Cylinder_projections_3D.png" height="350" width="400" alt="Point Cloud and QSM"/>
   </div>
 </div>
+
 The Cylinder Collection class is a data class consisting of multiple cylinders and related metrics. Cylinder Collections almost always represent [QSMs](https://canopyhydrodynamics.readthedocs.io/en/latest/qsms.html#) or parts of a QSM and are meant to help users explore these QSMs. Below, we demonstrate how one might create a cylinder collection using cylinder data (e.g. QSM data) stored in a CSV file and how the afforementioned concept of projections can be used to visualize the data in a variety of ways.
 Note: the tree chosen for the below is intentionally small to make the visualization easier to understand.
 
@@ -144,19 +145,18 @@ myCollection.draw("XZ",
                   filter_lambda=lambda: cyl_id>100,
                   include_drips=True)
 ```
-
 <div align="center">
   <div class="container">
     <img src="./docs/source/imgs/charlie_brown_stem_flow.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
-    <figcaption>Plot of the entire tree </figcaption>
+    <p>Plot of the entire tree </p>
   </div>
   <div class="container">
     <img src="./docs/source/imgs/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
-    <figcaption>Same as left but zoomed in</figcaption>
+    <p>Same as previous but zoomed in</p>
   </div>
   <div class="container">
     <img src="./docs/source/imgs/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
-    <figcaption>Adding locations of drip points</figcaption>
+    <p>Adding locations of drip points</p>
   </div>
 </div>
 
@@ -200,21 +200,21 @@ myCollection.draw("XY",
 <div align="center">
   <div class="container">
     <img src="./docs/source/imgs/10_MediumCollection_XY_read_me_only_hull.png" height="300" width="300" alt="Entire canopy hull alone"/>
-    <figcaption>Entire canopy hull alone</figcaption>
+    <p>Entire canopy hull alone</p>
   </div>
   <div class="container">
     <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_read_me_hull_and_tree.png" height="300" width="300" alt="Hull overlaid on the canopy"/>
-    <figcaption>Hull overlaid on the canopy</figcaption>
+    <p>Hull overlaid on the canopy</p>
   </div>
 </div>
 <div align="center">
   <div class="container">
     <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_tight_hull_and_tree.png" height="300" width="300" alt="A tighter fitting hull<"/>
-    <figcaption>A tighter fitting hull</figcaption>
+    <p>A tighter fitting hull</p>
   </div>
   <div class="container">
     <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_stem_hull_and_tree.png" height="300" width="300" alt="The stem flow boundary hull"/>
-    <figcaption>The stem flow boundary hull</figcaption>
+    <p>The stem flow boundary hull</p>
   </div>
 </div>
 
@@ -249,7 +249,7 @@ That's it! You're ready to start using canoPyHydro. Check out the the below tuto
 # Publications and Acknowledgements:
    CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.]('https://doi.org/10.1111/2041-210X.14378'), which has been accepted for publication by the *'British Ecological Society's'* ['*Methods in Ecology and Evolution*'](https://www.britishecologicalsociety.org/publications/journals/methods-in-ecology-and-evolution/). Said paper, and the code within this repository, represents a collaboration between non-academic data professional Collin Wischmeyer, environmental science researcher [Professor John Van Stan](https://expertise.csuohio.edu/csufacultyprofile/detail.cfm?FacultyID=j_vanstan) with notable contributions from industry geo-scientist [Travis Swanson](https://thewaterinstitute.org/our-team/travis-swanson). Likewise, this tool could not exist without the data collected and the ideas put forward by several graduate students working in Cleveland State University's ['Wet Plant Lab'](https://www.researchgate.net/lab/Wet-Plant-Lab-John-Toland-Van-Stan).
 
-   
+
 # Future Direction
 - We hope to widen the use cases for our tool by integrating additional real world data (i.e wind speed and direction, rain intensity and average angle, etc.).
 - By integrating python libraries for spacial analysis (scipy-spacial, open3d) into canoPyHydro, we hope to allow for the projection of cylinders at an arbitrary angle. This will lead directly into supporting the afformentioned integration of weather data.
@@ -266,17 +266,17 @@ As stated above, we do hope to improve and extend canoPyHydro's current function
 ## Bug Fixes and Feature Suggestions
 If you encounter errors while running this package, or if you have suggestions for new functionality, you can quickly and easily inform the team by creating an ['issue'](https://github.com/wischmcj/canopyHydrodynamics/issues/new) for this repository.
 
-## Editing and/or Contributing Code 
-   In order to successfully edit and test this package's code locally, you will need to 'clone' this repository to your local file system. Additionally, in order to properly test and build your code, you will need a few additional python libraries 
-   
+## Editing and/or Contributing Code
+   In order to successfully edit and test this package's code locally, you will need to 'clone' this repository to your local file system. Additionally, in order to properly test and build your code, you will need a few additional python libraries
+
 1. **Create a Local Copy**: If you will be using git (recommended) to track and share your edits, you can run the below code to clone this repo and create a new branch to hold the changes you make:
    ```bash
    git clone https://github.com/wischmcj/canopyHydrodynamics.git
    cd canoPyHydrodynamics
-   git checkout -b a-descriptive-name-for-the-changes-you-are-making 
+   git checkout -b a-descriptive-name-for-the-changes-you-are-making
    ```
    Alternatively, if you happen to be unfamiliar with the git ecosystem, you can download the repository as a zip file. In this case, we still welcome you to share your work with the authors/other users by attaching the code you create in a git ['issue'](https://github.com/wischmcj/canopyHydrodynamics/issues/new).
-   
+
 3. **Install Additional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
 
    ```bash
