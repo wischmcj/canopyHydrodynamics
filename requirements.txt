@@ -1,8 +1,6 @@
 
 geopandas
-jupytext
-matplotlib==3.9.0
-myst-parser
+matplotlib==3.9.2
 networkx==3.4.1
 numpy<2,>=1.16.0
 pandoc

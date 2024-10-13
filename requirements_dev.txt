@@ -1,7 +1,5 @@
-debugpy
-flask
-
 geopandas
+matplotlib==3.9.2
 jupytext==1.16.2
 
 # optional
