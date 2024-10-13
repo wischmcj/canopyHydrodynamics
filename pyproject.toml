@@ -1,6 +1,6 @@
 [project]
 name =  "canoPyHydro"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
     {name = "Collin Wischmeyer", email = "cjwischmeyer@gmail.com"},
     {name = "Travis Swanson", email = "travis.swanson@gmail.com"},

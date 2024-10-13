@@ -10,7 +10,7 @@ from __future__ import annotations
 project = "canoPyHydro"
 copyright = "2024, Collin Wischmeyer"
 authors = "Collin Wischmeyer, Travis Swanson, John Van Stan"
-release = "0.0.5"
+release = "0.0.6"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
