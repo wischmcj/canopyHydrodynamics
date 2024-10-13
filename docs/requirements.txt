@@ -7,7 +7,7 @@ networkx==3.4.1
 numpy==1.26.4
 pandoc
 PyQt6 #Needed for interactive 3D plots
-pytest==8.2.1
+pytest==8.3.3
 pyyaml
 rich
 ruff==0.5.1

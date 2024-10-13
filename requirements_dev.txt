@@ -12,7 +12,7 @@ networkx==3.4.1
 numba==0.59.1
 numpy==1.26.4
 open3d==0.18.0
-pytest==8.2.1
+pytest==8.3.3
 pyyaml
 rich
 rustworkx
