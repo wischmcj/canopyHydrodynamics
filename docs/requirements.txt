@@ -4,7 +4,7 @@ geopandas
 matplotlib==3.9.0
 myst-parser
 networkx==3.4.1
-numpy==2.1.2
+numpy<2,>=1.16.0
 pandoc
 PyQt6 #Needed for interactive 3D plots
 pytest==8.3.3
