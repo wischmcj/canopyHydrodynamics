@@ -1,4 +1,4 @@
-name: Pytest Core Functionality
+name: Pytest All Functionality
 
 
 on: [push]
@@ -19,4 +19,4 @@ jobs:
            pip install -r requirements.txt
            pip install pytest
     - name: Test with pytest
-      run: pytest test/test_collection_integration.py
+      run: pytest test/

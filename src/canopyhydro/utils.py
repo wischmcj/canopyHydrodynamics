@@ -41,13 +41,14 @@ def stack(to_stack: list[np.array], col: bool = True):
     less strict typing
     """
     if not has_numba:
-        non_njit_stack(to_stack, col)
+        ret = non_njit_stack(to_stack, col)
     else:
         list_of_array = List(to_stack)
         try:
-            njit_stack(list_of_array, col)
+            ret = njit_stack(list_of_array, col)
         except ValueError:
-            non_njit_stack(to_stack, col)
+            ret = non_njit_stack(to_stack, col)
+    return ret
 
 
 def non_njit_stack(to_stack: list[np.array], col: bool = True):
