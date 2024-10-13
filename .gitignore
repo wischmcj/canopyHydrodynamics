@@ -1,3 +1,6 @@
+# images
+*10_MediumCollectioncsv_XY_read_me_alpha.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -6,7 +9,7 @@ __pycache__/
 # C extensions
 *.so
 
-#data 
+#data
 data/output/*
 data/test/Secrest*
 data/docker_data*
@@ -32,6 +35,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+venv*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -99,14 +103,14 @@ profile_default/
 ipython_config.py
 
 #data
-data/notReadIn/ 
-data/output/* 
+data/notReadIn/
+data/output/*
 data/validation_data*
 data/test/*
-data/output/* 
-data/validation* 
+data/output/*
+data/validation*
 data/docker_data*
-# data/test* 
+# data/test*
 
 #networking
 *known_hosts
@@ -196,3 +200,5 @@ scripts/plotting_scratch.ipynb
 data/temp_rebase files/CylinderCollection.py
 data/temp_rebase files/RustyCylinderCollection.py
 data/temp_rebase files/test_collection_integration.py
+.vscode/settings.json
+data/input/Secrest10-08_000000.csv
