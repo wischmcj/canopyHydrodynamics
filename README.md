@@ -2,28 +2,27 @@
 <head>
    <meta charset=utf-8 />
 </head>
-<p align="center">
-    <img src="./docs/source/imgs/canhydro_logo.jpeg" height="390" width="390">
-</p>
 <h1 align="center">CanoPyHydro</h1>
-  <p align="center">
-    Leveraging remote sensing to map water availability in tree canopies.
-    </p>
-</p>
 <p align="center">
-  <a href="#summary">Summary</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#contributing">Tutorial</a> •
-  <a href="#contributing">Contributing</a> •
-  <a href="#publications">Installing CanoPyHydro</a> •
-  <a href="#publications">Publications and Acknowledgements</a> •
-  <a href="#future-direction">Future Direction</a> •
+    <img src="./docs/source/imgs/CanhydroLogoSmall.png" height="390" width="300">
 </p>
+<p align="center"> </p>
+<h3 align="center">Table of Contents</h3>
+   <p align="center">
+     <a href="#summary">Summary</a> •
+     <a href="#functionality-overview">Functionality Overview</a> •
+     <a href="#publications-and-acknowledgements">Publications and Acknowledgements</a>
+   </p>
+   <p align="center">
+     <a href="#installing-canopyhydro">Installing CanoPyHydro</a> •
+     <a href="#future-direction">Future Direction</a> •
+     <a href="#contributing">Contributing</a>
+   </p>
 
    CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Detailed information regarding package use cases, the definitions of relevant terms and the methods available in the package can be found in our [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/).
 
 ## Summary
-CanoPyHydro takes an innovative, bottom-up approach to estimation precipitation redistribution by enriching Lidar-derived QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
+CanoPyHydro takes a bottom-up approach towards predicting precipitation redistribution; enriching Lidar-derived QSM data with additional structure via graph based hydrological models and traversing said graph to determine its connectivity. This can be interpreted as a series of simulations in which we ask the question: "After water lands on the branch represented by a given cylinder, where does it go?". In this way, canoPyHydro allows for the percise delineation of:
 
 - Stemflow and throughfall generating areas of the canopy
 - The 'drip points' to which throughfall is directed - complete with their relative volumes
@@ -36,7 +35,7 @@ The current tool set also boasts several different spacial analysis tools, sever
   - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
 - 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
-# Tutorial
+# Functionality Overview
 
 The below tutorial is a great starting place for those looking to get a feel for the capabilities of canoPyHydro. The tutorial will cover the creation of a CylinderCollection object, options for the visualization of QSMs in 2D and the calculation of flow characteristics.
 
@@ -219,7 +218,7 @@ myCollection.draw("XY",
 </div>
 
 
-## Installing CanoPyHydro
+# Installing CanoPyHydro
    In order to run canoPyHydro locally, you will need to have installed [python]() on your local machine. Once python is installed, you can proceed to the setup steps described below. The entire set-up process (including installing python) should take <1hr. If you are encountering errors, or other complications when configuring your local environment, feel free to request some help by creating an ['issue'](https://github.com/wischmcj/canopyHydrodynamics/issues/new).
 
 1. **Create a Virtual Environment**: Below we use the native 'venv' module to create a virtual environment. This is not strictly necessary, but it is a good practice to keep your project dependencies separate from your system dependencies in a virtual environment.
