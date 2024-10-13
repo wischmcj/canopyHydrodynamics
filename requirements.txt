@@ -14,3 +14,9 @@ Shapely==2.0.6
 sphinx
 sphinx_rtd_theme
 toml==0.10.2
+pyyaml
+rich
+jupytext==1.16.4
+
+# optional
+open3d==0.18.0
