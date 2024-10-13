@@ -19,9 +19,12 @@
   <a href="#tutorials">Tutorials</a>
 </p>
 
+## 1,000 ft view
+   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Said paper, and the code within this repository, represents a collaboration between non-academic data professional Collin Wischmeyer, environmental science researcher [Professor John Van Stan](https://expertise.csuohio.edu/csufacultyprofile/detail.cfm?FacultyID=j_vanstan) with notable contributions from industry geo-scientis [Travis Swanson](https://thewaterinstitute.org/our-team/travis-swanson). Likewise, this tool relies on the data collected and the ideas/input from several graduate students working in Cleveland State University's ['Wet Plant Lab'](https://www.researchgate.net/lab/Wet-Plant-Lab-John-Toland-Van-Stan).
+
 ## Summary
 
-The goal of this and future versions of CanoPyHydro is to provide a tool set that empowers researchers and practitioners to gain new perspectives on rainfall distribution in forested environments. A list of publications that have utilized this tool-and influenced its development- can be found at the bottom of this page.
+This version of CanoPyHydro was created to provide a basis of functionality that empowers researchers and practitioners with new a perspective on rainfall distribution in forested and urben environments. Future versions will improve and extend this functionally, using the needs of the research community to inform its focus. 
 
 CanoPyHydro provides users access to an innovative, bottom-up approach to estimation precipitation redistribution. By enriching QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
 
@@ -243,12 +246,10 @@ myCollection.draw("XY",
   </div>
 </div>
 
-## Publications:
+# Publications and Acknowledgements:
+   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.]('https://doi.org/10.1111/2041-210X.14378'), which has been accepted for publication by the *'British Ecological Society's'* ['*Methods in Ecology and Evolution*'](https://www.britishecologicalsociety.org/publications/journals/methods-in-ecology-and-evolution/). Said paper, and the code within this repository, represents a collaboration between non-academic data professional Collin Wischmeyer, environmental science researcher [Professor John Van Stan](https://expertise.csuohio.edu/csufacultyprofile/detail.cfm?FacultyID=j_vanstan) with notable contributions from industry geo-scientis [Travis Swanson](https://thewaterinstitute.org/our-team/travis-swanson). Likewise, this tool could not exist without the data collected and the ideas put forward by several graduate students working in Cleveland State University's ['Wet Plant Lab'](https://www.researchgate.net/lab/Wet-Plant-Lab-John-Toland-Van-Stan).
 
-The utilities that this repository houses were first created as part of a research paper - *'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.'*. This paper has been accepted for publication in *The Journal of Ecology and Evolution*. A DOI for that publication will be added here once available, but in the meantime, a pre-print of the paper can be found on [ResearchGate](https://www.researchgate.net/publication/375530854).
-
-## Future Direction
-
+# Future Direction
 - We hope to widen the use cases for our tool by integrating additional real world data (i.e wind speed and direction, rain intensity and average angle, etc.).
 - By integrating python libraries for spacial analysis (scipy-spacial, open3d) into canoPyHydro, we hope to allow for the projection of cylinders at an arbitrary angle. This will lead directly into supporting the afformentioned integration of weather data.
 - Improve the efficiency of the flow finding algorithm and the flow caluclation algorithm. This will allow for the processing of larger QSMs and the use of more complex models (i.e. tessellated meshes).
