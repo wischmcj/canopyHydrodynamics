@@ -1,0 +1,19 @@
+canopyhydro
+
+geopandas
+matplotlib==3.9.0
+myst-parser
+networkx==3.4.1
+numpy==1.26.4
+pandoc
+PyQt6 #Needed for interactive 3D plots
+pytest==8.3.3
+pyyaml
+rich
+ruff==0.5.1
+scipy==1.13.1
+Shapely==2.0.4
+sphinx
+sphinx-rtd-theme==3.0.1
+sphinxcontrib-napoleon
+toml==0.10.2

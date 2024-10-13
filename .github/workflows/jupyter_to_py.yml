@@ -1,10 +1,11 @@
-name: Convert ipynb to py 
+name: Convert ipynb to py
 
 on: [push]
 
 jobs:
   build:
-    #to run on multiple python versions
+    # Converts ipynb files to py code so that git's diff
+    # engine can properly log the changes
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -19,7 +20,7 @@ jobs:
         pip install jupytext
     - name: Link ipynb file to a py file (https://jupytext.readthedocs.io/en/latest/using-cli.html)
       run:
-        jupytext --set-formats ipynb,py:percent legacy_code/code_prototype.ipynb
+        jupytext --set-formats ipynb,py:percent docs/source/examples/*.ipynb
     - name: Lint (fix formatting of) new .py files with black
       run:
-        jupytext --sync legacy_code/code_prototype.ipynb
+        jupytext --sync docs/source/examples/*.ipynb
