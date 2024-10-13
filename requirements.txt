@@ -2,7 +2,6 @@
 geopandas
 jupytext
 matplotlib==3.9.0
-networkx==3.3
 myst-parser
 networkx==3.4.1
 numpy==1.26.4
