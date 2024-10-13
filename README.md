@@ -20,13 +20,10 @@
 </p>
 
 ## 1,000 ft view
-   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Said paper, and the code within this repository, represents a collaboration between non-academic data professional Collin Wischmeyer, environmental science researcher [Professor John Van Stan](https://expertise.csuohio.edu/csufacultyprofile/detail.cfm?FacultyID=j_vanstan) with notable contributions from industry geo-scientis [Travis Swanson](https://thewaterinstitute.org/our-team/travis-swanson). Likewise, this tool relies on the data collected and the ideas/input from several graduate students working in Cleveland State University's ['Wet Plant Lab'](https://www.researchgate.net/lab/Wet-Plant-Lab-John-Toland-Van-Stan).
-
+   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). The current (10/2024) version of CanoPyHydro provides basis of functionality that empowers researchers and practitioners with new perspectives on rainfall distribution in forested and urban environments. 
+   
 ## Summary
-
-This version of CanoPyHydro was created to provide a basis of functionality that empowers researchers and practitioners with new a perspective on rainfall distribution in forested and urben environments. Future versions will improve and extend this functionally, using the needs of the research community to inform its focus. 
-
-CanoPyHydro provides users access to an innovative, bottom-up approach to estimation precipitation redistribution. By enriching QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
+CanoPyHydro takes an innovative, bottom-up approach to estimation precipitation redistribution by. By enriching Lidar-derived QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
 
 - Stemflow and throughfall generating areas of the canopy
 - The 'drip points' to which throughfall is directed - complete with their relative volumes
@@ -247,7 +244,7 @@ myCollection.draw("XY",
 </div>
 
 # Publications and Acknowledgements:
-   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.]('https://doi.org/10.1111/2041-210X.14378'), which has been accepted for publication by the *'British Ecological Society's'* ['*Methods in Ecology and Evolution*'](https://www.britishecologicalsociety.org/publications/journals/methods-in-ecology-and-evolution/). Said paper, and the code within this repository, represents a collaboration between non-academic data professional Collin Wischmeyer, environmental science researcher [Professor John Van Stan](https://expertise.csuohio.edu/csufacultyprofile/detail.cfm?FacultyID=j_vanstan) with notable contributions from industry geo-scientis [Travis Swanson](https://thewaterinstitute.org/our-team/travis-swanson). Likewise, this tool could not exist without the data collected and the ideas put forward by several graduate students working in Cleveland State University's ['Wet Plant Lab'](https://www.researchgate.net/lab/Wet-Plant-Lab-John-Toland-Van-Stan).
+   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.]('https://doi.org/10.1111/2041-210X.14378'), which has been accepted for publication by the *'British Ecological Society's'* ['*Methods in Ecology and Evolution*'](https://www.britishecologicalsociety.org/publications/journals/methods-in-ecology-and-evolution/). Said paper, and the code within this repository, represents a collaboration between non-academic data professional Collin Wischmeyer, environmental science researcher [Professor John Van Stan](https://expertise.csuohio.edu/csufacultyprofile/detail.cfm?FacultyID=j_vanstan) with notable contributions from industry geo-scientist [Travis Swanson](https://thewaterinstitute.org/our-team/travis-swanson). Likewise, this tool could not exist without the data collected and the ideas put forward by several graduate students working in Cleveland State University's ['Wet Plant Lab'](https://www.researchgate.net/lab/Wet-Plant-Lab-John-Toland-Van-Stan).
 
 # Future Direction
 - We hope to widen the use cases for our tool by integrating additional real world data (i.e wind speed and direction, rain intensity and average angle, etc.).
@@ -260,19 +257,33 @@ myCollection.draw("XY",
 
 # Contributing
 
-We welcome contributions to this project! Whether it's reporting a bug, proposing a new feature, or contributing code, we appreciate your help. Here's how you can set up you local environment in order to do so:
+As stated above, we do hope to improve and extend canoPyHydro's current functionally. As we build a roadmap and decide on which features to focus on in this process, we will put a heavy emphasis on needs of the ecophysiology/ecohydrology research community. That said, we welcome both feature proposals and code contributions to this project! You can feel free to contact the authors via email, or to follow the steps below individually.
 
-1. **Install Additional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
+## Bug Fixes and Feature Suggestions
+If you encounter errors while running this package, or if you have suggestions for new functionality, you can quickly and easily inform the team by creating an ['issue'](https://github.com/wischmcj/canopyHydrodynamics/issues/new) for this repository.
+
+## Editing and/or Contributing Code 
+   In order to successfully edit and test this package's code locally, you will need to 'clone' this repository to your local file system. Additionally, in order to properly test and build your code, you will need a few additional python libraries 
+   
+1. **Create a Local Copy**: If you will be using git (recommended) to track and share your edits, you can run the below code to clone this repo and create a new branch to hold the changes you make:
+   ```bash
+   git clone https://github.com/wischmcj/canopyHydrodynamics.git
+   cd canoPyHydrodynamics
+   git checkout -b a-descriptive-name-for-the-changes-you-are-making 
+   ```
+   Alternatively, if you happen to be unfamiliar with the git ecosystem, you can download the repository as a zip file. In this case, we still welcome you to share your work with the authors/other users by attaching the code you create in a git ['issue'](https://github.com/wischmcj/canopyHydrodynamics/issues/new).
+   
+3. **Install Additional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
 
    ```bash
    pip install -r requirements-dev.txt
    ```
-2. **Install Pre-commit**: This repository utilizes the ruff pre-commit hook to ensure that all code is linted before being committed. To install pre-commit, run the following commands:
+4. **Install Pre-commit**: This repository utilizes the ruff pre-commit hook to ensure that all code is linted before being committed. To install pre-commit, run the following commands:
 
    ```bash
    pip3 install pre-commit
    pre-commit install
    ```
-3. **Review the contributing Guidelines **: Check out the documentation, where you can find [contributing guidelines](https://canopyhydrodynamics.readthedocs.io/en/latest/contributing.html). Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+5. **Review the contributing Guidelines **: Check out the documentation, where you can find [contributing guidelines](https://canopyhydrodynamics.readthedocs.io/en/latest/contributing.html). Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
 
 Thank you for your interest in contributing to our project!
