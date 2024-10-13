@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+from importlib.util import find_spec
 from pathlib import Path
 
 import pytest
@@ -9,8 +10,19 @@ from numpy import all
 from numpy import array as arr
 
 from canopyhydro.configuration import root_dir as DIR
-from canopyhydro.utils import (create_dir_and_file, njit_stack, on_rm_error,
-                               read_file_names, stack)
+from canopyhydro.utils import create_dir_and_file, on_rm_error, read_file_names, stack
+
+
+def _try_import(package_name):
+    if find_spec(package_name):
+        return True
+    else:
+        return False
+
+
+has_numba = _try_import("numba")
+if has_numba:
+    pass
 
 njit_stack_test_cases = [
     pytest.param(
@@ -71,7 +83,7 @@ def test_njit_stack(arr_list, is_col_stack, expected):
     """
     Test vstack and col stack capabilities v. numpy
     """
-    actual = njit_stack(arr_list, is_col_stack)
+    actual = stack(arr_list, is_col_stack)
     assert all(actual == expected)
 
 

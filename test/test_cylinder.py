@@ -77,7 +77,6 @@ cyl_obj_param = Cylinder(
     sa_to_vol=3.584287115185896,
     slope=0.0,
     is_stem=False,
-    is_divide=False,
 )
 
 cyl_sa = 0.162
@@ -148,7 +147,6 @@ proj_cyl = Cylinder(
     sa_to_vol=40.399608711456125,
     slope=0.0,
     is_stem=False,
-    is_divide=False,
 )
 
 ez_projection_vectors = {
@@ -175,7 +173,7 @@ def test_create_test_cyl(test_cyl, cyl_obj):
     "test_cyl, ex_surface_area", [(cyl_list, cyl_sa)], indirect=["test_cyl"]
 )
 def test_calc_surface_area(test_cyl, ex_surface_area):
-    surface_area = test_cyl.calc_surface_area()
+    surface_area = test_cyl.surface_area
     assert within_range(ex_surface_area, surface_area, accepted_err)
 
 
@@ -212,16 +210,16 @@ def test_create_cyl_vectors(test_cyl):
     """
     actual = {
         "XY": [
-            np.np.array([test_cyl.x[0], test_cyl.y[0], test_cyl.z[0]]),
-            np.np.array([test_cyl.x[1], test_cyl.y[1], test_cyl.z[1]]),
+            np.array([test_cyl.x[0], test_cyl.y[0], test_cyl.z[0]]),
+            np.array([test_cyl.x[1], test_cyl.y[1], test_cyl.z[1]]),
         ],
         "XZ": [
-            np.np.array([test_cyl.x[0], test_cyl.z[0], test_cyl.y[0]]),
-            np.np.array([test_cyl.x[1], test_cyl.z[1], test_cyl.y[1]]),
+            np.array([test_cyl.x[0], test_cyl.z[0], test_cyl.y[0]]),
+            np.array([test_cyl.x[1], test_cyl.z[1], test_cyl.y[1]]),
         ],
         "YZ": [
-            np.np.array([test_cyl.y[0], test_cyl.z[0], test_cyl.x[0]]),
-            np.np.array([test_cyl.y[1], test_cyl.z[1], test_cyl.x[1]]),
+            np.array([test_cyl.y[0], test_cyl.z[0], test_cyl.x[0]]),
+            np.array([test_cyl.y[1], test_cyl.z[1], test_cyl.x[1]]),
         ],
     }
     expected = ez_projection_vectors

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from test.expected_results_shapes import (example_coords,
-                                          funky_squares_overlap_areas,
-                                          squares_projection_overlap,
-                                          star_poly, start_poly_coords)
+from test.expected_results_shapes import (
+    example_coords,
+    funky_squares_overlap_areas,
+    squares_projection_overlap,
+    star_poly,
+    start_poly_coords,
+)
 from test.utils import within_range
 
 import pytest
@@ -61,7 +64,7 @@ def test_project_cyl(vector, magnitude, radius, e_angle, e_area):
     Tests projection of cylinders parallel with:
     the XY plane, Z axis the line x=y (45 deg)
     """
-    actual = geometry.numba_get_projection(vector, magnitude, radius)
+    actual = geometry.get_projection(vector, magnitude, radius)
     assert within_range(e_angle, actual["angle"], 0.02)
     assert within_range(e_area, actual["area"], 0.02)
 
