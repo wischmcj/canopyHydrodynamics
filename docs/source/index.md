@@ -1,5 +1,5 @@
 # Welcome to canoPyHydro's documentation!!
-```{include} ../README.md
+```{include} ./README.md
 ```
 ------------------------------------------
 **canoPyHydro**  seeks to empower researchers with percipitation partitioning data - leveraging
@@ -20,6 +20,6 @@ qsms.md
 
 ```{toctree}
 :glob:
-objects/*
-examples/*
+objects
+examples
 ```

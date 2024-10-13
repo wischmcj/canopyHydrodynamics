@@ -1,4 +1,4 @@
-name: Publish to PyPi
+name: Publish to PyPA Test
 
 on: [push]
 
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: Test
+      name: Development
       url: https://test.pypi.org/p/canoPyHydro
 
     permissions:

@@ -26,6 +26,28 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = []
 
+# -- Options for myst_parser  -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/markdown.html
+# https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".txt": "markdown",
+    ".md": "markdown",
+}
+myst_enable_extensions = [
+    # "attrs_inline",
+    # "colon_fence",
+    "deflist",
+    # "dollarmath",
+    # "fieldlist",
+    "html_admonition",
+    "html_image",
+    "linkify",
+    "smartquotes",
+    "substitution",
+    # "tasklist",
+]
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

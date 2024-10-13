@@ -1,25 +1,4 @@
 
-<head>
-   <meta charset=utf-8 />
-   <title></title>
-   <style>
-    div.container {
-      display:inline-block;
-    }
-    p {
-      text-align:center;
-    }
-    img {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    figcaption {
-      font-size: 15px;
-      text-align:center;
-    }
-   </style>
-</head>
 <p align="center">
     <img src="./imgs/canhydro_logo.jpeg" height="390" width="390">
 </p>
@@ -59,11 +38,11 @@ The current tool set also boasts several different spacial analysis tools, sever
 </ul>
 
 # Tutorial
-Before running the code from this tutorial, we reccomend that you set up your environment by following the instructions in the [getting started](https://canopyhydrodynamics.readthedocs.io/en/latest/getting_started.html) section of the documentation.
+Before running the code from this tutorial, we recommend that you set up your environment by following the instructions in the [getting started](https://canopyhydrodynamics.readthedocs.io/en/latest/getting_started.html) section of the documentation.
 
 The Cylinder class is used to represent the 3-D cylinders that make up a QSM. The most important function of these Cylinder objects is their ability to return data regarding the projections onto the XY, XZ and YZ planes.
 
-```{python}
+```python
   myCyl = Cylinder(
     cyl_id=1.0,
     x=[3, 6],
@@ -89,7 +68,7 @@ The Cylinder class is used to represent the 3-D cylinders that make up a QSM. Th
 The Cylinder Collection class is a data class consisting of multiple cylinders and related metrics. Cylinder Collections almost always represent [QSMs](https://canopyhydrodynamics.readthedocs.io/en/latest/qsms.html#) or parts of a QSM and are meant to help users explore these QSMs. Below, we demonstrate how one might create a cylinder collection using cylinder data (e.g. QSM data) stored in a CSV file and how the afforementioned concept of projections can be used to visualize the data in a variety of ways.
 Note: the tree chosen for the below is intentionally small to make the visualization easier to understand.
 
-```{python}
+```python
 # Creating a CylinderCollection object
 myCollection = CylinderCollection()
 
@@ -124,7 +103,7 @@ myCollection.draw("YZ")
 
 Compared to a QSM, CylinderCollections have additional structure in the form of a digraph model. These digraph models represent the direction water flows along the branches of the modeled tree and are used in the 'find_flow_components' and 'calculate_flows' function to characterize the flow of water through the canopy. The below code, continuing from the above demonstrates the use of these functions.
 
-```{python}
+```python
 # creating the digraph model
 myCollection.initialize_digraph_from()
 
@@ -134,7 +113,7 @@ myCollection.find_flow_components()
 # Calculating the propreties of each flow
 myCollection.calculate_flows()
 
-# Print out calcualted flow characteristics
+# Print out recommend flow characteristics
 print(myCollection.flows)
 ```
 | num_cylinders | projected_area | surface_area | angle_sum | volume | sa_to_vol | drip_node_id | drip_node_loc |
@@ -145,12 +124,12 @@ print(myCollection.flows)
 | 24 | 0.008 | 0.032 | 1.697 | 0.0 | 18378.751 | 515 | (1.5, 2.8, 12.9) |
 | ... | ... | ... | ... | ... | ... | ... | ... |
 
-What you see above is a sample of the flow characterstics calculated for the 'charlie_brown' tree. The first flow listed is, as is the convention in canoPyHydro, the tree's stemflow and the others are the throughfall flows. The 'drip_node_loc' column lists the x,y,z coordinates of the node of the afformentioned graph to which water intercepted by the flow's cylinders is directed. The various geometric characteristics give a sense of the size and shape of the flow's cylinders (or 'canopy drainage area').
+What you see above is a sample of the flow characteristics calculated for the 'charlie_brown' tree. The first flow listed is, as is the convention in canoPyHydro, the tree's stemflow and the others are the throughfall flows. The 'drip_node_loc' column lists the x,y,z coordinates of the node of the afformentioned graph to which water intercepted by the flow's cylinders is directed. The various geometric characteristics give a sense of the size and shape of the flow's cylinders (or 'canopy drainage area').
 
 The draw function also allows for a variety of different overlays, filtering and highlighting. To demonstrate this briefly, we will show below how this filtering can be used in a variety of ways, including highlighting the various flows mentioned above. For more information on the CylinderCollection class, please refer to the [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/objects.html#canopyhydrodynamics.objects.CylinderCollection).
 
 
-```{python}
+```python
 # Plot the entire tree with stem flow highlighted
 myCollection.draw("XZ", highlight_lambda=lambda:is_stem)
 
@@ -183,7 +162,7 @@ myCollection.draw("XZ",
 
 The final bit of functionality we will review today is the ability to create concave hulls around groups of cylinders in a CylinderCollection. This is done using the 'watershed_boundary' function. The below code demonstrates how this function can be used to find a concave hull around the entire tree, or a portion of the tree. Note that a new, more robist example tree is used
 
-```{python}
+```python
 # Reading in the tree data and finding flows
 myCollection = CylinderCollection()
 myCollection.from_csv("example_tree.csv")
