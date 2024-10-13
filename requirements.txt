@@ -10,7 +10,7 @@ pyyaml
 rich
 ruff==0.5.1
 scipy==1.13.1
-Shapely==2.0.4
+Shapely==2.0.6
 sphinx
 sphinx_rtd_theme
 toml==0.10.2
