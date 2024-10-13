@@ -1,7 +1,5 @@
 geopandas
 matplotlib==3.9.2
-toml==0.10.2
-pyyaml
 jupytext==1.16.2
 
 # optional
