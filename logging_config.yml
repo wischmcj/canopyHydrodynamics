@@ -10,8 +10,8 @@ formatters:
 
 handlers:
     console:
-        level: 0
-        class: src.log.handlers.ConsoleHandler
+        level: DEBUG
+        class: canopyhydro.handlers.ConsoleHandler
         formatter: default
         styles:
             log.web_url: bright_blue
@@ -23,9 +23,9 @@ handlers:
             log.critical_level: bright_red
 
     file:
-        level: 1
+        level: INFO
         class: logging.FileHandler
-        filename: ./log/canhydro.log
+        filename: ./canopyhydro.log
         formatter: default
 
 loggers:
@@ -36,11 +36,11 @@ loggers:
         propagate: no
 
     model:
-        level: DEBUG
+        level: INFO
         handlers: [file, console]
         propagate: yes
 
 root:
     # By default, we display warning level logs from any library in the console
     # to match Python's default behavior while formatting logs nicely
-    level: DEBUG
+    level: WARNING

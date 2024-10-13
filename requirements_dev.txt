@@ -1,23 +1,21 @@
+debugpy
+flask
 
 geopandas
-flask
-matplotlib==3.9.0
-networkx==3.3
-rustworkx
-numpy==1.26.4
-scipy==1.13.1
-pytest==8.2.1
-rustworkx
-Shapely==2.0.4
-toml==0.10.2
-debugpy
-pyyaml
-rich
 jupytext==1.16.2
 
 # optional
 line_profiler==4.1.2
+matplotlib==3.9.0
 memory_profiler==0.61.0
 open3d==0.18.0
-numba==0.60.0
-# timeit
+networkx==3.4.1
+numpy==1.26.4
+open3d==0.18.0
+pytest==8.2.1
+pyyaml
+rich
+rustworkx
+scipy==1.13.1
+Shapely==2.0.4
+toml==0.10.2

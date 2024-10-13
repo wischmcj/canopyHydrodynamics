@@ -3,16 +3,16 @@ from __future__ import annotations
 # from test.expected_results import ez_projection_vectors, ez_projection_xy_angle
 from test.utils import within_range
 
+import numpy as np
 import pytest
-from numpy import all, array
 
-from src.canhydro.Cylinder import Cylinder
+from canopyhydro.Cylinder import Cylinder
 
 # Test Config
 accepted_err = 0.02
 
 # general test_cyl
-cyl_list = array(
+cyl_list = np.array(
     [
         None,
         0.000,
@@ -54,9 +54,9 @@ cyl_list = array(
 
 cyl_obj_param = Cylinder(
     cyl_id=0.0,
-    x=array([-0.299115, -0.299115], dtype=object),
-    y=array([2.537844, 2.537844], dtype=object),
-    z=array([-0.598273, -0.552], dtype=object),
+    x=np.array([-0.299115, -0.299115], dtype=object),
+    y=np.array([2.537844, 2.537844], dtype=object),
+    z=np.array([-0.598273, -0.552], dtype=object),
     radius=0.557981,
     length=0.046273,
     branch_order=0.0,
@@ -83,7 +83,7 @@ cyl_obj_param = Cylinder(
 cyl_sa = 0.162
 
 # projection_test_cyl
-proj_cyl_list = array(
+proj_cyl_list = np.array(
     [
         None,
         0.00000000e00,
@@ -125,9 +125,9 @@ proj_cyl_list = array(
 
 proj_cyl = Cylinder(
     cyl_id=0.0,
-    x=array([1.0, 4.0]),
-    y=array([1.0, 6.0]),
-    z=array([1.0, 7.0]),
+    x=np.array([1.0, 4.0]),
+    y=np.array([1.0, 6.0]),
+    z=np.array([1.0, 7.0]),
     radius=1.0,
     length=0.064433,
     branch_order=0.0,
@@ -152,9 +152,9 @@ proj_cyl = Cylinder(
 )
 
 ez_projection_vectors = {
-    "XY": [array([1.0, 1.0, 1.0]), array([4.0, 6.0, 7.0])],
-    "XZ": [array([1.0, 1.0, 1.0]), array([4.0, 7.0, 6.0])],
-    "YZ": [array([1.0, 1.0, 1.0]), array([6.0, 7.0, 4.0])],
+    "XY": [np.array([1.0, 1.0, 1.0]), np.array([4.0, 6.0, 7.0])],
+    "XZ": [np.array([1.0, 1.0, 1.0]), np.array([4.0, 7.0, 6.0])],
+    "YZ": [np.array([1.0, 1.0, 1.0]), np.array([6.0, 7.0, 4.0])],
 }
 ez_projection_xy_angle = 0.7996
 ez_projection_xz_angle = 0.6405
@@ -194,6 +194,7 @@ def test_project_cylinder(proj_cyl):
 #     expected = ez_projection_xy_angle
 #     assert within_range(expected, actual, accepted_err)
 
+
 @pytest.mark.parametrize("test_cyl", [(proj_cyl_list)], indirect=["test_cyl"])
 def test_create_cyl_angle(test_cyl):
     """
@@ -209,9 +210,22 @@ def test_create_cyl_vectors(test_cyl):
     """
     Tests the creation of the test cylinder fixture
     """
-    actual = test_cyl.vectors
+    actual = {
+        "XY": [
+            np.np.array([test_cyl.x[0], test_cyl.y[0], test_cyl.z[0]]),
+            np.np.array([test_cyl.x[1], test_cyl.y[1], test_cyl.z[1]]),
+        ],
+        "XZ": [
+            np.np.array([test_cyl.x[0], test_cyl.z[0], test_cyl.y[0]]),
+            np.np.array([test_cyl.x[1], test_cyl.z[1], test_cyl.y[1]]),
+        ],
+        "YZ": [
+            np.np.array([test_cyl.y[0], test_cyl.z[0], test_cyl.x[0]]),
+            np.np.array([test_cyl.y[1], test_cyl.z[1], test_cyl.x[1]]),
+        ],
+    }
     expected = ez_projection_vectors
     # Probably should mae a  data class for these cylinder vectors... oh well
     for k, v in actual.items():
         for idx, vector in enumerate(v):
-            assert all(expected[k][idx] == vector)
+            assert np.all(expected[k][idx] == vector)
