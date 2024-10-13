@@ -138,7 +138,7 @@ def test_create_cylinders_from_csv(file_name, expected_cylinders):
     csv_collection = CylinderCollection()
     file_path = "/".join([str(test_input_dir), file_name])
     file_obj = open(file_path)
-    csv_collection.from_csv(file_obj, test_input_dir)
+    csv_collection.from_csv(file_obj)
     actual = csv_collection.get_collection_data()
     assert actual == expected_cylinders
 
@@ -243,7 +243,7 @@ def test_collection_overlap(flexible_collection):
 def test_watershed(flexible_collection):
     flexible_collection.initialize_digraph_from()
     flexible_collection.project_cylinders("XY")
-    flexible_collection.watershed_boundary(flexible_collection.graph)
+    flexible_collection.watershed_boundary("XY")
     actual_poly = flexible_collection.hulls["XY"]
     expected_poly = small_tree_wateshed_poly
     assert actual_poly == expected_poly

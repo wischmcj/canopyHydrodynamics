@@ -10,7 +10,7 @@ formatters:
 
 handlers:
     console:
-        level: 0
+        level: DEBUG
         class: canopyhydro.handlers.ConsoleHandler
         formatter: default
         styles:
@@ -23,7 +23,7 @@ handlers:
             log.critical_level: bright_red
 
     file:
-        level: 1
+        level: INFO
         class: logging.FileHandler
         filename: ./canopyhydro.log
         formatter: default

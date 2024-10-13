@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import os
+import sys
+
 import pytest
 from _pytest.nodes import Item
+
+cwd = os.getcwd()
+sys.path.append(cwd + "/src/")
 
 from canopyhydro.configuration import test_input_dir
 from canopyhydro.Cylinder import create_cyl

@@ -607,7 +607,6 @@ class CylinderCollection:
                 coords = (cyl.x[0], cyl.y[0], cyl.z[0])
                 buffered_coords = coords + buffer_arr
                 boundary_points.append(buffered_coords)
-
         if plane == "XY":
             boundary_points = [Point(cyl.x[1], cyl.y[1]) for cyl in end_cylinders]
         elif plane == "XZ":
