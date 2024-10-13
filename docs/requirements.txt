@@ -3,7 +3,7 @@ canopyhydro
 geopandas
 matplotlib==3.9.0
 myst-parser
-networkx==3.3
+networkx==3.4.1
 numpy==1.26.4
 pandoc
 PyQt6 #Needed for interactive 3D plots
