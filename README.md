@@ -13,17 +13,17 @@
 <p align="center">
   <a href="#summary">Summary</a> •
   <a href="#getting-started">Getting Started</a> •
+  <a href="#contributing">Tutorial</a> •
   <a href="#contributing">Contributing</a> •
-  <a href="#publications">Publications</a> •
+  <a href="#publications">Installing CanoPyHydro</a> •
+  <a href="#publications">Publications and Acknowledgements</a> •
   <a href="#future-direction">Future Direction</a> •
-  <a href="#tutorials">Tutorials</a>
 </p>
 
-## 1,000 ft view
-   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). The current (10/2024) version of CanoPyHydro provides basis of functionality that empowers researchers and practitioners with new perspectives on rainfall distribution in forested and urban environments. 
+   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Detailed information regarding package use cases, the definitions of relevant terms and the methods available in the package can be found in our [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/). 
    
 ## Summary
-CanoPyHydro takes an innovative, bottom-up approach to estimation precipitation redistribution by. By enriching Lidar-derived QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
+CanoPyHydro takes an innovative, bottom-up approach to estimation precipitation redistribution by enriching Lidar-derived QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
 
 - Stemflow and throughfall generating areas of the canopy
 - The 'drip points' to which throughfall is directed - complete with their relative volumes
@@ -36,34 +36,9 @@ The current tool set also boasts several different spacial analysis tools, sever
   - i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...
 - 2D and 3D visualization functionality to interactively to explore the structure of tree canopies
 
-## Getting Started
-
-1. **Create a Virtual Environment**: Below we use the native 'venv' module to create a virtual environment. This is not strictly necessary, but it is a good practice to keep your project dependencies separate from your system dependencies in a virtual environment.
-   ```bash
-   python -m venv canHydroVenv
-   ```
-2. **Activate Your Environment**: Activate your virtual environment to install dependencies and run the project. The commands to activate the virtual environment depend on your operating system and shell. Below are the commands for activating the virtual environment in different operating systems and shells.
-
-```bash
-  # if using bash (Mac, Unix)
-  source canHydroVenv/bin/activate
-  # if using PowerShell (Windows)
-  source canHydroVenv\Scripts\activate.ps1
-```
-
-3. **Install canoPyHydro**: canoPHydro is published with PyPA (the python packacing authority). You can install the latest stable release of canoPyHydro using pip. This installs our latest stable release as well as several libraries required for the use of the package's features. canoPyHydro currently supports Python versions 3.9 and up.
-
-```bash
-   pip install canoPyHydro
-```
-
-4. **Set Configuration Options**: The default configuration file can be found at '/CanopyHydrodynamics/canopyhydro_config.toml'. Configuration options can be set by altering the contents of that file in place. Refer to the [configuration page in the docs](https://canopyhydrodynamics.readthedocs.io/en/latest/getting_started.html#configuration) for more information on configuration options.
-
-That's it! You're ready to start using canoPyHydro. Check out the the below tutorials and the [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/index.html) for more information on how to use the package.
-
 # Tutorial
 
-The below tutorial should be a great starting place for those looking to get a feel for the capabilities of canoPyHydro. The tutorial will cover the creation of a CylinderCollection object, options for the visualization of QSMs in 2D and the calculation of flow characteristics.
+The below tutorial is a great starting place for those looking to get a feel for the capabilities of canoPyHydro. The tutorial will cover the creation of a CylinderCollection object, options for the visualization of QSMs in 2D and the calculation of flow characteristics.
 
 The Cylinder class is used to represent the 3-D cylinders that make up a QSM. The most important function of these Cylinder objects is their ability to return data regarding the projections onto the XY, XZ and YZ planes.
 
@@ -243,9 +218,38 @@ myCollection.draw("XY",
   </div>
 </div>
 
+
+## Installing CanoPyHydro
+   In order to run canoPyHydro locally, you will need to have installed [python]() on your local machine. Once python is installed, you can proceed to the setup steps described below. The entire set-up process (including installing python) should take <1hr. If you are encountering errors, or other complications when configuring your local environment, feel free to request some help by creating an ['issue'](https://github.com/wischmcj/canopyHydrodynamics/issues/new).
+
+1. **Create a Virtual Environment**: Below we use the native 'venv' module to create a virtual environment. This is not strictly necessary, but it is a good practice to keep your project dependencies separate from your system dependencies in a virtual environment.
+   ```bash
+   python -m venv canHydroVenv
+   ```
+2. **Activate Your Environment**: Activate your virtual environment to install dependencies and run the project. The commands to activate the virtual environment depend on your operating system and shell. Below are the commands for activating the virtual environment in different operating systems and shells.
+
+```bash
+  # if using bash (Mac, Unix)
+  source canHydroVenv/bin/activate
+  # if using PowerShell (Windows)
+  source canHydroVenv\Scripts\activate.ps1
+```
+
+3. **Install canoPyHydro**: canoPHydro is published with PyPA (the python packacing authority). You can install the latest stable release of canoPyHydro using pip. This installs our latest stable release as well as several libraries required for the use of the package's features. canoPyHydro currently supports Python versions 3.9 and up.
+
+```bash
+   pip install canoPyHydro
+```
+
+4. **Set Configuration Options**: The default configuration file can be found at '/CanopyHydrodynamics/canopyhydro_config.toml'. Configuration options can be set by altering the contents of that file in place. Refer to the [configuration page in the docs](https://canopyhydrodynamics.readthedocs.io/en/latest/getting_started.html#configuration) for more information on configuration options.
+
+That's it! You're ready to start using canoPyHydro. Check out the the below tutorials and the [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/index.html) for more information on how to use the package.
+
+
 # Publications and Acknowledgements:
    CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.]('https://doi.org/10.1111/2041-210X.14378'), which has been accepted for publication by the *'British Ecological Society's'* ['*Methods in Ecology and Evolution*'](https://www.britishecologicalsociety.org/publications/journals/methods-in-ecology-and-evolution/). Said paper, and the code within this repository, represents a collaboration between non-academic data professional Collin Wischmeyer, environmental science researcher [Professor John Van Stan](https://expertise.csuohio.edu/csufacultyprofile/detail.cfm?FacultyID=j_vanstan) with notable contributions from industry geo-scientist [Travis Swanson](https://thewaterinstitute.org/our-team/travis-swanson). Likewise, this tool could not exist without the data collected and the ideas put forward by several graduate students working in Cleveland State University's ['Wet Plant Lab'](https://www.researchgate.net/lab/Wet-Plant-Lab-John-Toland-Van-Stan).
 
+   
 # Future Direction
 - We hope to widen the use cases for our tool by integrating additional real world data (i.e wind speed and direction, rain intensity and average angle, etc.).
 - By integrating python libraries for spacial analysis (scipy-spacial, open3d) into canoPyHydro, we hope to allow for the projection of cylinders at an arbitrary angle. This will lead directly into supporting the afformentioned integration of weather data.
