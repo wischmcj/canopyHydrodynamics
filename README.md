@@ -1,27 +1,6 @@
 
 <head>
    <meta charset=utf-8 />
-   <title></title>
-   <style>
-    div.container {
-      display:inline-block;
-    }
-
-    p {
-      text-align:center;
-    }
-
-    img {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    figcaption {
-      font-size: 15px;
-      text-align:center;
-    }
-   </style>
 </head>
 <p align="center">
     <img src="./docs/source/imgs/canhydro_logo.jpeg" height="390" width="390">
