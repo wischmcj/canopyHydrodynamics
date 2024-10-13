@@ -145,22 +145,22 @@ myCollection.draw("XZ",
                   filter_lambda=lambda: cyl_id>100,
                   include_drips=True)
 ```
+
 <div align="center">
   <div class="container">
-    <img src="./docs/source/imgs/charlie_brown_stem_flow.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
-    <p>Plot of the entire tree </p>
+    <img src="./docs/source/imgs/charlie_brown_stem_flow.png" height="375" width="200" alt="Plot of the entire tree - XZ"/>
+    <p> <em>The entire tree, with stemflow generating branches highlighted in blue.</em> </p>
   </div>
   <div class="container">
     <img src="./docs/source/imgs/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
-    <p>Same as previous but zoomed in</p>
+    <p> <em> A filtered subset of the same tree, note how sections of outward slope seperate blue, 
+               stemflow generating cylinders from grey, non-stemflow/throughfall generating cylinders </em></p>
   </div>
-  <div class="container">
     <img src="./docs/source/imgs/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
-    <p>Adding locations of drip points</p>
-  </div>
+    <p> <em>The same filtered subsetm now with drip nodes indicted in red. Note how each seperates a given set of thoughfall generating cylinders from the stemflow cylinders </em> </p>
 </div>
 
-The final bit of functionality we will review today is the ability to create concave hulls around groups of cylinders in a CylinderCollection. This is done using the 'watershed_boundary' function. The below code demonstrates how this function can be used to find a concave hull around the entire tree, or a portion of the tree. Note that a new, more robist example tree is used
+The final bit of functionality we will review here is the ability to create concave hulls around groups of cylinders in a CylinderCollection. This is done using the 'watershed_boundary' function. The below code demonstrates how this function can be used to find a concave hull around the entire tree, or a portion of the tree. Note that a new, more robist example tree is used
 
 ```{python}
 # Reading in the tree data and finding flows
