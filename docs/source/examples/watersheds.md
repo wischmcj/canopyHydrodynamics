@@ -1,29 +1,13 @@
+# Tutorial: Hulls and Watersheds 
 
-<head>
-   <meta charset=utf-8 />
-   <title></title>
-   <style>
-    div.container {
-      display:inline-block;
-    };
-    p {
-      text-align:center;
-    };
-    img {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    };
-   </style>
-</head>
 
 Before proceeding with the below examples, you may want to review about the concepts discussed in [hulls and watersheds](./hulls_and_watersheds.md).
 
 Below we work through a laughably minimal case study to demonstrate how the objects in the above linked document are utilized by canoPyHydro. This minimal tree, consisting of but a single trunk and a few branches, will henceforth be lovingly refered to as 'charlie brown'.
 
+## The Basics
 
 ```{python}
-# Drawing various branch orders
 from matplotlib import pyplot as plt
 import os
 os.environ["CANOPYHYDRO_CONFIG"] = "./canopyhydro_config.toml"
@@ -64,16 +48,26 @@ plt.scatter([x for x,_ in branch_tip_points], [y for _,y in branch_tip_points],c
 </p>
 
 
-Now. to draw the watershed boundary around these points (with the default parameters) we simply call the 'watershed boundary' function with 'draw=True. 
+Now. to draw the watershed boundary around these points (with the default parameters) we simply call the 'watershed boundary' function. Optionally, we pass 'draw=True' to get a look at the shape generated. 
 
 ```
-charlieBrown.watershed_boundary(draw=True)
-charlieBrown.draw("XY", include_alpha_shape=True)
+full_hull, hull_components = charlieBrown.watershed_boundary(draw=True)
+
 ```
 <p align="center">
     <img src="./imgs/charlie_brown_alphashape.png" height="390" width="390">
 </p>
 
+Notice that this function both saves the hull calculated to the charlieBrown object and returns the hull as an output. From the full_hull variablem we can then calculate the canopy coverage area of charlie's branches:
+
+```
+full_hull.area
+
+```
+As a matter of fact, this hull is a shapely.Polygon object, so there are a variety of ways in which one can evaluate it and compare it to other hulls. See the [shapely documentation](https://shapely.readthedocs.io/en/stable/reference/shapely.Polygon.html) for more info.
+
+
+## Creating Figures
 Users also have the option to plot these shapes along side the branches of the tree its self by passing the 'include_alpha_shape' parameter to the 'draw' function. This parameter will cause a watershed boundary (our special case of an alpha shape) to be drawn 'on top of' the trees branches. 
 
 ```{python}

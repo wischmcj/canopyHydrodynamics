@@ -18,10 +18,12 @@ Note that if you're running locally, in order to run the code in the workflows, 
 
 **2. [Projecting Cylinders](projecting_cylinders.ipynb)**: This notebook demonstrates how 3D cylinders that make up a QSM model are converted to 2D shapes via projection.
 
-**3. [Concave Hulls and Watersheds](alpha_shapes.md)**: This notebook demonstrates how 3D cylinders that make up a QSM model are converted to 2D shapes via projection.
+**3. [Concave Hulls and Watersheds](watersheds.md)**: This notebook demonstrates how 3D cylinders that make up a QSM model are converted to 2D shapes via projection.
 
 # Feature Application
 
 **1. [Drawing and Highlighting](tree_drawing_highlighting.ipynb)**: This notebook focuses on non-flow related visualizations of tree canopies, showcasing canopyHydro's abillity to filter out portions of a tree, highlight features of interest and provide various viewing angles of the results.
+
+**2. [Flow Graphs and Statistics](statistics.ipynb)**: (WORK IN PROGRESS) This notebook will give users a peek into our flow finding methodology, and into the littany of numerical descriptors that it enables.
 
 **2. [Flow Identification and Drawing](flow_identification_drawing.ipynb)**: This notebook shows various code snippets demonstrating how to use the `canoPyHydro` package to model canopy hydrodynamics. This is inclusive of both: finding stem flow and through fall statistics and visualizing these flows in the tree canopy.

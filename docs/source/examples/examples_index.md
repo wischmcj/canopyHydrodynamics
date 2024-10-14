@@ -11,8 +11,9 @@ flow_identification_drawing.ipynb
 projecting_cylinders.ipynb
 tree_drawing_and_highlighting.ipynb
 intro_to_common_objects.ipynb
+statistics.ipynb
 
 :caption: Walkthroughs
-alpha_shapes.md
+watersheds.md
 
 ```

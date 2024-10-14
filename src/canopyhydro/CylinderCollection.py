@@ -840,10 +840,7 @@ class CylinderCollection:
         numpy_flow_chars(
             lambda_filter=lambda x: x.is_stem, drip_cyl=self.cylinders[0], index=0
         )
-        log.info(f"np flow chars {np_flow_chars}")
-        log.info(f" flow chars {flow_chars}")
         flow_chars.append(np_flow_chars[0])
-        log.info(f" togetha {flow_chars}")
         # log.info(f"summed stem edges {flow_chars}")
         for idx, drip_node in enumerate(self.drip_nodes):
             cyl_before_drip = [cyl for cyl in cyls if cyl.cyl_id == drip_node]
@@ -883,6 +880,7 @@ class CylinderCollection:
                     }
                 )
             )
+
         self.flows = flow_chars
 
     def identify_stem_paths(self):
