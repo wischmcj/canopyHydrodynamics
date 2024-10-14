@@ -1,34 +1,4 @@
 
-<p align="center">
-    <img src="./imgs/canhydro_logo.png" height="390" width="300">
-</p>
-<h1 align="center">CanoPyHydro</h1>
-  <p align="center">
-    Leveraging remote sensing to map water availability in tree canopies.
-    </p>
-</p>
-## Summary
-
-The goal of this and future versions of CanoPyHydro is to provide a tool set that empowers researchers and practitioners to gain new perspectives on rainfall distribution in forested environments. A list of publications that have utilized this tool-and influenced its development- can be found under [Publications]
-
-
-
-CanoPyHydro provides users access to an innovative, bottom-up approach to estimating precipitation redistribution. By enriching QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
-
-<ul>
-  <li>Stemflow and throughfall generating areas of the canopy</li>
-  <li>The 'drip points' to which throughfall is directed - complete with their relative volumes</li>
-  <li>'Divides' and 'confluences' within the canopy that dictate the flow of water through the canopy</li>
-</ul>
-
-The current tool set also boasts several different spacial analysis tools, several of which have been utilized in the study of non-hydrological environmental conditions within tree canopies. These include:
-
-<ull>
-  <li>Functionality for characterizing the level of obsfucation present at given canopy cross sections</li>
-  <li>Tools for identifying, highlighting and isolating branch subnetworks meeting any arbitrary contition(s)</li>
-  <li>i.e. only branches with a radius > 10cm, branches with a branch order of 0 within 100cm of the ground, ...</li>
-  <li>2D and 3D visualization functionality to interactively to explore the structure of tree canopies</li>
-</ul>
 
 # Tutorial
 Before running the code from this tutorial, we recommend that you set up your environment by following the instructions in the [getting started](https://canopyhydrodynamics.readthedocs.io/en/latest/getting_started.html) section of the documentation.
@@ -210,37 +180,3 @@ myCollection.draw("XY",
     <figcaption>The stem flow boundary hull</figcaption>
   </div>
 </div>
-
-## Publications:
-
-This repository houses python utilities described in 'A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.'
-A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.
-(https://www.researchgate.net/publication/375530854)
-
-## Future Direction
-
-- We hope to widen the use cases for our tool by integrating additionall real world data (i.e wind speed and direction, rain intensity and angle, etc.).
-- By growing python libraries for spacial analysis (scipy-spacial, open3d) we hope to all for the projection of cylinders at an arbitrary angle, to support the afformentioned integration of weather data.
-- Under the branch [improve-find-flows-efficiency](https://github.com/wischmcj/canopyHydrodynamics/tree/improve-find-flows-efficiency) you can see the current work being done to improve the efficiency of the flow finding algorithm. Early results so as much as a 200x increase in the speed of the algorithm as a result of:
-  - migrating the the use of rust based graph models, using the rustworkx library
-  - refactoring the current find flow algorithm as a graph traversal algorithm to enable parallel processing
-
-
-# Contributing
-
-We welcome contributions to this project! Whether it's reporting a bug, proposing a new feature, or contributing code, we appreciate your help. Here's how you can set up you local environment in order to do so:
-
-1. **Install Additional Dependencies**: Some features (linting, git actions, etc.) may require additional dependencies. An additional 'requirements-dev.txt' file has been provided to install these dependencies.
-
-   ```bash
-   pip install -r requirements-dev.txt
-   ```
-2. **Install Pre-commit**: This repository utilizes the ruff pre-commit hook to ensure that all code is linted before being committed. To install pre-commit, run the following commands:
-
-   ```bash
-   pip3 install pre-commit
-   pre-commit install
-   ```
-3. **Review the contributing Guidelines **: Check out the documentation, where you can find [contributing guidelines](https://canopyhydrodynamics.readthedocs.io/en/latest/contributing.html). Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
-
-Thank you for your interest in contributing to our project!

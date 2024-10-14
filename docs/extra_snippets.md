@@ -17,3 +17,27 @@ The below diagram demonstrates how a graph based model allows us to use these as
 
 A digraph is then constructed with each edge representing one cylinder, with edges oriented in the presumed direction of flow under the above assumptions. This graph is then traversed, and each cylinder is marked as either contributing to stem flow  - if the stem can be reached from its corresponding edge in the graph - or drip flow - if not.
 The algorithm above assigns an id to each of the flows found with 'stemflow' always receiving and id of 0. These flow ids are stored by the cylinder collection in the variable 'cyl_to_drip', a dictionary keyed by cylinder ids and can later be used for calculating the 'size' of the flow (see the Metrics section below) and for creating various visualizations of the canopy watershed.
+
+
+# Code stored here that may or may not be useful as scraps
+# Alternatively, the 'Forester' class can be used
+myForester = Forester()
+print(
+    f"Files available in {myForester.directory}: {list(map(str,myForester.file_names))}"
+)
+# Foresters can ...
+## ... use a custom directory
+myForester = Forester("data/test/")
+print(
+    f"Files available in {myForester.directory}: {list(map(str,myForester.file_names))}"
+)
+
+## ... Read in single QSMs
+myForester.qsm_to_collection("5_SmallTree.csv")
+print(f"Forester has {len(myForester.cylinder_collections)} CylinderCollections")
+
+# .. or read in all files in a directory
+myForester.qsm_to_collection("All")
+print(
+    f"""Forester created {len(myForester.cylinder_collections)} CylinderCollections,"""
+)
