@@ -15,6 +15,10 @@
 
 # %%
 from __future__ import annotations
+# For the purposes of this tutorial, we will turn off logging 
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.CRITICAL)
 
 # %% [markdown]
 # # Use Case Examples
@@ -47,7 +51,7 @@ myCollection.draw("XY")
 import os
 
 os.environ["CANOPYHYDRO_CONFIG"] = "./canopyhydro_config.toml"
-from src.canopyhydro.CylinderCollection import CylinderCollection
+from canopyhydro.CylinderCollection import CylinderCollection
 
 # Initializing a CylinderCollection object
 myCollection = CylinderCollection()
@@ -67,13 +71,13 @@ myCollection.calculate_flows()
 
 
 myCollection.draw(
-    "XZ", highlight_lambda=lambda: is_stem, save=True, file_name_ext="docs_ex"
+    "XZ", highlight_lambda=lambda: is_stem, file_name_ext="docs_ex"
 )
 
 # %%
 # Drawing alpha shapes/convex hulls around the tree
 
-from src.canopyhydro.CylinderCollection import CylinderCollection
+from canopyhydro.CylinderCollection import CylinderCollection
 
 # Creating a CylinderCollection object
 myCollection = CylinderCollection()
@@ -84,7 +88,7 @@ myCollection.find_flow_components()
 myCollection.calculate_flows()
 
 # drawing the tree for reference
-myCollection.draw("XY", save=True, file_name_ext="read_me_alpha")
+myCollection.draw("XY", save=False, file_name_ext="read_me_alpha")
 
 # Drawing the whole canopy boundary
 myCollection.watershed_boundary(plane="XY", draw=True)
@@ -97,7 +101,7 @@ myCollection.watershed_boundary(
 
 # Saving the whole canopy boundary plot to a file
 myCollection.watershed_boundary(
-    plane="XY", save=True, file_name_ext="read_me_alpha", draw=True
+    plane="XY", save=False, file_name_ext="read_me_alpha", draw=True
 )
 # Plotting the most recent canopy boundary as an overlay on the tree's projected cylinders
 myCollection.draw(plane="XY", include_alpha_shape=True)
@@ -164,7 +168,7 @@ import os
 from matplotlib import pyplot as plt
 
 os.environ["CANOPYHYDRO_CONFIG"] = "./canopyhydro_config.toml"
-from src.canopyhydro.CylinderCollection import CylinderCollection
+from canopyhydro.CylinderCollection import CylinderCollection
 
 # Initializing a CylinderCollection object
 myCollection = CylinderCollection()
@@ -179,21 +183,21 @@ ax[1] = myCollection.draw(
     "XZ",
     filter_lambda=lambda: branch_order <= 2,
     highlight_lambda=lambda: branch_order == 2,
-    save=True,
+    save=False,
     file_name_ext="_bo_le_2",
 )
 ax[2] = myCollection.draw(
     "XZ",
     filter_lambda=lambda: branch_order <= 3,
     highlight_lambda=lambda: branch_order == 3,
-    save=True,
+    save=False,
     file_name_ext="_bo_le_3",
 )
 ax[3] = myCollection.draw(
     "XZ",
     filter_lambda=lambda: branch_order <= 4,
     highlight_lambda=lambda: branch_order == 4,
-    save=True,
+    save=False,
     file_name_ext="_bo_le_4",
 )
 plt.show()

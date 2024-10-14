@@ -1,26 +1,19 @@
 
 <p align="center">
-    <img src="./imgs/canhydro_logo.jpeg" height="390" width="390">
+    <img src="./imgs/canhydro_logo.png" height="390" width="300">
 </p>
 <h1 align="center">CanoPyHydro</h1>
   <p align="center">
     Leveraging remote sensing to map water availability in tree canopies.
     </p>
 </p>
-<p align="center">
-  <a href="#summary">Summary</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#contributing">Contributing</a> •
-  <a href="#publications">Publications</a> •
-  <a href="#future-direction">Future Direction</a> •
-  <a href="#tutorials">Tutorials</a>
-</p>
-
 ## Summary
 
-The goal of this and future versions of CanoPyHydro is to provide a tool set that empowers researchers and practitioners to gain new perspectives on rainfall distribution in forested environments. A list of publications that have utilized this tool-and influenced its development- can be found at the bottom of this page.
+The goal of this and future versions of CanoPyHydro is to provide a tool set that empowers researchers and practitioners to gain new perspectives on rainfall distribution in forested environments. A list of publications that have utilized this tool-and influenced its development- can be found under [Publications]
 
-CanoPyHydro provides users access to an innovative, bottom-up approach to estimation precipitation redistribution. By enriching QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
+
+
+CanoPyHydro provides users access to an innovative, bottom-up approach to estimating precipitation redistribution. By enriching QSM data with additional structure via graph based hydrological models, canoPyHydro allows for the percise delineation of:'
 
 <ul>
   <li>Stemflow and throughfall generating areas of the canopy</li>

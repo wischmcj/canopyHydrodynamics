@@ -16,6 +16,7 @@ release = "0.0.6"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 extensions = [
     "myst_parser",
+    "nbsphinx",
     # "sphinx.ext.autodoc",
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
@@ -24,7 +25,7 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = []
+exclude_patterns = ["*.py"]
 
 # -- Options for myst_parser  -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/markdown.html
@@ -53,7 +54,7 @@ myst_enable_extensions = [
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "sphinx_rtd_theme"
-html_static_path = ["_static"]
+html_static_path = ["_static", "imgs"]
 html_theme_options = {
     "collapse_navigation": False,
     "navigation_depth": 3,

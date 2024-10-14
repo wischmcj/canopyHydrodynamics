@@ -4,7 +4,7 @@
 </head>
 <h1 align="center">CanoPyHydro</h1>
 <p align="center">
-    <img src="./docs/source/imgs/CanhydroLogoSmall.png" height="390" width="300">
+    <img src="./docs/source/imgs/canhydro_logo.png" height="390" width="300">
 </p>
 <p align="center"> </p>
 <h3 align="center">Table of Contents</h3>
