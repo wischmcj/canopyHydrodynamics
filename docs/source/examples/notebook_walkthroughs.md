@@ -14,7 +14,7 @@ Note that if you're running locally, in order to run the code in the workflows, 
 
 # Feature Descriptions
 
-**1. [Introduction to Common Objects](intro_to_objects.ipynb)**: This notebook provides a detailed walkthrough of the various different objects used in the canoPyHydro package.
+**1. [Introduction to Common Objects](intro_to_common_objects.ipynb)**: This notebook provides a detailed walkthrough of the various different objects used in the canoPyHydro package.
 
 **2. [Projecting Cylinders](projecting_cylinders.ipynb)**: This notebook demonstrates how 3D cylinders that make up a QSM model are converted to 2D shapes via projection.
 

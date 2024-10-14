@@ -415,13 +415,13 @@ class CylinderCollection:
                 vectors.append(start_end)
             fig = draw_cylinders_3D(radii, vectors, file_name_ext=file_name, **kwargs)
         else:
-            if not self.projections[plane]:
+            if not self.projections.get(plane):
                 self.project_cylinders(plane)
             to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
 
             overlay = []
             if include_alpha_shape:
-                if not self.hulls[plane]:
+                if not self.hulls.get(plane):
                     log.warning(
                         f"No {plane} plane alpha shape found. Running watershed_boundary"
                     )
@@ -792,7 +792,7 @@ class CylinderCollection:
                 The projection for which to source the angle and projected area
                 data sumed. Valid values are "XY", "XZ", "YZ", and "3D".
         """
-        if not self.projections[plane]:
+        if not self.projections.get(plane):
             log.warning(
                 f"""No {plane} projection data found. Running project_cylinders
                             This may take several minutes"""
@@ -902,7 +902,7 @@ class CylinderCollection:
         Defines a straight line from base to tip of the trunk then
          finds the angle of that line from the XZ plane
         """
-        trunk_beg = lam_filter(self.cylinders, a_lambda=lambda: branch_order == 0)  # noqa
+        trunk_beg,_ = lam_filter(self.cylinders, a_lambda=lambda: branch_order == 0)  # noqa
         trunk_points = [(cyl.x[0], cyl.y[0], cyl.z[0]) for cyl in trunk_beg]
         root = trunk_points[0]
         furthest_afeild, _ = furthest_point(root, trunk_points)
@@ -942,7 +942,7 @@ class CylinderCollection:
             }
         """
         percentiles.sort()
-        if not self.projections[plane]:
+        if not self.projections.get(plane):
             self.project_cylinders(plane)
         non_trunk_polys, _ = lam_filter(self.cylinders, lambda: branch_order != 0)  # noqa
         cyl_metric = [cyl.z[0] for cyl in non_trunk_polys]

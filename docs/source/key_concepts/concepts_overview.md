@@ -11,4 +11,4 @@ Cylinder Collections are just as they sound and, at the most basic level, a Cyli
 Forester objects allow users to conveniently create and manage Cylinder Collections. In particular, Foresters are useful for reading in and processing QSM files. When a Forester object is created, available file names are read from the default directory, './data/input/' or, if specified, from the directory specified by the user. This list of available files can be accessed through the Forester.file_names attribute.
 
 ## Usage Examples
-To see these objects in action, navigate to the [Examples](../examples/examples_index.md#examples) page.
+To see these objects in action, navigate to the [Examples](../examples/examples_index.md) page.
