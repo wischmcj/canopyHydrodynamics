@@ -1,0 +1,46 @@
+
+version: 1
+disable_existing_loggers: False
+
+formatters:
+
+    default:
+        format: "%(asctime)s.%(msecs)03d |%(threadName)-12s | %(levelname)-7s | %(filename)s:%(lineno)s - %(funcName)20s() | %(name)s - %(message)s"
+        datefmt: "%Y.%m.%d %H:%M:%S"
+
+handlers:
+    console:
+        level: 0
+        class: canopyhydro.handlers.ConsoleHandler
+        formatter: default
+        styles:
+            log.web_url: bright_blue
+            log.local_url: bright_blue
+
+            log.info_level: cyan
+            log.warning_level: yellow3
+            log.error_level: red3
+            log.critical_level: bright_red
+
+    file:
+        level: 1
+        class: logging.FileHandler
+        filename: ./canopyhydro.log
+        formatter: default
+
+loggers:
+
+    script:
+        level: DEBUG
+        handlers: [file, console]
+        propagate: no
+
+    model:
+        level: INFO
+        handlers: [file, console]
+        propagate: yes
+
+root:
+    # By default, we display warning level logs from any library in the console
+    # to match Python's default behavior while formatting logs nicely
+    level: WARNING
