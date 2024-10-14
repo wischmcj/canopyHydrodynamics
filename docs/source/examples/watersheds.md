@@ -22,10 +22,10 @@ charlieBrown.draw("XZ") # 'front' view
 
 <div align="center">
   <div class="container">
-    <img src=".../imgs/charlie_brown_XY_hull_tutorial.png" height="250" width="250">
+    <img src="../imgs/charlie_brown_XY_hull_tutorial.png" height="250" width="250">
   </div>
   <div class="container">
-    <img src=".../imgs/charlie_brown_XZ_hull_tutorial.png" height="300" width="275">
+    <img src="../imgs/charlie_brown_XZ_hull_tutorial.png" height="300" width="275">
   </div>
 </div>
 
@@ -51,7 +51,7 @@ plt.scatter([x for x,_ in branch_tip_points], [y for _,y in branch_tip_points],c
 
 <div align="center">
   <div class="container">
-    <img src=".../imgs/charlie_brown_boundary_points.png" height="390" width="390">
+    <img src="../imgs/charlie_brown_boundary_points.png" height="390" width="390">
   </div>
 </div>
 
@@ -65,7 +65,7 @@ full_hull, hull_components = charlieBrown.watershed_boundary(draw=True)
 
 <div align="center">
   <div class="container">
-        <img src=".../imgs/charlie_brown_alphashape.png" height="390" width="390">
+        <img src="../imgs/charlie_brown_alphashape.png" height="390" width="390">
   </div>
 </div>
 
@@ -87,7 +87,7 @@ charlieBrown.draw("XY", include_alpha_shape=True, show=True)
 
 <div align="center">
   <div class="container">
-      <img src=".../imgs/charlie_brown_hull_and_branches.png" height="390" width="390">
+      <img src="../imgs/charlie_brown_hull_and_branches.png" height="390" width="390">
   </div>
 </div>
 
@@ -107,8 +107,8 @@ charlieBrown.draw(include_alpha_shape=True, show=True)
 
 <div align="center">
   <div class="container">
-    <img src=".../imgs/charlie_brown_tight_alphashape.png" height="390" width="390"/>
-    <img src=".../imgs/charlie_brown_tight_hull_and_branches.png" height="390" width="390"/>
+    <img src="../imgs/charlie_brown_tight_alphashape.png" height="390" width="390"/>
+    <img src="../imgs/charlie_brown_tight_hull_and_branches.png" height="390" width="390"/>
   </div>
 </div>
 
