@@ -17,3 +17,4 @@ sphinx
 sphinx-rtd-theme==3.0.1
 sphinxcontrib-napoleon
 toml==0.10.2
+nbsphinx
