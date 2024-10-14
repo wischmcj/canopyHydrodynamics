@@ -13,19 +13,23 @@ innovative visualization and analytics tools.
 :caption: Table of Contents
 ```
 ```{toctree}
+:maxdepth: 1
 :caption: Getting Started
 getting_started.md
 high_level_tutorial.md
 ```
 ```{toctree}
+:maxdepth: 1
 :caption: Core Concepts
 key_concepts/concepts_index.md
 ```
 ```{toctree}
+:maxdepth: 1
 :caption: Examples:
 examples/examples_index.md
 ```
 ```{toctree}
+:maxdepth: 1
 :caption: References:
 canopyhydro.rst
 glossary.rst
