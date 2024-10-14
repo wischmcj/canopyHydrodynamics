@@ -9,12 +9,18 @@
 #       jupytext_version: 1.16.4
 # ---
 
-from __future__ import annotations
+# %%
+
+# For the purposes of this tutorial, we will turn off logging 
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.CRITICAL)
 
 # %% [markdown]
 #
-# The most important of these attributes is CylinderCollection.digraph, which is a mathematical graph corresponding the CylinderCollection. \
-# This graph representation is used in tandem with a traversal algorithm to predict which rain partition each cylinder in the collection belongs
+# The most important of these attributes is CylinderCollection.digraph, which is a mathematical graph corresponding the CylinderCollection. \ 
+# This graph representation is used in tandem with a traversal algorithm to predict which rain partition each cylinder in the collection belongs 
+
 # %%
 
 # Code example printing out a cylinder collection, colored by stem v. drip flow

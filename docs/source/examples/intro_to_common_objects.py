@@ -16,6 +16,12 @@
 # %%
 from __future__ import annotations
 
+# For the purposes of this tutorial, we will turn off logging 
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.CRITICAL)
+
+
 # %%
 #   RUNME.setup
 #  This helps set up your kernal's environment in order to avoid errors
@@ -25,8 +31,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from canopyhydro.Cylinder import Cylinder
-from src.canopyhydro.CylinderCollection import CylinderCollection
-from src.canopyhydro.Forester import Forester
+from canopyhydro.CylinderCollection import CylinderCollection
+from canopyhydro.Forester import Forester
 
 # Determines where configuration file is located
 # file contains directory info and model input settings
@@ -234,7 +240,7 @@ myCollection.draw(
     "XZ",
     filter_lambda=lambda: cyl_id > 50,
     highlight_lambda=lambda: branch_order > 0,
-    save=True,
+    # save=True # Saving disabled for tutorial code
     file_name_ext="highlighted_branch_tutorial.svg",
 )  # noqa
 
@@ -243,7 +249,7 @@ myCollection.draw(
     "XZ",
     filter_lambda=lambda: cyl_id > 50,
     highlight_lambda=lambda: cyl_id > 100,
-    save=True,
+    # save=True # Saving disabled for tutorial code
     file_name_ext="highlighted_branch_tutorial.svg",
 )
 
@@ -259,10 +265,11 @@ myCollection.from_csv("charlie_brown.csv")
 
 # by filtering for cyl_id>100, we are only plotting the
 # cylinders that are part of the branch
-# myCollection.draw("XZ", show=True, save=True)
-# myCollection.draw("XY", show=True, save=True)
-# myCollection.draw("YZ", show=True, save=True)
-myCollection.draw("3D", show=False, save=True, file_name_ext="2d_3d_comparison")
+myCollection.draw("XZ", show=True, save=False)
+myCollection.draw("XY", show=True, save=False)
+myCollection.draw("YZ", show=True, save=False)
+# myCollection.draw("3D", show=False, save=False, file_name_ext="2d_3d_comparison")
+
 
 print("XZ Projection of a collection of cylinders")
 
@@ -274,6 +281,9 @@ print("XZ Projection of a collection of cylinders")
 
 # %% [markdown]
 # ### Forester
+
+# %% [markdown]
+#
 
 # %% [markdown]
 # Forester objects allow users to conveniently create and manage Cylinder Collections. In particular, Foresters are useful for reading in and processing QSM files.
@@ -307,7 +317,7 @@ print(
 # %%
 # Importing a QSM file as a CylinderCollection
 myForester = Forester("data/test/")
-myForester.qsm_to_collection("5_SmallTree.csv")
+myForester.qsm_to_collection("example_tree.csv")
 
 cylCollections = myForester.cylinder_collections
 firstCollection = cylCollections[0]
@@ -330,35 +340,13 @@ print(
       {list(map(lambda x: x.file_name,cylCollections))}"""
 )
 
-# %%
-# Code stored here that may or may not be useful as scraps
-# Alternatively, the 'Forester' class can be used
-myForester = Forester()
-print(
-    f"Files available in {myForester.directory}: {list(map(str,myForester.file_names))}"
-)
-# Foresters can ...
-## ... use a custom directory
-myForester = Forester("data/test/")
-print(
-    f"Files available in {myForester.directory}: {list(map(str,myForester.file_names))}"
-)
-## ... Read in single QSMs
-myForester.qsm_to_collection("5_SmallTree.csv")
-print(f"Forester has {len(myForester.cylinder_collections)} CylinderCollections")
-# .. or read in all files in a directory
-myForester.qsm_to_collection("All")
-print(
-    f"""Forester created {len(myForester.cylinder_collections)} CylinderCollections,"""
-)
-
 # %% [markdown]
 # Putting all that we have learned together, you can see that all of the statistics available through canoPyHydro can be generated with the below 10 lines of code
 
 # %%
-forest = Forester(test_input_dir)
+forest = Forester("data/input/")
 forest.get_file_names()
-forest.qsm_to_collection(file_name="3_HappyPathWTrunk.csv")
+forest.qsm_to_collection(file_name="5_SmallTree.csv")
 collection = forest.cylinder_collections[0]
 collection.project_cylinders("XY")
 collection.initialize_digraph_from(in_flow_grade_lim=-0.16)
