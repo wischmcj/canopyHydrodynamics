@@ -19,7 +19,8 @@ qsms.md
 
 
 ```{toctree}
+:maxdepth: 1
 :glob:
-objects
-examples
+objects/*
+examples/*
 ```

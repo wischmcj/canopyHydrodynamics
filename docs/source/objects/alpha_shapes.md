@@ -49,8 +49,8 @@ myCollection.draw("XZ") # 'front' view
 ```
 
 <div class="container">
-    <img src="./imgs/minimal_tree_XZ_hull_tutorial.png" height="300" width="300">
-    <img src="./imgs/minimal_tree_XY_hull_tutorial.png" height="300" width="300">
+    <img src="../imgs/minimal_tree_XZ_hull_tutorial.png" height="300" width="300">
+    <img src="../imgs/minimal_tree_XY_hull_tutorial.png" height="300" width="300">
 </p>
 
 As you can see above, our tree has only a few, short branches. As is common among groups of smaller groups of cylinders (i.e. branch subsets), there are also significant gaps between the tree's branches.
