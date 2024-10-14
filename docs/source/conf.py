@@ -16,6 +16,7 @@ release = "0.0.6"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 extensions = [
     "myst_parser",
+    "nbsphinx",
     # "sphinx.ext.autodoc",
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
@@ -24,7 +25,7 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = []
+exclude_patterns = ["*.py"]
 
 # -- Options for myst_parser  -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/markdown.html

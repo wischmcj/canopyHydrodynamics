@@ -613,8 +613,8 @@ def draw_cylinders_3D(
     """Draws a single Cylinder in 3 dimensions"""
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
+    log.info("Plotting cylinder in 3D")
     for radius, vector_start_end in zip(radii, vector_start_ends):
-        log.info("Plotting cylinder in 3D")
 
         x, y, z, unit_vector = get_cylinder_surface(radius, vector_start_end)
 

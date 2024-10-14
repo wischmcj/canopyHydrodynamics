@@ -1,12 +1,18 @@
 # How To
-```{include} ./examples_overview.md
+```{include} ./notebook_walkthroughs.md
 ```
 ------------------------------------------
 # Examples
 
 ```{toctree}
 :maxdepth: 1
-:caption: Examples
+:caption: Notebooks
+flow_identification_drawing.ipynb
+projecting_cylinders.ipynb
+tree_drawing_and_highlighting.ipynb
+intro_to_common_objects.ipynb
 
-notebook_walkthroughs.md
+:caption: Walkthroughs
+alpha_shapes.md
+
 ```
