@@ -1,7 +1,7 @@
+
 <head>
    <meta charset=utf-8 />
 </head>
-<h1 align="center">CanoPyHydro</h1>
 <p align="center">
     <img src="./_static/canhydro_logo.png" height="390" width="300">
 </p>

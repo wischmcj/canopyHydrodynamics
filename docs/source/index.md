@@ -28,7 +28,6 @@ examples/examples_index.md
 :maxdepth: 1
 :caption: References:
 canopyhydro.rst
-cylinder_collection.rst
 glossary.rst
 modules.rst
 
