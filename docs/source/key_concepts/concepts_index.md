@@ -8,8 +8,4 @@
 
 qsms.md
 cylinder_projection.md
-hulls_and_watersheds.md
-
-
-cylinder_collection.rst
 ```

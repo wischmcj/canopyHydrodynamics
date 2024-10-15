@@ -4,7 +4,7 @@
 </head>
 <h1 align="center">CanoPyHydro</h1>
 <p align="center">
-    <img src="./docs/source/imgs/canhydro_logo.png" height="390" width="300">
+    <img src="./docs/source/_static//canhydro_logo.png" height="390" width="300">
 </p>
 <p align="center"> </p>
 <h3 align="center">Table of Contents</h3>
@@ -61,7 +61,7 @@ The Cylinder class is used to represent the 3-D cylinders that make up a QSM. Th
 
 <div align="center">
   <div class="container">
-    <img src="./docs/source/imgs/Cylinder_projections_3D.png" height="350" width="400" alt="Point Cloud and QSM"/>
+    <img src="./docs/source/_static/Cylinder_projections_3D.png" height="350" width="400" alt="Point Cloud and QSM"/>
   </div>
 </div>
 
@@ -88,15 +88,15 @@ myCollection.draw("YZ")
 
 <div align="center">
   <div class="container">
-    <img src="./docs/source/imgs/charlie_brown_XZ.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
+    <img src="./docs/source/_static/charlie_brown_XZ.png" height="300" width="150" alt="Plot of the entire tree - XZ"/>
     <p>XZ Projection</p>
   </div>
   <div class="container">
-    <img src="./docs/source/imgs/charlie_brown_XY.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <img src="./docs/source/_static/charlie_brown_XY.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
     <p>XY Projection</p>
   </div>
   <div class="container">
-    <img src="./docs/source/imgs/charlie_brown_YZ.png" height="300" width="150" alt="Plot of a branch only"/>
+    <img src="./docs/source/_static/charlie_brown_YZ.png" height="300" width="150" alt="Plot of a branch only"/>
     <p>YZ Projection</p>
   </div>
 </div>
@@ -147,15 +147,15 @@ myCollection.draw("XZ",
 
 <div align="center">
   <div class="container">
-    <img src="./docs/source/imgs/charlie_brown_stem_flow.png" height="375" width="200" alt="Plot of the entire tree - XZ"/>
+    <img src="./docs/source/_static/charlie_brown_stem_flow.png" height="375" width="200" alt="Plot of the entire tree - XZ"/>
     <p> <em>The entire tree, with stemflow generating branches highlighted in blue.</em> </p>
   </div>
   <div class="container">
-    <img src="./docs/source/imgs/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
+    <img src="./docs/source/_static/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
     <p> <em> A filtered subset of the same tree, note how sections of outward slope seperate blue, 
                stemflow generating cylinders from grey, non-stemflow/throughfall generating cylinders </em></p>
   </div>
-    <img src="./docs/source/imgs/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
+    <img src="./docs/source/_static/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
     <p> <em>The same filtered subsetm now with drip nodes indicted in red. Note how each seperates a given set of thoughfall generating cylinders from the stemflow cylinders </em> </p>
 </div>
 
@@ -198,21 +198,21 @@ myCollection.draw("XY",
 ```
 <div align="center">
   <div class="container">
-    <img src="./docs/source/imgs/10_MediumCollection_XY_read_me_only_hull.png" height="300" width="300" alt="Entire canopy hull alone"/>
+    <img src="./docs/source/_static/10_MediumCollection_XY_read_me_only_hull.png" height="300" width="300" alt="Entire canopy hull alone"/>
     <p>Entire canopy hull alone</p>
   </div>
   <div class="container">
-    <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_read_me_hull_and_tree.png" height="300" width="300" alt="Hull overlaid on the canopy"/>
+    <img src="./docs/source/_static/10_MediumCollectioncsv_XY_read_me_hull_and_tree.png" height="300" width="300" alt="Hull overlaid on the canopy"/>
     <p>Hull overlaid on the canopy</p>
   </div>
 </div>
 <div align="center">
   <div class="container">
-    <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_tight_hull_and_tree.png" height="300" width="300" alt="A tighter fitting hull<"/>
+    <img src="./docs/source/_static/10_MediumCollectioncsv_XY_tight_hull_and_tree.png" height="300" width="300" alt="A tighter fitting hull<"/>
     <p>A tighter fitting hull</p>
   </div>
   <div class="container">
-    <img src="./docs/source/imgs/10_MediumCollectioncsv_XY_stem_hull_and_tree.png" height="300" width="300" alt="The stem flow boundary hull"/>
+    <img src="./docs/source/_static/10_MediumCollectioncsv_XY_stem_hull_and_tree.png" height="300" width="300" alt="The stem flow boundary hull"/>
     <p>The stem flow boundary hull</p>
   </div>
 </div>
