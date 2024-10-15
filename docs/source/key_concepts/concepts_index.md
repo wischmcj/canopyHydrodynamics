@@ -7,5 +7,4 @@
 :caption: Table of Contents
 
 qsms.md
-cylinder_projection.md
 ```
