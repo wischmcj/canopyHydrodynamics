@@ -290,9 +290,10 @@ class CylinderCollection:
             self.file_name = file.name
         log.info(f"Processing {str(file)}")
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
-        cylinders = [create_cyl(row) for row in self.arr]
+        cylinders = []
+        for row in self.arr:
+            cylinders.append(create_cyl(row))
         self.cylinders = cylinders
-
         min_x = np.min([cyl.x[0] for cyl in cylinders])
         min_y = np.min([cyl.y[0] for cyl in cylinders])
         min_z = np.min([cyl.z[0] for cyl in cylinders])

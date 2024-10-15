@@ -196,13 +196,15 @@ def lam_filter(objects, a_lambda: Callable, return_all: bool = False):
     Takes in a lambda that filters on cylinder attrs
     returns a list of cylinders for which that
     lambda func returns true
-    i.e. lam_filter(cylinders, lambda: diameter > 0.5)
-            -returns all cylinders with diameter > 0.5
-
-    return_all: bool
-        - if true, returns all cylinders along with
+    
+    Args:
+        return_all (bool): if true, returns all cylinders along with
             a boolean array of the same length w/ the
             results of the lambda function passed
+
+    Example:
+        lam_filter(cylinders, lambda: diameter > 0.5)
+        returns: all cylinders with diameter > 0.5
     """
     if a_lambda.__code__.co_name != "<lambda>":
         raise ValueError("a lambda required")

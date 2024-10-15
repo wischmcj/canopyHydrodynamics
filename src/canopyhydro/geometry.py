@@ -86,8 +86,8 @@ def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     """
     Calculate the circumcenter of a set of points relative to simplex
     Theoretically less efficient than LAPACK (O(n^3) + O(n^2) v. O(n^2))
-        when a given set of equations (e.g. set of points, A )
-        only needs to be solved for a single vector (e.g b)
+    when a given set of equations (e.g. set of points, A )
+    only needs to be solved for a single vector (e.g b)
     """
     points = np.asarray(points)
     rows, _ = points.shape
@@ -103,7 +103,7 @@ def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     return sir_c
 
 
-def circumradius(points: coord_list, center: np.ndarray == []) -> np.float32:
+def circumradius(points: coord_list, center: np.ndarray = []) -> np.float32:
     """
     Calculte the radius of the circle in which the given polygon may be inscribed
     """
@@ -431,26 +431,27 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
      each list representing a diff percentile
      grouping of polygons (e.g. grp1:(0%-25%), grp2:(25%, 50%)...)
 
-    Consider the case in which our percentiles are defined by
-        height - with the first grouping being cylinders in the xth %ile
-        by height, thus being under than cylinders in all of the other groupings
+    Consider the case in which our percentiles are defined by height,
+    with the first grouping being cylinders in the xth %ile y height, thus being under than cylinders in all of the other groupings
     In this case, this function calculates the area of shade cast by each
-        grouping on the below sections. As such, in each loop 'shading_poly_list'
-        is partitioned into 2 categories: The sections of canopy on which shade is
-        being cast and the sections of canopy that are casting that shade.
-        After each loop, a new section of canopy is moved from the 'shading' group
-        to the 'shaded' group and a new calculation of shaded area is made. The result
-        is a cumulative sum of shaded area at various heights in the canopy.
+    grouping on the below sections. As such, in each loop 'shading_poly_list'
+    is partitioned into 2 categories: The sections of canopy on which shade is
+    being cast and the sections of canopy that are casting that shade.
+    After each loop, a new section of canopy is moved from the 'shading' group
+    to the 'shaded' group and a new calculation of shaded area is made. The result
+    is a cumulative sum of shaded area at various heights in the canopy.
 
     Note:
         shapely's intersection function could be used, and
-            would be slightly more accurate. However, it is also
-            rather slow for the intersection of this many shapes
+        would be slightly more accurate. However, it is also
+        rather slow for the intersection of this many shapes
 
-     Returns:
+    Returns:
          list[dict]: Each dicitonary corresponding to a percentile,
          with metrics describing the overlap between the polygons in that percentile
-         {
+    
+    Example:
+         Result = {
              "sum_area": sum of areas of the polygons in the percentile,
              "effective_area": the area of the union of the polygons in the percentile,
              "internal_overlap": sum_area - effective_area,

@@ -1,9 +1,9 @@
-# Tutorial: Hulls and Watersheds 
+# Tutorial: Hulls and Watersheds
 
 
 Before proceeding with the below examples, you may want to review about the concepts discussed in [hulls and watersheds](../key_concepts//hulls_and_watersheds.md).
 
-Below we work through a laughably minimal case study to demonstrate how the objects in the above linked document are utilized by canoPyHydro. This minimal tree, consisting of but a single trunk and a few branches, will henceforth be lovingly refered to as 'charlie brown'.
+Below we work through a laughably minimal case study to demonstrate how the objects in the above linked document are utilized by canoPyHydro. This minimal tree, consisting of but a single trunk and a few branches, will henceforth be lovingly referred to as 'charlie brown'.
 
 ## The Basics
 
@@ -22,10 +22,10 @@ charlieBrown.draw("XZ") # 'front' view
 
 <div align="center">
   <div class="container">
-    <img src="../imgs/charlie_brown_XY_hull_tutorial.png" height="250" width="250">
+    <img src="../_static/charlie_brown_XY_hull_tutorial.png" height="250" width="250">
   </div>
   <div class="container">
-    <img src="../imgs/charlie_brown_XZ_hull_tutorial.png" height="300" width="275">
+    <img src="../_static/charlie_brown_XZ_hull_tutorial.png" height="275" width="275">
   </div>
 </div>
 
@@ -51,11 +51,11 @@ plt.scatter([x for x,_ in branch_tip_points], [y for _,y in branch_tip_points],c
 
 <div align="center">
   <div class="container">
-    <img src="../imgs/charlie_brown_boundary_points.png" height="390" width="390">
+    <img src="../_static/charlie_brown_boundary_points.png" height="390" width="390">
   </div>
 </div>
 
-Now. to draw the watershed boundary around these points (with the default parameters) we simply call the 'watershed boundary' function. Optionally, we pass 'draw=True' to get a look at the shape generated. 
+Now. to draw the watershed boundary around these points (with the default parameters) we simply call the 'watershed boundary' function. Optionally, we pass 'draw=True' to get a look at the shape generated.
 
 ```
 full_hull, hull_components = charlieBrown.watershed_boundary(draw=True)
@@ -65,7 +65,7 @@ full_hull, hull_components = charlieBrown.watershed_boundary(draw=True)
 
 <div align="center">
   <div class="container">
-        <img src="../imgs/charlie_brown_alphashape.png" height="390" width="390">
+        <img src="../_static/charlie_brown_alphashape.png" height="390" width="390">
   </div>
 </div>
 
@@ -79,7 +79,7 @@ As a matter of fact, this hull is a shapely.Polygon object, so there are a varie
 
 
 ## Creating Figures
-Users also have the option to plot these shapes along side the branches of the tree its self by passing the 'include_alpha_shape' parameter to the 'draw' function. This parameter will cause a watershed boundary (our special case of an alpha shape) to be drawn 'on top of' the trees branches. 
+Users also have the option to plot these shapes along side the branches of the tree its self by passing the 'include_alpha_shape' parameter to the 'draw' function. This parameter will cause a watershed boundary (our special case of an alpha shape) to be drawn 'on top of' the trees branches.
 
 ```python
 charlieBrown.draw("XY", include_alpha_shape=True, show=True)
@@ -87,7 +87,7 @@ charlieBrown.draw("XY", include_alpha_shape=True, show=True)
 
 <div align="center">
   <div class="container">
-      <img src="../imgs/charlie_brown_hull_and_branches.png" height="390" width="390">
+      <img src="../_static/charlie_brown_hull_and_branches.png" height="390" width="390">
   </div>
 </div>
 
@@ -107,10 +107,9 @@ charlieBrown.draw(include_alpha_shape=True, show=True)
 
 <div align="center">
   <div class="container">
-    <img src="../imgs/charlie_brown_tight_alphashape.png" height="390" width="390"/>
-    <img src="../imgs/charlie_brown_tight_hull_and_branches.png" height="390" width="390"/>
+    <img src="../_static/charlie_brown_tight_alphashape.png" height="390" width="390"/>
+    <img src="../_static/charlie_brown_tight_hull_and_branches.png" height="390" width="390"/>
   </div>
 </div>
 
-Now, you may notice that some fine tuning is needed, given a portion of the tree is outside of this now-rather-tightly-fitting convex hull. We leave the exersize of creating a tighter fitting - but still covering - convex hull as an exersize for the reader.
-
+Now, you may notice that some fine tuning is needed, given a portion of the tree is outside of this now-rather-tightly-fitting convex hull. We leave the exercise of creating a tighter fitting - but still covering - convex hull as an exercise for the reader.

@@ -5,11 +5,10 @@
 ```{toctree}
 :maxdepth: 1
 :caption: Table of Contents
+```
 
+```{toctree}
+:maxdepth: 1
+:caption: Other Objects
 qsms.md
-cylinder_projection.md
-hulls_and_watersheds.md
-
-
-cylinder_collection.rst
 ```
