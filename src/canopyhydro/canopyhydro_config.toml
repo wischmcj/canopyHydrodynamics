@@ -38,7 +38,7 @@ in_flow_grade_lim = -0.16666
 root_dir        = "./"
 input_dir       = "./"
 output_dir      = "./"
-test_input_dir  = "./"
+test_input_dir  = "./data/test/"
 
 [project.optional-dependencies]
 test = [
