@@ -203,3 +203,6 @@ data/temp_rebase files/test_collection_integration.py
 .vscode/settings.json
 data/input/Secrest10-08_000000.csv
 snippets.ipynb
+local.py
+data/input/Secrest07-32_000000.csv
+data/input/Secrest16-3TI-CO_000000.csv
