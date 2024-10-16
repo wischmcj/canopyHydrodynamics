@@ -118,16 +118,12 @@ class Flow:
 
     def add_cyls(self, cylinders: list):
         cyls = {cyl.cyl_id for cyl in cylinders}
+        cyl_attrs = [
+            [cyl.projected_area, cyl.surface_area, cyl.angle_sum, cyl.volume]
+            for cyl in cylinders
+        ]
         cyls_sum = sum(
-            (
-                (
-                    cylinder.projected_area,
-                    cylinder.surface_area,
-                    cylinder.angle_sum,
-                    cylinder.volume,
-                )
-                for cylinder in cylinders
-            ),
+            cyl_attrs,
             axis=0,
         )
         self.projected_area += cyls_sum[0]
