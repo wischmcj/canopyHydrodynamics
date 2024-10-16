@@ -1,22 +1,13 @@
-
-geopandas
+geopandas==1.0.1
 matplotlib==3.9.2
 networkx==3.4.1
-numpy<2,>=1.16.0
-pandoc
-PyQt6 #Needed for interactive 3D plots
-pytest==8.3.3
-pyyaml
-rich
+numpy<2>=1.16.0
+pyyaml==6.0.2
+rich==13.9.2
 ruff==0.5.1
 scipy==1.13.1
 Shapely==2.0.6
-sphinx
-sphinx_rtd_theme
 toml==0.10.2
-pyyaml
-rich
 jupytext==1.16.4
-
-# optional
 open3d==0.18.0
+PyQt6==6.7.1

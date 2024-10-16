@@ -10,9 +10,11 @@ import yaml
 cwd = os.getcwd()
 print(f"Current working directory: {cwd}")
 # Read in environment variables, set defaults if not present
+canhydro_location = os.path.dirname(__file__)
+print(f'canoPyHydro installed at {canhydro_location}')
 
-config_file = os.environ.get("CANOPYHYDRO_CONFIG", "./canopyhydro_config.toml")
-log_config = os.environ.get("CANOPYHYDRO_LOG_CONFIG", "./logging_config.yml")
+config_file = os.environ.get("CANOPYHYDRO_CONFIG", f"{canhydro_location}/canopyhydro_config.toml")
+log_config = os.environ.get("CANOPYHYDRO_LOG_CONFIG", f"{canhydro_location}/logging_config.yml")
 
 try:
     with open(log_config) as f:

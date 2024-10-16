@@ -1,19 +1,16 @@
-geopandas
-matplotlib==3.9.2
+# CI packages 
 jupytext==1.16.2
-
-# optional
-line_profiler==4.1.2
-matplotlib==3.9.0
-memory_profiler==0.61.0
-open3d==0.18.0
-networkx==3.4.1
-numpy==2.1.2
-open3d==0.18.0
 pytest==8.3.3
-pyyaml
-rich
-rustworkx
-scipy==1.13.1
-Shapely==2.0.4
-toml==0.10.2
+ruff==0.5.1
+sphinx
+sphinx_rtd_theme
+pre-commit
+
+# Documents packages
+myst-parser
+pandoc
+sphinx
+sphinx-rtd-theme==3.0.1
+sphinxcontrib-napoleon
+nbsphinx
+ipykernel
