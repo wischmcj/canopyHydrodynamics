@@ -19,7 +19,7 @@
      <a href="#contributing">Contributing</a>
    </p>
 
-   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Detailed information regarding package use cases, the definitions of relevant terms and the methods available in the package can be found in our [documentation](https://canopyhydrodynamics.readthedocs.io/en/latest/).
+   CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Detailed information regarding package use cases, the definitions of relevant terms and the methods available in the package can be found in our [documentation](https://canopyhydrodynamics.readthedocs.io/main/).
 
 ## Summary
 CanoPyHydro takes a bottom-up approach towards predicting precipitation redistribution; enriching Lidar-derived QSM data with additional structure via graph based hydrological models and traversing said graph to determine its connectivity. This can be interpreted as a series of simulations in which we ask the question: "After water lands on the branch represented by a given cylinder, where does it go?". In this way, canoPyHydro allows for the percise delineation of:
@@ -65,7 +65,7 @@ The Cylinder class is used to represent the 3-D cylinders that make up a QSM. Th
   </div>
 </div>
 
-The Cylinder Collection class is a data class consisting of multiple cylinders and related metrics. Cylinder Collections almost always represent [QSMs](https://canopyhydrodynamics.readthedocs.io/en/latest/qsms.html#) or parts of a QSM and are meant to help users explore these QSMs. Below, we demonstrate how one might create a cylinder collection using cylinder data (e.g. QSM data) stored in a CSV file and how the afforementioned concept of projections can be used to visualize the data in a variety of ways.
+The Cylinder Collection class is a data class consisting of multiple cylinders and related metrics. Cylinder Collections almost always represent [QSMs](https://canopyhydrodynamics.readthedocs.io/main/qsms.html#) or parts of a QSM and are meant to help users explore these QSMs. Below, we demonstrate how one might create a cylinder collection using cylinder data (e.g. QSM data) stored in a CSV file and how the afforementioned concept of projections can be used to visualize the data in a variety of ways.
 Note: the tree chosen for the below is intentionally small to make the visualization easier to understand.
 
 ```{python}
@@ -152,11 +152,11 @@ myCollection.draw("XZ",
   </div>
   <div class="container">
     <img src="./docs/source/_static/charlie_brown_stem_flow_branch.png" height="300" width="300" alt="Plot of the entire tree - XY"/>
-    <p> <em> A filtered subset of the same tree, note how sections of outward slope seperate blue, 
+    <p> <em> A filtered subset of the same tree, note how sections of outward slope separate blue,
                stemflow generating cylinders from grey, non-stemflow/throughfall generating cylinders </em></p>
   </div>
     <img src="./docs/source/_static/charlie_brown_stem_flow_branch_drips.png" height="300" width="300" alt="Plot of a branch only"/>
-    <p> <em>The same filtered subsetm now with drip nodes indicted in red. Note how each seperates a given set of thoughfall generating cylinders from the stemflow cylinders </em> </p>
+    <p> <em>The same filtered subsetm now with drip nodes indicted in red. Note how each separates a given set of thoughfall generating cylinders from the stemflow cylinders </em> </p>
 </div>
 
 The final bit of functionality we will review here is the ability to create concave hulls around groups of cylinders in a CylinderCollection. This is done using the 'watershed_boundary' function. The below code demonstrates how this function can be used to find a concave hull around the entire tree, or a portion of the tree. Note that a new, more robist example tree is used

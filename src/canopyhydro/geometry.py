@@ -168,7 +168,7 @@ def concave_hull(boundary_points, alpha: int = 0):
     if len(boundary_points) < 4:
         # When you have a triangle, there is no sense in computing an alpha
         # shape.
-        return MultiPoint(list(boundary_points)).convex_hull, boundary_points
+        return MultiPoint(list(boundary_points)).convex_hull, boundary_points, set()
 
     def add_edge(edges, edge_points, coords, i, j):
         # adds a line between points i and j
@@ -564,7 +564,11 @@ def draw_cyls(
     log.info("Plotting cylinder collection")
 
     fig, ax = plt.subplots()
-    geoPolys = GeoSeries(collection)
+    try:
+        geoPolys = GeoSeries(collection)
+    except Exception as e:
+        log.error(f"Error creating GeoSeries, is gepandas installed? {e}")
+        raise e
 
     colors = ["Blue" if col else "Grey" for col in colors]
     geoPolys.plot(ax=ax, color=colors)

@@ -4,30 +4,46 @@ from __future__ import annotations
 
 import os
 import sys
-from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
-                                   drip_mid_flows, drip_mid_stem_map,
-                                   drip_on_trunk_flows, drip_on_trunk_stem_map,
-                                   ez_projection_cyls, ez_projection_xy,
-                                   ez_projection_xz, ez_projection_yz,
-                                   happy_path_cyls, happy_path_dbh,
-                                   happy_path_edges, happy_path_flows,
-                                   happy_path_is_stem, small_tree_dbh,
-                                   small_tree_edges, small_tree_flows,
-                                   small_tree_is_stem, ten_cyls_bo_and_len,
-                                   ten_cyls_bo_one, ten_cyls_cyls,
-                                   ten_cyls_dbh, ten_cyls_edges,
-                                   ten_cyls_flows, ten_cyls_id_one,
-                                   ten_cyls_is_stem)
-from test.expected_results_shapes import (small_tree_overlap,
-                                          small_tree_wateshed_poly)
+from test.expected_results import (
+    drip_adj_flows,
+    drip_adj_stem_map,
+    drip_mid_flows,
+    drip_mid_stem_map,
+    drip_on_trunk_flows,
+    drip_on_trunk_stem_map,
+    ez_projection_cyls,
+    ez_projection_xy,
+    ez_projection_xz,
+    ez_projection_yz,
+    happy_path_cyls,
+    happy_path_dbh,
+    happy_path_edges,
+    happy_path_flows,
+    happy_path_is_stem,
+    small_tree_dbh,
+    small_tree_edges,
+    small_tree_flows,
+    small_tree_is_stem,
+    ten_cyls_bo_and_len,
+    ten_cyls_bo_one,
+    ten_cyls_cyls,
+    ten_cyls_dbh,
+    ten_cyls_edges,
+    ten_cyls_flows,
+    ten_cyls_id_one,
+    ten_cyls_is_stem,
+)
+from test.expected_results_shapes import small_tree_overlap, small_tree_wateshed_poly
 from test.utils import within_range
 
 import pytest
 
 from canopyhydro.configuration import test_input_dir
-from canopyhydro.CylinderCollection import (CylinderCollection,
-                                            pickle_collection,
-                                            unpickle_collection)
+from canopyhydro.CylinderCollection import (
+    CylinderCollection,
+    pickle_collection,
+    unpickle_collection,
+)
 from canopyhydro.utils import lam_filter
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
@@ -187,13 +203,10 @@ def test_find_flows(basic_collection, expected_stem_map, expected_flows):
         lambda: is_stem,  # noqa
         return_all=True,
     )
-    print(actual_flows)
-    print(expected_flows)
     try:
         assert actual_flows == expected_flows
         assert actual_stem_map == expected_stem_map
     except AssertionError as e:
-        # breakpoint()
         raise e
 
 
@@ -217,8 +230,6 @@ def test_pickle(basic_collection, expected_stem_map, expected_flows):
         lambda: is_stem,  # noqa
         return_all=True,
     )
-    print(actual_flows)
-    print(expected_flows)
     assert actual_flows == expected_flows
     assert actual_stem_map == expected_stem_map
 

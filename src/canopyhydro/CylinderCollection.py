@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 import copy
 import logging
 import os
@@ -627,10 +628,11 @@ class CylinderCollection:
         """
         gr = nx.DiGraph()
         trunk_nodes, _ = lam_filter(self.cylinders, lambda: branch_order == 0)  # noqa
+        trunk_node_ids = [x.cyl_id for x in trunk_nodes]
         edges = (
             (
                 (int(cyl.cyl_id), int(cyl.parent_id), {"cylinder": cyl})
-                if (cyl.angle >= in_flow_grade_lim or cyl.cyl_id in trunk_nodes)
+                if (cyl.angle >= in_flow_grade_lim or cyl.cyl_id in trunk_node_ids)
                 else (int(cyl.parent_id), int(cyl.cyl_id), {"cylinder": cyl})
             )
             for cyl in self.cylinders
@@ -714,10 +716,11 @@ class CylinderCollection:
             if g.out_degree(node) > 1
             or (g.out_degree(node) == 1 and g.in_degree(node) == 0)
         ]
+        trunk_nodes = self.get_trunk_nodes()
         drip_nodes = [
             node
             for node, out_degree in g.out_degree()
-            if out_degree == 0 and node != -1
+            if out_degree == 0 and node != -1 and node not in trunk_nodes
         ]
         stem_flow_component = g.subgraph(nx.ancestors(g, root_node) | {0}).copy()
 
@@ -730,6 +733,7 @@ class CylinderCollection:
             if cyl.cyl_id in stem_cylinders:
                 cyl.is_stem = True
 
+        log.debug(f"labled {len(stem_cylinders)} cylinders as is_stem")
         g_drip = copy.deepcopy(g)
         g_drip.remove_edges_from(stem_flow_component.edges())
         # g_drip.remove_nodes_from(stem_flow_component.nodes())
@@ -769,7 +773,6 @@ class CylinderCollection:
         log.info(
             f"{self.file_name} found to have {len(drip_components)} drip components"
         )
-        print("reached_End of find flows")
         self.divide_nodes = divide_nodes
         self.drip_nodes = drip_nodes
         self.cyl_to_drip = cyl_to_drip_node
@@ -973,12 +976,17 @@ class CylinderCollection:
         Returns:
             _description_
         """
+        log.warning("Creating collection objects for analysis")
         if not self.pSV:
+            log.warning("No projection data found. Running project_cylinders")
             self.project_cylinders(plane)
         if not self.hulls[plane]:
+            log.warning("No whole tree watershed boundary found. Running watershed_boundary")
             self.watershed_boundary(plane=plane)
         if not self.stem_hull:
+            log.warning("No stemflow watershed boundary found. Running watershed_boundary")
             if not self.stem_flow_component:
+                log.warning("No flow data found. Running find_flows")
                 self.find_flow_components()
                 self.calculate_flows(plane=plane)
             self.stem_hull, _ = self.watershed_boundary(
@@ -986,7 +994,49 @@ class CylinderCollection:
                 filter_lambda=lambda: is_stem,  # noqa
             )
         dbh = self.get_dbh()
+        log.warning("Collection initialized")
 
+        statistics_keys = ["total_psa"              
+                        ,"psa_w_overlap"          
+                        ,"stem_psa"               
+                        ,"stem_psa_w_overlap"     
+                        ,"tot_surface_area"       
+                        ,"stem_surface_area"      
+                        ,"tot_hull_area"          
+                        ,"tot_hull_boundary"      
+                        ,"stem_hull_area"         
+                        ,"stem_hull_boundary"     
+                        ,"num_drip_points"        
+                        ,"max_bo"                 
+                        ,"topQuarterTotPsa"       
+                        ,"topHalfTotPsa"          
+                        ,"topThreeQuarterTotPsa"  
+                        ,"TotalShade"             
+                        ,"top_quarter_shade"      
+                        ,"top_half_shade"         
+                        ,"top_three_quarter_shade"
+                        ,"DBH"                    
+                        ,"volume"                 
+                        ,"X_max"                  
+                        ,"Y_max"                  
+                        ,"Z_max"                  
+                        ,"X_min"                  
+                        ,"Y_min"                  
+                        ,"Z_min"                  
+                        ,"Order_zero_angle_avg"   
+                        ,"Order_zero_angle_std"   
+                        ,"Order_one_angle_avg"    
+                        ,"Order_one_angle_std"    
+                        ,"Order_two_angle_avg"    
+                        ,"Order_two_angle_std"    
+                        ,"Order_three_angle_avg" 
+                        ,"Order_three_angle_std"  
+                        ,"order_gr_four_angle_avg"
+                        ,"order_gr_four_angle_std"
+                        ,"file_name"]
+        statistics = defaultdict.fromkeys(statistics_keys)
+
+        
         canopy_cover = self.hulls[plane].area
         canopy_boundary = self.hulls[plane].boundary.length
 
@@ -1035,6 +1085,7 @@ class CylinderCollection:
 
         total_surface_area = np.sum([cyl.surface_area for cyl in self.cylinders])
         total_volume = np.sum([cyl.volume for cyl in self.cylinders])
+        stem_volume = np.sum([cyl.volume for cyl in self.cylinders if cyl.is_stem])
         max_bo = np.max([cyl.branch_order for cyl in self.cylinders])
 
         order_zero_cyls, _ = lam_filter(self.cylinders, lambda: branch_order == 0)  # noqa
@@ -1050,6 +1101,8 @@ class CylinderCollection:
             "stem_psa_w_overlap": sum_projected_area_stem,
             "tot_surface_area": total_surface_area,
             "stem_surface_area": stem_flow.surface_area,
+            "tot_volume": total_volume,
+            "stem_volume": stem_volume,
             "tot_hull_area": canopy_cover,
             "tot_hull_boundary": canopy_boundary,
             "stem_hull_area": canopy_cover_stem,
@@ -1064,7 +1117,6 @@ class CylinderCollection:
             "top_half_shade": overlap_dict[50]["overlap_with_previous"],
             "top_three_quarter_shade": overlap_dict[25]["overlap_with_previous"],
             "DBH": dbh,
-            "volume": total_volume,
             "X_max": max_x,
             "Y_max": max_y,
             "Z_max": max_z,
