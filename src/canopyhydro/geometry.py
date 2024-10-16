@@ -1,43 +1,46 @@
 """Spacially centeric code"""
 from __future__ import annotations
 
-import math
-import numpy as np
 import logging
+import math
 
+import numpy as np
 # from memory_profiler import LogFile
 # from numba import njit
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial import Delaunay, distance
 from shapely.geometry import MultiLineString, MultiPoint, Polygon
 from shapely.ops import polygonize, unary_union
-
 from src.canhydro.DataClasses import coord_list
-from src.canhydro.utils import _try_import
+
+from canopyhydro.utils import _try_import
 
 # from src.canhydro.utils import stack
 log = logging.getLogger("model")
 
 
-if has_geopandas := _try_import('geopandas'):
+if has_geopandas := _try_import("geopandas"):
     from geopandas import GeoSeries
 
-if has_mem_profiler := _try_import('memory_profiler'):
-    from memory_profiler import LogFile
+if has_mem_profiler := _try_import("memory_profiler"):
     import sys
+
+    from memory_profiler import LogFile
+
     sys.stdout = LogFile()
 
-if has_matplotlib := _try_import('matplotlib'):
+if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
 
 
 # import matplotlib.pyplot as plt
-# from geopandas import GeoSeries 
+# from geopandas import GeoSeries
+
 
 def circumcenter_lapack(points: coord_list) -> np.ndarray:
     """
-        Calculate the circumcenter of a set of points relative to simplex
-        https://en.wikipedia.org/wiki/Polarization_identity
+    Calculate the circumcenter of a set of points relative to simplex
+    https://en.wikipedia.org/wiki/Polarization_identity
     """
     points = np.asarray(points)
     rows, _ = points.shape
@@ -54,7 +57,7 @@ def circumcenter_lapack(points: coord_list) -> np.ndarray:
 def circumcenter_lu_factor(points: coord_list) -> np.ndarray:
     """
     Calculate the circumcenter of a set of points relative to simplex
-    Theoretically less efficient than LAPACK (O(n^3) + O(n^2) v. O(n^2)) 
+    Theoretically less efficient than LAPACK (O(n^3) + O(n^2) v. O(n^2))
         when a given set of equations (e.g. set of points, A )
         only needs to be solved for a single vector (e.g b)
     """
@@ -102,8 +105,8 @@ def simplices(points: coord_list) -> coord_list:
 
 def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> np.float16:
     """
-        Finds the minimal alpha shape for the given 
-        coord list that still contains the given polygon
+    Finds the minimal alpha shape for the given
+    coord list that still contains the given polygon
     """
     upper = (
         10  # annectotally seems to be plenty high to ensure a discontinuous alpha shape
@@ -124,12 +127,12 @@ def maximal_alpha(boundary_points: coord_list, union_poly: Polygon) -> np.float1
 
 
 # @profile
-# might eventually be updated to deal 
+# might eventually be updated to deal
 # with 3d a la https://github.com/bellockk/alphashape/blob/master/alphashape/optimizealpha.py
 def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
     """alpha shape / concave hull
-        Draws a minimal concave polygon with a concavity factor alpha
-        see: trunk_lean
+    Draws a minimal concave polygon with a concavity factor alpha
+    see: trunk_lean
     """
 
     if len(boundary_points) < 4:
@@ -192,12 +195,13 @@ def concave_hull(boundary_points, alpha: int = 0, voronoi: bool = False):
             do_nothing = True
 
     if voronoi:
-        #voronoi diagram
+        # voronoi diagram
         v_diag = MultiLineString(centers)
 
     m = MultiLineString(edge_points)
     triangles = list(polygonize(m))
     return unary_union(triangles), edge_points, centers
+
 
 # def voronoi(points, centers: np.array[np.ndarray] = None):
 #     """
@@ -242,18 +246,18 @@ def furthest_point(
 
 def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) -> dict:
     """Takes in a list of lists of polygons, w/
-         each list representing a diff percentile 
-         grouping of polygons (e.g. grp1:(0%-25%), grp2:(25%, 50%)...)
-    
-        Think of this function as calculating the shade cast
-            by the upper parts of the tree on the lower parts 
-            of the tree. Proceeds from lowest percentile to highest, 
-            determininng the additional overlap/shade added by 
-            the cylinders (e.g. the branches ) each percentile grouping
+     each list representing a diff percentile
+     grouping of polygons (e.g. grp1:(0%-25%), grp2:(25%, 50%)...)
 
-        shapely's intersection function could be used, and 
-            would be slightly more accurate. However, it is also
-            rather slow for the intersection of this many shapes
+    Think of this function as calculating the shade cast
+        by the upper parts of the tree on the lower parts
+        of the tree. Proceeds from lowest percentile to highest,
+        determininng the additional overlap/shade added by
+        the cylinders (e.g. the branches ) each percentile grouping
+
+    shapely's intersection function could be used, and
+        would be slightly more accurate. However, it is also
+        rather slow for the intersection of this many shapes
     """
     if len(labels) != len(shading_poly_list):
         log.debug(
@@ -287,9 +291,10 @@ def get_projected_overlap(shading_poly_list: list[list[Polygon]], labels: list) 
             shaded_polys.extend(shader_polys)
         return overlap_dict
 
+
 def rotation_matrix(a, axis: str = "x"):
     """
-    Returns a translation matrix for rotation 'a' degrees 
+    Returns a translation matrix for rotation 'a' degrees
         around the given axis
     """
     rm = np.zeros((3, 3))
@@ -308,10 +313,12 @@ def rotation_matrix(a, axis: str = "x"):
 
     return rm
 
-def get_projection_scikit(vector: list, magnitude: list, radius:np.float16):
+
+def get_projection_scikit(vector: list, magnitude: list, radius: np.float16):
     Cylinder(point=[0, 0, 0], vector=[0, 0, 5], radius=1)
 
-def get_projection(vector: list, magnitude: list, radius:np.float16):
+
+def get_projection(vector: list, magnitude: list, radius: np.float16):
     """
     Takes in the vector (starting point), magnitude and radius that fully define a cylinder.
     Finds the projection of the cylinder on a plane
@@ -488,20 +495,27 @@ def get_projection(vector: list, magnitude: list, radius:np.float16):
         )
 
 
-def draw_cyls(collection: list[Polygon] | Polygon, colors: list[bool] = None, 
-              save:bool = False, file_ext:str= '', show:bool = False):
+def draw_cyls(
+    collection: list[Polygon] | Polygon,
+    colors: list[bool] = None,
+    save: bool = False,
+    file_ext: str = "",
+    show: bool = False,
+):
     log.info("Plotting cylinder collection")
 
     fig, ax = plt.subplots()
     geoPolys = GeoSeries(collection)
-    
+
     colors = colors if colors else ["Blue" if col else "Grey" for col in [True]]
     geoPolys.plot(ax=ax, color=colors)
     if show:
         plt.show()
-    if save:    
-        save_dir = "/".join([str(output_dir), 'draw', f"{file_ext.replace('.','')}"])#.replace("/", "\\")
-        plt.savefig(save_dir, dpi = 3000)
+    if save:
+        save_dir = "/".join(
+            [str(output_dir), "draw", f"{file_ext.replace('.','')}"]
+        )  # .replace("/", "\\")
+        plt.savefig(save_dir, dpi=3000)
     return fig
 
 

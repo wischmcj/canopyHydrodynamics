@@ -1,42 +1,42 @@
 from __future__ import annotations
 
-import logging
-import toml
 import copy
+import logging
 import math
-import sys
-import pickle
 import os
+import pickle
+import sys
 from itertools import chain
 
 import networkx as nx
-import rustworkx as rx
-
 import numpy as np
+import rustworkx as rx
+import toml
 from shapely.geometry import Point
 from shapely.ops import unary_union
-
 from src.canhydro.Cylinder import create_cyl
 from src.canhydro.DataClasses import Flow
-from src.canhydro.geometry import (concave_hull, draw_cyls, 
-                                    furthest_point,
-                                    get_projected_overlap)
-from src.canhydro.utils import intermitent_log, lam_filter, save_file, create_dir_and_file, _try_import
+from src.canhydro.geometry import (concave_hull, draw_cyls, furthest_point,
+                                   get_projected_overlap)
 
+from canopyhydro.utils import (_try_import, create_dir_and_file,
+                               intermitent_log, lam_filter, save_file)
 
-#Optional imports    
-if has_geopandas := _try_import('geopandas'):
+# Optional imports
+if has_geopandas := _try_import("geopandas"):
     from geopandas import GeoSeries
 
-if has_mem_profiler := _try_import('memory_profiler'):
-    from memory_profiler import LogFile
+if has_mem_profiler := _try_import("memory_profiler"):
     import sys
+
+    from memory_profiler import LogFile
+
     sys.stdout = LogFile()
 
-if has_matplotlib := _try_import('matplotlib'):
+if has_matplotlib := _try_import("matplotlib"):
     import matplotlib.pyplot as plt
 
-if has_spatial := _try_import('scipy.spatial'):
+if has_spatial := _try_import("scipy.spatial"):
     from scipy.spatial import distance
 
 
@@ -45,32 +45,44 @@ log = logging.getLogger("model")
 qsm_cols = {}
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    in_flow_grade_lim=config['config_vars']["in_flow_grade_lim"]
-    output_dir = config['directories']["output_dir"]
+    in_flow_grade_lim = config["config_vars"]["in_flow_grade_lim"]
+    output_dir = config["directories"]["output_dir"]
     for column in config["qsm"]:
         qsm_cols[column] = config["qsm"][column]
 
 NAME = "CylinderCollection"
-def pickle_collection(collection, designation: str = ""):   
+
+
+def pickle_collection(collection, designation: str = ""):
     # file_path = "".join([output_dir, "pickle\\", f'{collection.file_name}_pickle'])
-    if designation == "": designation = '.pickle'
-    file_path ="".join([output_dir, 'pickle/', f'{collection.file_name.replace(".csv","")}',f'{designation}'])
+    if designation == "":
+        designation = ".pickle"
+    file_path = "".join(
+        [
+            output_dir,
+            "pickle/",
+            f'{collection.file_name.replace(".csv","")}',
+            f"{designation}",
+        ]
+    )
     directory = os.path.dirname(file_path)
     create_dir_and_file(directory)
-    pickle_file = open(file_path, 'ab')
-    pickle.dump(collection, pickle_file) 
+    pickle_file = open(file_path, "ab")
+    pickle.dump(collection, pickle_file)
     pickle_file.close()
     return file_path
 
-def unpickle_collection(file_name:str):
-    if 'pickle/' in file_name:
+
+def unpickle_collection(file_name: str):
+    if "pickle/" in file_name:
         file_path = file_name
     else:
-        file_path = "".join([output_dir, 'pickle/', file_name])
-    dbfile = open(file_path, 'rb')    
+        file_path = "".join([output_dir, "pickle/", file_name])
+    dbfile = open(file_path, "rb")
     db = pickle.load(dbfile)
     dbfile.close()
     return db
+
 
 class CylinderCollection:
     cylinders = []
@@ -82,7 +94,7 @@ class CylinderCollection:
         self.cylinders = []
         # Aggregate values from file
         self.surface_area = np.nan
-        self.dbh= np.nan
+        self.dbh = np.nan
         self.file_name = ""
         self.volume = np.nan
         self.avg_sa_to_vol = np.nan
@@ -99,8 +111,8 @@ class CylinderCollection:
         self.stem_hull = None
 
         # Special case tree attributes
-        self.stem_paths = [[]]  
-        self.trunk = [] 
+        self.stem_paths = [[]]
+        self.trunk = []
 
         # Graph and Attributes
         self.graph = None
@@ -111,8 +123,8 @@ class CylinderCollection:
         self.cyl_to_drip = None
         self.drip_points = {"x": np.nan, "y": np.nan, "z": np.nan, "flow_id": np.nan}
         self.flow_to_drip = {
-            0: 1 #allows us to bootstrap stemflow 
-                    # (cyl 1 drains to 0, so its child cyl 2 drains to 0, etc)
+            0: 1  # allows us to bootstrap stemflow
+            # (cyl 1 drains to 0, so its child cyl 2 drains to 0, etc)
         }  # A dictionary of flow ids with values equal to their drip node ids
         self.trunk_nodes = []
         self.drip_point_loc = None
@@ -131,10 +143,10 @@ class CylinderCollection:
         log.info(f"Processing {str(file)}")
         arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
         self.arr = arr
-        cylinders=[]
-        max_id =0
-        for idx,row in enumerate(arr):
-            cyl = create_cyl(row) 
+        cylinders = []
+        max_id = 0
+        for idx, row in enumerate(arr):
+            cyl = create_cyl(row)
             if cyl.cyl_id > max_id:
                 max_id = cyl.cyl_id
             cylinders.append(cyl)
@@ -169,14 +181,13 @@ class CylinderCollection:
         log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
 
     def cyl_idx(self, cyl_id):
-        if cyl_id==-1:
+        if cyl_id == -1:
             return self.no_cylinders
         return self.cyl_map[cyl_id]
 
-    def update_cyl_by_id(self,cyl_id,attr,value):
-        idx =self.cyl_idx(cyl_id)
-        setattr(self.cylinders[idx],attr,value)
-
+    def update_cyl_by_id(self, cyl_id, attr, value):
+        idx = self.cyl_idx(cyl_id)
+        setattr(self.cylinders[idx], attr, value)
 
     def project_cylinders(self, plane: str = "XY", force_rerun: bool = False):
         """Projects cylinders onto the specified plane"""
@@ -222,8 +233,8 @@ class CylinderCollection:
         filter_lambda: function = lambda: True,
         include_drips: bool = False,
         include_contour: bool = False,
-        include_alpha_shape:bool = False ,
-        stem = False,
+        include_alpha_shape: bool = False,
+        stem=False,
         **args,
     ):
         """Draws cylinders meeting given characteristics onto the specified plane"""
@@ -232,9 +243,7 @@ class CylinderCollection:
         if not self.projections[plane]:
             self.project_cylinders(plane)
         cylinders, _ = lam_filter(self.cylinders, filter_lambda)
-        filtered_cyls, matches = lam_filter(
-            cylinders, highlight, return_all=True
-        )
+        filtered_cyls, matches = lam_filter(cylinders, highlight, return_all=True)
         to_draw = [cyl.projected_data[plane]["polygon"] for cyl in filtered_cyls]
         log.info(f"{len(to_draw)} cylinders matched criteria")
         if include_drips:
@@ -245,7 +254,7 @@ class CylinderCollection:
         #     self.drip_map()
         # if stem:
         #     self.drip_map()
-        fig =draw_cyls(collection=to_draw, colors=matches, **args)
+        fig = draw_cyls(collection=to_draw, colors=matches, **args)
         return fig
 
     def get_dbh(self):
@@ -309,7 +318,7 @@ class CylinderCollection:
         stem: bool = False,
         draw: bool = False,
         save: bool = False,
-        file_ext: str = ''
+        file_ext: str = "",
     ) -> None:
         """Generates tightly fit concave_hull (alpha shape) around the passed component"""
         """Alpha determines the tightness of the fit of the shape. Too low an alpha results in multiple"""
@@ -329,15 +338,13 @@ class CylinderCollection:
 
         hull, _, _ = concave_hull(boundary_points, curvature_alpha)
         if draw:
-            draw_cyls([hull], save = save, file_ext = file_ext)
+            draw_cyls([hull], save=save, file_ext=file_ext)
         if stem:
             self.stem_hull = hull
         else:
             self.hull = hull
 
-    def initialize_digraph_from(
-        self, in_flow_grade_lim=in_flow_grade_lim
-    ):
+    def initialize_digraph_from(self, in_flow_grade_lim=in_flow_grade_lim):
         """This function creates a directed graph and its undirected counterpart.
         Initializes edge attributes as cylinder objects"""
         gr = nx.DiGraph()
@@ -417,7 +424,7 @@ class CylinderCollection:
         g_drip = copy.deepcopy(g)
         g_drip.remove_edges_from(stem_flow_component.edges())
         # g_drip.remove_nodes_from(stem_flow_component.nodes())
-        
+
         drip_components = []
         cyl_to_drip_node = {cyl.cyl_id: [] for cyl in self.cylinders}
         for drip_node in drip_nodes:
@@ -430,7 +437,7 @@ class CylinderCollection:
                 if u in component_nodes and v in component_nodes
             ]
             for idx in component_cyls:
-                    cyl_to_drip_node[idx].append(drip_node)
+                cyl_to_drip_node[idx].append(drip_node)
 
             drip_components.append((drip_node, component_nodes))
 
@@ -441,7 +448,7 @@ class CylinderCollection:
         log.info(
             f"{self.file_name} found to have {len(drip_components)} drip components"
         )
-        print('reached_End of find flows')
+        print("reached_End of find flows")
 
         self.stem_flow_component = stem_flow_component
         self.drip_flow_components = drip_components
@@ -450,7 +457,7 @@ class CylinderCollection:
         self.drip_nodes = drip_nodes
         self.cyl_to_drip = cyl_to_drip_node
 
-    def classify_node(node_degree_tup:list[tuple]):
+    def classify_node(node_degree_tup: list[tuple]):
         """Classifies a node based on its out degree"""
         node, degree = node_degree_tup
         if degree > 1:
@@ -474,7 +481,7 @@ class CylinderCollection:
             if g.out_degree(node) > 1
             or (g.out_degree(node) == 1 and g.in_degree(node) == 0)
         ]
-        
+
         drip_nodes = [
             node
             for node, out_degree in g.out_degree()
@@ -521,7 +528,7 @@ class CylinderCollection:
             for idx in component_cyls:
                 cyl_to_drip_node[idx].append(drip_node)
 
-            drip_components.append((drip_node,component_nodes))
+            drip_components.append((drip_node, component_nodes))
 
         for cyl in self.cylinders:
             if cyl_to_drip_node[cyl.cyl_id]:
@@ -530,7 +537,7 @@ class CylinderCollection:
         log.info(
             f"{self.file_name} found to have {len(drip_components)} drip components"
         )
-        print('reached_End of find flows')
+        print("reached_End of find flows")
 
         self.stem_flow_component = stem_flow_component
         self.drip_flow_components = drip_components
@@ -538,7 +545,7 @@ class CylinderCollection:
         self.divide_nodes = divide_nodes
         self.drip_nodes = drip_nodes
         self.cyl_to_drip = cyl_to_drip_node
-        
+
     def get_divide_nodes(self):
         if self.divide_nodes:
             return self.divide_nodes
@@ -551,7 +558,6 @@ class CylinderCollection:
         ]
         self.divide_nodes = divide_nodes
         return divide_nodes
-
 
     def find_flow_components_new(self):
         g = self.digraph
@@ -566,23 +572,31 @@ class CylinderCollection:
             for node, out_degree in g.out_degree()
             if out_degree == 0 and node != -1
         ]
-        stem_flow_nodes =nx.ancestors(g, root_node) | {0}
+        stem_flow_nodes = nx.ancestors(g, root_node) | {0}
 
-        stem_cylinders = [
-            node
-            for node in stem_flow_nodes
+        stem_cylinders = [node for node in stem_flow_nodes]
+        stem_edges = [
+            e
+            for e in g.edges
+            if e[0] not in stem_flow_nodes or e[1] not in stem_flow_nodes
         ]
-        stem_edges = [e for e in g.edges if e[0] not in stem_flow_nodes or e[1] not in stem_flow_nodes]
-        g_drip =g.edge_subgraph(stem_edges)
+        g_drip = g.edge_subgraph(stem_edges)
         # g_drip = g.subgraph([n for n in g.nodes if n not in stem_flow_nodes])
 
-        nodes_to_cyls = lambda nodes: [cyl.cyl_id 
-                                       for u,v,cyl in g_drip.edges(nodes, data='cylinder')
-                                        if u in nodes and v in nodes]
+        nodes_to_cyls = lambda nodes: [
+            cyl.cyl_id
+            for u, v, cyl in g_drip.edges(nodes, data="cylinder")
+            if u in nodes and v in nodes
+        ]
 
-        drip_edges = [(drip_node,nx.ancestors(g_drip, drip_node)| {drip_node})  for drip_node in drip_nodes]
-        drip_components = list([(drip_node,nodes_to_cyls(nodes)) for drip_node,nodes in drip_edges])
-        
+        drip_edges = [
+            (drip_node, nx.ancestors(g_drip, drip_node) | {drip_node})
+            for drip_node in drip_nodes
+        ]
+        drip_components = list(
+            (drip_node, nodes_to_cyls(nodes)) for drip_node, nodes in drip_edges
+        )
+
         # cyl_to_drip_by_drip = [zip_broadcast(nodes,dn) for dn, nodes in drip_components]
         cyl_to_drip_node = {cyl.cyl_id: [] for cyl in self.cylinders}
         for drip_node, cyl_ids in drip_components:
@@ -598,7 +612,7 @@ class CylinderCollection:
         log.info(
             f"{self.file_name} found to have {len(drip_components)} drip components"
         )
-        print('reached_End of find flows')
+        print("reached_End of find flows")
 
         self.stem_flow_nodes = stem_flow_nodes
         self.drip_flow_components = drip_components
@@ -606,36 +620,40 @@ class CylinderCollection:
         self.drip_nodes = drip_nodes
         self.cyl_to_drip = cyl_to_drip_node
 
-    def initialize_digraph_from_rust(
-            self, in_flow_grade_lim =in_flow_grade_lim
-            ):
+    def initialize_digraph_from_rust(self, in_flow_grade_lim=in_flow_grade_lim):
         """This function creates a directed graph and its undirected counterpart.
-            Initializes edge attributes as cylinder objects"""
-        
-        log.info(
-                    "Begining initializing graphs"
-            )
+        Initializes edge attributes as cylinder objects"""
+
+        log.info("Begining initializing graphs")
         gr = rx.PyDAG()
-        cyls = [cyl for cyl in self.cylinders if cyl.parent_id !=-1]
-        gr.add_nodes_from(range(len(cyls)+1))
-        
+        cyls = [cyl for cyl in self.cylinders if cyl.parent_id != -1]
+        gr.add_nodes_from(range(len(cyls) + 1))
+
         idx = lambda cyl_id: self.cyl_idx(cyl_id)
-        is_drip_edge = lambda cyl: (cyl.angle < in_flow_grade_lim 
-                                        and cyl.branch_order != 0)
+        is_drip_edge = lambda cyl: (
+            cyl.angle < in_flow_grade_lim and cyl.branch_order != 0
+        )
         # cyls[0].angle=1.5
 
-        cyls_as_undirected_edges= [(idx(cyl.cyl_id),idx(cyl.parent_id)) for cyl in cyls]
-        flow_direction = [ is_drip_edge(cyl) for cyl in cyls]
-        all_edge_data = zip(cyls_as_undirected_edges,flow_direction)
-        edges =[(v,u,self.cylinders[u]) if out_flow else (u,v,self.cylinders[u]) for ((u,v),out_flow) in all_edge_data]
+        cyls_as_undirected_edges = [
+            (idx(cyl.cyl_id), idx(cyl.parent_id)) for cyl in cyls
+        ]
+        flow_direction = [is_drip_edge(cyl) for cyl in cyls]
+        all_edge_data = zip(cyls_as_undirected_edges, flow_direction)
+        edges = [
+            (v, u, self.cylinders[u]) if out_flow else (u, v, self.cylinders[u])
+            for ((u, v), out_flow) in all_edge_data
+        ]
 
         gr.extend_from_weighted_edge_list(edges)
         self.digraph = gr
 
     def edge_to_cyl(self, edge_id):
-        edge_data = [tup for tup in self.digraph.edge_index_map().values() if tup[1] == edge_id]
+        edge_data = [
+            tup for tup in self.digraph.edge_index_map().values() if tup[1] == edge_id
+        ]
         return edge_data[2].cyl_id
-    
+
     def find_flow_components_rust(self):
         g = self.digraph
         cyl_map = self.cyl_map
@@ -643,15 +661,19 @@ class CylinderCollection:
             msg = "Find Flow Digraph invoked for undirected graph"
             log.error(msg)
             raise TypeError(msg)
-        
+
         root_node = 0
 
-        
-        is_divide_node = lambda x : (self.digraph.out_degree(x)>1 or (self.digraph.out_degree(x)==1     and self.digraph.in_degree(x)==0))
-        
+        is_divide_node = lambda x: (
+            self.digraph.out_degree(x) > 1
+            or (self.digraph.out_degree(x) == 1 and self.digraph.in_degree(x) == 0)
+        )
+
         divide_nodes = g.filter_nodes(is_divide_node)
-        edge_to_cyl_id = {(u,v):cyl.cyl_id for (_,(u,v,cyl)) in g.edge_index_map().items()}
-        
+        edge_to_cyl_id = {
+            (u, v): cyl.cyl_id for (_, (u, v, cyl)) in g.edge_index_map().items()
+        }
+
         # @dataclass
         # class flow():
         #     def __init__(self, source_node):
@@ -664,7 +686,7 @@ class CylinderCollection:
 
         #     def __getitem__(self,item):
         #         return getattr(self,item)
-            
+
         class rain_drop(rx.visit.DFSVisitor):
             def __init__(self):
                 self.edges = []
@@ -672,13 +694,13 @@ class CylinderCollection:
                 self.source = -1
 
             # def __getitem__(self,item):
-                # return chain.from_iterable([res[item] for res in self.results])
+            # return chain.from_iterable([res[item] for res in self.results])
 
             def discover_vertex(self, v, _):
                 if self.source == -1:
-                    self.source =v
+                    self.source = v
 
-            def forward_or_cross_edge(self,edge):
+            def forward_or_cross_edge(self, edge):
                 if edge[1] in divide_nodes:
                     self.edges.append(edge[2])
                     # self.cyl_to_drip_node[edge[2].cyl_id] = source
@@ -688,30 +710,34 @@ class CylinderCollection:
                 self.edges.append(edge[2])
                 edge[2].drip_node = self.source
 
-            def finish_vertex(self,v,t):
+            def finish_vertex(self, v, t):
                 if v == self.source:
                     self.results[v] = self.edges
                     self.source = -1
                     self.edges = []
 
-
         def is_drip_node(node):
-            return g.out_degree(node) == 0 or node == root_node#and node != root_node
-
+            return g.out_degree(node) == 0 or node == root_node  # and node != root_node
 
         drip_nodes = g.filter_nodes(is_drip_node)
         g.reverse()
         # visitors = {}
         visitor = rain_drop()
-        rx.dfs_search(g,drip_nodes,visitor)
+        rx.dfs_search(g, drip_nodes, visitor)
         visitor.results[0].append(self.cylinders[0])
-        for edge in visitor.results[0]: 
+        for edge in visitor.results[0]:
             edge.is_stem = True
-    
-        flows_raw = [([ x.get_flow_arr() for x in res],self.cylinders[dn]) for dn,res in visitor.results.items()]
+
+        flows_raw = [
+            ([x.get_flow_arr() for x in res], self.cylinders[dn])
+            for dn, res in visitor.results.items()
+        ]
         # breakpoint()
-        self.flows = [Flow(*np.sum(flow,axis=0),cyl.cyl_id,cyl.get_loc()) for flow,cyl in flows_raw]
-       
+        self.flows = [
+            Flow(*np.sum(flow, axis=0), cyl.cyl_id, cyl.get_loc())
+            for flow, cyl in flows_raw
+        ]
+
         # for res in visitor.results:
         #     source = res.source_node
         #     cyls = [edge[2].cyl_id for edge in res['edges']]
@@ -728,17 +754,22 @@ class CylinderCollection:
         # stem_flow_nodes = [edge[0] for edge in res['edges'] if edge[2].cyl_id  ]
         # cyl_to_drip_node[root_node].append(0)
 
-        # for node in stem_flow_cylinders: 
+        # for node in stem_flow_cylinders:
         #     self.cylinders[node].is_stem = True
 
-        drip_components = {source:[edge.cyl_id for edge in edges] for source,edges in visitor.results.items()}
+        drip_components = {
+            source: [edge.cyl_id for edge in edges]
+            for source, edges in visitor.results.items()
+        }
         drip_components[0].append(0)
         log.info(
             f"{self.file_name} found to have {len(drip_components)} drip components"
         )
         g.reverse()
-        print('reached_End of find flows')
-        self.stem_flow_nodes = [ self.cyl_idx(cyl.cyl_id) for cyl in self.cylinders if cyl.is_stem]
+        print("reached_End of find flows")
+        self.stem_flow_nodes = [
+            self.cyl_idx(cyl.cyl_id) for cyl in self.cylinders if cyl.is_stem
+        ]
         self.drip_flow_components = drip_components
         # self.drip_graph = g_drip
         self.drip_nodes = drip_nodes
@@ -748,52 +779,69 @@ class CylinderCollection:
         """uses subgraphs from FindFlowComponents to aggregate flow characteristics"""
         cyls = self.cylinders
         log.info("attempting to sum stem edges ")
-        
-        # np_drip_array = np.array([[1 if cyl_id in drip_cylinder_ids else 0 for cyl_id in self.cyl_map.keys()] 
-        #                           for (_,drip_cylinder_ids) in self.drip_flow_components.items()])
-        all_flow_data = np.array([ [[    1,    
-                                        np.float16(cyl.projected_data[plane]["area"]),    
-                                        cyl.surface_area,
-                                        cyl.angle,
-                                        cyl.volume,
-                                        cyl.sa_to_vol ]  
-                                        for cyl in self.cylinders if cyl.cyl_id in flow_cyls ] 
-                                        for flow_cyls in self.drip_flow_components.values()])
 
-        flow_arrs= [np.sum(flow_data, axis =0) for flow_data in all_flow_data]
-        drip_cyls = [(node,self.cylinders[node]) for node in self.drip_nodes] 
-        drip_node_locs = [(node,(    cyl.x[0],    cyl.y[0],    cyl.z[0])) for node, cyl in drip_cyls] 
-        flows= [np.array(*data,node, loc) for (node,loc),data in zip(drip_node_locs,flow_arrs,)]
+        # np_drip_array = np.array([[1 if cyl_id in drip_cylinder_ids else 0 for cyl_id in self.cyl_map.keys()]
+        #                           for (_,drip_cylinder_ids) in self.drip_flow_components.items()])
+        all_flow_data = np.array(
+            [
+                [
+                    [
+                        1,
+                        np.float16(cyl.projected_data[plane]["area"]),
+                        cyl.surface_area,
+                        cyl.angle,
+                        cyl.volume,
+                        cyl.sa_to_vol,
+                    ]
+                    for cyl in self.cylinders
+                    if cyl.cyl_id in flow_cyls
+                ]
+                for flow_cyls in self.drip_flow_components.values()
+            ]
+        )
+
+        flow_arrs = [np.sum(flow_data, axis=0) for flow_data in all_flow_data]
+        drip_cyls = [(node, self.cylinders[node]) for node in self.drip_nodes]
+        drip_node_locs = [
+            (node, (cyl.x[0], cyl.y[0], cyl.z[0])) for node, cyl in drip_cyls
+        ]
+        flows = [
+            np.array(*data, node, loc)
+            for (node, loc), data in zip(
+                drip_node_locs,
+                flow_arrs,
+            )
+        ]
         self.flows = flows
 
     # def calculate_flows_rust(self, plane: str = "XY"):
-    #     all_flow_data = np.array([ [[    1,    
-    #                                     np.float16(cyl.projected_data[plane]["area"]),    
+    #     all_flow_data = np.array([ [[    1,
+    #                                     np.float16(cyl.projected_data[plane]["area"]),
     #                                     cyl.surface_area,
     #                                     cyl.angle,
     #                                     cyl.volume,
-        #                                 cyl.sa_to_vol ]  
-        #                                 for cyl in self.cylinders 
-        # flows = defaultdict(list)
-        # for drip_node, cyl_ids in self.drip_flow_components.items():
-        #     flows[drip_node] = [cyl for cyl in self.cylinders if cyl.cyl_id in cyl_ids]
+    #                                 cyl.sa_to_vol ]
+    #                                 for cyl in self.cylinders
+    # flows = defaultdict(list)
+    # for drip_node, cyl_ids in self.drip_flow_components.items():
+    #     flows[drip_node] = [cyl for cyl in self.cylinders if cyl.cyl_id in cyl_ids]
 
-        # radius = self.arr[:, qsm_cols["radius"]]
-        # length = self.arr[:, qsm_cols["length"]]
-        # projected_area = [np.float16(cyl.projected_data[plane]["area"]) for cyl in self.cylinders]
-        # angle = [cyl.angle for cyl in self.cylinders]
-        # volume = [cyl.volume for cyl in self.cylinders]
-        # sa_to_vol = [cyl.sa_to_vol for cyl in self.cylinders]
-        # self.metric_dict = {
-        #                 'surface_area': 2 * np.pi * radius * (radius + length) - 2 * np.pi * radius * radius
-        #                 ,'volume':  arr[:, qsm_cols['volume']]
-        #                 ,
-       
-        # }
-        # self.surface_area = 2*np.pi*
-        # self.surface_area = arr[:, qsm_cols["surface_area"]]
-        # self.volume = arr[:, qsm_cols["surface_area"]]
-        # self.surface_area = arr[:, qsm_cols["surface_area"]]
+    # radius = self.arr[:, qsm_cols["radius"]]
+    # length = self.arr[:, qsm_cols["length"]]
+    # projected_area = [np.float16(cyl.projected_data[plane]["area"]) for cyl in self.cylinders]
+    # angle = [cyl.angle for cyl in self.cylinders]
+    # volume = [cyl.volume for cyl in self.cylinders]
+    # sa_to_vol = [cyl.sa_to_vol for cyl in self.cylinders]
+    # self.metric_dict = {
+    #                 'surface_area': 2 * np.pi * radius * (radius + length) - 2 * np.pi * radius * radius
+    #                 ,'volume':  arr[:, qsm_cols['volume']]
+    #                 ,
+
+    # }
+    # self.surface_area = 2*np.pi*
+    # self.surface_area = arr[:, qsm_cols["surface_area"]]
+    # self.volume = arr[:, qsm_cols["surface_area"]]
+    # self.surface_area = arr[:, qsm_cols["surface_area"]]
 
     # @profile
     def calculate_flows(self, plane: str = "XY"):
@@ -806,28 +854,42 @@ class CylinderCollection:
 
         # this probably doesn't belong here but its efficient to do it now
         # is 'needed' for statistics section
-        np_flow_chars = [None]*(len(self.drip_nodes) +1)    
+        np_flow_chars = [None] * (len(self.drip_nodes) + 1)
 
-        def numpy_flow_chars(lambda_filter:function, drip_cyl, index:int):
-            arr= np.array([ 
-                    np.array([
-                                1,
-                                np.float16(cyl.projected_data[plane]["area"],),
-                                cyl.surface_area,cyl.angle,cyl.volume,cyl.sa_to_vol 
-                            ])      
-                    for cyl in cyls if lambda_filter(cyl) ]
+        def numpy_flow_chars(lambda_filter: function, drip_cyl, index: int):
+            arr = np.array(
+                [
+                    np.array(
+                        [
+                            1,
+                            np.float16(
+                                cyl.projected_data[plane]["area"],
+                            ),
+                            cyl.surface_area,
+                            cyl.angle,
+                            cyl.volume,
+                            cyl.sa_to_vol,
+                        ]
                     )
-            flow = np.sum(arr, axis = 0)
-            np_flow_chars[index] = Flow(flow[0],
-                                    flow[1], 
-                                    flow[2], 
-                                    flow[3], 
-                                    flow[4], 
-                                    flow[5], 
-                                    drip_cyl.cyl_id, 
-                                    (drip_cyl.x[0], drip_cyl.y[0], drip_cyl.z[0]))
+                    for cyl in cyls
+                    if lambda_filter(cyl)
+                ]
+            )
+            flow = np.sum(arr, axis=0)
+            np_flow_chars[index] = Flow(
+                flow[0],
+                flow[1],
+                flow[2],
+                flow[3],
+                flow[4],
+                flow[5],
+                drip_cyl.cyl_id,
+                (drip_cyl.x[0], drip_cyl.y[0], drip_cyl.z[0]),
+            )
 
-        numpy_flow_chars(lambda_filter=lambda x: x.is_stem, drip_cyl=self.cylinders[0], index =0 )
+        numpy_flow_chars(
+            lambda_filter=lambda x: x.is_stem, drip_cyl=self.cylinders[0], index=0
+        )
         # log.info(f'np flow chars {np_flow_chars}')
         # log.info(f' flow chars {flow_chars}')
         flow_chars.append(np_flow_chars[0])
@@ -897,11 +959,7 @@ class CylinderCollection:
         furthest_afeild, _ = furthest_point(root, trunk_points)
         dx, dy, dz = ((a - b) for a, b in zip(furthest_afeild, root))
         run = np.sqrt(dx**2 + dy**2)
-        angle = (
-            np.arctan(dz / np.sqrt(dx**2 + dy**2))
-            if run > 0
-            else np.arctan(0)
-        )
+        angle = np.arctan(dz / np.sqrt(dx**2 + dy**2)) if run > 0 else np.arctan(0)
         self.trunk_lean = angle
         return angle
 
@@ -944,9 +1002,11 @@ class CylinderCollection:
                 self.find_flow_components()
                 self.calculate_flows(plane=plane)
             self.watershed_boundary(
-                component=self.stem_flow_nodes, plane=plane, stem=True
+                component=self.stem_flow_nodes,
+                plane=plane,
+                stem=True,
                 # ,save = True, draw=True
-                ,file_ext = file_ext + '_stem_hull' 
+                file_ext=file_ext + "_stem_hull",
             )
         dbh = self.get_dbh()
 
@@ -963,7 +1023,7 @@ class CylinderCollection:
         # The area of the union thus differs from the sum of the areas of its components
         # in that the former counts overlaps only once
         # polys = [poly_dict['polygon'] for poly_dict in self.pSV]
-        polys=self.pSV
+        polys = self.pSV
         tot_poly = unary_union(polys)
         projected_union_area = tot_poly.area
         sum_projected_area = np.sum([poly.area for poly in self.pSV])
@@ -1017,9 +1077,7 @@ class CylinderCollection:
             "tot_hull_boundary": canopy_boundary,
             "stem_hull_area": canopy_cover_stem,
             "stem_hull_boundary": canopy_boundary_stem,
-
             "num_drip_points": len(self.drip_nodes),
-
             "max_bo": max_bo,
             "topQuarterTotPsa": overlap_dict[75]["sum_area"],
             "topHalfTotPsa": overlap_dict[50]["sum_area"],
@@ -1057,10 +1115,10 @@ class CylinderCollection:
             out_file=statistics,
             subdir="statistics",
             method="statistics",
-            overwrite=True
+            overwrite=True,
         )
         return stat_file
-    
+
     def generate_flow_file(self, file_ext):
         flow_dicts = [flow.__dict__ for flow in self.flows]
         flow_file = save_file(
@@ -1068,14 +1126,14 @@ class CylinderCollection:
             out_file=flow_dicts,
             subdir="flows",
             method="flows",
-            overwrite=True
+            overwrite=True,
         )
         return flow_file
 
     def get_drip_points(
         self,
         # metric :str = 'projected_area',
-        percentile: int = 30
+        percentile: int = 30,
     ):
         """
         Returns the locations of the drip points.
@@ -1114,9 +1172,12 @@ class CylinderCollection:
         return drip_point_locs
 
     def drip_map(
-        self, a_lambda: function = lambda: True, scale: int = 1,
-        interpolate:bool = False,
-        file_ext:str = '', **args
+        self,
+        a_lambda: function = lambda: True,
+        scale: int = 1,
+        interpolate: bool = False,
+        file_ext: str = "",
+        **args,
     ) -> None:
         """
         Returns a plot showing the locations of the drip points, subject
@@ -1134,7 +1195,9 @@ class CylinderCollection:
         #     np.arange(min_xy, max_xy, 0.05), np.arange(min_xy, max_xy, 0.05)
         # )
         if interpolate:
-            drip_point_locs_xy = [[pt[0] * scale, pt[1] * scale] for pt in drip_point_locs]
+            drip_point_locs_xy = [
+                [pt[0] * scale, pt[1] * scale] for pt in drip_point_locs
+            ]
 
             math.floor(np.min(drip_point_locs_x))
 
@@ -1148,7 +1211,10 @@ class CylinderCollection:
                 ]
             )
             max_xy = np.max(
-                [math.ceil(np.max(drip_point_locs_x)), math.ceil(np.max(drip_point_locs_y))]
+                [
+                    math.ceil(np.max(drip_point_locs_x)),
+                    math.ceil(np.max(drip_point_locs_y)),
+                ]
             )
             x_mesh, y_mesh = np.meshgrid(
                 np.arange(min_xy, max_xy, 0.005), np.arange(min_xy, max_xy, 0.005)
@@ -1168,7 +1234,7 @@ class CylinderCollection:
         for a in range(x_mesh.shape[0]):
             for b in range(x_mesh.shape[0]):
                 distance_matrix[a][b] = dist_to_drip(x_mesh[b][a], y_mesh[b][a])
-        
+
         if has_matplotlib:
             _, ax = plt.subplots()
 
@@ -1187,7 +1253,7 @@ class CylinderCollection:
 
             filtered_cyls, _ = lam_filter(self.cylinders, a_lambda, return_all=False)
             polys = [cyl.projected_data["XY"]["polygon"] for cyl in filtered_cyls]
-            
+
             if len(polys) > 0:
                 geoPolys = GeoSeries(polys)
                 geoPolys.plot(ax=ax)
@@ -1203,10 +1269,10 @@ class CylinderCollection:
 
     # Graph metric methods
 
-    def degree_dist(self):  
+    def degree_dist(self):
         """
-            Plots the degree distribution of the graph
-        """      
-        degs = [g.degree(v) for v in g.node_indexes()] 
+        Plots the degree distribution of the graph
+        """
+        degs = [g.degree(v) for v in g.node_indexes()]
 
-        plt.hist(degs, bins=range(max(degs)+1))
+        plt.hist(degs, bins=range(max(degs) + 1))

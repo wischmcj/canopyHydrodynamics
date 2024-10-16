@@ -1,63 +1,60 @@
 """This is a sample python file for testing functions from the source code."""
 
 from __future__ import annotations
-import logging
+
 import os
 import sys
-import toml
+
 import pytest
-import numpy as np
-import matplotlib.pyplot as plt
-from rustworkx.visualization import mpl_draw
+import toml
 
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 
-from test.expected_results import (drip_adj_flows, drip_adj_stem_map,
-                                   drip_mid_flows, drip_mid_stem_map,
-                                   drip_on_trunk_flows, drip_on_trunk_stem_map,
-                                   ez_projection_cyls, ez_projection_xy,
-                                   ez_projection_xz, ez_projection_yz,
-                                   happy_path_cyls, happy_path_dbh,
-                                   happy_path_edges, happy_path_flows,
-                                   happy_path_is_stem, small_tree_dbh,
-                                   small_tree_edges, small_tree_flows,
-                                   small_tree_is_stem, ten_cyls_bo_and_len,
-                                   ten_cyls_bo_one, ten_cyls_cyls,
-                                   ten_cyls_dbh, ten_cyls_edges,
-                                   ten_cyls_flows, ten_cyls_id_one,
-                                   ten_cyls_is_stem,
-                                   drip_adj_flows_rust)
-
+from test.expected_results import (drip_adj_flows, drip_adj_flows_rust,
+                                   drip_adj_stem_map, drip_mid_flows,
+                                   drip_mid_stem_map, drip_on_trunk_flows,
+                                   drip_on_trunk_stem_map, ez_projection_cyls,
+                                   ez_projection_xy, ez_projection_xz,
+                                   ez_projection_yz, happy_path_cyls,
+                                   happy_path_dbh, happy_path_edges,
+                                   happy_path_flows, happy_path_is_stem,
+                                   small_tree_dbh, small_tree_edges,
+                                   small_tree_flows, small_tree_is_stem,
+                                   ten_cyls_bo_and_len, ten_cyls_bo_one,
+                                   ten_cyls_cyls, ten_cyls_dbh, ten_cyls_edges,
+                                   ten_cyls_id_one)
 from test.expected_results_shapes import (small_tree_overlap,
                                           small_tree_wateshed_poly)
 from test.utils import within_range
 
-from src.canhydro.utils import lam_filter
-from src.canhydro.DataClasses import Flow
-from src.canhydro.CylinderCollection import CylinderCollection, pickle_collection, unpickle_collection
+from src.canhydro.CylinderCollection import (CylinderCollection,
+                                             pickle_collection,
+                                             unpickle_collection)
+
+from canopyhydro.utils import lam_filter
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
-    DIR = config["directories"]['root_dir']
-
-
-with open("src/canhydro/user_def_config.toml") as f:
-    config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
-    DIR = config["directories"]['root_dir']
+    test_input_dir = config["directories"]["test_input_dir"]
+    DIR = config["directories"]["root_dir"]
 
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
-    DIR = config["directories"]['root_dir']
+    test_input_dir = config["directories"]["test_input_dir"]
+    DIR = config["directories"]["root_dir"]
 
 
 with open("src/canhydro/user_def_config.toml") as f:
     config = toml.load(f)
-    test_input_dir = config["directories"]['test_input_dir']
-    DIR = config["directories"]['root_dir']
+    test_input_dir = config["directories"]["test_input_dir"]
+    DIR = config["directories"]["root_dir"]
+
+
+with open("src/canhydro/user_def_config.toml") as f:
+    config = toml.load(f)
+    test_input_dir = config["directories"]["test_input_dir"]
+    DIR = config["directories"]["root_dir"]
 
 create_cylinders_cases = [
     # (file, expected_cylinders )
@@ -149,26 +146,11 @@ find_flows_cases_rust = [
 pickle_cases = [
     # (file, expected_stem_map, expected_flows )
     # pytest.param("1_TenCyls.csv", ten_cyls_is_stem, ten_cyls_flows, id="Ten Cyls"),
-    pytest.param(
-        "5_SmallTree.csv", 
-        id="Small Tree"
-    ),
-    pytest.param(
-        "7_DripPathAdjToTrunk.csv",
-        id="Drip Adjacent Trunk"
-    ),
-    pytest.param(
-        "8_DripPathMidBranch.csv",
-        id="Drip Mid Branch"
-    ),
-    pytest.param(
-        "9_DripOnTrunk.csv",
-        id="Drip On Trunk"
-    ),
-    pytest.param(
-        "3_HappyPathWTrunk.csv",
-        id="Happy Path"
-    ),
+    pytest.param("5_SmallTree.csv", id="Small Tree"),
+    pytest.param("7_DripPathAdjToTrunk.csv", id="Drip Adjacent Trunk"),
+    pytest.param("8_DripPathMidBranch.csv", id="Drip Mid Branch"),
+    pytest.param("9_DripOnTrunk.csv", id="Drip On Trunk"),
+    pytest.param("3_HappyPathWTrunk.csv", id="Happy Path"),
 ]
 
 create_graph_cases = [
@@ -206,18 +188,17 @@ def test_create_cylinders(basic_collection, expected_cylinders):
     actual = basic_collection.get_collection_data()
     expected = expected_cylinders
     assert expected == actual
-    
-@pytest.mark.parametrize(
-    "file_name, expected_cylinders",
-    create_cylinders_cases
-)
+
+
+@pytest.mark.parametrize("file_name, expected_cylinders", create_cylinders_cases)
 def test_create_cylinders_from_csv(file_name, expected_cylinders):
     csv_collection = CylinderCollection()
     file_path = "/".join([str(test_input_dir), file_name])
-    file_obj = open(file_path,'r')
+    file_obj = open(file_path)
     csv_collection.from_csv(file_obj, DIR)
     actual = csv_collection.get_collection_data()
     assert actual == expected_cylinders
+
 
 @pytest.mark.parametrize(
     "flexible_collection, angles, projection_axis",
@@ -246,7 +227,8 @@ def test_lam_filter(basic_collection, expected_result, lam_func):
     actual_result = [cyl.cyl_id for cyl in cyls_returned]
     assert actual_result == expected_result
 
-def compare_flows(c1,c2):
+
+def compare_flows(c1, c2):
     f1 = c1.flows
     f2 = c2.flows
     # _, map1 = lam_filter(
@@ -255,19 +237,22 @@ def compare_flows(c1,c2):
     # _, map2 = lam_filter(
     #     c2.cylinders, lambda: is_stem, return_all=True
     # )
-    diffs= []
-    unique_drip_nodes= [[],[]]
-    
+    diffs = []
+    unique_drip_nodes = [[], []]
+
     for idf, flow in f1:
         drip_node = flow.drip_node_id
-        compare_to = [flow2 for flow2 in f2 if flow2.drip_node_id ==drip_node ]
+        compare_to = [flow2 for flow2 in f2 if flow2.drip_node_id == drip_node]
         if len(compare_to) == 0:
             diffs[idf] = flow - compare_to
         else:
             unique_drip_nodes[0].append(drip_node)
     f1_drip_nodes = [flow.drip_node_id for flow in f1]
-    unique_drip_nodes[1].extend([flow.drip_node_id for flow in f2 if flow.drip_node_id not in f1_drip_nodes])
+    unique_drip_nodes[1].extend(
+        [flow.drip_node_id for flow in f2 if flow.drip_node_id not in f1_drip_nodes]
+    )
     return diffs, unique_drip_nodes
+
 
 @pytest.mark.parametrize(
     "basic_collection, expected_stem_map, expected_flows",
