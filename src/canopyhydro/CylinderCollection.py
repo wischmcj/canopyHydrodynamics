@@ -5,6 +5,8 @@ import copy
 import logging
 import os
 import pickle
+from operator import methodcaller as call
+
 from io import TextIOWrapper
 from itertools import chain
 from typing import Callable
@@ -291,10 +293,15 @@ class CylinderCollection:
             self.file_name = file.name
         log.info(f"Processing {str(file)}")
         self.arr = np.genfromtxt(file, delimiter=",", skip_header=True)[0:, :-1]
+
         cylinders = []
-        for row in self.arr:
-            cylinders.append(create_cyl(row))
+        for idr, row in enumerate(self.arr):
+            cyl = create_cyl(row)
+            cylinders.append(cyl)
+            self.cyl_map[cyl.cyl_id] = idr
         self.cylinders = cylinders
+        # max_id = max(map(call('cyl_id'),cylinders))
+
         min_x = np.min([cyl.x[0] for cyl in cylinders])
         min_y = np.min([cyl.y[0] for cyl in cylinders])
         min_z = np.min([cyl.z[0] for cyl in cylinders])
@@ -319,7 +326,16 @@ class CylinderCollection:
 
         self.theta = np.nan
         log.info(f"{file.name} initialized with {self.no_cylinders} cylinders")
+    
+    def cyl_id_to_node(self, cyl_id):
+        if cyl_id == -1:
+            return self.no_cylinders
+        return self.cyl_map[cyl_id]
 
+    def update_cyl_by_id(self, cyl_id, attr, value):
+        idx = self.cyl_idx(cyl_id)
+        setattr(self.cylinders[idx], attr, value)
+        
     def project_cylinders(self, plane: str = "XY") -> None:
         """
         Projects cylinders onto the specified plane.
