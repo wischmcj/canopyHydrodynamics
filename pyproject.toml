@@ -34,23 +34,23 @@ dependencies = [
 ]
 [project.optional-dependencies]
 test = [
-    "jupytext==1.16.2"
-    ,"pytest==8.3.3"
-    ,"ruff==0.5.1"
-    ,"sphinx"
-    ,"sphinx_rtd_theme"
-    ,"myst-parser"
-    ,"pandoc"
-    ,"sphinx"
-    ,"sphinx-rtd-theme==3.0.1"
-    ,"sphinxcontrib-napoleon"
-    ,"pre-commit"
-    ,"nbsphinx"
-    ,"ipykernel"
+    # CI packages
+    "jupytext==1.16.2",
+    "pytest==8.3.3",
+    "ruff==0.5.1",
+    "pre-commit==4.0.1",
+    # Documents packages
+    "myst-parser==4.0.0",
+    "pandoc==2.4",
+    "sphinx==8.1.3",
+    "sphinx_rtd_theme==3.0.1",
+    "sphinxcontrib-napoleon==0.7.2",
+    "nbsphinx==0.9.5",
+    "ipykernel==6.25.9"
 ]
 
 [project.urls]
-Documentation = "https://canopyhydrodynamics.readthedocs.io/en/latest/"
+Documentation = "https://canopyhydrodynamics.readthedocs.io/main/"
 Source = "https://github.com/wischmcj/canopyHydrodynamics/"
 
 

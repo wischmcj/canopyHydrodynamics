@@ -1,16 +1,13 @@
-# CI packages 
+ipykernel==6.25.9
+# CI packages
 jupytext==1.16.2
+# Documents packages
+myst-parser==4.0.0
+nbsphinx==0.9.5
+pandoc==2.4
+pre-commit==4.0.1
 pytest==8.3.3
 ruff==0.5.1
-sphinx
-sphinx_rtd_theme
-pre-commit
-
-# Documents packages
-myst-parser
-pandoc
-sphinx
-sphinx-rtd-theme==3.0.1
-sphinxcontrib-napoleon
-nbsphinx
-ipykernel
+sphinx==8.1.3
+sphinx_rtd_theme==3.0.1
+sphinxcontrib-napoleon==0.7.2
