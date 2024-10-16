@@ -134,12 +134,12 @@ def test_given_a_point_return_a_point():
     """
     Given a point, the alphashape function should return the same point
     """
-    point_a, _ = geometry.concave_hull([(0.0, 0.0)], 0)
-    point_c, _ = geometry.concave_hull([(1.0, 0.0)], 0)
-    point_b, _ = geometry.concave_hull([(0.0, 1.0)], 0)
-    point_d, _ = geometry.concave_hull([(0.0, 0.0)], 99)
-    point_e, _ = geometry.concave_hull([(1.0, 0.0)], 99)
-    point_f, _ = geometry.concave_hull([(0.0, 1.0)], 99)
+    point_a, _, _ = geometry.concave_hull([(0.0, 0.0)], 0)
+    point_c, _, _ = geometry.concave_hull([(1.0, 0.0)], 0)
+    point_b, _, _ = geometry.concave_hull([(0.0, 1.0)], 0)
+    point_d, _, _ = geometry.concave_hull([(0.0, 0.0)], 99)
+    point_e, _, _ = geometry.concave_hull([(1.0, 0.0)], 99)
+    point_f, _, _ = geometry.concave_hull([(0.0, 1.0)], 99)
     assert Point([0.0, 0.0]) == point_a
     assert Point([1.0, 0.0]) == point_c
     assert Point([0.0, 1.0]) == point_b
@@ -153,7 +153,7 @@ def test_given_a_line_with_dupicate_points_return_a_point():
     Given a line with duplicate points, the alphashape function should
     return a point
     """
-    actual, _ = geometry.concave_hull([(0.0, 1.0), (0.0, 1.0)], 0)
+    actual, _, _ = geometry.concave_hull([(0.0, 1.0), (0.0, 1.0)], 0)
     assert Point([0.0, 1.0]) == actual
 
 
@@ -162,8 +162,8 @@ def test_given_a_line_with_unique_points_return_a_line():
     Given a line with unique points, the alphashape function should return
     the same line
     """
-    actual_horz, _ = geometry.concave_hull([(0.0, 0.0), (0.0, 1.0)], 0)
-    actual_diag, _ = geometry.concave_hull([(1.0, 0.0), (0.0, 1.0)], 0)
+    actual_horz, _, _ = geometry.concave_hull([(0.0, 0.0), (0.0, 1.0)], 0)
+    actual_diag, _, _ = geometry.concave_hull([(1.0, 0.0), (0.0, 1.0)], 0)
     assert LineString([(0.0, 0.0), (0.0, 1.0)]) == actual_horz
     assert LineString([(1.0, 0.0), (0.0, 1.0)]) == actual_diag
 
@@ -173,7 +173,7 @@ def test_given_a_triangle_with_duplicate_points_returns_a_point():
     Given a triangle with two unique points, the alphashape function should
     return a point
     """
-    dupe_tri, _ = geometry.concave_hull([(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)], 0)
+    dupe_tri, _, _ = geometry.concave_hull([(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)], 0)
     assert Point((0.0, 1.0)) == dupe_tri
 
 
@@ -182,7 +182,7 @@ def test_given_a_triangle_with_two_duplicate_points_returns_a_line():
     Given a line with two unique points, the alphashape function should
     return a line with the unique points
     """
-    tri_two_dupe, _ = geometry.concave_hull([(1.0, 0.0), (0.0, 1.0), (0.0, 1.0)], 0)
+    tri_two_dupe, _, _ = geometry.concave_hull([(1.0, 0.0), (0.0, 1.0), (0.0, 1.0)], 0)
     assert LineString([(1.0, 0.0), (0.0, 1.0)]) == tri_two_dupe
 
 
