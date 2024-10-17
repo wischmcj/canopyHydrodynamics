@@ -59,3 +59,5 @@ venv/
 # Local testing files
 snippets.ipynb
 local.py
+compare_utils.py
+changes_for_0.2.0

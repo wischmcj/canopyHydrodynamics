@@ -22,7 +22,7 @@
    CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points]('https://doi.org/10.1111/2041-210X.14378'). Detailed information regarding package use cases, the definitions of relevant terms and the methods available in the package can be found in our [documentation](https://canopyhydrodynamics.readthedocs.io/main/).
 
 ## Summary
-CanoPyHydro takes a bottom-up approach towards predicting precipitation redistribution; enriching Lidar-derived QSM data with additional structure via graph based hydrological models and traversing said graph to determine its connectivity. This can be interpreted as a series of simulations in which we ask the question: "After water lands on the branch represented by a given cylinder, where does it go?". In this way, canoPyHydro allows for the percise delineation of:
+CanoPyHydro takes a bottom-up approach towards predicting precipitation redistribution; enriching Lidar-derived QSM data with additional structure via graph based hydrological models and traversing said graph to determine its conneivity. This can be interpreted as a series of simulations in which we ask the question: "After water lands on the branch represented by a given cylinder, where does it go?". In this way, canoPyHydro allows for the percise delineation of:
 
 - Stemflow and throughfall generating areas of the canopy
 - The 'drip points' to which throughfall is directed - complete with their relative volumes

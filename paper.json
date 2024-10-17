@@ -1,0 +1,37 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "https://orcid.org/0009-0002-8490-0999",
+      "@type": "Person",
+      "email": "cjwischmeyer@gmail.com",
+      "name": "Collin",
+      "affiliation": "Independent"
+    },
+    {
+      "@id": "https://orcid.org/0000-0002-0692-7064",
+      "@type": "Person",
+      "email": "professor.vanstan@gmail.com",
+      "name": "John Van Stan",
+      "affiliation": "Cleveland State University"
+    },
+    {
+      "@id": "https://orcid.org/0000-0002-0692-7064",
+      "@type": "Person",
+      "email": "travis.swanson@gmail.com",
+      "name": "Travis Swanson",
+      "affiliation": "The Water Institute"
+    },
+  ],
+  "identifier": "https://doi.org/10.5281/zenodo.13943081",
+  "codeRepository": "https://github.com/wischmcj/canopyHydrodynamics/",
+  "datePublished": "2024-10-16",
+  "dateModified": "2024-10-17",
+  "dateCreated": "2024-10-17",
+  "description": "Leveraging lidar to predict percipitation partitioning.",
+  "keywords": "stem, stemflow, throughfall, hydrology, tls, lidar, qsm, simpleforest, graph, pruning, drainage, drip point, stem flow, precipitation",
+  "license": "MPL-2.0",
+  "title": "canoPyHydro",
+  "version": "v0.1.1"
+}
