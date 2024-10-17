@@ -19,14 +19,17 @@ class rain_drop(rx.visit.DFSVisitor):
     def discover_vertex(self, v, _):
         if self.source == -1:
             self.source = v
+
     def forward_or_cross_edge(self, edge):
         if edge[1] in self.divide_nodes:
             self.edges.append(edge[2])
             # self.cyl_to_drip_node[edge[2].cyl_id] = source
             edge[2].drip_node = self.source
+
     def tree_edge(self, edge):
         self.edges.append(edge[2])
         edge[2].drip_node = self.source
+
     def finish_vertex(self, v, t):
         if v == self.source:
             self.results[v] = self.edges
