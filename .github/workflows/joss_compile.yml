@@ -19,6 +19,7 @@ jobs:
             journal: joss
             # This should be the path to the paper within your repo.
             paper-path: paper/source/paper.md
+            bibtex-path: paper/source/paper.bib
         - name: Upload
           uses: actions/upload-artifact@v4
           with:
@@ -27,7 +28,7 @@ jobs:
             # PDF. Note, this should be the same directory as the input
             # paper.md
             path: paper/paper.pdf
-        - name: Commit PDF to repository
+        - name: Commit PDF to repositor
           uses: EndBug/add-and-commit@v9
           with:
             message: 'Automatically Commit Paper PDF Draft'
