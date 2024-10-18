@@ -25,7 +25,7 @@ affiliations:
   - name: The Water Institute of the Gulf, Baton Rogue LA, USA
     index: 2
 date: 31 August 2024
-bibliography: paper/source/paper.bib
+bibliography: paper.bib
 ---
 
 
