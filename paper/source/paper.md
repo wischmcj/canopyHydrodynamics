@@ -97,13 +97,8 @@ water flows in forested ecosystems and supporting more informed
 conservation and sustainability practices.
 
 # Functionality
+ [QSMs](#qsms)    -    [2D Projection](#projection)    -    [Flow Mapping](#floPw-identification) -    [Shade](#shading-fraction)    -    [Visualization](#visualization)             
 
-[QSMs](#qsms)
-[2D Projection](#projection)
-[Flow Identification](#flow-identification)
-[Flow Quantification](#flow-quantification)
-[Shade](#shade-fraction)
-[Visualization](#visualization)
 
 ## QSMs
 
@@ -126,7 +121,7 @@ such as stemflow and throughfall areas.
 The below code demonstrates two different ways that canoPyHydro can read
 in QSMs:
 
-``` {.{python}}
+``` {.python}
   # A CylinderCollection object can be initialized directly
   myCollection = CylinderCollection()
 
@@ -140,7 +135,7 @@ in QSMs:
   myForester = Forester("data/test/")
   print(f"Files available: {list(map(str,myForester.file_names))}")
 
-  ## ... Read in single QSMs
+  # ... Read in single QSMs
   myForester.qsm_to_collection("example_tree.csv")
   print(len(myForester.cylinder_collections))
 ```
@@ -171,7 +166,7 @@ for several key functions:
 ![Point Cloud and QSM](paper/source/imgs/canhydro_XZ_XY_Tale_of_2_Trees.png){height=400 width=400}: Here you can see an example of the XY and XZ projections of two trees.
 
 
-``` {.{python}}
+``` {.python}
   # Initializing a CylinderCollection object
   myCollection = CylinderCollection()
   myCollection.from_csv('example_tree.csv')
@@ -211,7 +206,7 @@ the canopy watershed.
 The below code demonstrates how the above is done in practice. Details
 regarding the various objects and functions used can be found in the canoPyHydro [documentation](https://canopyhydrodynamics.readthedocs.io/main/), with .ipynb and .py example files in the [docs](https://github.com/wischmcj/canopyHydrodynamics/tree/v0.1.1/docs/source/examples) section of canoPyHydro git repository.
 
-``` {.{python}}
+``` {.python}
   # Initializing a CylinderCollection object
   myCollection = CylinderColle ction()
   myCollection.from_csv('example_tree.csv')
@@ -261,7 +256,7 @@ as having:
 
 ## Visualization
 
-``` {.{python}}
+``` {.python}
     myCollection = CylinderCollection()
     myCollection.from_csv('example_tree.csv')
     myCollection.project_cylinders('XY')
@@ -273,10 +268,10 @@ as having:
     myCollection.draw('XZ', highlight_lambda=lambda:is_stem,
     save = True, file_name_ext="docs_ex")
 ```
-
+<!-- 
 ![Stem Flow Highlight XY](paper/source/imgs/example_tree_XY_docs_ex.png){height=400 width=400}
 
-![Stem Flow Highlight XZ](paper/source/imgs/example_tree_XZ_docs_ex.png){height=400 width=400}
+![Stem Flow Highlight XZ](paper/source/imgs/example_tree_XZ_docs_ex.png){height=400 width=400} -->
 
 Here we see an example of the visualization capabilities of canoPyHydro.
 The above images show the same tree from two different angles, with the
@@ -299,7 +294,7 @@ CanoPyHydro includes robust tools for calculating these shade patterns.
 
 In the calculation of canopy coverage area, we compute [alpha shapes](https://en.wikipedia.org/wiki/Alpha_shape) surrounding canopy boundary points [^1], rather than the traditional circular regions. This approach provides a more precise, often lower, estimate of canopy coverage compared to a circular approximation; an important consideration when assessing throughfall distribution in sparse branch networks.
 
-[^1]: A note on terminology: For a given set of points, the alpha shape with the lowest curvature coefficient thus, tightest fit, is referred to as a concave hull.
+[^1]: A note on terminology: For a given set of points, the alpha shape with the lowest curvature coefficient thus, tightest fit, is refered to as a concave hull.
 
 # Future Direction
 
@@ -398,9 +393,7 @@ conditions and contribute to water redistribution in forest ecosystems.
 
 ## Publications and Acknowledgements:
 
-CanoPyHydro was developed in the process of authoring [A LiDAR-driven
-pruning algorithm to delineate canopy drainage areas of stemflow and
-throughfall drip points.]('https://doi.org/10.1111/2041-210X.14378'),
+CanoPyHydro was developed in the process of authoring [A LiDAR-driven pruning algorithm to delineate canopy drainage areas of stemflow and throughfall drip points.](https://doi.org/10.1111/2041-210X.14378),
 which has been accepted for publication by the *British Ecological Society's* ['Methods in Ecology and Evolution'](https://www.britishecologicalsociety.org/publications/journals/methods-in-ecology-and-evolution/). Said paper, and the code within this repository, represents a collaboration between non-academic data professional [Collin Wischmeyer](https://www.linkedin.com/in/collin-wischmeyer-b55659a4), ecohydroloy scholar [Professor John Van Stan](https://expertise.csuohio.edu/csufacultyprofile/detail.cfm?FacultyID=j_vanstan) with notable contributions from industry geo-scientist [Travis Swanson](https://thewaterinstitute.org/our-team/travis-swanson). Likewise, this tool could not exist without the data collected and the ideas put forward by several graduate students working in Cleveland State University's ['Wet Plant Lab'](https://www.researchgate.net/lab/Wet-Plant-Lab-John-Toland-Van-Stan).
 
 This paper's titular project and related efforts were made possible, in
