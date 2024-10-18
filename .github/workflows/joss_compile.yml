@@ -1,0 +1,51 @@
+name: Draft Joss PDF
+
+on:
+    push:
+      paths:
+        - paper/**
+        - .github/workflows/joss_compile.yml
+
+# jobs:
+#   compile:
+#       name: Compile site assets
+#       runs-on: ubuntu-latest
+#       steps:
+#         - name: Check out the repo
+#           uses: actions/checkout@v2
+#         - name: Run the build process with Docker
+#           uses: addnab/docker-run-action@v3
+#           with:
+#               image: aschmelyun/cleaver:latest
+#               options: -v ${{ github.workspace }}:/var/www
+#               run: |
+#                   composer install
+#                   npm install
+#                   npm run production
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    name: Paper Draft
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        - name: Build draft PDF
+          uses: openjournals/openjournals-draft-action@master
+          with:
+            journal: joss
+            # This should be the path to the paper within your repo.
+            paper-path: paper/source/paper.md
+            add: ' --citeproc --pdf-engine=xelatex'
+        - name: Upload
+          uses: actions/upload-artifact@v4
+          with:
+            name: paper
+            # This is the output path where Pandoc will write the compiled
+            # PDF. Note, this should be the same directory as the input
+            # paper.md
+            path: paper/paper.pdf
+        - name: Commit PDF to repositor
+          uses: EndBug/add-and-commit@v9
+          with:
+            message: 'Automatically Commit Paper PDF Draft'
+            add: '- paper/paper.pdf'
