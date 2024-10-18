@@ -6,6 +6,22 @@ on:
         - paper/**
         - .github/workflows/joss_compile.yml
 
+# jobs:
+#   compile:
+#       name: Compile site assets
+#       runs-on: ubuntu-latest
+#       steps:
+#         - name: Check out the repo
+#           uses: actions/checkout@v2
+#         - name: Run the build process with Docker
+#           uses: addnab/docker-run-action@v3
+#           with:
+#               image: aschmelyun/cleaver:latest
+#               options: -v ${{ github.workspace }}:/var/www
+#               run: |
+#                   composer install
+#                   npm install
+#                   npm run production
 jobs:
   paper:
     runs-on: ubuntu-latest
@@ -19,7 +35,7 @@ jobs:
             journal: joss
             # This should be the path to the paper within your repo.
             paper-path: paper/source/paper.md
-            bibtex-path: paper/source/paper.bib
+            add: ' --citeproc --pdf-engine=xelatex'
         - name: Upload
           uses: actions/upload-artifact@v4
           with:
